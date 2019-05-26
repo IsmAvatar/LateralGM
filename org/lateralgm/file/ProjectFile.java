@@ -86,109 +86,42 @@ public class ProjectFile implements UpdateListener
 	//Game Settings Enums
 	public static final ColorDepth[] GS_DEPTHS = { ColorDepth.NO_CHANGE,ColorDepth.BIT_16,
 			ColorDepth.BIT_32 };
-	public static final Map<ColorDepth,Integer> GS_DEPTH_CODE;
+	public static final Map<ColorDepth,Integer> GS_DEPTH_CODE = enumCodeMap(GS_DEPTHS,ColorDepth.class);
 	public static final Resolution[] GS5_RESOLS = { Resolution.RES_640X480,Resolution.RES_800X600,
 			Resolution.RES_1024X768,Resolution.RES_1280X1024,Resolution.NO_CHANGE,Resolution.RES_320X240,
 			Resolution.RES_1600X1200 };
 	public static final Resolution[] GS_RESOLS = { Resolution.NO_CHANGE,Resolution.RES_320X240,
 			Resolution.RES_640X480,Resolution.RES_800X600,Resolution.RES_1024X768,
 			Resolution.RES_1280X1024,Resolution.RES_1600X1200 };
-	public static final Map<Resolution,Integer> GS_RESOL_CODE;
+	public static final Map<Resolution,Integer> GS_RESOL_CODE = enumCodeMap(GS_RESOLS,Resolution.class);
 	public static final Frequency[] GS_FREQS = { Frequency.NO_CHANGE,Frequency.FREQ_60,
 			Frequency.FREQ_70,Frequency.FREQ_85,Frequency.FREQ_100,Frequency.FREQ_120 };
-	public static final Map<Frequency,Integer> GS_FREQ_CODE;
+	public static final Map<Frequency,Integer> GS_FREQ_CODE = enumCodeMap(GS_FREQS,Frequency.class);
 	public static final Priority[] GS_PRIORITIES = { Priority.NORMAL,Priority.HIGH,Priority.HIGHEST };
-	public static final Map<Priority,Integer> GS_PRIORITY_CODE;
+	public static final Map<Priority,Integer> GS_PRIORITY_CODE = enumCodeMap(GS_PRIORITIES,Priority.class);
 	public static final ProgressBar[] GS_PROGBARS = { ProgressBar.NONE,ProgressBar.DEFAULT,
 			ProgressBar.CUSTOM };
-	public static final Map<ProgressBar,Integer> GS_PROGBAR_CODE;
+	public static final Map<ProgressBar,Integer> GS_PROGBAR_CODE = enumCodeMap(GS_PROGBARS,ProgressBar.class);
 	public static final IncludeFolder[] GS_INCFOLDERS = { IncludeFolder.MAIN,IncludeFolder.TEMP };
-	public static final Map<IncludeFolder,Integer> GS_INCFOLDER_CODE;
-	static
-		{
-		EnumMap<ColorDepth,Integer> m = new EnumMap<ColorDepth,Integer>(ColorDepth.class);
-		for (int i = 0; i < GS_DEPTHS.length; i++)
-			m.put(GS_DEPTHS[i],i);
-		GS_DEPTH_CODE = Collections.unmodifiableMap(m);
-
-		EnumMap<Resolution,Integer> m2 = new EnumMap<Resolution,Integer>(Resolution.class);
-		for (int i = 0; i < GS_RESOLS.length; i++)
-			m2.put(GS_RESOLS[i],i);
-		GS_RESOL_CODE = Collections.unmodifiableMap(m2);
-
-		EnumMap<Frequency,Integer> m3 = new EnumMap<Frequency,Integer>(Frequency.class);
-		for (int i = 0; i < GS_FREQS.length; i++)
-			m3.put(GS_FREQS[i],i);
-		GS_FREQ_CODE = Collections.unmodifiableMap(m3);
-
-		EnumMap<Priority,Integer> m4 = new EnumMap<Priority,Integer>(Priority.class);
-		for (int i = 0; i < GS_PRIORITIES.length; i++)
-			m4.put(GS_PRIORITIES[i],i);
-		GS_PRIORITY_CODE = Collections.unmodifiableMap(m4);
-
-		EnumMap<ProgressBar,Integer> m5 = new EnumMap<ProgressBar,Integer>(ProgressBar.class);
-		for (int i = 0; i < GS_PROGBARS.length; i++)
-			m5.put(GS_PROGBARS[i],i);
-		GS_PROGBAR_CODE = Collections.unmodifiableMap(m5);
-
-		EnumMap<IncludeFolder,Integer> m6 = new EnumMap<IncludeFolder,Integer>(IncludeFolder.class);
-		for (int i = 0; i < GS_INCFOLDERS.length; i++)
-			m6.put(GS_INCFOLDERS[i],i);
-		GS_INCFOLDER_CODE = Collections.unmodifiableMap(m6);
-		}
+	public static final Map<IncludeFolder,Integer> GS_INCFOLDER_CODE = enumCodeMap(GS_INCFOLDERS,IncludeFolder.class);
 
 	public static final Class<?>[] RESOURCE_KIND = { null,GmObject.class,Sprite.class,Sound.class,
 			Room.class,null,Background.class,Script.class,Path.class,Font.class,GameInformation.class,
 			GameSettings.class,Timeline.class,ExtensionPackages.class,Shader.class };
-	public static final Map<Class<?>,Integer> RESOURCE_CODE;
-	static
-		{
-		Map<Class<?>,Integer> m = new HashMap<Class<?>,Integer>();
-		for (int i = 0; i < RESOURCE_KIND.length; i++)
-			if (RESOURCE_KIND[i] != null) m.put(RESOURCE_KIND[i],i);
-		RESOURCE_CODE = Collections.unmodifiableMap(m);
-		}
+	public static final Map<Class<?>,Integer> RESOURCE_CODE = codeMap(RESOURCE_KIND, new HashMap<Class<?>,Integer>());
 	public static final PSound[] SOUND_FX_FLAGS = { PSound.CHORUS,PSound.ECHO,PSound.FLANGER,
 			PSound.GARGLE,PSound.REVERB };
 	public static final SoundKind[] SOUND_KIND = { SoundKind.NORMAL,SoundKind.BACKGROUND,
 			SoundKind.SPATIAL,SoundKind.MULTIMEDIA };
+	public static final Map<SoundKind,Integer> SOUND_KIND_CODE = enumCodeMap(SOUND_KIND,SoundKind.class);
 	public static final SoundType[] SOUND_TYPE = { SoundType.MONO, SoundType.STEREO,
 			SoundType.THREED };
-	public static final Map<SoundKind,Integer> SOUND_KIND_CODE;
-	static
-		{
-		EnumMap<SoundKind,Integer> m = new EnumMap<SoundKind,Integer>(SoundKind.class);
-		for (int i = 0; i < SOUND_KIND.length; i++)
-			m.put(SOUND_KIND[i],i);
-		SOUND_KIND_CODE = Collections.unmodifiableMap(m);
-		}
-	public static final Map<SoundType,Integer> SOUND_TYPE_CODE;
-	static
-		{
-		EnumMap<SoundType,Integer> m = new EnumMap<SoundType,Integer>(SoundType.class);
-		for (int i = 0; i < SOUND_TYPE.length; i++)
-			m.put(SOUND_TYPE[i],i);
-		SOUND_TYPE_CODE = Collections.unmodifiableMap(m);
-		}
+	public static final Map<SoundType,Integer> SOUND_TYPE_CODE = enumCodeMap(SOUND_TYPE,SoundType.class);
 	public static final PhysicsShape[] PHYSICS_SHAPE = { PhysicsShape.CIRCLE,PhysicsShape.BOX,
 			PhysicsShape.SHAPE };
-	public static final Map<PhysicsShape,Integer> SHAPE_CODE;
-	static
-		{
-		EnumMap<PhysicsShape,Integer> m = new EnumMap<PhysicsShape,Integer>(PhysicsShape.class);
-		for (int i = 0; i < PHYSICS_SHAPE.length; i++)
-			m.put(PHYSICS_SHAPE[i],i);
-		SHAPE_CODE = Collections.unmodifiableMap(m);
-		}
+	public static final Map<PhysicsShape,Integer> SHAPE_CODE = enumCodeMap(PHYSICS_SHAPE,PhysicsShape.class);
 	public static final BBMode[] SPRITE_BB_MODE = { BBMode.AUTO,BBMode.FULL,BBMode.MANUAL };
-	public static final Map<BBMode,Integer> SPRITE_BB_CODE;
-	static
-		{
-		EnumMap<BBMode,Integer> m = new EnumMap<BBMode,Integer>(BBMode.class);
-		for (int i = 0; i < SPRITE_BB_MODE.length; i++)
-			m.put(SPRITE_BB_MODE[i],i);
-		SPRITE_BB_CODE = Collections.unmodifiableMap(m);
-		}
+	public static final Map<BBMode,Integer> SPRITE_BB_CODE = enumCodeMap(SPRITE_BB_MODE,BBMode.class);
 	public static final MaskShape[] SPRITE_MASK_SHAPE = { MaskShape.PRECISE,MaskShape.RECTANGLE,
 			MaskShape.DISK,MaskShape.DIAMOND };
 	public static final Map<MaskShape,Integer> SPRITE_MASK_CODE;
@@ -202,13 +135,18 @@ public class ProjectFile implements UpdateListener
 		}
 	public static final ExportAction[] INCLUDE_EXPORT_ACTION = { ExportAction.DONT_EXPORT, ExportAction.TEMP_DIRECTORY,
 			ExportAction.SAME_FOLDER, ExportAction.CUSTOM_FOLDER };
-	public static final Map<ExportAction,Integer> INCLUDE_EXPORT_CODE;
-	static
+	public static final Map<ExportAction,Integer> INCLUDE_EXPORT_CODE = enumCodeMap(INCLUDE_EXPORT_ACTION,ExportAction.class);
+
+	private static final <T> Map<T,Integer> codeMap(T[] keys, Map<T,Integer> m)
 		{
-		EnumMap<ExportAction,Integer> m = new EnumMap<ExportAction,Integer>(ExportAction.class);
-		for (int i = 0; i < INCLUDE_EXPORT_ACTION.length; i++)
-			m.put(INCLUDE_EXPORT_ACTION[i],i);
-		INCLUDE_EXPORT_CODE = Collections.unmodifiableMap(m);
+		for (int i = 0; i < keys.length; i++)
+			if (keys[i] != null) m.put(keys[i],i);
+		return Collections.unmodifiableMap(m);
+		}
+
+	private static final <T extends Enum<T>> Map<T,Integer> enumCodeMap(T[] keys, Class<T> enumClass)
+		{
+		return codeMap(keys, new EnumMap<T,Integer>(enumClass));
 		}
 
 	public String getPath()
