@@ -934,7 +934,7 @@ public class PreferencesFrame extends JDialog implements ActionListener
 
 		private JButton makeEditorBrowseButton(final JTextField textField)
 			{
-			JButton button = new JButton(Messages.getString("PreferencesFrame.BROWSE"));
+			JButton button = new JButton(Messages.getString("PreferencesFrame.BROWSE")); //$NON-NLS-1$
 			button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e)
@@ -945,11 +945,11 @@ public class PreferencesFrame extends JDialog implements ActionListener
 				if (fc.showOpenDialog(PreferencesFrame.instance) == JFileChooser.APPROVE_OPTION) {
 					File file = fc.getSelectedFile();
 					if (file != null) {
-						String commandText = '\"' + file.getAbsolutePath() + "\" %s";
-						if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+						String commandText = '\"' + file.getAbsolutePath() + "\" %s"; //$NON-NLS-1$
+						if (System.getProperty("os.name").equalsIgnoreCase("windows")) { //$NON-NLS-1$ //$NON-NLS-2$
 							// NOTE: Running this through the Windows Command Interpreter enables the use of *.lnk
 							// for external editors by letting the OS resolve the shortcut. - Robert
-							textField.setText("cmd /c " + commandText);
+							textField.setText("cmd /c " + commandText); //$NON-NLS-1$
 						} else {
 							textField.setText(commandText);
 						}
@@ -1057,8 +1057,7 @@ public class PreferencesFrame extends JDialog implements ActionListener
 			 * NOTE: Default UID generated, change if necessary.
 			 */
 			private static final long serialVersionUID = 5270374014574194314L;
-			private Map<Class<? extends Resource<?,?>>,JTextField> prefixMap =
-					new HashMap<Class<? extends Resource<?,?>>,JTextField>();
+			private Map<Class<? extends Resource<?,?>>,JTextField> prefixMap = new HashMap<>();
 
 			public PrefixList()
 				{
@@ -1073,9 +1072,7 @@ public class PreferencesFrame extends JDialog implements ActionListener
 					for (Entry<Class<? extends Resource<?,?>>,String> ent : Resource.kindNames.entrySet())
 						{
 						if (!InstantiableResource.class.isAssignableFrom(ent.getKey()))
-							{
 							continue;
-							}
 
 						JLabel label = new JLabel(Messages.format("PreferencesFrame.PREFIX_FORMAT",ent.getValue())); //$NON-NLS-1$
 
@@ -1099,16 +1096,21 @@ public class PreferencesFrame extends JDialog implements ActionListener
 					this.setLayout(gl);
 				}
 
-			public String getFormattedPrefixes()
+			public void load()
 				{
-					String ret = "";
+				for (Entry<Class<? extends Resource<?,?>>,JTextField> entry : prefixMap.entrySet())
+					entry.getValue().setText(Prefs.prefixes.get(entry.getKey()));
+				}
+
+			public String getSerializedPrefixes()
+				{
+					String ret = ""; //$NON-NLS-1$
 					for (Entry<String,Class<? extends Resource<?,?>>> ent : Resource.kindsByName3.entrySet())
 						{
 						if (!InstantiableResource.class.isAssignableFrom(ent.getValue()))
-							{
 							continue;
-							}
-						ret += ent.getKey() + ">" + prefixMap.get(ent.getValue()).getText() + "\t";
+
+						ret += ent.getKey() + ">" + prefixMap.get(ent.getValue()).getText() + "\t"; //$NON-NLS-1$ //$NON-NLS-2$
 						}
 					return ret;
 				}
@@ -1196,6 +1198,7 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		@Override
 		public void load()
 			{
+			prefixList.load();
 			backgroundExtension.setText(Prefs.externalBackgroundExtension);
 			spriteExtension.setText(Prefs.externalSpriteExtension);
 			scriptExtension.setText(Prefs.externalScriptExtension);
@@ -1204,7 +1207,7 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		@Override
 		public void save()
 			{
-			PrefsStore.setPrefixes(prefixList.getFormattedPrefixes());
+			PrefsStore.setPrefixes(prefixList.getSerializedPrefixes());
 			PrefsStore.setSpriteExt(spriteExtension.getText());
 			PrefsStore.setBackgroundExt(backgroundExtension.getText());
 			PrefsStore.setScriptExt(scriptExtension.getText());
