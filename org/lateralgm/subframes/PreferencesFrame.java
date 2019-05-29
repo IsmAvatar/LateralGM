@@ -123,7 +123,6 @@ public class PreferencesFrame extends JDialog implements ActionListener
 			DefaultMutableTreeNode node = new DefaultMutableTreeNode(group.name);
 			root.add(node);
 			cardPane.add(group.makePanel(), group.name);
-			group.load();
 			}
 
 		//TODO: Fix UI bugs in JoshEdit repo and then use the serialize feature to save them.
@@ -237,6 +236,16 @@ public class PreferencesFrame extends JDialog implements ActionListener
 			{
 			group.load();
 			}
+		}
+
+	@Override
+	public void setVisible(boolean visible)
+		{
+		if (visible)
+			for (PreferencesGroup group : groups)
+				group.load();
+
+		super.setVisible(visible);
 		}
 
 	private Timer blinkTimer;
