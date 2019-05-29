@@ -243,9 +243,8 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		{
 		if (visible)
 			for (PreferencesGroup group : groups)
-				{
 				group.load();
-				}
+
 		super.setVisible(visible);
 		}
 
