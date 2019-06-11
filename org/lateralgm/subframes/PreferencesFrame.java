@@ -342,7 +342,7 @@ public class PreferencesFrame extends JDialog implements ActionListener
 			{
 				JFileChooser fc = new JFileChooser();
 				fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-				fc.showOpenDialog(PreferencesFrame.instance);
+				if (fc.showOpenDialog(PreferencesFrame.instance) != JFileChooser.APPROVE_OPTION) return;
 				File file = fc.getSelectedFile();
 				if (file != null) {
 					textField.setText(file.toURI().toString());
@@ -951,17 +951,16 @@ public class PreferencesFrame extends JDialog implements ActionListener
 				JFileChooser fc = new JFileChooser();
 				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				fc.setMultiSelectionEnabled(false);
-				if (fc.showOpenDialog(PreferencesFrame.instance) == JFileChooser.APPROVE_OPTION) {
-					File file = fc.getSelectedFile();
-					if (file != null) {
-						String commandText = '\"' + file.getAbsolutePath() + "\" %s"; //$NON-NLS-1$
-						if (System.getProperty("os.name").equalsIgnoreCase("windows")) { //$NON-NLS-1$ //$NON-NLS-2$
-							// NOTE: Running this through the Windows Command Interpreter enables the use of *.lnk
-							// for external editors by letting the OS resolve the shortcut. - Robert
-							textField.setText("cmd /c " + commandText); //$NON-NLS-1$
-						} else {
-							textField.setText(commandText);
-						}
+				if (fc.showOpenDialog(PreferencesFrame.instance) != JFileChooser.APPROVE_OPTION) return;
+				File file = fc.getSelectedFile();
+				if (file != null) {
+					String commandText = '\"' + file.getAbsolutePath() + "\" %s"; //$NON-NLS-1$
+					if (System.getProperty("os.name").equalsIgnoreCase("windows")) { //$NON-NLS-1$ //$NON-NLS-2$
+						// NOTE: Running this through the Windows Command Interpreter enables the use of *.lnk
+						// for external editors by letting the OS resolve the shortcut. - Robert
+						textField.setText("cmd /c " + commandText); //$NON-NLS-1$
+					} else {
+						textField.setText(commandText);
 					}
 				}
 			}
