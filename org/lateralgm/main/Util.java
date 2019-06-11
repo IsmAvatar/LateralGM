@@ -480,10 +480,9 @@ public final class Util
 
 	public static String fileNameWithoutExtension(String fileName)
 		{
-		if (fileName.indexOf('.') > 0)
-			{
-			return fileName.substring(0,fileName.indexOf('.'));
-			}
+		int indexOf = fileName.indexOf('.');
+		if (indexOf > 0)
+			return fileName.substring(0,indexOf);
 		return fileName;
 		}
 
