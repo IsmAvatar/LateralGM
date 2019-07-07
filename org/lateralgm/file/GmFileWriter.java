@@ -680,7 +680,10 @@ public final class GmFileWriter
 				out.write4(rm.properties,PRoom.SPEED);
 				out.writeBool(rm.properties,PRoom.PERSISTENT);
 				out.write4(Util.getGmColor((Color) rm.get(PRoom.BACKGROUND_COLOR)));
-				out.writeBool(rm.properties,PRoom.DRAW_BACKGROUND_COLOR);
+				//NOTE: Mike Dailly probably did this, see GMK reader comment.
+				int viewBackgroundClear = rm.get(PRoom.DRAW_BACKGROUND_COLOR)?1:0;
+				if (!(boolean)rm.get(PRoom.VIEWS_CLEAR)) viewBackgroundClear |= 0b10;
+				out.write4(viewBackgroundClear);
 				out.writeStr(rm.properties,PRoom.CREATION_CODE);
 				out.write4(rm.backgroundDefs.size());
 				for (BackgroundDef back : rm.backgroundDefs)
