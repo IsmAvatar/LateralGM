@@ -15,6 +15,8 @@ import java.util.Locale;
 
 import javax.swing.filechooser.FileFilter;
 
+import org.lateralgm.main.Util;
+
 public class CustomFileFilter extends FileFilter implements FilenameFilter
 	{
 	private ArrayList<String> ext = new ArrayList<String>();
@@ -36,7 +38,7 @@ public class CustomFileFilter extends FileFilter implements FilenameFilter
 		{
 		this.desc = desc;
 		for (String element : ext)
-			this.ext.add(element);
+			if (element != null) this.ext.add(element);
 		}
 
 	public boolean accept(File f)
@@ -50,7 +52,7 @@ public class CustomFileFilter extends FileFilter implements FilenameFilter
 		if (ext.size() == 0) return true;
 		//if (f.isDirectory()) return true;
 		for (String e : ext)
-			if (name.endsWith(e))
+			if (Util.stringEndsWith(name,e))
 				return true;
 		return false;
 		}
