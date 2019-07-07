@@ -1255,4 +1255,11 @@ public final class Util
 					JOptionPane.ERROR_MESSAGE);
 			}
 		}
+
+	// Guaranteed contract to not throw an NPE and return false if str or suffix is null.
+	public static boolean stringEndsWith(String str, String suffix)
+		{
+		if (suffix == null || str == null) return false;
+		return str.endsWith(suffix);
+		}
 	}
