@@ -1027,9 +1027,9 @@ public final class GmFileReader
 			rm.put(PRoom.SPEED,in.read4());
 			rm.put(PRoom.PERSISTENT,in.readBool());
 			rm.put(PRoom.BACKGROUND_COLOR,Util.convertGmColor(in.read4()));
+			//NOTE: Mike Dailly must have done this lol, how does he not know what is conventionally true?
 			int backgroundViewClear = in.read4();
 			rm.put(PRoom.DRAW_BACKGROUND_COLOR,(backgroundViewClear & 1) != 0);
-			// NOTE: Mike Dailly must have done this lol, how does he not know what is conventionally true?
 			rm.put(PRoom.VIEWS_CLEAR,(backgroundViewClear & 0b10) == 0);
 			rm.put(PRoom.CREATION_CODE,in.readStr());
 			int nobackgrounds = in.read4();
