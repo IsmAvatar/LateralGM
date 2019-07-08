@@ -680,7 +680,7 @@ public final class GmFileWriter
 				out.write4(rm.properties,PRoom.SPEED);
 				out.writeBool(rm.properties,PRoom.PERSISTENT);
 				out.write4(Util.getGmColor((Color) rm.get(PRoom.BACKGROUND_COLOR)));
-				//NOTE: Mike Dailly probably did this, see GMK reader comment.
+				//NOTE: GM8.1 is inconsistent with the views clear option being negated, see GMK reader comment.
 				int viewBackgroundClear = rm.get(PRoom.DRAW_BACKGROUND_COLOR)?1:0;
 				if (f.format.version >= 810 && !(boolean)rm.get(PRoom.VIEWS_CLEAR)) viewBackgroundClear |= 0b10;
 				out.write4(viewBackgroundClear);
