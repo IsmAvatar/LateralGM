@@ -135,7 +135,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.84"; //$NON-NLS-1$
+	public static final String version = "1.8.85"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -396,29 +396,14 @@ public final class LGM
 			}
 		}
 
-	// this function is for updating the look and feel after its
-	// already been initialized and all controls created
+	// this function is for updating the application UI of
+	// all windows after controls have already been created
 	public static void updateLookAndFeel()
 		{
-		if (!themechanged)
-			{
-			return;
-			}
-		SwingUtilities.updateComponentTreeUI(tree);
-		if (eventDialog == null)
-			{
-			SwingUtilities.updateComponentTreeUI(eventSelect);
-			eventSelect.updateUI();
-			}
-		else
-			{
-			SwingUtilities.updateComponentTreeUI(eventDialog);
-			}
+		if (!themechanged) return;
 		Window windows[] = Window.getWindows();
 		for (Window window : windows)
-			{
 			SwingUtilities.updateComponentTreeUI(window);
-			}
 		}
 
 	public static ConstantsFrame getConstantsFrame()
