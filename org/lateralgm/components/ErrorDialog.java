@@ -72,7 +72,8 @@ public class ErrorDialog extends JDialog implements ActionListener
 		ret += "\nJava Vendor: " + System.getProperty("java.vendor");
 		ret += "\nVersion: " + System.getProperty("java.version");
 
-		ret += "\n\nAvailable processors (cores): " + Runtime.getRuntime().availableProcessors();
+		ret += "\n\nCurrent Thread: " + Thread.currentThread().getName();
+		ret += "\nAvailable processors (cores): " + Runtime.getRuntime().availableProcessors();
 		ret += "\nFree memory (bytes): " + Runtime.getRuntime().freeMemory();
 		long maxMemory = Runtime.getRuntime().maxMemory();
 		ret += "\nMaximum memory (bytes): " + (maxMemory == Long.MAX_VALUE ? "no limit" : maxMemory);

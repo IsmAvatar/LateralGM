@@ -1550,13 +1550,14 @@ public final class LGM
 	// to submit a bug report.
 	public static void showDefaultExceptionHandler(Throwable e)
 		{
-		System.err.println(Thread.currentThread().getName() + ": ");
+		String agnostics = ErrorDialog.generateAgnosticInformation();
+		System.out.println(agnostics);
 		e.printStackTrace();
 		ErrorDialog errorDialog = ErrorDialog.getInstance();
 		if (!errorDialog.isVisible())
 			{
 			errorDialog.setVisible(true);
-			errorDialog.setDebugInfo(ErrorDialog.generateAgnosticInformation());
+			errorDialog.setDebugInfo(agnostics);
 			}
 		errorDialog.appendDebugInfo(e);
 		}
