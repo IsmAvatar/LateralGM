@@ -61,6 +61,8 @@ public class ICOFile implements Comparable<ICOFile>
 	private int type;
 	/** Number of contained images. */
 	private int imageCount;
+	/** The <code>AbstractDecoder</code> provided or derived from the constructor. */
+	private StreamDecoder decoder;
 	private final List<BitmapDescriptor> descriptors = new ArrayList<BitmapDescriptor>();
 
 	/**
@@ -73,12 +75,13 @@ public class ICOFile implements Comparable<ICOFile>
 	public ICOFile(final String pFileName) throws IOException
 		{
 		this(pFileName,new StreamDecoder(pFileName));
+		decoder.close();
 		}
 
 	/**
 	 * Create ICO file from an input stream.
 	 *
-	 * @param pInput (automatically closed)
+	 * @param pInput (left unclosed)
 	 * @throws IOException
 	 */
 	public ICOFile(final InputStream pInput) throws IOException
@@ -89,23 +92,25 @@ public class ICOFile implements Comparable<ICOFile>
 	/**
 	 * Create ICO file from an URL.
 	 *
-	 * @param pURL
+	 * @param pURL (derived decoder automatically closed)
 	 * @throws IOException
 	 */
 	public ICOFile(final URL pURL) throws IOException
 		{
 		this(pURL.toString(),new StreamDecoder(pURL.openStream()));
+		decoder.close();
 		}
 
 	/**
 	 * Create ICOFile from a byte array.
 	 *
-	 * @param pBuffer
+	 * @param pBuffer (derived decoder automatically closed)
 	 * @throws IOException
 	 */
 	public ICOFile(final byte[] pBuffer) throws IOException
 		{
 		this("[from buffer]",new StreamDecoder(new ByteArrayInputStream(pBuffer)));
+		decoder.close();
 		}
 
 	/**
@@ -120,6 +125,7 @@ public class ICOFile implements Comparable<ICOFile>
 	public ICOFile(final String pFileName, final StreamDecoder pFileDecoder) throws IOException
 		{
 		fileName = pFileName;
+		decoder = pFileDecoder;
 		read(pFileDecoder);
 		}
 
