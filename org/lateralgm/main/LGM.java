@@ -135,7 +135,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.85"; //$NON-NLS-1$
+	public static final String version = "1.8.86"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -1550,13 +1550,14 @@ public final class LGM
 	// to submit a bug report.
 	public static void showDefaultExceptionHandler(Throwable e)
 		{
-		System.err.println(Thread.currentThread().getName() + ": ");
+		String agnostics = ErrorDialog.generateAgnosticInformation();
+		System.out.println(agnostics);
 		e.printStackTrace();
 		ErrorDialog errorDialog = ErrorDialog.getInstance();
 		if (!errorDialog.isVisible())
 			{
 			errorDialog.setVisible(true);
-			errorDialog.setDebugInfo(ErrorDialog.generateAgnosticInformation());
+			errorDialog.setDebugInfo(agnostics);
 			}
 		errorDialog.appendDebugInfo(e);
 		}
