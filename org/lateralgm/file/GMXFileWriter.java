@@ -278,45 +278,27 @@ public final class GMXFileWriter
 
 	private static void transformDocumentWrapped(ProjectFile f, Document document, File file) throws GmFormatException
 		{
-		FileOutputStream fos = null;
+		file.getParentFile().mkdirs();
 		try
 			{
-			file.getParentFile().mkdirs();
-			fos = new FileOutputStream(file);
-			transformer.transform(new DOMSource(document),new StreamResult(fos));
+			transformer.transform(new DOMSource(document),new StreamResult(file));
 			}
 		catch (TransformerException e)
 			{
 			throw new GmFormatException(f, "failed to transform: " + file.getAbsolutePath(), e);
 			}
-		catch (FileNotFoundException e)
-			{
-			throw new GmFormatException(f, "file not found: " + file.getAbsolutePath(), e);
-			}
-		finally
-			{
-			if (fos != null)
-				try
-					{
-					fos.close();
-					}
-				catch (IOException e)
-					{
-					throw new GmFormatException(f, "failed to close: " + file.getAbsolutePath(), e);
-					}
-			}
 		}
 
 	private static void transformDocumentUnchecked(ProjectFile f, Document document, File file)
 		{
-			try
-				{
-				transformDocumentWrapped(f, document, file);
-				}
-			catch (GmFormatException e)
-				{
-				LGM.showDefaultExceptionHandler(e);
-				}
+		try
+			{
+			transformDocumentWrapped(f, document, file);
+			}
+		catch (GmFormatException e)
+			{
+			LGM.showDefaultExceptionHandler(e);
+			}
 		}
 
 	// This is used to obtain the primary node for a resource type.
