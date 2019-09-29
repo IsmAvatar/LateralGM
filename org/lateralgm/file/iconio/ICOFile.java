@@ -74,8 +74,10 @@ public class ICOFile implements Comparable<ICOFile>
 	 */
 	public ICOFile(final String pFileName) throws IOException
 		{
-		this(pFileName,new StreamDecoder(pFileName));
-		decoder.close();
+		try (StreamDecoder sd = new StreamDecoder(pFileName))
+			{
+			init(pFileName,sd);
+			}
 		}
 
 	/**
@@ -86,7 +88,7 @@ public class ICOFile implements Comparable<ICOFile>
 	 */
 	public ICOFile(final InputStream pInput) throws IOException
 		{
-		this("[from stream]",new StreamDecoder(pInput));
+		init("[from stream]",new StreamDecoder(pInput));
 		}
 
 	/**
@@ -97,8 +99,10 @@ public class ICOFile implements Comparable<ICOFile>
 	 */
 	public ICOFile(final URL pURL) throws IOException
 		{
-		this(pURL.toString(),new StreamDecoder(pURL.openStream()));
-		decoder.close();
+		try (StreamDecoder sd = new StreamDecoder(pURL.openStream()))
+			{
+			init(pURL.toString(),sd);
+			}
 		}
 
 	/**
@@ -109,8 +113,10 @@ public class ICOFile implements Comparable<ICOFile>
 	 */
 	public ICOFile(final byte[] pBuffer) throws IOException
 		{
-		this("[from buffer]",new StreamDecoder(new ByteArrayInputStream(pBuffer)));
-		decoder.close();
+		try (StreamDecoder sd = new StreamDecoder(new ByteArrayInputStream(pBuffer)))
+			{
+			init("[from buffer]",sd);
+			}
 		}
 
 	/**
@@ -122,7 +128,7 @@ public class ICOFile implements Comparable<ICOFile>
 	 * @throws IOException If anything goes wrong with reading from the decoder.
 	 */
 	// @PMD:REVIEWED:CallSuperInConstructor: by Chris on 06.03.06 10:32
-	public ICOFile(final String pFileName, final StreamDecoder pFileDecoder) throws IOException
+	private void init(final String pFileName, final StreamDecoder pFileDecoder) throws IOException
 		{
 		fileName = pFileName;
 		decoder = pFileDecoder;
