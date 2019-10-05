@@ -409,10 +409,11 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		else if (promptOk)
 			{
-			JOptionPane.showMessageDialog(LGM.frame,
+			if (JOptionPane.showConfirmDialog(LGM.frame,
 					Messages.getString("Listener.CHECKIDS_OK"), //$NON-NLS-1$
 					Messages.getString("Listener.CHECKIDS_OK_TITLE"), //$NON-NLS-1$
-					JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
+				LGM.currentFile.defragIds();
 			}
 		}
 
