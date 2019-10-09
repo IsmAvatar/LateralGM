@@ -20,7 +20,7 @@ Contributors
  and finding ways to break things that I thought couldn't be broken
  and finding SVN, which helped teamwork and version control.
 * Josh Ventura <JoshV10@gmail.com> provided some icons and algorithm assistance.
-* Robert B. Colton <robertbcolton@hotmail.com> GMX format, Shaders, major bug fixes, and preferences panel.
+* Robert B. Colton added GMX format, Shaders, major bug fixes, and preferences panel.
 
 Special Thanks
 -------
