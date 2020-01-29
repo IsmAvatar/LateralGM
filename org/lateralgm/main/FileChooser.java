@@ -610,6 +610,22 @@ public class FileChooser
 		open(uri,reader);
 		}
 
+	/** 
+	 /* This catches exceptions in reading without freezing the program with the
+	 /* progress bar or destroying the tree.
+	 */
+	private static void openExceptionHelper(Exception e)
+		{
+		// make sure the user gets all the main resource nodes
+		LGM.populateTree();
+		// ensure every resource got a node
+		rebuildTree();
+		// finally, show the exception to the user
+		LGM.showDefaultExceptionHandler(e);
+		ErrorDialog.getInstance().setMessage(Messages.getString("FileChooser.ERROR_LOAD")); //$NON-NLS-1$
+		ErrorDialog.getInstance().setTitle(Messages.getString("FileChooser.ERROR_LOAD_TITLE")); //$NON-NLS-1$
+		}
+	
 	/**
 	 * Both open() methods are not headless. For a headless open:
 	 * <code>findReader(uri).read(uriStream,uri,root)</code>
@@ -633,21 +649,11 @@ public class FileChooser
 					catch (ProjectFormatException ex)
 						{
 						LGM.currentFile = ex.file;
-						LGM.populateTree();
-						rebuildTree();
-						LGM.showDefaultExceptionHandler(ex);
-						ErrorDialog.getInstance().setMessage(Messages.getString("FileChooser.ERROR_LOAD")); //$NON-NLS-1$
-						ErrorDialog.getInstance().setTitle(Messages.getString("FileChooser.ERROR_LOAD_TITLE")); //$NON-NLS-1$
+						openExceptionHelper(ex);
 						}
 					catch (Exception e)
 						{
-						// TODO: This catches exceptions in reading without freezing the program with the
-						// progress bar or destroying the tree.
-						LGM.populateTree();
-						rebuildTree();
-						LGM.showDefaultExceptionHandler(e);
-						ErrorDialog.getInstance().setMessage(Messages.getString("FileChooser.ERROR_LOAD")); //$NON-NLS-1$
-						ErrorDialog.getInstance().setTitle(Messages.getString("FileChooser.ERROR_LOAD_TITLE")); //$NON-NLS-1$
+						openExceptionHelper(e);
 						}
 					setTitleURI(uri);
 					PrefsStore.addRecentFile(uri.toString());
@@ -681,7 +687,10 @@ public class FileChooser
 			if (rn.status != ResNode.STATUS_PRIMARY || !rn.isInstantiable()) continue;
 			ResourceList<?> rl = (ResourceList<?>) LGM.currentFile.resMap.get(rn.kind);
 			for (Resource<?,?> r : rl)
+				{
+				if (r.getNode() != null) continue;
 				rn.add(new ResNode(r.getName(),ResNode.STATUS_SECONDARY,r.getClass(),r.reference));
+				}
 			}
 		}
 
