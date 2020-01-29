@@ -678,11 +678,22 @@ public class FileChooser
 			TreeNode n = LGM.root.getChildAt(i);
 			if (!(n instanceof ResNode)) continue;
 			ResNode rn = (ResNode) n;
-			rn.removeAllChildren();
 			if (rn.status != ResNode.STATUS_PRIMARY || !rn.isInstantiable()) continue;
 			ResourceList<?> rl = (ResourceList<?>) LGM.currentFile.resMap.get(rn.kind);
 			for (Resource<?,?> r : rl)
-				rn.add(new ResNode(r.getName(),ResNode.STATUS_SECONDARY,r.getClass(),r.reference));
+				{
+				ResNode p = null;
+				if (r.getNode() != null)
+					{
+					TreeNode ptn = r.getNode().getParent();
+					if (!(ptn instanceof ResNode)) continue;
+					p = (ResNode) ptn;
+					r.getNode().removeFromParent();
+					}
+				if (p == null)
+					p = rn;
+				p.add(new ResNode(r.getName(),ResNode.STATUS_SECONDARY,r.getClass(),r.reference));
+				}
 			}
 		}
 
