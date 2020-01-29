@@ -688,17 +688,8 @@ public class FileChooser
 			ResourceList<?> rl = (ResourceList<?>) LGM.currentFile.resMap.get(rn.kind);
 			for (Resource<?,?> r : rl)
 				{
-				ResNode p = null;
-				if (r.getNode() != null)
-					{
-					TreeNode ptn = r.getNode().getParent();
-					if (!(ptn instanceof ResNode)) continue;
-					p = (ResNode) ptn;
-					r.getNode().removeFromParent();
-					}
-				if (p == null)
-					p = rn;
-				p.add(new ResNode(r.getName(),ResNode.STATUS_SECONDARY,r.getClass(),r.reference));
+				if (r.getNode() != null) continue;
+				rn.add(new ResNode(r.getName(),ResNode.STATUS_SECONDARY,r.getClass(),r.reference));
 				}
 			}
 		}
