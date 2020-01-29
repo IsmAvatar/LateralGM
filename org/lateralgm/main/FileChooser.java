@@ -678,6 +678,7 @@ public class FileChooser
 			TreeNode n = LGM.root.getChildAt(i);
 			if (!(n instanceof ResNode)) continue;
 			ResNode rn = (ResNode) n;
+			rn.removeAllChildren();
 			if (rn.status != ResNode.STATUS_PRIMARY || !rn.isInstantiable()) continue;
 			ResourceList<?> rl = (ResourceList<?>) LGM.currentFile.resMap.get(rn.kind);
 			for (Resource<?,?> r : rl)
