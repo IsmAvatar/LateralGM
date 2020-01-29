@@ -610,6 +610,24 @@ public class FileChooser
 		open(uri,reader);
 		}
 
+	/** 
+	 /* This catches exceptions in reading without freezing the program with the
+	 /* progress bar or destroying the tree.
+	 */
+	private static void openExceptionHelper(Exception e, final URI uri)
+		{
+		// make sure the user gets all the main resource nodes
+		LGM.populateTree();
+		// if this is a GMK, we need to actually build a tree
+		// which albeit may still lack groups
+		if (projectReader.canRead(uri))
+			rebuildTree();
+		// finally, show the exception to the user
+		LGM.showDefaultExceptionHandler(e);
+		ErrorDialog.getInstance().setMessage(Messages.getString("FileChooser.ERROR_LOAD")); //$NON-NLS-1$
+		ErrorDialog.getInstance().setTitle(Messages.getString("FileChooser.ERROR_LOAD_TITLE")); //$NON-NLS-1$
+		}
+	
 	/**
 	 * Both open() methods are not headless. For a headless open:
 	 * <code>findReader(uri).read(uriStream,uri,root)</code>
@@ -633,21 +651,11 @@ public class FileChooser
 					catch (ProjectFormatException ex)
 						{
 						LGM.currentFile = ex.file;
-						LGM.populateTree();
-						rebuildTree();
-						LGM.showDefaultExceptionHandler(ex);
-						ErrorDialog.getInstance().setMessage(Messages.getString("FileChooser.ERROR_LOAD")); //$NON-NLS-1$
-						ErrorDialog.getInstance().setTitle(Messages.getString("FileChooser.ERROR_LOAD_TITLE")); //$NON-NLS-1$
+						openExceptionHelper(ex, uri);
 						}
 					catch (Exception e)
 						{
-						// TODO: This catches exceptions in reading without freezing the program with the
-						// progress bar or destroying the tree.
-						LGM.populateTree();
-						rebuildTree();
-						LGM.showDefaultExceptionHandler(e);
-						ErrorDialog.getInstance().setMessage(Messages.getString("FileChooser.ERROR_LOAD")); //$NON-NLS-1$
-						ErrorDialog.getInstance().setTitle(Messages.getString("FileChooser.ERROR_LOAD_TITLE")); //$NON-NLS-1$
+						openExceptionHelper(e, uri);
 						}
 					setTitleURI(uri);
 					PrefsStore.addRecentFile(uri.toString());
