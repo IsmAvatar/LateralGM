@@ -38,14 +38,13 @@ import java.util.List;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.ListCellRenderer;
 import javax.swing.GroupLayout.Alignment;
 
 import org.lateralgm.components.ImageEffects.EffectOptionListener;
@@ -201,15 +200,21 @@ public class EffectsFrame extends JFrame implements ActionListener, EffectOption
 		}
 
 		effectsCombo = new JComboBox<ImageEffect>(effects);
-		effectsCombo.setRenderer(new ListCellRenderer<ImageEffect>() {
+		effectsCombo.setRenderer(new DefaultListCellRenderer() {
+			/**
+			 * Default UID generated, change if necessary.
+			 */
+			private static final long serialVersionUID = -6761156840599766568L;
 
 			@Override
-			public Component getListCellRendererComponent(JList<? extends ImageEffect> list,
-					ImageEffect value, int index, boolean isSelected, boolean cellHasFocus)
+			public Component getListCellRendererComponent(JList<?> list,
+					Object value, int index, boolean isSelected, boolean cellHasFocus)
 				{
-					return new JLabel(value.getName());
+					Object val = value;
+					if (value instanceof ImageEffect)
+						val = ((ImageEffect)value).getName();
+					return super.getListCellRendererComponent(list,val,index,isSelected,cellHasFocus);
 				}
-
 		});
 		effectsCombo.addItemListener(new ItemListener() {
 
