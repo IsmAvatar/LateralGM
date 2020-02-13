@@ -43,11 +43,11 @@ public class AutoComboBox<T> extends JComboBox<T>
 	public AutoComboBox(T[] items)
 		{
 		super(items);
-		this.setEditable(true);
 		editor = (JTextComponent) getEditor().getEditorComponent();
 		// change the editor's document
 		document = new DocumentFilter();
 		editor.setDocument(document);
+		this.setEditable(true);
 
 		addActionListener(new ActionListener()
 			{

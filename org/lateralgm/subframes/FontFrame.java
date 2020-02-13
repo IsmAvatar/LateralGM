@@ -129,7 +129,6 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		JLabel lFont = new JLabel(Messages.getString("FontFrame.FONT")); //$NON-NLS-1$
 		fonts = new AutoComboBox<String>(
 				GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames());
-		//fonts.setEditable(true);
 		plf.make(fonts,PFont.FONT_NAME,null);
 
 		JLabel lSize = new JLabel(Messages.getString("FontFrame.SIZE")); //$NON-NLS-1$
