@@ -1192,13 +1192,13 @@ public class PreferencesFrame extends JDialog implements ActionListener
 
 			gl.setHorizontalGroup(
 			/**/gl.createSequentialGroup()
-			/*	*/.addComponent(extensionsPanel)
-			/*	*/.addComponent(prefixScroll));
+			/*	*/.addComponent(prefixScroll)
+			/*	*/.addComponent(extensionsPanel));
 
 			gl.setVerticalGroup(
 			/**/gl.createParallelGroup()
-			/*	*/.addComponent(extensionsPanel)
-			/*	*/.addComponent(prefixScroll));
+			/*	*/.addComponent(prefixScroll)
+			/*	*/.addComponent(extensionsPanel));
 
 			return p;
 			}
