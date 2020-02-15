@@ -60,6 +60,7 @@ import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 import org.lateralgm.util.PropertyMap.PropertyValidator;
 import org.lateralgm.util.RemovePieceInstance;
+import org.lateralgm.util.ModifyPieceInstance.Type;
 
 public class RoomEditor extends VisualPanel
 	{
@@ -404,7 +405,7 @@ public class RoomEditor extends VisualPanel
 		// If the piece was moved
 		if (objectFirstPosition != null)
 			// For the undo, record that the object was moved
-			edit = new ModifyPieceInstance(frame,cursor,objectFirstPosition,new Point(lastPosition));
+			edit = new ModifyPieceInstance(frame,cursor,Type.POSITION,objectFirstPosition,new Point(lastPosition));
 		else
 			// A new piece has been added
 			{
