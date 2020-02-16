@@ -405,7 +405,7 @@ public class RoomEditor extends VisualPanel
 		// If the piece was moved
 		if (objectFirstPosition != null)
 			// For the undo, record that the object was moved
-			edit = new ModifyPieceInstance(frame,cursor,Type.POSITION,objectFirstPosition,new Point(lastPosition));
+			edit = new ModifyPieceInstance(frame,cursor,Type.POSITION,objectFirstPosition,lastPosition);
 		else
 			// A new piece has been added
 			{
