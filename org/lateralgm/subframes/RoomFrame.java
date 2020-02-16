@@ -3281,6 +3281,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	// When a text field related to a piece property gains the focus
 	public void focusGained(FocusEvent event)
 		{
+		pieceOriginalName = null;
 		pieceOriginalPosition = null;
 		pieceOriginalScale = null;
 		pieceOriginalRotation = null;
