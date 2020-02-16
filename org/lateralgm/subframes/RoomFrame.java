@@ -3378,10 +3378,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				// Get the new name of the object
 				String objectNewName = new String(selectedPiece.getName());
 
-				// If the rotation of the object has been changed
+				// If the name of the object has been changed
 				if (objectNewName != pieceOriginalName)
 					{
-					// Record the effect of rotating an object for the undo
+					// Record the effect of renaming an object for the undo
 					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,Type.NAME,pieceOriginalName,
 							objectNewName);
 					// notify the listeners
