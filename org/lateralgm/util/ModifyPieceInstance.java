@@ -12,39 +12,33 @@
 
 package org.lateralgm.util;
 
-import java.awt.Color;
-import java.awt.Point;
-import java.awt.geom.Point2D;
-
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 import org.lateralgm.resources.Room.Piece;
 import org.lateralgm.resources.sub.Instance;
+import org.lateralgm.resources.sub.Instance.PInstance;
+import org.lateralgm.resources.sub.Tile;
+import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.subframes.RoomFrame;
 
 public class ModifyPieceInstance extends AbstractUndoableEdit
 	{
-	public enum Type
-		{
-		NAME, POSITION, SCALE, ROTATION, ALPHA, COLOR
-		};
-
 	private static final long serialVersionUID = 1L;
 
 	private final Piece piece;
 	private RoomFrame roomFrame;
-	private Type type;
 	
+	private Object key;
 	private Object oldVal = null;
 	private Object newVal = null;
 
-	public ModifyPieceInstance(RoomFrame roomFrame, Piece piece, Type type, Object oldVal, Object newVal)
+	public ModifyPieceInstance(RoomFrame roomFrame, Piece piece, Object key, Object oldVal, Object newVal)
 		{
 		this.roomFrame = roomFrame;
 		this.piece = piece;
-		this.type = type;
+		this.key = key;
 		this.oldVal = oldVal;
 		this.newVal = newVal;
 		}
@@ -68,30 +62,20 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 	public void undo() throws CannotUndoException
 		{
 		selectPiece();
-		switch (type)
-			{
-			case NAME: piece.setName((String) oldVal); break;
-			case POSITION: piece.setPosition((Point) oldVal); break;
-			case SCALE: piece.setScale((Point2D) oldVal); break;
-			case ROTATION: piece.setRotation((double) oldVal); break;
-			case ALPHA: piece.setAlpha((int) oldVal); break;
-			case COLOR: piece.setColor((Color) oldVal); break;
-			}
+		if (piece instanceof Instance)
+			((Instance)piece).properties.put((PInstance) key, oldVal);
+		else if (piece instanceof Tile)
+			((Tile)piece).properties.put((PTile) key, oldVal);
 		}
 
 	@Override
 	public void redo() throws CannotRedoException
 		{
 		selectPiece();
-		switch (type)
-			{
-			case NAME: piece.setName((String) newVal); break;
-			case POSITION: piece.setPosition((Point) newVal); break;
-			case SCALE: piece.setScale((Point2D) newVal); break;
-			case ROTATION: piece.setRotation((double) newVal); break;
-			case ALPHA: piece.setAlpha((int) newVal); break;
-			case COLOR: piece.setColor((Color) newVal); break;
-			}
+		if (piece instanceof Instance)
+			((Instance)piece).properties.put((PInstance) key, newVal);
+		else if (piece instanceof Tile)
+			((Tile)piece).properties.put((PTile) key, newVal);
 		}
 
 	@Override
@@ -105,5 +89,4 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 		{
 		return true;
 		}
-
 	}

@@ -60,7 +60,6 @@ import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 import org.lateralgm.util.PropertyMap.PropertyValidator;
 import org.lateralgm.util.RemovePieceInstance;
-import org.lateralgm.util.ModifyPieceInstance.Type;
 
 public class RoomEditor extends VisualPanel
 	{
@@ -400,22 +399,25 @@ public class RoomEditor extends VisualPanel
 		{
 		// Stores several actions in one compound action for the undo
 		CompoundEdit compoundEdit = new CompoundEdit();
-		UndoableEdit edit = null;
 
 		// If the piece was moved
 		if (objectFirstPosition != null)
+			{
 			// For the undo, record that the object was moved
-			edit = new ModifyPieceInstance(frame,cursor,Type.POSITION,objectFirstPosition,new Point(lastPosition));
+			Object xkey = (cursor instanceof Instance) ? PInstance.X : PTile.ROOM_X;
+			Object ykey = (cursor instanceof Instance) ? PInstance.Y : PTile.ROOM_Y;
+			compoundEdit.addEdit(new ModifyPieceInstance(frame,cursor,xkey,objectFirstPosition.x,lastPosition.x));
+			compoundEdit.addEdit(new ModifyPieceInstance(frame,cursor,ykey,objectFirstPosition.y,lastPosition.y));
+			}
 		else
 			// A new piece has been added
 			{
 			if (cursor instanceof Instance)
-				edit = new AddPieceInstance(frame,cursor,room.instances.size() - 1);
+				compoundEdit.addEdit(new AddPieceInstance(frame,cursor,room.instances.size() - 1));
 			else
-				edit = new AddPieceInstance(frame,cursor,room.tiles.size() - 1);
+				compoundEdit.addEdit(new AddPieceInstance(frame,cursor,room.tiles.size() - 1));
 			}
 
-		compoundEdit.addEdit(edit);
 		objectFirstPosition = null;
 
 		//it must be guaranteed that cursor != null
