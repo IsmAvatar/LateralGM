@@ -140,6 +140,7 @@ import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 import org.lateralgm.util.RemovePieceInstance;
 import org.lateralgm.util.ShiftPieceInstances;
+import org.lateralgm.util.ModifyPieceInstance.Type;
 
 public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		ListSelectionListener,CommandHandler,UpdateListener,FocusListener,ChangeListener
@@ -939,7 +940,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (!originalColor.equals(newColour))
 				{
 				// Record the effect of modifying the color of an object for the undo
-				UndoableEdit edit = new ModifyPieceInstance(RoomFrame.this,selectedPiece,originalColor,
+				UndoableEdit edit = new ModifyPieceInstance(RoomFrame.this,selectedPiece,Type.COLOR,originalColor,
 						newColour);
 				// notify the listeners
 				undoSupport.postEdit(edit);
@@ -3380,7 +3381,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				if (objectNewName != pieceOriginalName)
 					{
 					// Record the effect of rotating an object for the undo
-					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,pieceOriginalName,
+					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,Type.NAME,pieceOriginalName,
 							objectNewName);
 					// notify the listeners
 					undoSupport.postEdit(edit);
@@ -3397,7 +3398,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				if (!objectNewPosition.equals(pieceOriginalPosition))
 					{
 					// Record the effect of moving an object for the undo
-					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,pieceOriginalPosition,
+					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,Type.POSITION,pieceOriginalPosition,
 							objectNewPosition);
 					// notify the listeners
 					undoSupport.postEdit(edit);
@@ -3414,7 +3415,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				if (!objectNewScale.equals(pieceOriginalScale))
 					{
 					// Record the effect of modifying the scale an object for the undo
-					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,pieceOriginalScale,
+					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,Type.SCALE,pieceOriginalScale,
 							new Point2D.Double(objectNewScale.getX(),objectNewScale.getY()));
 					// notify the listeners
 					undoSupport.postEdit(edit);
@@ -3431,7 +3432,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				if (objectNewRotation != pieceOriginalRotation)
 					{
 					// Record the effect of rotating an object for the undo
-					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,pieceOriginalRotation,
+					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,Type.ROTATION,pieceOriginalRotation,
 							objectNewRotation);
 					// notify the listeners
 					undoSupport.postEdit(edit);
@@ -3448,7 +3449,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				if (objectNewAlpha != pieceOriginalAlpha)
 					{
 					// Record the effect of modifying the alpha value of an object for the undo
-					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,pieceOriginalAlpha,
+					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,Type.ALPHA,pieceOriginalAlpha,
 							objectNewAlpha);
 					// notify the listeners
 					undoSupport.postEdit(edit);
@@ -3469,7 +3470,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (!tileNewPosition.equals(pieceOriginalPosition))
 				{
 				// Record the effect of moving an tile for the undo
-				UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,pieceOriginalPosition,
+				UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,Type.POSITION,pieceOriginalPosition,
 						tileNewPosition);
 				// notify the listeners
 				undoSupport.postEdit(edit);
