@@ -3393,7 +3393,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (pieceOriginalPosition != null)
 				{
 				// Get the new position of the object
-				Point objectNewPosition = selectedPiece.getPosition();
+				Point objectNewPosition = new Point(selectedPiece.getPosition());
 
 				// If the position of the object has been changed
 				if (!pieceOriginalPosition.equals(objectNewPosition))
@@ -3410,7 +3410,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (pieceOriginalScale != null)
 				{
 				// Get the new scale of the object
-				Point2D objectNewScale = selectedPiece.getScale();
+				Point2D objectNewScale = new Point2D.Double(selectedPiece.getScale().getX(),
+						selectedPiece.getScale().getY());
 
 				// If the scale of the object has been modified
 				if (!pieceOriginalScale.equals(objectNewScale))
@@ -3427,7 +3428,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (pieceOriginalRotation != null)
 				{
 				// Get the new rotation of the object
-				Double objectNewRotation = selectedPiece.getRotation();
+				Double objectNewRotation = new Double(selectedPiece.getRotation());
 
 				// If the rotation of the object has been changed
 				if (!pieceOriginalRotation.equals(objectNewRotation))
@@ -3444,7 +3445,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (pieceOriginalAlpha != null)
 				{
 				// Get the new alpha of the object
-				Integer objectNewAlpha = selectedPiece.getAlpha();
+				Integer objectNewAlpha = new Integer(selectedPiece.getAlpha());
 
 				// If the alpha value of the object has been changed
 				if (!pieceOriginalAlpha.equals(objectNewAlpha))
@@ -3468,7 +3469,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (pieceOriginalPosition != null)
 				{
 				// Get the new position of the tile
-				Point tileNewPosition = selectedPiece.getPosition();
+				Point tileNewPosition = new Point(selectedPiece.getPosition());
 	
 				// If the position of the tile has been changed
 				if (!pieceOriginalPosition.equals(tileNewPosition))
