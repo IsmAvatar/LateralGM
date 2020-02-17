@@ -671,6 +671,22 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			}
 
 		protected abstract void validate();
+		
+		/**
+		 * Validate the visual later on the event dispatch
+		 * thread allowing the caller to fully initialize
+		 * the visual before it becomes visible to the user.
+		 */
+		protected final void validateLater()
+			{
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run()
+					{
+					validate();
+					}
+			});
+			}
 
 		protected final void invalidate()
 			{
@@ -750,7 +766,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			super(i);
 			i.updateSource.addListener(rul);
 			i.properties.updateSource.addListener(ipl);
-			validate();
+			validateLater();
 			}
 
 		@Override
@@ -985,7 +1001,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			super(t);
 			t.updateSource.addListener(rul);
 			t.properties.updateSource.addListener(tpl);
-			validate();
+			validateLater();
 			}
 
 		@Override
@@ -1165,19 +1181,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				case ADDED:
 					for (int i = lue.fromIndex; i <= lue.toIndex; i++)
 						{
-						// postpone adding new visuals to the list so
-						// the caller has a chance to fully initialize
-						// the visual before it becomes visible to the user
-						final T t = tList.get(i);
-						final int ind = i;
-						SwingUtilities.invokeLater(new Runnable() {
-							@Override
-							public void run()
-								{
-								V v = createVisual(t);
-								vList.add(ind,v);
-								}
-						});
+						T t = tList.get(i);
+						V v = createVisual(t);
+						vList.add(i,v);
 						}
 					break;
 				case REMOVED:
