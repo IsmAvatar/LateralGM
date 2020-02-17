@@ -1068,13 +1068,14 @@ public final class GmFileReader
 			int noinstances = in.read4();
 			for (int j = 0; j < noinstances; j++)
 				{
-				Instance inst = rm.addInstance();
+				Instance inst = new Instance(rm);
 				inst.setPosition(new Point(in.read4(),in.read4()));
 				GmObject temp = f.resMap.getList(GmObject.class).getUnsafe(in.read4());
 				if (temp != null) inst.properties.put(PInstance.OBJECT,temp.reference);
 				inst.properties.put(PInstance.ID,in.read4());
 				inst.setCreationCode(in.readStr());
 				inst.setLocked(in.readBool());
+				rm.addInstance(inst);
 				}
 			int notiles = in.read4();
 			for (int j = 0; j < notiles; j++)

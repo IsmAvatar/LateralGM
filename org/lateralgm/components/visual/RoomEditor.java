@@ -321,7 +321,7 @@ public class RoomEditor extends VisualPanel
 			Point newPosition = new Point(position.x - selectedPiecesOrigin.x + mousePosition.x,
 					position.y - selectedPiecesOrigin.y + mousePosition.y);
 
-			Instance newInstance = room.addInstance();
+			Instance newInstance = new Instance(room);
 			newInstance.properties.put(PInstance.OBJECT,instance.properties.get(PInstance.OBJECT));
 			newInstance.setRotation(instance.getRotation());
 			newInstance.setScale(instance.getScale());
@@ -330,6 +330,8 @@ public class RoomEditor extends VisualPanel
 			newInstance.setCode(instance.getCode());
 			newInstance.setCreationCode(instance.getCreationCode());
 			newInstance.setPosition(newPosition);
+			newInstance.properties.put(PInstance.ID,++LGM.currentFile.lastInstanceId);
+			room.addInstance(newInstance);
 
 			// Record the effect of adding a new instance for the undo
 			UndoableEdit edit = new AddPieceInstance(frame,newInstance,room.instances.size() - 1);
@@ -588,10 +590,12 @@ public class RoomEditor extends VisualPanel
 			{
 			ResourceReference<GmObject> obj = frame.oNew.getSelected();
 			if (obj == null) return; //I'd rather just break out of this IF, but this works
-			Instance instance = room.addInstance();
+			Instance instance = new Instance(room);
 			instance.properties.put(PInstance.OBJECT,obj);
+			instance.properties.put(PInstance.ID,++LGM.currentFile.lastInstanceId);
 			instance.setPosition(position);
-
+			room.addInstance(instance);
+			
 			setCursor(instance);
 			}
 		}

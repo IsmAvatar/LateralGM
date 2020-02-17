@@ -87,12 +87,13 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 		return new Room(r);
 		}
 
-	public Instance addInstance()
+	/**
+	 * Adds a fully initialized instance to this room.
+	 * Callers are responsible for allocating the instance and initializing its properties.
+	 */
+	public void addInstance(Instance inst)
 		{
-		Instance inst = new Instance(this);
-		inst.properties.put(PInstance.ID,++LGM.currentFile.lastInstanceId);
 		instances.add(inst);
-		return inst;
 		}
 
 	public int getWidth()
@@ -121,8 +122,10 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 		super.postCopy(dest);
 		for (Instance inst : instances)
 			{
-			Instance inst2 = dest.addInstance();
+			Instance inst2 = new Instance(dest);
 			inst2.properties.putAll(inst.properties);
+			inst2.properties.put(PInstance.ID,++LGM.currentFile.lastInstanceId);
+			dest.addInstance(inst2);
 			}
 		for (Tile tile : tiles)
 			{

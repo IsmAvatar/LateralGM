@@ -2332,9 +2332,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					// If object's tab is selected, add a new object
 					if (objectsTabIsSelected)
 						{
-						Instance newInstance = res.addInstance();
+						Instance newInstance = new Instance(res);
 						newInstance.properties.put(PInstance.OBJECT,oNew.getSelected());
 						newInstance.setPosition(newPosition);
+						newInstance.properties.put(PInstance.ID,++LGM.currentFile.lastInstanceId);
+						res.addInstance(newInstance);
 
 						// Record the effect of adding a new instance for the undo
 						UndoableEdit edit = new AddPieceInstance(this,newInstance,
@@ -2671,10 +2673,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (selectedPiece != null) selectedPiece.setSelected(false);
 
 			// Add the new object instance
-			Instance newObject = res.addInstance();
+			Instance newObject = new Instance(res);
 			newObject.properties.put(PInstance.OBJECT,oNew.getSelected());
+			newObject.properties.put(PInstance.ID,++LGM.currentFile.lastInstanceId);
 			newObject.setPosition(new Point());
-
+			res.addInstance(newObject);
+			
 			int numberOfObjects = res.instances.size();
 
 			// Record the effect of adding an object for the undo

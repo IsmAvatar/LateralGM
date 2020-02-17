@@ -1446,7 +1446,7 @@ public final class GMXFileReader
 						}
 					else if (iname.equals("instance") && inode.getAttributes().getLength() > 0) //$NON-NLS-1$
 						{
-						Instance inst = rmn.addInstance();
+						Instance inst = new Instance(rmn);
 
 						// TODO: Replace this with DelayedRef
 						String objname = inode.getAttributes().getNamedItem("objName").getTextContent(); //$NON-NLS-1$
@@ -1493,6 +1493,7 @@ public final class GMXFileReader
 						inst.setRotation(rot);
 						inst.setCreationCode(inode.getAttributes().getNamedItem("code").getNodeValue()); //$NON-NLS-1$
 						inst.setLocked(Integer.parseInt(inode.getAttributes().getNamedItem("locked").getNodeValue()) != 0); //$NON-NLS-1$
+						rmn.addInstance(inst);
 						}
 					}
 				}
