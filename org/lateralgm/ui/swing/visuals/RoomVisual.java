@@ -677,17 +677,6 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		 * thread allowing the caller to fully initialize
 		 * the visual before it becomes visible to the user.
 		 */
-		protected final void validateLater()
-			{
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run()
-					{
-					validate();
-					}
-			});
-			}
-
 		protected final void invalidate()
 			{
 			if (invalid) return;
@@ -766,7 +755,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			super(i);
 			i.updateSource.addListener(rul);
 			i.properties.updateSource.addListener(ipl);
-			validateLater();
+			invalidate();
 			}
 
 		@Override
@@ -1001,7 +990,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			super(t);
 			t.updateSource.addListener(rul);
 			t.properties.updateSource.addListener(tpl);
-			validateLater();
+			invalidate();
 			}
 
 		@Override
