@@ -3376,10 +3376,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (pieceOriginalName != null)
 				{
 				// Get the new name of the object
-				String objectNewName = new String(selectedPiece.getName());
+				String objectNewName = selectedPiece.getName();
 
 				// If the name of the object has been changed
-				if (objectNewName != pieceOriginalName)
+				if (!pieceOriginalName.equals(objectNewName))
 					{
 					// Record the effect of renaming an object for the undo
 					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,Type.NAME,pieceOriginalName,
@@ -3396,7 +3396,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				Point objectNewPosition = new Point(selectedPiece.getPosition());
 
 				// If the position of the object has been changed
-				if (!objectNewPosition.equals(pieceOriginalPosition))
+				if (!pieceOriginalPosition.equals(objectNewPosition))
 					{
 					// Record the effect of moving an object for the undo
 					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,Type.POSITION,pieceOriginalPosition,
@@ -3410,14 +3410,15 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (pieceOriginalScale != null)
 				{
 				// Get the new scale of the object
-				Point2D objectNewScale = selectedPiece.getScale();
+				Point2D objectNewScale = new Point2D.Double(selectedPiece.getScale().getX(),
+						selectedPiece.getScale().getY());
 
 				// If the scale of the object has been modified
-				if (!objectNewScale.equals(pieceOriginalScale))
+				if (!pieceOriginalScale.equals(objectNewScale))
 					{
 					// Record the effect of modifying the scale an object for the undo
 					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,Type.SCALE,pieceOriginalScale,
-							new Point2D.Double(objectNewScale.getX(),objectNewScale.getY()));
+							objectNewScale);
 					// notify the listeners
 					undoSupport.postEdit(edit);
 					}
@@ -3430,7 +3431,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				Double objectNewRotation = new Double(selectedPiece.getRotation());
 
 				// If the rotation of the object has been changed
-				if (objectNewRotation != pieceOriginalRotation)
+				if (!pieceOriginalRotation.equals(objectNewRotation))
 					{
 					// Record the effect of rotating an object for the undo
 					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,Type.ROTATION,pieceOriginalRotation,
@@ -3447,7 +3448,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				Integer objectNewAlpha = new Integer(selectedPiece.getAlpha());
 
 				// If the alpha value of the object has been changed
-				if (objectNewAlpha != pieceOriginalAlpha)
+				if (!pieceOriginalAlpha.equals(objectNewAlpha))
 					{
 					// Record the effect of modifying the alpha value of an object for the undo
 					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,Type.ALPHA,pieceOriginalAlpha,
@@ -3464,19 +3465,22 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			int selectedIndex = tList.getSelectedIndex();
 			if (selectedIndex == -1) return;
 
-			// Get the new position of the tile
-			Point tileNewPosition = new Point(selectedPiece.getPosition());
-
-			// If the position of the tile has been changed
-			if (!tileNewPosition.equals(pieceOriginalPosition))
+			// If we have changed the position
+			if (pieceOriginalPosition != null)
 				{
-				// Record the effect of moving an tile for the undo
-				UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,Type.POSITION,pieceOriginalPosition,
-						tileNewPosition);
-				// notify the listeners
-				undoSupport.postEdit(edit);
+				// Get the new position of the tile
+				Point tileNewPosition = new Point(selectedPiece.getPosition());
+	
+				// If the position of the tile has been changed
+				if (!pieceOriginalPosition.equals(tileNewPosition))
+					{
+					// Record the effect of moving a tile for the undo
+					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,Type.POSITION,pieceOriginalPosition,
+							tileNewPosition);
+					// notify the listeners
+					undoSupport.postEdit(edit);
+					}
 				}
-
 			}
 
 		selectedPiece = null;
