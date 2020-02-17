@@ -1075,6 +1075,7 @@ public final class GmFileReader
 				inst.properties.put(PInstance.ID,in.read4());
 				inst.setCreationCode(in.readStr());
 				inst.setLocked(in.readBool());
+				rm.instances.add(inst);
 				}
 			int notiles = in.read4();
 			for (int j = 0; j < notiles; j++)

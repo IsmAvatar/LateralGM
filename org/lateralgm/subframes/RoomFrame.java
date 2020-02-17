@@ -2335,7 +2335,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 						Instance newInstance = res.addInstance();
 						newInstance.properties.put(PInstance.OBJECT,oNew.getSelected());
 						newInstance.setPosition(newPosition);
-
+						res.instances.add(newInstance);
 						// Record the effect of adding a new instance for the undo
 						UndoableEdit edit = new AddPieceInstance(this,newInstance,
 								currentRoom.instances.size() - 1);

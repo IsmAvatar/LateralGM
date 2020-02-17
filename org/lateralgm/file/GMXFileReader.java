@@ -1493,6 +1493,7 @@ public final class GMXFileReader
 						inst.setRotation(rot);
 						inst.setCreationCode(inode.getAttributes().getNamedItem("code").getNodeValue()); //$NON-NLS-1$
 						inst.setLocked(Integer.parseInt(inode.getAttributes().getNamedItem("locked").getNodeValue()) != 0); //$NON-NLS-1$
+						rmn.instances.add(inst);
 						}
 					}
 				}

@@ -330,6 +330,7 @@ public class RoomEditor extends VisualPanel
 			newInstance.setCode(instance.getCode());
 			newInstance.setCreationCode(instance.getCreationCode());
 			newInstance.setPosition(newPosition);
+			room.instances.add(newInstance);
 
 			// Record the effect of adding a new instance for the undo
 			UndoableEdit edit = new AddPieceInstance(frame,newInstance,room.instances.size() - 1);
@@ -591,6 +592,7 @@ public class RoomEditor extends VisualPanel
 			Instance instance = room.addInstance();
 			instance.properties.put(PInstance.OBJECT,obj);
 			instance.setPosition(position);
+			room.instances.add(instance);
 
 			setCursor(instance);
 			}

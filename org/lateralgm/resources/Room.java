@@ -91,7 +91,6 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 		{
 		Instance inst = new Instance(this);
 		inst.properties.put(PInstance.ID,++LGM.currentFile.lastInstanceId);
-		instances.add(inst);
 		return inst;
 		}
 
@@ -123,6 +122,7 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 			{
 			Instance inst2 = dest.addInstance();
 			inst2.properties.putAll(inst.properties);
+			dest.instances.add(inst2);
 			}
 		for (Tile tile : tiles)
 			{
