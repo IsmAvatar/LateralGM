@@ -1165,9 +1165,19 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				case ADDED:
 					for (int i = lue.fromIndex; i <= lue.toIndex; i++)
 						{
-						T t = tList.get(i);
-						V v = createVisual(t);
-						vList.add(i,v);
+						// postpone adding new visuals to the list so
+						// the caller has a chance to fully initialize
+						// the visual before it becomes visible to the user
+						final T t = tList.get(i);
+						final int ind = i;
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run()
+								{
+								V v = createVisual(t);
+								vList.add(ind,v);
+								}
+						});
 						}
 					break;
 				case REMOVED:
