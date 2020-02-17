@@ -87,6 +87,12 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 		return new Room(r);
 		}
 
+	/**
+	 * Allocates a new instance in this room.
+	 * Callers are responsible for adding the instance to the room's visual instance list only
+	 * once they have fully initialized all of its properties.
+	 * @return A new instance allocated in this room.
+	 */
 	public Instance addInstance()
 		{
 		Instance inst = new Instance(this);
