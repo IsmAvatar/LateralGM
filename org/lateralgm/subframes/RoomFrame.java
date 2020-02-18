@@ -3294,12 +3294,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				|| event.getSource() == objectScaleY || event.getSource() == objectRotation
 				|| event.getSource() == objectAlpha)
 			{
-			// If no object is selected, return
-			int selectedIndex = oList.getSelectedIndex();
-			if (selectedIndex == -1) return;
-
 			// Save the selected instance
 			selectedPiece = oList.getSelectedValue();
+			// If no object is selected, return
+			if (selectedPiece == null) return;
 
 			// If we are modifying the name, save it for the undo
 			if (event.getSource() == objectName)
@@ -3342,12 +3340,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		// We are modifying tiles
 		else
 			{
-			// If no tile is selected, return
-			int selectedIndex = tList.getSelectedIndex();
-			if (selectedIndex == -1) return;
-
 			// Save the selected tile
 			selectedPiece = tList.getSelectedValue();
+			// If no tile is selected, return
+			if (selectedPiece == null) return;
 
 			// Save the position of the tile for the undo
 			pieceOriginalPosition = new Point(selectedPiece.getPosition());
