@@ -90,8 +90,8 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 	/**
 	 * Allocates a new instance in this room and assigns it a valid id.
 	 * Callers are responsible for finishing initialization of the instance
-	 * so that when the instance visual list is later updated on the event
-	 * dispatch thread, the instance will appear correctly.
+	 * so that when the instance visual is later validated on the event
+	 * dispatch thread, the instance will paint correctly.
 	 * @return A new instance allocated in this room.
 	 */
 	public Instance addInstance()
