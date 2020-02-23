@@ -100,7 +100,7 @@ public class ResourceList<R extends InstantiableResource<R,?>> extends TreeSet<R
 		R res = null;
 		try
 			{
-			res = type.newInstance();
+			res = type.getDeclaredConstructor().newInstance();
 			}
 		catch (Exception e)
 			{
