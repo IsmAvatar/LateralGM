@@ -83,7 +83,17 @@ public class ArrayListModel<E> implements ListModel<E>,UpdateListener
 			}
 		else
 			lde = new ListDataEvent(e.source.owner,ListDataEvent.CONTENTS_CHANGED,0,Integer.MAX_VALUE);
+
 		for (ListDataListener l : listeners)
-			l.contentsChanged(lde);
+			switch (lde.getType())
+				{
+				case ListDataEvent.INTERVAL_ADDED:
+					l.intervalAdded(lde);
+				case ListDataEvent.INTERVAL_REMOVED:
+					l.intervalRemoved(lde);
+				case ListDataEvent.CONTENTS_CHANGED:
+				default:
+					l.contentsChanged(lde);
+				}
 		}
 	}
