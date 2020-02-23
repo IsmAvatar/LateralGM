@@ -2718,7 +2718,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		if (eventSource == deleteTileButton)
 			{
 			int selectedIndex = tList.getSelectedIndex();
-			if (selectedIndex >= res.tiles.size() || selectedIndex < 0) return;
+			if (selectedIndex == -1) return;
 
 			Piece selectedPiece = editor.getSelectedPiece();
 
