@@ -926,10 +926,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		@Override
 		public void itemStateChanged(ItemEvent e)
 		{
-			// If no object is selected, return
-			int selectedIndex = oList.getSelectedIndex();
-			if (selectedIndex == -1) return;
-
 			// Save the selected instance
 			selectedPiece = oList.getSelectedValue();
 			if (selectedPiece == null) return;
