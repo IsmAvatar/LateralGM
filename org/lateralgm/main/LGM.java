@@ -135,7 +135,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.101"; //$NON-NLS-1$
+	public static final String version = "1.8.102"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -702,7 +702,7 @@ public final class LGM
 				if (clastr == null)
 					throw new Exception(Messages.format("LGM.PLUGIN_MISSING_ENTRY",pluginEntry)); //$NON-NLS-1$
 				URLClassLoader ucl = new URLClassLoader(new URL[] { f.toURI().toURL() });
-				ucl.loadClass(clastr).newInstance();
+				ucl.loadClass(clastr).getDeclaredConstructor().newInstance();
 				classLoaders.add(ucl);
 				}
 			catch (Exception e)

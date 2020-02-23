@@ -32,7 +32,7 @@ public class RefList<R extends InstantiableResource<R,?>>
 		R r = null;
 		try
 			{
-			r = clazz.newInstance();
+			r = clazz.getDeclaredConstructor().newInstance();
 			}
 		catch (Exception e)
 			{
