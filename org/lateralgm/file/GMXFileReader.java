@@ -1061,7 +1061,7 @@ public final class GMXFileReader
 		final String sprname = objdoc.getElementsByTagName("spriteName").item(0).getTextContent(); //$NON-NLS-1$
 		if (!sprname.equals("<undefined>"))
 			{
-			postpone.add(new DefaultPostponedRef(f.resMap.getList(Sprite.class), obj.properties, PGmObject.SPRITE, sprname));
+			postpone.add(new DefaultPostponedRef<>(f.resMap.getList(Sprite.class), obj.properties, PGmObject.SPRITE, sprname));
 			}
 		else
 			{
@@ -1071,7 +1071,7 @@ public final class GMXFileReader
 		final String mskname = objdoc.getElementsByTagName("maskName").item(0).getTextContent(); //$NON-NLS-1$
 		if (!mskname.equals("<undefined>"))
 			{
-			postpone.add(new DefaultPostponedRef(f.resMap.getList(Sprite.class), obj.properties, PGmObject.MASK, mskname));
+			postpone.add(new DefaultPostponedRef<>(f.resMap.getList(Sprite.class), obj.properties, PGmObject.MASK, mskname));
 			}
 		else
 			{
@@ -1081,7 +1081,7 @@ public final class GMXFileReader
 		final String parname = objdoc.getElementsByTagName("parentName").item(0).getTextContent(); //$NON-NLS-1$
 		if (!parname.equals("<undefined>") && !parname.equals("self"))
 			{
-			postpone.add(new DefaultPostponedRef(f.resMap.getList(GmObject.class), obj.properties, PGmObject.PARENT, parname));
+			postpone.add(new DefaultPostponedRef<>(f.resMap.getList(GmObject.class), obj.properties, PGmObject.PARENT, parname));
 			}
 		else
 			{
@@ -1358,7 +1358,7 @@ public final class GMXFileReader
 							Integer.parseInt(bnode.getAttributes().getNamedItem("visible").getTextContent()) != 0); //$NON-NLS-1$
 					final String bkgname = bnode.getAttributes().getNamedItem("name").getTextContent(); //$NON-NLS-1$
 
-					postpone.add(new DefaultPostponedRef(f.resMap.getList(Background.class), bkg.properties, PBackgroundDef.BACKGROUND, bkgname));
+					postpone.add(new DefaultPostponedRef<>(f.resMap.getList(Background.class), bkg.properties, PBackgroundDef.BACKGROUND, bkgname));
 
 					bkg.properties.put(
 							PBackgroundDef.FOREGROUND,
@@ -1403,7 +1403,7 @@ public final class GMXFileReader
 							Integer.parseInt(vnode.getAttributes().getNamedItem("visible").getTextContent()) != 0); //$NON-NLS-1$
 					final String objname = vnode.getAttributes().getNamedItem("objName").getTextContent(); //$NON-NLS-1$
 
-					postpone.add(new DefaultPostponedRef(f.resMap.getList(GmObject.class), vw.properties, PView.OBJECT, objname));
+					postpone.add(new DefaultPostponedRef<>(f.resMap.getList(GmObject.class), vw.properties, PView.OBJECT, objname));
 
 					vw.properties.put(PView.SPEED_H,
 							Integer.parseInt(vnode.getAttributes().getNamedItem("hspeed").getTextContent())); //$NON-NLS-1$
@@ -1516,7 +1516,7 @@ public final class GMXFileReader
 							Integer.parseInt(attribs.getNamedItem("y").getTextContent()))); //$NON-NLS-1$
 
 					final String bkgname = tnode.getAttributes().getNamedItem("bgName").getTextContent(); //$NON-NLS-1$
-					postpone.add(new DefaultPostponedRef(f.resMap.getList(Background.class), tile.properties, PTile.BACKGROUND, bkgname));
+					postpone.add(new DefaultPostponedRef<>(f.resMap.getList(Background.class), tile.properties, PTile.BACKGROUND, bkgname));
 
 					tile.properties.put(PTile.NAME, attribs.getNamedItem("name").getNodeValue()); //$NON-NLS-1$
 
