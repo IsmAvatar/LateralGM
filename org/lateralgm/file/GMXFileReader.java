@@ -51,6 +51,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.iconio.ICOFile;
+import org.lateralgm.file.PostponedRef.DefaultPostponedRef;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
@@ -132,34 +133,6 @@ public final class GMXFileReader
 		}
 
 	private static Queue<PostponedRef> postpone = new LinkedList<PostponedRef>();
-
-	static interface PostponedRef
-		{
-		boolean invoke();
-		}
-
-	static class DefaultPostponedRef<K extends Enum<K>> implements PostponedRef
-		{
-		ResourceList<?> list;
-		String name;
-		PropertyMap<K> p;
-		K key;
-
-		DefaultPostponedRef(ResourceList<?> list, PropertyMap<K> p, K key, String name)
-			{
-			this.list = list;
-			this.p = p;
-			this.key = key;
-			this.name = name;
-			}
-
-		public boolean invoke()
-			{
-			Resource<?,?> temp = list.get(name);
-			if (temp != null) p.put(key,temp.reference);
-			return temp != null;
-			}
-		}
 
 	private static Document parseDocumentUnchecked(ProjectFile f, String path) throws GmFormatException
 		{
