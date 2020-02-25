@@ -47,6 +47,11 @@ public class RefList<R extends InstantiableResource<R,?>>
 			}
 		return null;
 		}
+	
+	public R getResource(int id) {
+		ResourceReference<R> r = get(id);
+		return r.get();
+	}
 
 	private static class ResRef<R extends InstantiableResource<R,?>>
 		{

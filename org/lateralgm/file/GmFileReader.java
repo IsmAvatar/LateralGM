@@ -94,30 +94,23 @@ public final class GmFileReader
 		{
 		}
 
-	private static Queue<PostponedRef> postpone = new LinkedList<PostponedRef>();
-
 	//Workaround for Parameter limit
 	private static class ProjectFileContext
 		{
 		ProjectFile f;
 		GmStreamDecoder in;
-		RefList<Timeline> timeids;
-		RefList<GmObject> objids;
-		RefList<Room> rmids;
+		DelayedRefs drefs;
 
-		public ProjectFileContext(ProjectFile f, GmStreamDecoder in, RefList<Timeline> timeids,
-				RefList<GmObject> objids, RefList<Room> rmids)
+		public ProjectFileContext(ProjectFile f, GmStreamDecoder in, DelayedRefs drefs)
 			{
 			this.f = f;
 			this.in = in;
-			this.timeids = timeids;
-			this.objids = objids;
-			this.rmids = rmids;
+			this.drefs = drefs;
 			}
 
 		public ProjectFileContext copy()
 			{
-			return new ProjectFileContext(f,in,timeids,objids,rmids);
+			return new ProjectFileContext(f,in,drefs);
 			}
 		}
 
@@ -144,14 +137,12 @@ public final class GmFileReader
 			Charset forceCharset) throws GmFormatException
 		{
 		GmStreamDecoder in = null;
-		RefList<Timeline> timeids = new RefList<Timeline>(Timeline.class); // timeline ids
-		RefList<GmObject> objids = new RefList<GmObject>(GmObject.class); // object ids
-		RefList<Room> rmids = new RefList<Room>(Room.class); // room id
+		DelayedRefs drefs = new DelayedRefs();
 		try
 			{
 			long startTime = System.currentTimeMillis();
 			in = new GmStreamDecoder(stream);
-			ProjectFileContext c = new ProjectFileContext(file,in,timeids,objids,rmids);
+			ProjectFileContext c = new ProjectFileContext(file,in,drefs);
 			int identifier = in.read4();
 			if (identifier != 1234321)
 				throw new GmFormatException(file,Messages.format("ProjectFileReader.ERROR_INVALID",uri, //$NON-NLS-1$
@@ -176,7 +167,7 @@ public final class GmFileReader
 
 			//TODO: fix exception here caused by trying to open file too soon after loading LGM
 			JProgressBar progressBar = LGM.getProgressDialogBar();
-			progressBar.setMaximum(200);
+			progressBar.setMaximum(190);
 			LGM.setProgressTitle(Messages.getString("ProgressDialog.GMK_LOADING")); //$NON-NLS-1$
 
 			GameSettings gs = c.f.gameSettings.get(0);
@@ -257,19 +248,7 @@ public final class GmFileReader
 			LGM.setProgress(150,Messages.getString("ProgressDialog.GAMEINFORMATION")); //$NON-NLS-1$
 			readGameInformation(c);
 
-			LGM.setProgress(160,Messages.getString("ProgressDialog.POSTPONED")); //$NON-NLS-1$
-			//Resources read. Now we can invoke our postpones.
-			int percent = 0;
-			for (PostponedRef i : postpone)
-				{
-				i.invoke();
-				percent += 1;
-				LGM.setProgress(160 + percent / postpone.size(),
-						Messages.getString("ProgressDialog.POSTPONED")); //$NON-NLS-1$
-				}
-			postpone.clear();
-
-			LGM.setProgress(170,Messages.getString("ProgressDialog.LIBRARYCREATION")); //$NON-NLS-1$
+			LGM.setProgress(160,Messages.getString("ProgressDialog.LIBRARYCREATION")); //$NON-NLS-1$
 			//Library Creation Code
 			ver = in.read4();
 			if (ver != 500)
@@ -279,7 +258,7 @@ public final class GmFileReader
 			for (int j = 0; j < no; j++)
 				in.skip(in.read4());
 
-			LGM.setProgress(180,Messages.getString("ProgressDialog.ROOMEXECUTION")); //$NON-NLS-1$
+			LGM.setProgress(170,Messages.getString("ProgressDialog.ROOMEXECUTION")); //$NON-NLS-1$
 			//Room Execution Order
 			ver = in.read4();
 			if (ver != 500 && ver != 540 && ver != 700)
@@ -287,10 +266,10 @@ public final class GmFileReader
 						Messages.getString("ProjectFileReader.AFTERINFO2"),ver)); //$NON-NLS-1$
 			in.skip(in.read4() * 4);
 
-			LGM.setProgress(190,Messages.getString("ProgressDialog.FILETREE")); //$NON-NLS-1$
+			LGM.setProgress(180,Messages.getString("ProgressDialog.FILETREE")); //$NON-NLS-1$
 			readTree(c,root,ver);
 
-			LGM.setProgress(200,Messages.getString("ProgressDialog.FINISHED")); //$NON-NLS-1$
+			LGM.setProgress(190,Messages.getString("ProgressDialog.FINISHED")); //$NON-NLS-1$
 			System.out.println(Messages.format("ProjectFileReader.LOADTIME",System.currentTimeMillis() //$NON-NLS-1$
 					- startTime));
 			}
@@ -542,7 +521,8 @@ public final class GmFileReader
 				in.endInflate();
 				continue;
 				}
-			Sound snd = f.resMap.getList(Sound.class).add();
+			Sound snd = (Sound) c.drefs.getList(Sound.class).getResource(i);
+			f.resMap.getList(Sound.class).add(snd);
 			snd.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
@@ -606,7 +586,8 @@ public final class GmFileReader
 				in.endInflate();
 				continue;
 				}
-			Sprite spr = f.resMap.getList(Sprite.class).add();
+			Sprite spr = (Sprite) c.drefs.getList(Sprite.class).getResource(i);
+			f.resMap.getList(Sprite.class).add(spr);
 			//temporarily set bbmode to manual so bbox doesn't get recalculated until bbmode is ready
 			//TODO: This should be made a little less retarded, I added a null check to bbmode call - Robert
 			spr.put(PSprite.BB_MODE,BBMode.MANUAL);
@@ -687,7 +668,8 @@ public final class GmFileReader
 				in.endInflate();
 				continue;
 				}
-			Background back = f.resMap.getList(Background.class).add();
+			Background back = (Background) c.drefs.getList(Background.class).getResource(i);
+			f.resMap.getList(Background.class).add(back);
 			back.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
@@ -751,14 +733,15 @@ public final class GmFileReader
 				in.endInflate();
 				continue;
 				}
-			Path path = f.resMap.getList(Path.class).add();
+			Path path = (Path) c.drefs.getList(Path.class).getResource(i);
+			f.resMap.getList(Path.class).add(path);
 			path.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			int ver2 = in.read4();
 			if (ver2 != 530) throw versionError(f,"IN","PTH",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
 			in.readBool(path.properties,PPath.SMOOTH,PPath.CLOSED);
 			path.put(PPath.PRECISION,in.read4());
-			path.put(PPath.BACKGROUND_ROOM,c.rmids.get(in.read4()));
+			path.put(PPath.BACKGROUND_ROOM,c.drefs.getList(Room.class).get(in.read4()));
 			in.read4(path.properties,PPath.SNAP_X,PPath.SNAP_Y);
 			int nopoints = in.read4();
 			for (int j = 0; j < nopoints; j++)
@@ -787,7 +770,8 @@ public final class GmFileReader
 				in.endInflate();
 				continue;
 				}
-			Script scr = f.resMap.getList(Script.class).add();
+			Script scr = (Script) c.drefs.getList(Script.class).getResource(i);
+			f.resMap.getList(Script.class).add(scr);
 			scr.setName(in.readStr());
 			if (ver >= 800) in.skip(8); //last changed
 			ver = in.read4();
@@ -817,7 +801,8 @@ public final class GmFileReader
 				if (in.read4() != 440)
 					throw new GmFormatException(f,Messages.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
 							Messages.getString("ProjectFileReader.INDATAFILES"),ver)); //$NON-NLS-1$
-				Include inc = f.resMap.getList(Include.class).add();
+				Include inc = (Include) c.drefs.getList(Include.class).getResource(i);
+				f.resMap.getList(Include.class).add(inc);
 				String filepath = in.readStr();
 				String filename = new File(filepath).getName();
 				inc.put(PInclude.FILEPATH,filepath);
@@ -848,7 +833,8 @@ public final class GmFileReader
 				in.endInflate();
 				continue;
 				}
-			Font font = f.resMap.getList(Font.class).add();
+			Font font = (Font) c.drefs.getList(Font.class).getResource(i);
+			f.resMap.getList(Font.class).add(font);
 			font.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
@@ -886,8 +872,7 @@ public final class GmFileReader
 				in.endInflate();
 				continue;
 				}
-			ResourceReference<Timeline> r = c.timeids.get(i); //includes ID
-			Timeline time = r.get();
+			Timeline time = (Timeline) c.drefs.getList(Timeline.class).getResource(i); //includes ID
 			f.resMap.getList(Timeline.class).add(time);
 			time.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
@@ -906,7 +891,7 @@ public final class GmFileReader
 			}
 		f.resMap.getList(Timeline.class).lastId = noTimelines - 1;
 		}
-
+	
 	private static void readGmObjects(ProjectFileContext c) throws IOException,GmFormatException
 		{
 		ProjectFile f = c.f;
@@ -924,8 +909,7 @@ public final class GmFileReader
 				in.endInflate();
 				continue;
 				}
-			ResourceReference<GmObject> r = c.objids.get(i); //includes ID
-			GmObject obj = r.get();
+			GmObject obj = (GmObject) c.drefs.getList(GmObject.class).getResource(i); //includes ID
 			f.resMap.getList(GmObject.class).add(obj);
 			obj.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
@@ -936,7 +920,7 @@ public final class GmFileReader
 			in.readBool(obj.properties,PGmObject.SOLID,PGmObject.VISIBLE);
 			obj.put(PGmObject.DEPTH,in.read4());
 			obj.put(PGmObject.PERSISTENT,in.readBool());
-			obj.put(PGmObject.PARENT,c.objids.get(in.read4()));
+			obj.put(PGmObject.PARENT,c.drefs.getList(GmObject.class).get(in.read4()));
 			temp = f.resMap.getList(Sprite.class).getUnsafe(in.read4());
 			if (temp != null) obj.put(PGmObject.MASK,temp.reference);
 			int noEvents = in.read4() + 1;
@@ -952,7 +936,7 @@ public final class GmFileReader
 						Event ev = new Event();
 						me.events.add(0,ev);
 						if (j == MainEvent.EV_COLLISION)
-							ev.other = c.objids.get(first);
+							ev.other = c.drefs.getList(GmObject.class).get(first);
 						else
 							ev.id = first;
 						ev.mainId = j;
@@ -986,8 +970,7 @@ public final class GmFileReader
 				in.endInflate();
 				continue;
 				}
-			ResourceReference<Room> r = c.rmids.get(i); //includes ID
-			Room rm = r.get();
+			Room rm = (Room) c.drefs.getList(Room.class).getResource(i); //includes ID
 			f.resMap.getList(Room.class).add(rm);
 			rm.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
@@ -1097,7 +1080,8 @@ public final class GmFileReader
 			if (ver != 620 && ver != 800 && ver != 810)
 				throw new GmFormatException(f,Messages.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
 						Messages.getString("ProjectFileReader.ININCLUDEDFILES"),ver)); //$NON-NLS-1$
-			Include inc = f.resMap.getList(Include.class).add();
+			Include inc = (Include) c.drefs.getList(Include.class).getResource(i);
+			f.resMap.getList(Include.class).add(inc);
 			inc.put(PInclude.FILENAME,in.readStr());
 			inc.put(PInclude.FILEPATH,in.readStr());
 			inc.put(PInclude.ORIGINAL,in.readBool());
@@ -1337,7 +1321,7 @@ public final class GmFileReader
 					act.setAppliesTo(GmObject.OBJECT_OTHER);
 					break;
 				default:
-					act.setAppliesTo(c.objids.get(appliesTo));
+					act.setAppliesTo(c.drefs.getList(GmObject.class).get(appliesTo));
 				}
 			act.setRelative(in.readBool());
 			int actualnoargs = in.read4();
@@ -1357,23 +1341,10 @@ public final class GmFileReader
 				Class<? extends Resource<?,?>> kind = Argument.getResourceKind(argkinds[l]);
 				if (kind != null && Resource.class.isAssignableFrom(kind)) try
 					{
-					final int id = Integer.parseInt(strval);
-					final Argument arg = args[l];
-					PostponedRef pr = new PostponedRef()
-						{
-							public boolean invoke()
-								{
-								ResourceHolder<?> rh = f.resMap.get(Argument.getResourceKind(arg.kind));
-								Resource<?,?> temp = null;
-								if (rh instanceof ResourceList<?>)
-									temp = ((ResourceList<?>) rh).getUnsafe(id);
-								else
-									temp = rh.getResource();
-								if (temp != null) arg.setRes(temp.reference);
-								return temp != null;
-								}
-						};
-					if (!pr.invoke()) postpone.add(pr);
+					int id = Integer.parseInt(strval);
+					Argument arg = args[l];
+					RefList rl = c.drefs.getList(Argument.getResourceKind(arg.kind));
+					arg.setRes(rl.get(id));
 					}
 				catch (NumberFormatException e)
 					{
