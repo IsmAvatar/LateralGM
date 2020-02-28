@@ -2382,7 +2382,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (result == JOptionPane.OK_OPTION)
 				{
 				// Get the new layer's depth
-				Integer newDepth = new Integer(depth.getIntValue());
+				Integer newDepth = depth.getIntValue();
 
 				// If the layer is new, add it
 				if (!layers.contains(newDepth))
@@ -2455,7 +2455,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					JOptionPane.PLAIN_MESSAGE);
 
 			// Get the new layer's depth
-			final Integer newDepth = new Integer(depthField.getIntValue());
+			final Integer newDepth = depthField.getIntValue();
 
 			if (result == JOptionPane.OK_OPTION && newDepth != depth)
 				{
@@ -3321,14 +3321,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			// If we are modifying the rotation, save it for the undo
 			if (event.getSource() == objectRotation)
 				{
-				pieceOriginalRotation = new Double(selectedPiece.getRotation());
+				pieceOriginalRotation = selectedPiece.getRotation();
 				return;
 				}
 
 			// If we are modifying the alpha, save it for the undo
 			if (event.getSource() == objectAlpha)
 				{
-				pieceOriginalAlpha = new Integer(selectedPiece.getAlpha());
+				pieceOriginalAlpha = selectedPiece.getAlpha();
 				return;
 				}
 
@@ -3420,7 +3420,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (pieceOriginalRotation != null)
 				{
 				// Get the new rotation of the object
-				Double objectNewRotation = new Double(selectedPiece.getRotation());
+				Double objectNewRotation = selectedPiece.getRotation();
 
 				// If the rotation of the object has been changed
 				if (!pieceOriginalRotation.equals(objectNewRotation))
@@ -3437,7 +3437,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (pieceOriginalAlpha != null)
 				{
 				// Get the new alpha of the object
-				Integer objectNewAlpha = new Integer(selectedPiece.getAlpha());
+				Integer objectNewAlpha = selectedPiece.getAlpha();
 
 				// If the alpha value of the object has been changed
 				if (!pieceOriginalAlpha.equals(objectNewAlpha))
