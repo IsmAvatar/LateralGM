@@ -121,7 +121,7 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 
 	public CodeTextArea(String code, DefaultTokenMarker marker)
 		{
-		super(code);
+		super(code, Prefs.codeFont);
 
 		tokenMarker = marker;
 
@@ -130,7 +130,6 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 		setupKeywords();
 		updateKeywords();
 		updateResourceKeywords();
-		text.setFont(Prefs.codeFont);
 		//painter.setStyles(PrefsStore.getSyntaxStyles());
 		text.getActionMap().put("COMPLETIONS",completionAction);
 		LGM.currentFile.updateSource.addListener(this);
