@@ -43,7 +43,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -89,7 +88,6 @@ import javax.swing.RootPaneContainer;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.metal.DefaultMetalTheme;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
@@ -135,7 +133,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.106"; //$NON-NLS-1$
+	public static final String version = "1.8.107"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -296,6 +294,35 @@ public final class LGM
 			}
 		themechanged = true;
 		themename = LOOKANDFEEL;
+
+		ArrayList<URL> urls = new ArrayList<>();
+		if (workDir != null)
+			{
+			File dir = new File(workDir,"lookandfeels"); //$NON-NLS-1$
+			if (!dir.exists()) {
+				dir = new File(workDir.getParent(),"lookandfeels"); //$NON-NLS-1$
+			}
+			File[] ps = dir.listFiles(new CustomFileFilter(null,".jar")); //$NON-NLS-1$
+			if (ps != null)
+				{
+				for (File f : ps)
+					{
+					if (!f.exists()) continue;
+					try
+						{
+						urls.add(f.toURI().toURL());
+						}
+					catch (Exception e)
+						{
+						e.printStackTrace();
+						}
+					}
+				}
+			}
+
+		URLClassLoader lafClassLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]));
+		UIManager.put("ClassLoader", lafClassLoader);
+
 		String lookAndFeel = UIManager.getCrossPlatformLookAndFeelClassName();
 		if (LOOKANDFEEL != null)
 			{
@@ -360,6 +387,7 @@ public final class LGM
 						{
 						lookAndFeel = lnfs[i].getClassName();
 						foundMatch = true;
+						break;
 						}
 					}
 
@@ -372,26 +400,13 @@ public final class LGM
 
 			try
 				{
-				UIManager.setLookAndFeel(lookAndFeel);
-				}
-			catch (ClassNotFoundException e)
-				{
-				System.err.println("Couldn't find class for specified look and feel:" + lookAndFeel);
-				System.err.println("Did you include the L&F library in the class path?");
-				System.err.println("Using the default look and feel.");
-				}
-			catch (UnsupportedLookAndFeelException e)
-				{
-				System.err.println("Can't use the specified look and feel (" + lookAndFeel
-						+ ") on this platform.");
-				System.err.println("Using the default look and feel.");
+				Class<?> lafClass = Class.forName(lookAndFeel,true,lafClassLoader);
+				LookAndFeel laf = (LookAndFeel) lafClass.getDeclaredConstructor().newInstance();
+				UIManager.setLookAndFeel(laf);
 				}
 			catch (Exception e)
 				{
-				System.err.println("Couldn't get specified look and feel (" + lookAndFeel
-						+ "), for some reason.");
-				System.err.println("Using the default look and feel.");
-				e.printStackTrace();
+				LGM.showDefaultExceptionHandler(e);
 				}
 			}
 		}
@@ -645,41 +660,6 @@ public final class LGM
 		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		mdi.setBackground(Color.GRAY);
 		return scroll;
-		}
-
-	public static void addURL(URL url) throws Exception {
-		URLClassLoader classLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-		Class<?> clazz = URLClassLoader.class;
-
-		// Use reflection
-		Method method= clazz.getDeclaredMethod("addURL", new Class[] { URL.class }); //$NON-NLS-1$
-		method.setAccessible(true);
-		method.invoke(classLoader, new Object[] { url });
-	}
-
-	public static void loadLookAndFeels()
-		{
-		if (workDir == null) return;
-
-		File dir = new File(workDir,"lookandfeels"); //$NON-NLS-1$
-		if (!dir.exists()) {
-			dir = new File(workDir.getParent(),"lookandfeels"); //$NON-NLS-1$
-		}
-		File[] ps = dir.listFiles(new CustomFileFilter(null,".jar")); //$NON-NLS-1$
-		if (ps == null) return;
-
-		for (File f : ps)
-			{
-			if (!f.exists()) continue;
-			try
-				{
-				addURL(f.toURI().toURL());
-				}
-			catch (Exception e)
-				{
-				e.printStackTrace();
-				}
-			}
 		}
 
 	public static void loadPlugins()
@@ -1054,9 +1034,6 @@ public final class LGM
 		System.out.format("Java Version: %d (%s)\n",javaVersion,System.getProperty("java.version")); //$NON-NLS-1$
 		if (javaVersion < 10700)
 			System.out.println("Some program functionality will be limited due to your outdated Java version"); //$NON-NLS-1$
-
-		// Load external look and feels the user has plugged in
-		loadLookAndFeels();
 
 		iconspack = Prefs.iconPack;
 		setLookAndFeel(Prefs.swingTheme);
