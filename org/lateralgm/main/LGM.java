@@ -398,15 +398,19 @@ public final class LGM
 					}
 				}
 
+			final ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
 			try
 				{
-				Class<?> lafClass = Class.forName(lookAndFeel,true,lafClassLoader);
-				LookAndFeel laf = (LookAndFeel) lafClass.getDeclaredConstructor().newInstance();
-				UIManager.setLookAndFeel(laf);
+				Thread.currentThread().setContextClassLoader(lafClassLoader);
+				UIManager.setLookAndFeel(lookAndFeel);
 				}
 			catch (Exception e)
 				{
 				LGM.showDefaultExceptionHandler(e);
+				}
+			finally
+				{
+				Thread.currentThread().setContextClassLoader(originalClassLoader);
 				}
 			}
 		}
