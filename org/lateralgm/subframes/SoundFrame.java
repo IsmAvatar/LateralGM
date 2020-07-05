@@ -484,8 +484,6 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 				}
 			try
 				{
-				data = Util.readFully(f);
-				//loadClip();
 				String fn = f.getName();
 				String extension = "";
 
@@ -504,7 +502,6 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 				String ft = CustomFileFilter.getExtension(fn);
 				if (ft == null) ft = "";
 				res.put(PSound.FILE_TYPE,ft);
-				updateStatusLabel();
 				if (clip != null && clip.isOpen())
 					{
 					clip.stop();
@@ -512,6 +509,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 					clip.flush();
 					}
 				clip = null;
+				data = Util.readFully(f);
 				loadClip();
 				}
 			catch (Exception ex)
@@ -599,6 +597,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		{
 		playbackTimer.stop();
 		play.setEnabled(false);
+		updateStatusLabel();
 		if (data == null || data.length <= 0)
 			{
 			return;
@@ -729,7 +728,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 					try
 						{
 						data = Util.readFully(monitor.file);
-						updateStatusLabel();
+						loadClip();
 						}
 					catch (IOException ioe)
 						{
