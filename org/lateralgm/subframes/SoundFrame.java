@@ -174,8 +174,8 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			});
 		plf.make(pan.getModel(),PSound.PAN,100.0);
 
-		lPosition = new JLabel(Messages.getString("SoundFrame.DURATION") + ": 0m0s | "
-				+ Messages.getString("SoundFrame.POSITION") + ": 0m0s"); //$NON-NLS-1$
+		lPosition = new JLabel();
+		updatePositionLabel();
 		position = new JSlider(0,100,0);
 		position.setMajorTickSpacing(10);
 		position.setMinorTickSpacing(2);
@@ -634,7 +634,6 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 							stop.setEnabled(false);
 							play.setEnabled(true);
 							}
-
 						}
 
 				});
