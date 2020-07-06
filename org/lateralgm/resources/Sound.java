@@ -13,7 +13,6 @@ package org.lateralgm.resources;
 import java.util.EnumMap;
 
 import org.lateralgm.file.ProjectFile;
-import org.lateralgm.resources.Sound.PSound;
 import org.lateralgm.util.PropertyMap;
 
 public class Sound extends InstantiableResource<Sound,Sound.PSound>
