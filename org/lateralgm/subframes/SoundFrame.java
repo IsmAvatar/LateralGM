@@ -514,7 +514,6 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 				String ft = CustomFileFilter.getExtension(fn);
 				if (ft == null) ft = "";
 				res.put(PSound.FILE_TYPE,ft);
-				cleanup();
 				data = Util.readFully(f);
 				loadClip();
 				}
@@ -600,12 +599,14 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 
 	public void loadClip()
 		{
+		cleanup();
 		position.setValue(0);
 		playbackTimer.stop();
 		play.setEnabled(false);
 		updateStatusLabel();
 		if (data == null || data.length <= 0)
 			{
+			updatePositionLabel();
 			return;
 			}
 		try
