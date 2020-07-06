@@ -185,12 +185,10 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 
 				public void stateChanged(ChangeEvent ev)
 					{
-					if (clip != null && position.getValueIsAdjusting())
-						{
-						clip.setFramePosition(
-								(int) (((float) position.getValue() / 100) * clip.getFrameLength()));
-						}
 					updatePositionLabel();
+					if (clip == null || !position.getValueIsAdjusting()) return;
+					clip.setFramePosition(
+							(int) (((float) position.getValue() / 100) * clip.getFrameLength()));
 					}
 
 			});
