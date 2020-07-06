@@ -627,7 +627,6 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			clip.open(ais);
 			clip.addLineListener(new LineListener()
 				{
-
 					@Override
 					public void update(LineEvent event)
 						{
@@ -643,7 +642,6 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 							position.setValue(0);
 							}
 						}
-
 				});
 			play.setEnabled(true);
 			}
