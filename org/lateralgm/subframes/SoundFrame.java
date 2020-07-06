@@ -514,13 +514,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 				String ft = CustomFileFilter.getExtension(fn);
 				if (ft == null) ft = "";
 				res.put(PSound.FILE_TYPE,ft);
-				if (clip != null && clip.isOpen())
-					{
-					clip.stop();
-					clip.close();
-					clip.flush();
-					}
-				clip = null;
+				cleanup();
 				data = Util.readFully(f);
 				loadClip();
 				}
@@ -529,7 +523,6 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 				ex.printStackTrace();
 				}
 			modified = true;
-			cleanup();
 			return;
 			}
 		if (e.getSource() == play)
@@ -771,6 +764,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			{
 			clip.stop();
 			clip.close();
+			clip.flush();
 			}
 		clip = null;
 		}
