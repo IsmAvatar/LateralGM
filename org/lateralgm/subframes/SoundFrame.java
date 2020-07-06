@@ -25,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;
 
 import javax.sound.sampled.AudioFormat;
@@ -39,6 +40,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -48,6 +50,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
@@ -163,7 +166,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		fc.addChoosableFileFilter(new CustomFileFilter(d[4],s[3]));
 		fc.setFileFilter(soundsFilter);
 
-		JPanel pKind = makeAttributesPane();
+		JPanel pKind = makeKindPane();
 		JPanel pEffects = makeEffectsPane();
 		JPanel pAttr = makeFormatPane();
 
@@ -252,7 +255,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		/*	*/.addComponent(pEffects)
 		/*	*/.addComponent(pAttr)));
 
-		layout.linkSize(SwingConstants.VERTICAL,pEffects,pAttr);
+		layout.linkSize(SwingConstants.VERTICAL,pKind,pEffects,pAttr);
 		content.setLayout(layout);
 		add(content,BorderLayout.CENTER);
 
@@ -313,31 +316,25 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		return tool;
 		}
 
-	private JPanel makeAttributesPane()
+	private JPanel makeKindPane()
 		{
-		JPanel pAttr = new JPanel();
-		// The options must be added in the order corresponding to Sound.SoundKind
-		final String kindOptions[] = { Messages.getString("SoundFrame.NORMAL"),
-				Messages.getString("SoundFrame.BACKGROUND"),Messages.getString("SoundFrame.THREE"),
-				Messages.getString("SoundFrame.MULT") };
-
-		JComboBox<String> kindCombo = new JComboBox<String>(kindOptions);
-		plf.make(kindCombo,PSound.KIND,new KeyComboBoxConversion<SoundKind>(ProjectFile.SOUND_KIND,
-			ProjectFile.SOUND_KIND_CODE));
-		JLabel kindLabel = new JLabel(Messages.getString("SoundFrame.KIND"));
-
-		GroupLayout aLayout = new GroupLayout(pAttr);
-		aLayout.setAutoCreateGaps(true);
-		pAttr.setLayout(aLayout);
-		aLayout.setHorizontalGroup(aLayout.createParallelGroup()
-		/**/.addGroup(aLayout.createSequentialGroup()
-		/*  */.addComponent(kindLabel)
-		/*  */.addComponent(kindCombo,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)));
-		aLayout.setVerticalGroup(aLayout.createSequentialGroup()
-		/**/.addGroup(aLayout.createParallelGroup(Alignment.BASELINE)
-		/*  */.addComponent(kindLabel)
-		/*  */.addComponent(kindCombo)));
-		return pAttr;
+		ButtonGroup g = new ButtonGroup();
+		// The buttons must be added in the order corresponding to Sound.SoundKind.
+		AbstractButton kNormal = new JRadioButton(Messages.getString("SoundFrame.NORMAL")); //$NON-NLS-1$
+		g.add(kNormal);
+		AbstractButton kBackground = new JRadioButton(Messages.getString("SoundFrame.BACKGROUND")); //$NON-NLS-1$
+		g.add(kBackground);
+		AbstractButton k3d = new JRadioButton(Messages.getString("SoundFrame.THREE")); //$NON-NLS-1$
+		g.add(k3d);
+		AbstractButton kMult = new JRadioButton(Messages.getString("SoundFrame.MULT")); //$NON-NLS-1$
+		g.add(kMult);
+		plf.make(g,PSound.KIND,SoundKind.class);
+		JPanel pKind = new JPanel();
+		pKind.setBorder(BorderFactory.createTitledBorder(Messages.getString("SoundFrame.KIND")));
+		pKind.setLayout(new BoxLayout(pKind,BoxLayout.PAGE_AXIS));
+		for (Enumeration<AbstractButton> e = g.getElements(); e.hasMoreElements();)
+			pKind.add(e.nextElement());
+		return pKind;
 		}
 
 	private JPanel makeFormatPane()
