@@ -326,30 +326,17 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			ProjectFile.SOUND_KIND_CODE));
 		JLabel kindLabel = new JLabel(Messages.getString("SoundFrame.KIND"));
 
-		JCheckBox compressedCB = new JCheckBox(Messages.getString("SoundFrame.COMPRESSED"));
-		plf.make(compressedCB,PSound.COMPRESSED);
-		JCheckBox streamedCB = new JCheckBox(Messages.getString("SoundFrame.STREAMED"));
-		plf.make(streamedCB,PSound.STREAMED);
-		JCheckBox decompressCB = new JCheckBox(Messages.getString("SoundFrame.DECOMPRESS"));
-		plf.make(decompressCB,PSound.DECOMPRESS_ON_LOAD);
-
 		GroupLayout aLayout = new GroupLayout(pAttr);
 		aLayout.setAutoCreateGaps(true);
 		pAttr.setLayout(aLayout);
 		aLayout.setHorizontalGroup(aLayout.createParallelGroup()
 		/**/.addGroup(aLayout.createSequentialGroup()
 		/*  */.addComponent(kindLabel)
-		/*  */.addComponent(kindCombo,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE))
-		/**/.addComponent(compressedCB)
-		/**/.addComponent(streamedCB)
-		/**/.addComponent(decompressCB));
+		/*  */.addComponent(kindCombo,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)));
 		aLayout.setVerticalGroup(aLayout.createSequentialGroup()
 		/**/.addGroup(aLayout.createParallelGroup(Alignment.BASELINE)
 		/*  */.addComponent(kindLabel)
-		/*  */.addComponent(kindCombo))
-		/**/.addComponent(compressedCB)
-		/**/.addComponent(streamedCB)
-		/**/.addComponent(decompressCB));
+		/*  */.addComponent(kindCombo)));
 		return pAttr;
 		}
 
@@ -382,20 +369,32 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		plf.make(bitCombo,PSound.BIT_RATE,new DefaultComboBoxConversion<Integer>());
 		JLabel bitLabel = new JLabel(Messages.getString("SoundFrame.BITRATE"));
 
+		JCheckBox compressedCB = new JCheckBox(Messages.getString("SoundFrame.COMPRESSED"));
+		plf.make(compressedCB,PSound.COMPRESSED);
+		JCheckBox streamedCB = new JCheckBox(Messages.getString("SoundFrame.STREAMED"));
+		plf.make(streamedCB,PSound.STREAMED);
+		JCheckBox decompressCB = new JCheckBox(Messages.getString("SoundFrame.DECOMPRESS"));
+		plf.make(decompressCB,PSound.DECOMPRESS_ON_LOAD);
+
 		GroupLayout aLayout = new GroupLayout(pFormat);
 		aLayout.setAutoCreateGaps(true);
 		pFormat.setLayout(aLayout);
 		pFormat.setBorder(BorderFactory.createTitledBorder(Messages.getString("SoundFrame.FORMAT")));
-		aLayout.setHorizontalGroup(aLayout.createSequentialGroup()
-		/**/.addGroup(aLayout.createParallelGroup()
-		/*  */.addComponent(typeCombo)
-		/*  */.addComponent(depthCombo))
-		/**/.addGroup(aLayout.createParallelGroup(Alignment.TRAILING)
-		/*  */.addComponent(sampleLabel)
-		/*  */.addComponent(bitLabel))
-		/**/.addGroup(aLayout.createParallelGroup()
-		/*  */.addComponent(sampleCombo)
-		/*  */.addComponent(bitCombo)));
+		aLayout.setHorizontalGroup(aLayout.createParallelGroup()
+		/**/.addGroup(aLayout.createSequentialGroup()
+		/*  */.addGroup(aLayout.createParallelGroup()
+		/*    */.addComponent(typeCombo)
+		/*    */.addComponent(depthCombo))
+		/*  */.addGroup(aLayout.createParallelGroup(Alignment.TRAILING)
+		/*    */.addComponent(sampleLabel)
+		/*    */.addComponent(bitLabel))
+		/*  */.addGroup(aLayout.createParallelGroup()
+		/*    */.addComponent(sampleCombo)
+		/*    */.addComponent(bitCombo)))
+		/**/.addGroup(aLayout.createSequentialGroup()
+		/*  */.addComponent(compressedCB)
+		/*  */.addComponent(streamedCB)
+		/*  */.addComponent(decompressCB)));
 		aLayout.setVerticalGroup(aLayout.createSequentialGroup()
 		/**/.addGroup(aLayout.createParallelGroup(Alignment.BASELINE)
 		/*  */.addComponent(typeCombo)
@@ -404,7 +403,11 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		/**/.addGroup(aLayout.createParallelGroup(Alignment.BASELINE)
 		/*  */.addComponent(depthCombo)
 		/*  */.addComponent(bitLabel)
-		/*  */.addComponent(bitCombo)));
+		/*  */.addComponent(bitCombo))
+		/**/.addGroup(aLayout.createParallelGroup(Alignment.BASELINE)
+		/*  */.addComponent(compressedCB)
+		/*  */.addComponent(streamedCB)
+		/*  */.addComponent(decompressCB)));
 
 		return pFormat;
 		}
