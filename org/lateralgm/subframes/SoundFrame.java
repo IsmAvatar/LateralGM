@@ -639,11 +639,14 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 						{
 						if (event.getType() == LineEvent.Type.STOP)
 							{
-							playbackTimer.stop();
-							clip.setFramePosition(0);
-							position.setValue(0);
 							stop.setEnabled(false);
 							play.setEnabled(true);
+							playbackTimer.stop();
+							// see updateClipPosition() comment
+							int lastFrameIndex = clip.getFrameLength()-1;
+							if (event.getFramePosition() < lastFrameIndex) return; 
+							clip.setFramePosition(0);
+							position.setValue(0);
 							}
 						}
 
