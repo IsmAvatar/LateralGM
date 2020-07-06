@@ -168,7 +168,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 
 		JPanel pKind = makeKindPane();
 		JPanel pEffects = makeEffectsPane();
-		JPanel pAttr = makeFormatPane();
+		JPanel pFormat = makeFormatPane();
 
 		final JLabel lVolume = new JLabel(Messages.getString("SoundFrame.VOLUME") + ": 100"); //$NON-NLS-1$
 		volume = new JSlider(0,100,100);
@@ -240,7 +240,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(pKind)
 		/*	*/.addComponent(pEffects)
-		/*	*/.addComponent(pAttr,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)));
+		/*	*/.addComponent(pFormat,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)));
 
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addGroup(layout.createSequentialGroup()
@@ -253,9 +253,9 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		/**/.addGroup(layout.createParallelGroup(Alignment.CENTER)
 		/*	*/.addComponent(pKind)
 		/*	*/.addComponent(pEffects)
-		/*	*/.addComponent(pAttr)));
+		/*	*/.addComponent(pFormat)));
 
-		layout.linkSize(SwingConstants.VERTICAL,pKind,pEffects,pAttr);
+		layout.linkSize(SwingConstants.VERTICAL,pKind,pEffects,pFormat);
 		content.setLayout(layout);
 		add(content,BorderLayout.CENTER);
 
