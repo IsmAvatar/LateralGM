@@ -125,6 +125,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		// the index is 0 based so the last frame is
 		// one less than the number of frames
 		int lastFrameIndex = clip.getFrameLength()-1;
+		if (lastFrameIndex < 0) lastFrameIndex = 0;
 		float playbackPercent = position.getValue() / 100.0f;
 		clip.setFramePosition((int) (playbackPercent * lastFrameIndex));
 		}
