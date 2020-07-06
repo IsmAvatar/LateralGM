@@ -600,6 +600,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 
 	public void loadClip()
 		{
+		position.setValue(0);
 		playbackTimer.stop();
 		play.setEnabled(false);
 		updateStatusLabel();
