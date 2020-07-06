@@ -121,7 +121,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 	public void updateClipPosition()
 		{
 		updatePositionLabel();
-		if (clip == null || !position.getValueIsAdjusting()) return;
+		if (clip == null) return;
 		// the index is 0 based so the last frame is
 		// one less than the number of frames
 		int lastFrameIndex = clip.getFrameLength()-1;
@@ -132,7 +132,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 	// Match the playback slider with the clip.
 	public void updatePlaybackPosition()
 		{
-		if (clip == null || position.getValueIsAdjusting()) return;
+		if (clip == null) return;
 		// see updateClipPosition() comment
 		int lastFrameIndex = clip.getFrameLength()-1;
 		float pos = clip.getLongFramePosition();
@@ -207,6 +207,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			{
 				public void stateChanged(ChangeEvent ev)
 					{
+					if (!position.getValueIsAdjusting()) return;
 					updateClipPosition();
 					}
 			});
@@ -217,6 +218,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			@Override
 			public void actionPerformed(ActionEvent e)
 				{
+				if (position.getValueIsAdjusting()) return;
 				updatePlaybackPosition();
 				}
 			});
