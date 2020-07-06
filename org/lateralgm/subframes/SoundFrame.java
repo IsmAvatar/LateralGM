@@ -114,6 +114,30 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		return formated;
 		}
 
+	// Match the clip with the playback slider.
+	public void updateClipPosition()
+		{
+		updatePositionLabel();
+		if (clip == null || !position.getValueIsAdjusting()) return;
+		// the index is 0 based so the last frame is
+		// one less than the number of frames
+		int lastFrameIndex = clip.getFrameLength()-1;
+		float playbackPercent = position.getValue() / 100.0f;
+		clip.setFramePosition((int) (playbackPercent * lastFrameIndex));
+		}
+
+	// Match the playback slider with the clip.
+	public void updatePlaybackPosition()
+		{
+		if (clip == null || position.getValueIsAdjusting()) return;
+		// see updateClipPosition() comment
+		int lastFrameIndex = clip.getFrameLength()-1;
+		float pos = clip.getLongFramePosition();
+		if (lastFrameIndex > 0)
+			pos /= (float) lastFrameIndex;
+		position.setValue((int) (pos * position.getMaximum()));
+		}
+
 	public SoundFrame(Sound res, ResNode node)
 		{
 		super(res,node);
@@ -150,12 +174,10 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		volume.setSize(new Dimension(50,50));
 		volume.addChangeListener(new ChangeListener()
 			{
-
 				public void stateChanged(ChangeEvent ev)
 					{
 					lVolume.setText(Messages.getString("SoundFrame.VOLUME") + ": " + volume.getValue());
 					}
-
 			});
 		plf.make(volume.getModel(),PSound.VOLUME,100.0);
 
@@ -165,12 +187,10 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		pan.setPaintTicks(true);
 		pan.addChangeListener(new ChangeListener()
 			{
-
 				public void stateChanged(ChangeEvent ev)
 					{
 					lPan.setText(Messages.getString("SoundFrame.PAN") + ": " + pan.getValue());
 					}
-
 			});
 		plf.make(pan.getModel(),PSound.PAN,100.0);
 
@@ -182,29 +202,20 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		position.setPaintTicks(true);
 		position.addChangeListener(new ChangeListener()
 			{
-
 				public void stateChanged(ChangeEvent ev)
 					{
-					updatePositionLabel();
-					if (clip == null || !position.getValueIsAdjusting()) return;
-					clip.setFramePosition(
-							(int) (((float) position.getValue() / 100) * clip.getFrameLength()));
+					updateClipPosition();
 					}
-
 			});
 		// Update the playback slider at 16 millisecond intervals or 60hz.
 		// Timer ensures that the component is only updated on the EDT.
 		playbackTimer = new Timer(16,new ActionListener()
 			{
-
 			@Override
 			public void actionPerformed(ActionEvent e)
 				{
-				if (clip == null || position.getValueIsAdjusting()) return;
-				float pos = (float) clip.getLongFramePosition() / (float) clip.getFrameLength();
-				position.setValue((int) (pos * position.getMaximum()));
+				updatePlaybackPosition();
 				}
-
 			});
 		playbackTimer.setInitialDelay(0);
 
@@ -528,7 +539,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			play.setEnabled(false);
 			stop.setEnabled(true);
 			playbackTimer.start();
-			clip.setFramePosition((int) (((float) position.getValue() / 100) * clip.getFrameLength()));
+			updateClipPosition();
 			clip.start();
 			return;
 			}
