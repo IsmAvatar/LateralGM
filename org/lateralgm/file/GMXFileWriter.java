@@ -698,14 +698,7 @@ public final class GMXFileWriter
 				boolToString((Boolean) snd.get(PSound.STREAMED))));
 		sndroot.appendChild(createElement(doc,"uncompressOnLoad", //$NON-NLS-1$
 				boolToString((Boolean) snd.get(PSound.DECOMPRESS_ON_LOAD))));
-		int effects = 0;
-		int n = 1;
-		for (PSound k : ProjectFile.SOUND_FX_FLAGS)
-			{
-			if (snd.get(k)) effects |= n;
-			n <<= 1;
-			}
-		sndroot.appendChild(createElement(doc,"effects",Integer.toString(effects))); //$NON-NLS-1$
+		sndroot.appendChild(createElement(doc,"effects",Integer.toString(snd.getEffects()))); //$NON-NLS-1$
 
 		sndroot.appendChild(createElement(doc,"data",fileName)); //$NON-NLS-1$
 		Util.writeFully(Util.getPOSIXPath(fname + "audio/" + fileName),snd.data); //$NON-NLS-1$

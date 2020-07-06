@@ -716,6 +716,8 @@ public final class GMXFileReader
 		int sndkind = Integer.parseInt(snddoc.getElementsByTagName("kind").item(0).getTextContent()); //$NON-NLS-1$
 		snd.put(PSound.KIND,ProjectFile.SOUND_KIND[sndkind]);
 		snd.put(PSound.FILE_TYPE,snddoc.getElementsByTagName("extension").item(0).getTextContent()); //$NON-NLS-1$
+		int effects = Integer.parseInt(snddoc.getElementsByTagName("effects").item(0).getTextContent());
+		snd.setEffects(effects);
 		NodeList data = snddoc.getElementsByTagName("data"); //$NON-NLS-1$
 		if (data.item(0) != null)
 			{

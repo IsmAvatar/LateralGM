@@ -12,6 +12,8 @@ package org.lateralgm.resources;
 
 import java.util.EnumMap;
 
+import org.lateralgm.file.ProjectFile;
+import org.lateralgm.resources.Sound.PSound;
 import org.lateralgm.util.PropertyMap;
 
 public class Sound extends InstantiableResource<Sound,Sound.PSound>
@@ -52,6 +54,27 @@ public class Sound extends InstantiableResource<Sound,Sound.PSound>
 	public Sound makeInstance(ResourceReference<Sound> r)
 		{
 		return new Sound(r);
+		}
+
+	public int getEffects()
+		{
+		int effects = 0;
+		int n = 1;
+		for (PSound k : ProjectFile.SOUND_FX_FLAGS)
+			{
+			if (get(k)) effects |= n;
+			n <<= 1;
+			}
+		return effects;
+		}
+
+	public void setEffects(int effects)
+		{
+		for (PSound k : ProjectFile.SOUND_FX_FLAGS)
+			{
+			put(k,(effects & 1) != 0);
+			effects >>= 1;
+			}
 		}
 
 	@Override

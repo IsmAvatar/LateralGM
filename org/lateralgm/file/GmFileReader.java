@@ -602,12 +602,7 @@ public final class GmFileReader
 						in.read(snd.data);
 						}
 					}
-				int effects = in.read4();
-				for (PSound k : ProjectFile.SOUND_FX_FLAGS)
-					{
-					snd.put(k,(effects & 1) != 0);
-					effects >>= 1;
-					}
+				snd.setEffects(in.read4());
 				in.readD(snd.properties,PSound.VOLUME,PSound.PAN);
 				snd.put(PSound.PRELOAD,in.readBool());
 				}

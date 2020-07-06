@@ -16,6 +16,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -24,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;
 
 import javax.sound.sampled.AudioFormat;
@@ -31,11 +33,14 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineEvent;
+import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -45,9 +50,11 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -97,8 +104,8 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 	private Clip clip;
 	private JLabel statusLabel, lPosition;
 	private JPanel statusBar;
-	//private JSlider pitch;
 	private JSlider position;
+	private Timer playbackTimer;
 
 	public String formatTime(long duration)
 		{
@@ -110,6 +117,30 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		return formated;
 		}
 
+	// Match the clip with the playback slider.
+	public void updateClipPosition()
+		{
+		if (clip == null) return;
+		// the index is 0 based so the last frame is
+		// one less than the number of frames
+		int lastFrameIndex = clip.getFrameLength()-1;
+		if (lastFrameIndex < 0) lastFrameIndex = 0;
+		float playbackPercent = position.getValue() / 100.0f;
+		clip.setFramePosition(Math.round(playbackPercent * lastFrameIndex));
+		}
+
+	// Match the playback slider with the clip.
+	public void updatePlaybackPosition()
+		{
+		if (clip == null) return;
+		// see updateClipPosition() comment
+		int lastFrameIndex = clip.getFrameLength()-1;
+		float pos = clip.getLongFramePosition();
+		if (lastFrameIndex > 0)
+			pos /= (float) lastFrameIndex;
+		position.setValue(Math.round(pos * position.getMaximum()));
+		}
+
 	public SoundFrame(Sound res, ResNode node)
 		{
 		super(res,node);
@@ -118,13 +149,6 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		statusBar = makeStatusBar();
 		add(statusBar,BorderLayout.SOUTH);
 		add(makeToolBar(),BorderLayout.NORTH);
-		JPanel content = new JPanel();
-		add(content,BorderLayout.CENTER);
-
-		GroupLayout layout = new GroupLayout(content);
-		layout.setAutoCreateGaps(true);
-		layout.setAutoCreateContainerGaps(true);
-		content.setLayout(layout);
 
 		String s[] = { ".ogg",".wav",".mid",".mp3",".mod",".xm",".s3m",".it",".nfs",".gfs",".minigfs",
 				".flac" };
@@ -142,103 +166,101 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		fc.addChoosableFileFilter(new CustomFileFilter(d[4],s[3]));
 		fc.setFileFilter(soundsFilter);
 
-		JPanel pKind = makeAttributesPane();
+		JPanel pKind = makeKindPane();
 		JPanel pEffects = makeEffectsPane();
-		JPanel pAttr = makeFormatPane();
+		JPanel pFormat = makeFormatPane();
 
 		final JLabel lVolume = new JLabel(Messages.getString("SoundFrame.VOLUME") + ": 100"); //$NON-NLS-1$
 		volume = new JSlider(0,100,100);
-		//volume.setPaintLabels(true);
 		volume.setMajorTickSpacing(10);
 		volume.setPaintTicks(true);
 		volume.setSize(new Dimension(50,50));
 		volume.addChangeListener(new ChangeListener()
 			{
-
 				public void stateChanged(ChangeEvent ev)
 					{
 					lVolume.setText(Messages.getString("SoundFrame.VOLUME") + ": " + volume.getValue());
 					}
-
 			});
 		plf.make(volume.getModel(),PSound.VOLUME,100.0);
 
 		final JLabel lPan = new JLabel(Messages.getString("SoundFrame.PAN") + ": 0"); //$NON-NLS-1$
 		pan = new JSlider(-100,100,0);
-		//pan.setPaintLabels(true);
 		pan.setMajorTickSpacing(20);
 		pan.setPaintTicks(true);
 		pan.addChangeListener(new ChangeListener()
 			{
-
 				public void stateChanged(ChangeEvent ev)
 					{
 					lPan.setText(Messages.getString("SoundFrame.PAN") + ": " + pan.getValue());
 					}
-
 			});
 		plf.make(pan.getModel(),PSound.PAN,100.0);
 
-		lPosition = new JLabel(Messages.getString("SoundFrame.DURATION") + ": 0m0s | "
-				+ Messages.getString("SoundFrame.POSITION") + ": 0m0s"); //$NON-NLS-1$
+		lPosition = new JLabel();
+		updatePositionLabel();
 		position = new JSlider(0,100,0);
-		//pan.setPaintLabels(true);
 		position.setMajorTickSpacing(10);
 		position.setMinorTickSpacing(2);
 		position.setPaintTicks(true);
 		position.addChangeListener(new ChangeListener()
 			{
-
 				public void stateChanged(ChangeEvent ev)
 					{
-					if (clip != null && position.getValueIsAdjusting())
-						{
-						clip.setFramePosition(
-								(int) (((float) position.getValue() / 100) * clip.getFrameLength()));
-						}
+					if (position.getValueIsAdjusting())
+						updateClipPosition();
 					updatePositionLabel();
 					}
-
 			});
-
-		/* TODO: Not sure if this button is needed since I added the label listener
-		 * and you can tell when you set it to 0.
-		 */
-		/*
-		center = new JButton(Messages.getString("SoundFrame.PAN_CENTER")); //$NON-NLS-1$
-		center.addActionListener(this);
-		center.setPreferredSize(edit.getSize());
-		*/
+		// Update the playback slider at 16 millisecond intervals or 60hz.
+		// Timer ensures that the component is only updated on the EDT.
+		playbackTimer = new Timer(16,new ActionListener()
+			{
+			@Override
+			public void actionPerformed(ActionEvent e)
+				{
+				if (position.getValueIsAdjusting()) return;
+				updatePlaybackPosition();
+				}
+			});
+		playbackTimer.setInitialDelay(0);
 
 		data = res.data;
 		loadClip();
+
+		JPanel content = new JPanel();
+		GroupLayout layout = new GroupLayout(content);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
 		layout.setHorizontalGroup(layout.createParallelGroup()
-		/**/.addGroup(layout.createSequentialGroup()
-		/*	*/.addComponent(lPosition))
-		/*	*/.addComponent(position).addGroup(layout.createSequentialGroup()
-		/*	*/.addComponent(lVolume))
-		/*	*/.addComponent(volume).addGroup(layout.createSequentialGroup()
-		/*	*/.addComponent(lPan))
-		/*	*/.addComponent(pan).addGroup(layout.createSequentialGroup())
+		/**/.addGroup(layout.createParallelGroup()
+		/*	*/.addComponent(lPosition)
+		/*	*/.addComponent(position)
+		/*	*/.addComponent(lVolume)
+		/*	*/.addComponent(volume)
+		/*	*/.addComponent(lPan)
+		/*	*/.addComponent(pan))
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(pKind)
 		/*	*/.addComponent(pEffects)
-		/*	*/.addComponent(pAttr,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)));
+		/*	*/.addComponent(pFormat,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)));
 
 		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-		/*	*/.addComponent(lPosition).addGap(0))
-		/*	*/.addComponent(position).addGroup(layout.createParallelGroup(Alignment.BASELINE)
-		/*	*/.addComponent(lVolume).addGap(0))
-		/*	*/.addComponent(volume).addGroup(layout.createParallelGroup(Alignment.BASELINE)
-		/*	*/.addComponent(lPan).addGap(0))
-		/*	*/.addComponent(pan)
+		/**/.addGroup(layout.createSequentialGroup()
+		/*	*/.addComponent(lPosition)
+		/*	*/.addComponent(position)
+		/*	*/.addComponent(lVolume)
+		/*	*/.addComponent(volume)
+		/*	*/.addComponent(lPan)
+		/*	*/.addComponent(pan))
 		/**/.addGroup(layout.createParallelGroup(Alignment.CENTER)
 		/*	*/.addComponent(pKind)
 		/*	*/.addComponent(pEffects)
-		/*	*/.addComponent(pAttr)));
+		/*	*/.addComponent(pFormat)));
 
-		layout.linkSize(SwingConstants.VERTICAL,pEffects,pAttr);
+		layout.linkSize(SwingConstants.VERTICAL,pKind,pEffects,pFormat);
+		content.setLayout(layout);
+		add(content,BorderLayout.CENTER);
 
 		pack();
 		}
@@ -297,43 +319,25 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		return tool;
 		}
 
-	private JPanel makeAttributesPane()
+	private JPanel makeKindPane()
 		{
-		JPanel pAttr = new JPanel();
-		// The options must be added in the order corresponding to Sound.SoundKind
-		final String kindOptions[] = { Messages.getString("SoundFrame.NORMAL"),
-				Messages.getString("SoundFrame.BACKGROUND"),Messages.getString("SoundFrame.THREE"),
-				Messages.getString("SoundFrame.MULT") };
-
-		JComboBox<String> kindCombo = new JComboBox<String>(kindOptions);
-		plf.make(kindCombo,PSound.KIND,new KeyComboBoxConversion<SoundKind>(ProjectFile.SOUND_KIND,
-			ProjectFile.SOUND_KIND_CODE));
-		JLabel kindLabel = new JLabel(Messages.getString("SoundFrame.KIND"));
-
-		JCheckBox compressedCB = new JCheckBox(Messages.getString("SoundFrame.COMPRESSED"));
-		plf.make(compressedCB,PSound.COMPRESSED);
-		JCheckBox streamedCB = new JCheckBox(Messages.getString("SoundFrame.STREAMED"));
-		plf.make(streamedCB,PSound.STREAMED);
-		JCheckBox decompressCB = new JCheckBox(Messages.getString("SoundFrame.DECOMPRESS"));
-		plf.make(decompressCB,PSound.DECOMPRESS_ON_LOAD);
-
-		GroupLayout aLayout = new GroupLayout(pAttr);
-		pAttr.setLayout(aLayout);
-		aLayout.setHorizontalGroup(aLayout.createParallelGroup()
-		/**/.addGroup(aLayout.createSequentialGroup()
-		/*  */.addComponent(kindLabel)
-		/*  */.addComponent(kindCombo,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE))
-		/**/.addComponent(compressedCB)
-		/**/.addComponent(streamedCB)
-		/**/.addComponent(decompressCB));
-		aLayout.setVerticalGroup(aLayout.createSequentialGroup()
-		/**/.addGroup(aLayout.createParallelGroup(Alignment.BASELINE)
-		/*  */.addComponent(kindLabel)
-		/*  */.addComponent(kindCombo))
-		/**/.addComponent(compressedCB)
-		/**/.addComponent(streamedCB)
-		/**/.addComponent(decompressCB));
-		return pAttr;
+		ButtonGroup g = new ButtonGroup();
+		// The buttons must be added in the order corresponding to Sound.SoundKind.
+		AbstractButton kNormal = new JRadioButton(Messages.getString("SoundFrame.NORMAL")); //$NON-NLS-1$
+		g.add(kNormal);
+		AbstractButton kBackground = new JRadioButton(Messages.getString("SoundFrame.BACKGROUND")); //$NON-NLS-1$
+		g.add(kBackground);
+		AbstractButton k3d = new JRadioButton(Messages.getString("SoundFrame.THREE")); //$NON-NLS-1$
+		g.add(k3d);
+		AbstractButton kMult = new JRadioButton(Messages.getString("SoundFrame.MULT")); //$NON-NLS-1$
+		g.add(kMult);
+		plf.make(g,PSound.KIND,SoundKind.class);
+		JPanel pKind = new JPanel();
+		pKind.setBorder(BorderFactory.createTitledBorder(Messages.getString("SoundFrame.KIND")));
+		pKind.setLayout(new BoxLayout(pKind,BoxLayout.PAGE_AXIS));
+		for (Enumeration<AbstractButton> e = g.getElements(); e.hasMoreElements();)
+			pKind.add(e.nextElement());
+		return pKind;
 		}
 
 	private JPanel makeFormatPane()
@@ -365,20 +369,32 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		plf.make(bitCombo,PSound.BIT_RATE,new DefaultComboBoxConversion<Integer>());
 		JLabel bitLabel = new JLabel(Messages.getString("SoundFrame.BITRATE"));
 
+		JCheckBox compressedCB = new JCheckBox(Messages.getString("SoundFrame.COMPRESSED"));
+		plf.make(compressedCB,PSound.COMPRESSED);
+		JCheckBox streamedCB = new JCheckBox(Messages.getString("SoundFrame.STREAMED"));
+		plf.make(streamedCB,PSound.STREAMED);
+		JCheckBox decompressCB = new JCheckBox(Messages.getString("SoundFrame.DECOMPRESS"));
+		plf.make(decompressCB,PSound.DECOMPRESS_ON_LOAD);
+
 		GroupLayout aLayout = new GroupLayout(pFormat);
 		aLayout.setAutoCreateGaps(true);
 		pFormat.setLayout(aLayout);
 		pFormat.setBorder(BorderFactory.createTitledBorder(Messages.getString("SoundFrame.FORMAT")));
-		aLayout.setHorizontalGroup(aLayout.createSequentialGroup()
-		/**/.addGroup(aLayout.createParallelGroup()
-		/*  */.addComponent(typeCombo)
-		/*  */.addComponent(depthCombo))
-		/**/.addGroup(aLayout.createParallelGroup(Alignment.TRAILING)
-		/*  */.addComponent(sampleLabel)
-		/*  */.addComponent(bitLabel))
-		/**/.addGroup(aLayout.createParallelGroup()
-		/*  */.addComponent(sampleCombo)
-		/*  */.addComponent(bitCombo)));
+		aLayout.setHorizontalGroup(aLayout.createParallelGroup()
+		/**/.addGroup(aLayout.createSequentialGroup()
+		/*  */.addGroup(aLayout.createParallelGroup()
+		/*    */.addComponent(typeCombo)
+		/*    */.addComponent(depthCombo))
+		/*  */.addGroup(aLayout.createParallelGroup(Alignment.TRAILING)
+		/*    */.addComponent(sampleLabel)
+		/*    */.addComponent(bitLabel))
+		/*  */.addGroup(aLayout.createParallelGroup()
+		/*    */.addComponent(sampleCombo)
+		/*    */.addComponent(bitCombo)))
+		/**/.addGroup(aLayout.createSequentialGroup()
+		/*  */.addComponent(compressedCB)
+		/*  */.addComponent(streamedCB)
+		/*  */.addComponent(decompressCB)));
 		aLayout.setVerticalGroup(aLayout.createSequentialGroup()
 		/**/.addGroup(aLayout.createParallelGroup(Alignment.BASELINE)
 		/*  */.addComponent(typeCombo)
@@ -387,7 +403,11 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		/**/.addGroup(aLayout.createParallelGroup(Alignment.BASELINE)
 		/*  */.addComponent(depthCombo)
 		/*  */.addComponent(bitLabel)
-		/*  */.addComponent(bitCombo)));
+		/*  */.addComponent(bitCombo))
+		/**/.addGroup(aLayout.createParallelGroup(Alignment.BASELINE)
+		/*  */.addComponent(compressedCB)
+		/*  */.addComponent(streamedCB)
+		/*  */.addComponent(decompressCB)));
 
 		return pFormat;
 		}
@@ -408,6 +428,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		plf.make(eReverb,PSound.REVERB);
 		JPanel pEffects = new JPanel();
 		GroupLayout eLayout = new GroupLayout(pEffects);
+		eLayout.setAutoCreateGaps(true);
 		pEffects.setLayout(eLayout);
 		pEffects.setBorder(BorderFactory.createTitledBorder(Messages.getString("SoundFrame.EFFECTS")));
 		eLayout.setHorizontalGroup(eLayout.createSequentialGroup()
@@ -475,8 +496,6 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 				}
 			try
 				{
-				data = Util.readFully(f);
-				//loadClip();
 				String fn = f.getName();
 				String extension = "";
 
@@ -495,14 +514,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 				String ft = CustomFileFilter.getExtension(fn);
 				if (ft == null) ft = "";
 				res.put(PSound.FILE_TYPE,ft);
-				updateStatusLabel();
-				if (clip != null && clip.isOpen())
-					{
-					clip.stop();
-					clip.close();
-					clip.flush();
-					}
-				clip = null;
+				data = Util.readFully(f);
 				loadClip();
 				}
 			catch (Exception ex)
@@ -510,7 +522,6 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 				ex.printStackTrace();
 				}
 			modified = true;
-			cleanup();
 			return;
 			}
 		if (e.getSource() == play)
@@ -522,37 +533,9 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 				}
 			play.setEnabled(false);
 			stop.setEnabled(true);
-			clip.setFramePosition((int) (((float) position.getValue() / 100) * clip.getFrameLength()));
+			playbackTimer.start();
+			updateClipPosition();
 			clip.start();
-			new Thread()
-				{
-					public void run()
-						{
-						LGM.addDefaultExceptionHandler();
-						while (clip != null && clip.isActive())
-							{
-							float pos = (float) clip.getLongFramePosition() / (float) clip.getFrameLength();
-
-							position.setValue((int) (pos * position.getMaximum()));
-							try
-								{
-								Thread.sleep(50);
-								}
-							catch (InterruptedException e)
-								{
-								if (clip.isOpen()) clip.stop();
-								break;
-								}
-							}
-
-						if (clip != null) {
-							clip.setFramePosition(0);
-							play.setEnabled(true);
-						}
-						position.setValue(0);
-						stop.setEnabled(false);
-						}
-				}.start();
 			return;
 			}
 		if (e.getSource() == stop)
@@ -616,9 +599,14 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 
 	public void loadClip()
 		{
+		cleanup();
+		position.setValue(0);
+		playbackTimer.stop();
 		play.setEnabled(false);
+		updateStatusLabel();
 		if (data == null || data.length <= 0)
 			{
+			updatePositionLabel();
 			return;
 			}
 		try
@@ -638,6 +626,24 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			clip = (Clip) AudioSystem.getLine(new DataLine.Info(Clip.class,fmt));
 
 			clip.open(ais);
+			clip.addLineListener(new LineListener()
+				{
+					@Override
+					public void update(LineEvent event)
+						{
+						if (event.getType() == LineEvent.Type.STOP)
+							{
+							stop.setEnabled(false);
+							play.setEnabled(true);
+							playbackTimer.stop();
+							// see updateClipPosition() comment
+							int lastFrameIndex = clip.getFrameLength()-1;
+							if (event.getFramePosition() < lastFrameIndex) return; 
+							clip.setFramePosition(0);
+							position.setValue(0);
+							}
+						}
+				});
 			play.setEnabled(true);
 			}
 		catch (IOException e)
@@ -730,7 +736,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 					try
 						{
 						data = Util.readFully(monitor.file);
-						updateStatusLabel();
+						loadClip();
 						}
 					catch (IOException ioe)
 						{
@@ -758,6 +764,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			{
 			clip.stop();
 			clip.close();
+			clip.flush();
 			}
 		clip = null;
 		}
