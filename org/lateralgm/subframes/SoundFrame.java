@@ -126,7 +126,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		int lastFrameIndex = clip.getFrameLength()-1;
 		if (lastFrameIndex < 0) lastFrameIndex = 0;
 		float playbackPercent = position.getValue() / 100.0f;
-		clip.setFramePosition((int) (playbackPercent * lastFrameIndex));
+		clip.setFramePosition(Math.round(playbackPercent * lastFrameIndex));
 		}
 
 	// Match the playback slider with the clip.
@@ -138,7 +138,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		float pos = clip.getLongFramePosition();
 		if (lastFrameIndex > 0)
 			pos /= (float) lastFrameIndex;
-		position.setValue((int) (pos * position.getMaximum()));
+		position.setValue(Math.round(pos * position.getMaximum()));
 		}
 
 	public SoundFrame(Sound res, ResNode node)
