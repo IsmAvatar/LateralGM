@@ -120,7 +120,6 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 	// Match the clip with the playback slider.
 	public void updateClipPosition()
 		{
-		updatePositionLabel();
 		if (clip == null) return;
 		// the index is 0 based so the last frame is
 		// one less than the number of frames
@@ -208,8 +207,9 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			{
 				public void stateChanged(ChangeEvent ev)
 					{
-					if (!position.getValueIsAdjusting()) return;
-					updateClipPosition();
+					if (position.getValueIsAdjusting())
+						updateClipPosition();
+					updatePositionLabel();
 					}
 			});
 		// Update the playback slider at 16 millisecond intervals or 60hz.
