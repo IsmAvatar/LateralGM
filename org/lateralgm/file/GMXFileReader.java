@@ -717,11 +717,7 @@ public final class GMXFileReader
 		snd.put(PSound.KIND,ProjectFile.SOUND_KIND[sndkind]);
 		snd.put(PSound.FILE_TYPE,snddoc.getElementsByTagName("extension").item(0).getTextContent()); //$NON-NLS-1$
 		int effects = Integer.parseInt(snddoc.getElementsByTagName("effects").item(0).getTextContent());
-		for (PSound k : ProjectFile.SOUND_FX_FLAGS)
-			{
-			snd.put(k,(effects & 1) != 0);
-			effects >>= 1;
-			}
+		snd.setEffects(effects);
 		NodeList data = snddoc.getElementsByTagName("data"); //$NON-NLS-1$
 		if (data.item(0) != null)
 			{

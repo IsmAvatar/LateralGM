@@ -369,14 +369,7 @@ public final class GmFileWriter
 					}
 				else
 					out.writeBool(false);
-				int effects = 0;
-				int n = 1;
-				for (PSound k : ProjectFile.SOUND_FX_FLAGS)
-					{
-					if (snd.get(k)) effects |= n;
-					n <<= 1;
-					}
-				out.write4(effects);
+				out.write4(snd.getEffects());
 				out.writeD(snd.properties,PSound.VOLUME,PSound.PAN);
 				out.writeBool(snd.properties,PSound.PRELOAD);
 				}
