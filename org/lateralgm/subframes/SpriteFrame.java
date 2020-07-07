@@ -1311,32 +1311,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		updateScrollBars();
 		}
 
-	private class AnimThread extends Thread
-		{
-		public boolean freeze = false;
-
-		public void run()
-			{
-			while (!freeze && subList != null && preview != null)
-				{
-				// TODO: Shit throws all kinds of NPE's
-				// These two are threaded because updating the Swing controls
-				// Slows down the animation so its best to thread them to within a
-				// 60 frame per second quality playback.
-				//subList.setSelectedIndex(preview.getIndex());
-				//updateImageControls();
-				try
-					{
-					Thread.sleep(25);
-					}
-				catch (InterruptedException e)
-					{
-					LGM.showDefaultExceptionHandler(e);
-					}
-				}
-			}
-		}
-
 	public ArrayList<BufferedImage> getSelectedImages() {
 		int[] selected = subList.getSelectedIndices();
 		if (selected.length <= 0) {
@@ -1351,8 +1325,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		}
 
 	}
-
-	private AnimThread animThread = null;
 
 	public void actionPerformed(ActionEvent e)
 		{
@@ -1498,20 +1470,12 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			if (timer != null)
 				{
 				play.setIcon(PLAY_ICON);
-				animThread = null;
 				timer.stop();
 				timer = null; //used to indicate that this is not animating, and frees memory
 				updateImageControls();
 				}
 			else if (res.subImages.size() > 1)
 				{
-				if (animThread == null)
-					{
-					animThread = new AnimThread();
-
-					animThread.start();
-					}
-				animThread.freeze = false;
 				play.setIcon(STOP_ICON);
 				timer = new Timer(1000 / speed.getIntValue(),this);
 				timer.start();
