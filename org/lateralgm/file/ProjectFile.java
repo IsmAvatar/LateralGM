@@ -286,9 +286,8 @@ public class ProjectFile implements UpdateListener
 			}
 		}
 
-	/* This interface is used by the file readers
-	 * to report progress to the UI or to ask the
-	 * frontend to translate a message.
+	/* This interface is used by the file readers to report progress to the UI
+	 * or to ask the frontend to translate a message.
 	 */
 	public static interface InterfaceProvider
 		{
