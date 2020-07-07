@@ -23,8 +23,6 @@ import java.util.Queue;
 import java.util.Stack;
 import java.util.zip.DataFormatException;
 
-import javax.swing.tree.TreeNode;
-
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.ProjectFile.InterfaceProvider;
 import org.lateralgm.file.ProjectFile.ResourceHolder;
@@ -1246,7 +1244,7 @@ public final class GmFileReader
 			{
 			// For GameMaker 5 we need to move the "Data Files" folder
 			// to the place of the "Includes" folder in LGM's default tree
-			TreeNode dataFileNode = root.getChildAt(6);
+			ResNode dataFileNode = (ResNode) root.getChildAt(6);
 			if (dataFileNode instanceof ResNode)
 				{
 				incRoot = (ResNode)dataFileNode;
