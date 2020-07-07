@@ -11,6 +11,8 @@
 
 package org.lateralgm.file;
 
+import static org.lateralgm.file.ProjectFile.interfaceProvider;
+
 import java.awt.Dimension;
 import java.awt.Point;
 import java.io.File;
@@ -168,8 +170,7 @@ public final class GmFileReader
 	public static void readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root,
 			Charset forceCharset) throws GmFormatException
 		{
-		InterfaceProvider ip = ProjectFile.interfaceProvider;
-		ip.init(200,"ProgressDialog.GMK_LOADING"); //$NON-NLS-1$
+		interfaceProvider.init(200,"ProgressDialog.GMK_LOADING"); //$NON-NLS-1$
 		GmStreamDecoder in = null;
 		RefList<Timeline> timeids = new RefList<Timeline>(Timeline.class); // timeline ids
 		RefList<GmObject> objids = new RefList<GmObject>(GmObject.class); // object ids
@@ -180,13 +181,14 @@ public final class GmFileReader
 			ProjectFileContext c = new ProjectFileContext(file,in,timeids,objids,rmids);
 			int identifier = in.read4();
 			if (identifier != 1234321)
-				throw new GmFormatException(file,ip.format("ProjectFileReader.ERROR_INVALID",uri, //$NON-NLS-1$
-						identifier));
+				throw new GmFormatException(file,
+						interfaceProvider.format("ProjectFileReader.ERROR_INVALID", //$NON-NLS-1$
+						uri,identifier));
 			int ver = in.read4();
 			file.format = ProjectFile.FormatFlavor.getVersionFlavor(ver);
 			if (ver != 530 && ver != 600 && ver != 701 && ver != 800 && ver != 810)
 				{
-				String msg = ip.format("ProjectFileReader.ERROR_UNSUPPORTED",uri,ver); //$NON-NLS-1$
+				String msg = interfaceProvider.format("ProjectFileReader.ERROR_UNSUPPORTED",uri,ver); //$NON-NLS-1$
 				throw new GmFormatException(file,msg);
 				}
 
@@ -202,7 +204,7 @@ public final class GmFileReader
 
 			GameSettings gs = c.f.gameSettings.get(0);
 
-			ip.setProgress(0,"ProgressDialog.SETTINGS"); //$NON-NLS-1$
+			interfaceProvider.setProgress(0,"ProgressDialog.SETTINGS"); //$NON-NLS-1$
 			if (ver == 530) in.skip(4); //reserved 0
 			if (ver == 701)
 				{
@@ -224,32 +226,32 @@ public final class GmFileReader
 
 			if (ver >= 800)
 				{
-				ip.setProgress(10,"ProgressDialog.TRIGGERS"); //$NON-NLS-1$
+				interfaceProvider.setProgress(10,"ProgressDialog.TRIGGERS"); //$NON-NLS-1$
 				readTriggers(c);
-				ip.setProgress(20,"ProgressDialog.CONSTANTS"); //$NON-NLS-1$
+				interfaceProvider.setProgress(20,"ProgressDialog.CONSTANTS"); //$NON-NLS-1$
 				readConstants(c,gs);
 				}
 
-			ip.setProgress(30,"ProgressDialog.SOUNDS"); //$NON-NLS-1$
+			interfaceProvider.setProgress(30,"ProgressDialog.SOUNDS"); //$NON-NLS-1$
 			readSounds(c);
-			ip.setProgress(40,"ProgressDialog.SPRITES"); //$NON-NLS-1$
+			interfaceProvider.setProgress(40,"ProgressDialog.SPRITES"); //$NON-NLS-1$
 			readSprites(c);
-			ip.setProgress(50,"ProgressDialog.BACKGROUNDS"); //$NON-NLS-1$
+			interfaceProvider.setProgress(50,"ProgressDialog.BACKGROUNDS"); //$NON-NLS-1$
 			int bgVer = readBackgrounds(c);
-			ip.setProgress(60,"ProgressDialog.PATHS"); //$NON-NLS-1$
+			interfaceProvider.setProgress(60,"ProgressDialog.PATHS"); //$NON-NLS-1$
 			readPaths(c);
-			ip.setProgress(70,"ProgressDialog.SCRIPTS"); //$NON-NLS-1$
+			interfaceProvider.setProgress(70,"ProgressDialog.SCRIPTS"); //$NON-NLS-1$
 			readScripts(c);
-			ip.setProgress(80,"ProgressDialog.SHADERS"); //$NON-NLS-1$
+			interfaceProvider.setProgress(80,"ProgressDialog.SHADERS"); //$NON-NLS-1$
 			//TODO: GMK 820 reads shaders first
-			ip.setProgress(90,"ProgressDialog.FONTS"); //$NON-NLS-1$
+			interfaceProvider.setProgress(90,"ProgressDialog.FONTS"); //$NON-NLS-1$
 			int rver = in.read4();
 			readFonts(c,rver);
-			ip.setProgress(100,"ProgressDialog.TIMELINES"); //$NON-NLS-1$
+			interfaceProvider.setProgress(100,"ProgressDialog.TIMELINES"); //$NON-NLS-1$
 			readTimelines(c);
-			ip.setProgress(110,"ProgressDialog.OBJECTS"); //$NON-NLS-1$
+			interfaceProvider.setProgress(110,"ProgressDialog.OBJECTS"); //$NON-NLS-1$
 			readGmObjects(c);
-			ip.setProgress(120,"ProgressDialog.ROOMS"); //$NON-NLS-1$
+			interfaceProvider.setProgress(120,"ProgressDialog.ROOMS"); //$NON-NLS-1$
 			readRooms(c);
 
 			//If the "use as tileset" flag was not part of this version,
@@ -270,49 +272,51 @@ public final class GmFileReader
 
 			if (ver >= 700)
 				{
-				ip.setProgress(130,"ProgressDialog.INCLUDEFILES"); //$NON-NLS-1$
+				interfaceProvider.setProgress(130,"ProgressDialog.INCLUDEFILES"); //$NON-NLS-1$
 				readIncludedFiles(c);
-				ip.setProgress(140,"ProgressDialog.PACKAGES"); //$NON-NLS-1$
+				interfaceProvider.setProgress(140,"ProgressDialog.PACKAGES"); //$NON-NLS-1$
 				readPackages(c);
 				}
 
-			ip.setProgress(150,"ProgressDialog.GAMEINFORMATION"); //$NON-NLS-1$
+			interfaceProvider.setProgress(150,"ProgressDialog.GAMEINFORMATION"); //$NON-NLS-1$
 			readGameInformation(c);
 
-			ip.setProgress(160,"ProgressDialog.POSTPONED"); //$NON-NLS-1$
+			interfaceProvider.setProgress(160,"ProgressDialog.POSTPONED"); //$NON-NLS-1$
 			//Resources read. Now we can invoke our postpones.
 			int percent = 0;
 			for (PostponedRef i : postpone)
 				{
 				i.invoke();
 				percent += 1;
-				ip.setProgress(160 + percent / postpone.size(),
+				interfaceProvider.setProgress(160 + percent / postpone.size(),
 						"ProgressDialog.POSTPONED"); //$NON-NLS-1$
 				}
 			postpone.clear();
 
-			ip.setProgress(170,"ProgressDialog.LIBRARYCREATION"); //$NON-NLS-1$
+			interfaceProvider.setProgress(170,"ProgressDialog.LIBRARYCREATION"); //$NON-NLS-1$
 			//Library Creation Code
 			ver = in.read4();
 			if (ver != 500)
-				throw new GmFormatException(file,ip.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
-						ip.translate("ProjectFileReader.AFTERINFO"),ver)); //$NON-NLS-1$
+				throw new GmFormatException(file,
+						interfaceProvider.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
+						interfaceProvider.translate("ProjectFileReader.AFTERINFO"),ver)); //$NON-NLS-1$
 			int no = in.read4();
 			for (int j = 0; j < no; j++)
 				in.skip(in.read4());
 
-			ip.setProgress(180,"ProgressDialog.ROOMEXECUTION"); //$NON-NLS-1$
+			interfaceProvider.setProgress(180,"ProgressDialog.ROOMEXECUTION"); //$NON-NLS-1$
 			//Room Execution Order
 			ver = in.read4();
 			if (ver != 500 && ver != 540 && ver != 700)
-				throw new GmFormatException(file,ip.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
-						ip.translate("ProjectFileReader.AFTERINFO2"),ver)); //$NON-NLS-1$
+				throw new GmFormatException(file,
+						interfaceProvider.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
+						interfaceProvider.translate("ProjectFileReader.AFTERINFO2"),ver)); //$NON-NLS-1$
 			in.skip(in.read4() * 4);
 
-			ip.setProgress(190,"ProgressDialog.FILETREE"); //$NON-NLS-1$
+			interfaceProvider.setProgress(190,"ProgressDialog.FILETREE"); //$NON-NLS-1$
 			readTree(c,root,ver);
 
-			ip.setProgress(200,"ProgressDialog.FINISHED"); //$NON-NLS-1$
+			interfaceProvider.setProgress(200,"ProgressDialog.FINISHED"); //$NON-NLS-1$
 			}
 		catch (Exception e)
 			{
@@ -331,7 +335,7 @@ public final class GmFileReader
 				}
 			catch (IOException ex)
 				{
-				String key = ip.translate("GmFileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
+				String key = interfaceProvider.translate("GmFileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
 				throw new GmFormatException(file,key);
 				}
 			}

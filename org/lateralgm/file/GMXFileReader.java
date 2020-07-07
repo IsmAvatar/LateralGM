@@ -23,6 +23,8 @@
 
 package org.lateralgm.file;
 
+import static org.lateralgm.file.ProjectFile.interfaceProvider;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -187,7 +189,7 @@ public final class GMXFileReader
 				}
 			catch (GmFormatException e)
 				{
-				ProjectFile.interfaceProvider.handleRecoverableException(e);
+				interfaceProvider.handleRecoverableException(e);
 				}
 			return doc;
 		}
@@ -225,7 +227,7 @@ public final class GMXFileReader
 	private static GmFormatException versionError(ProjectFile f, String error, String res, int i,
 			int ver)
 		{
-		InterfaceProvider ip = ProjectFile.interfaceProvider;
+		InterfaceProvider ip = interfaceProvider;
 		return new GmFormatException(f,ip.format(
 				"ProjectFileReader.ERROR_UNSUPPORTED",ip.format( //$NON-NLS-1$
 						"ProjectFileReader." + error,ip.translate("LGM." + res),i),ver)); //$NON-NLS-1$  //$NON-NLS-2$
@@ -240,8 +242,7 @@ public final class GMXFileReader
 	public static void readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root,
 			Charset forceCharset) throws GmFormatException
 		{
-		InterfaceProvider ip = ProjectFile.interfaceProvider;
-		ip.init(160,"ProgressDialog.GMX_LOADING"); //$NON-NLS-1$
+		interfaceProvider.init(160,"ProgressDialog.GMX_LOADING"); //$NON-NLS-1$
 		file.format = ProjectFile.FormatFlavor.GMX;
 		if (documentBuilderFactory == null)
 			documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -264,46 +265,46 @@ public final class GMXFileReader
 
 			ProjectFileContext c = new ProjectFileContext(file,document,timeids,objids,rmids);
 
-			ip.setProgress(0,"ProgressDialog.SPRITES"); //$NON-NLS-1$
+			interfaceProvider.setProgress(0,"ProgressDialog.SPRITES"); //$NON-NLS-1$
 			readGroup(c,root,Sprite.class);
-			ip.setProgress(10,"ProgressDialog.SOUNDS"); //$NON-NLS-1$
+			interfaceProvider.setProgress(10,"ProgressDialog.SOUNDS"); //$NON-NLS-1$
 			readGroup(c,root,Sound.class);
-			ip.setProgress(20,"ProgressDialog.BACKGROUNDS"); //$NON-NLS-1$
+			interfaceProvider.setProgress(20,"ProgressDialog.BACKGROUNDS"); //$NON-NLS-1$
 			readGroup(c,root,Background.class);
-			ip.setProgress(30,"ProgressDialog.PATHS"); //$NON-NLS-1$
+			interfaceProvider.setProgress(30,"ProgressDialog.PATHS"); //$NON-NLS-1$
 			readGroup(c,root,Path.class);
-			ip.setProgress(40,"ProgressDialog.SCRIPTS"); //$NON-NLS-1$
+			interfaceProvider.setProgress(40,"ProgressDialog.SCRIPTS"); //$NON-NLS-1$
 			readGroup(c,root,Script.class);
-			ip.setProgress(50,"ProgressDialog.SHADERS"); //$NON-NLS-1$
+			interfaceProvider.setProgress(50,"ProgressDialog.SHADERS"); //$NON-NLS-1$
 			readGroup(c,root,Shader.class);
-			ip.setProgress(60,"ProgressDialog.FONTS"); //$NON-NLS-1$
+			interfaceProvider.setProgress(60,"ProgressDialog.FONTS"); //$NON-NLS-1$
 			readGroup(c,root,Font.class);
-			ip.setProgress(70,"ProgressDialog.TIMELINES"); //$NON-NLS-1$
+			interfaceProvider.setProgress(70,"ProgressDialog.TIMELINES"); //$NON-NLS-1$
 			readGroup(c,root,Timeline.class);
-			ip.setProgress(80,"ProgressDialog.OBJECTS"); //$NON-NLS-1$
+			interfaceProvider.setProgress(80,"ProgressDialog.OBJECTS"); //$NON-NLS-1$
 			readGroup(c,root,GmObject.class);
-			ip.setProgress(90,"ProgressDialog.ROOMS"); //$NON-NLS-1$
+			interfaceProvider.setProgress(90,"ProgressDialog.ROOMS"); //$NON-NLS-1$
 			readGroup(c,root,Room.class);
-			ip.setProgress(100,"ProgressDialog.INCLUDEFILES"); //$NON-NLS-1$
+			interfaceProvider.setProgress(100,"ProgressDialog.INCLUDEFILES"); //$NON-NLS-1$
 			readGroup(c,root,Include.class);
-			ip.setProgress(110,"ProgressDialog.EXTENSIONS"); //$NON-NLS-1$
+			interfaceProvider.setProgress(110,"ProgressDialog.EXTENSIONS"); //$NON-NLS-1$
 			readExtensions(c,root);
-			ip.setProgress(120,"ProgressDialog.CONSTANTS"); //$NON-NLS-1$
+			interfaceProvider.setProgress(120,"ProgressDialog.CONSTANTS"); //$NON-NLS-1$
 			readDefaultConstants(c,root);
-			ip.setProgress(130,"ProgressDialog.GAMEINFORMATION"); //$NON-NLS-1$
+			interfaceProvider.setProgress(130,"ProgressDialog.GAMEINFORMATION"); //$NON-NLS-1$
 			readGameInformation(c,root);
-			ip.setProgress(140,"ProgressDialog.SETTINGS"); //$NON-NLS-1$
+			interfaceProvider.setProgress(140,"ProgressDialog.SETTINGS"); //$NON-NLS-1$
 			readConfigurations(c,root);
-			ip.setProgress(150,"ProgressDialog.PACKAGES"); //$NON-NLS-1$
+			interfaceProvider.setProgress(150,"ProgressDialog.PACKAGES"); //$NON-NLS-1$
 			readPackages(c,root);
 
-			ip.setProgress(160,"ProgressDialog.POSTPONED"); //$NON-NLS-1$
+			interfaceProvider.setProgress(160,"ProgressDialog.POSTPONED"); //$NON-NLS-1$
 			// All resources read, now we can invoke our postponed references.
 			for (PostponedRef i : postpone)
 				i.invoke();
 			postpone.clear();
 
-			ip.setProgress(160,"ProgressDialog.FINISHED"); //$NON-NLS-1$
+			interfaceProvider.setProgress(160,"ProgressDialog.FINISHED"); //$NON-NLS-1$
 			}
 		catch (Exception e)
 			{
@@ -322,7 +323,7 @@ public final class GMXFileReader
 				}
 			catch (IOException ex)
 				{
-				String key = ip.translate("GmFileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
+				String key = interfaceProvider.translate("GmFileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
 				throw new GmFormatException(file,key);
 				}
 			}
@@ -522,7 +523,7 @@ public final class GMXFileReader
 					}
 				catch (IOException e)
 					{
-					ProjectFile.interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "failed to read: " + icopath, e));
+					interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "failed to read: " + icopath, e));
 					}
 				pSet.put(PGameSettings.GAME_ID,
 						Integer.parseInt(setdoc.getElementsByTagName("option_gameid").item(0).getTextContent())); //$NON-NLS-1$
@@ -663,7 +664,7 @@ public final class GMXFileReader
 					}
 				catch (IOException e)
 					{
-					ProjectFile.interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
+					interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
 					}
 				}
 			}
@@ -724,7 +725,7 @@ public final class GMXFileReader
 				}
 			catch (IOException e)
 				{
-				ProjectFile.interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "failed to read: " + fname, e));
+				interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "failed to read: " + fname, e));
 				}
 			}
 		}
@@ -784,7 +785,7 @@ public final class GMXFileReader
 				}
 			catch (IOException e)
 				{
-				ProjectFile.interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
+				interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
 				}
 			}
 		}
@@ -894,11 +895,11 @@ public final class GMXFileReader
 			}
 		catch (FileNotFoundException e)
 			{
-			ProjectFile.interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "file not found: " + path, e));
+			interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "file not found: " + path, e));
 			}
 		catch (IOException e)
 			{
-			ProjectFile.interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "unable to read file: " + path, e));
+			interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "unable to read file: " + path, e));
 			}
 		}
 
@@ -925,11 +926,11 @@ public final class GMXFileReader
 			}
 		catch (FileNotFoundException e)
 			{
-			ProjectFile.interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "file not found: " + path, e));
+			interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "file not found: " + path, e));
 			}
 		catch (IOException e)
 			{
-			ProjectFile.interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "unable to read file: " + path, e));
+			interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "unable to read file: " + path, e));
 			}
 
 		String[] splitcode = code.split(STUPID_SHADER_MARKER);
@@ -1623,7 +1624,7 @@ public final class GMXFileReader
 			}
 		catch (IOException e)
 			{
-			ProjectFile.interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "failed to read: " + dataFile.getAbsolutePath(), e));
+			interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "failed to read: " + dataFile.getAbsolutePath(), e));
 			}
 		}
 
@@ -1710,11 +1711,11 @@ public final class GMXFileReader
 			}
 		catch (FileNotFoundException e)
 			{
-			ProjectFile.interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "file not found: " + path, e));
+			interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "file not found: " + path, e));
 			}
 		catch (IOException e)
 			{
-			ProjectFile.interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "unable to read file: " + path, e));
+			interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "unable to read file: " + path, e));
 			}
 
 		gameInfo.put(PGameInformation.TEXT,text);
