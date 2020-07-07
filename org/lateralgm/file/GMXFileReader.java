@@ -43,17 +43,16 @@ import java.util.List;
 import java.util.Queue;
 
 import javax.imageio.ImageIO;
-import javax.swing.JProgressBar;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.file.ProjectFile.InterfaceProvider;
 import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
-import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.Constants;
@@ -106,6 +105,7 @@ import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.resources.sub.View;
 import org.lateralgm.resources.sub.View.PView;
 import org.lateralgm.util.PropertyMap;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -226,9 +226,10 @@ public final class GMXFileReader
 	private static GmFormatException versionError(ProjectFile f, String error, String res, int i,
 			int ver)
 		{
-		return new GmFormatException(f,Messages.format(
-				"ProjectFileReader.ERROR_UNSUPPORTED",Messages.format(//$NON-NLS-1$
-						"ProjectFileReader." + error,Messages.getString("LGM." + res),i),ver)); //$NON-NLS-1$  //$NON-NLS-2$
+		InterfaceProvider ip = ProjectFile.interfaceProvider;
+		return new GmFormatException(f,ip.format(
+				"ProjectFileReader.ERROR_UNSUPPORTED",ip.format( //$NON-NLS-1$
+						"ProjectFileReader." + error,ip.translate("LGM." + res),i),ver)); //$NON-NLS-1$  //$NON-NLS-2$
 		}
 
 	public static void readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root)
@@ -240,6 +241,8 @@ public final class GMXFileReader
 	public static void readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root,
 			Charset forceCharset) throws GmFormatException
 		{
+		InterfaceProvider ip = ProjectFile.interfaceProvider;
+		ip.init(160,"ProgressDialog.GMX_LOADING"); //$NON-NLS-1$
 		file.format = ProjectFile.FormatFlavor.GMX;
 		if (documentBuilderFactory == null)
 			documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -255,7 +258,6 @@ public final class GMXFileReader
 		RefList<Timeline> timeids = new RefList<Timeline>(Timeline.class); // timeline ids
 		RefList<GmObject> objids = new RefList<GmObject>(GmObject.class); // object ids
 		RefList<Room> rmids = new RefList<Room>(Room.class); // room id
-		long startTime = System.currentTimeMillis();
 
 		try
 			{
@@ -263,52 +265,46 @@ public final class GMXFileReader
 
 			ProjectFileContext c = new ProjectFileContext(file,document,timeids,objids,rmids);
 
-			JProgressBar progressBar = LGM.getProgressDialogBar();
-			progressBar.setMaximum(160);
-			LGM.setProgressTitle(Messages.getString("ProgressDialog.GMX_LOADING")); //$NON-NLS-1$
-
-			LGM.setProgress(0,Messages.getString("ProgressDialog.SPRITES")); //$NON-NLS-1$
+			ip.updateProgress(0,"ProgressDialog.SPRITES"); //$NON-NLS-1$
 			readGroup(c,root,Sprite.class);
-			LGM.setProgress(10,Messages.getString("ProgressDialog.SOUNDS")); //$NON-NLS-1$
+			ip.updateProgress(10,"ProgressDialog.SOUNDS"); //$NON-NLS-1$
 			readGroup(c,root,Sound.class);
-			LGM.setProgress(20,Messages.getString("ProgressDialog.BACKGROUNDS")); //$NON-NLS-1$
+			ip.updateProgress(20,"ProgressDialog.BACKGROUNDS"); //$NON-NLS-1$
 			readGroup(c,root,Background.class);
-			LGM.setProgress(30,Messages.getString("ProgressDialog.PATHS")); //$NON-NLS-1$
+			ip.updateProgress(30,"ProgressDialog.PATHS"); //$NON-NLS-1$
 			readGroup(c,root,Path.class);
-			LGM.setProgress(40,Messages.getString("ProgressDialog.SCRIPTS")); //$NON-NLS-1$
+			ip.updateProgress(40,"ProgressDialog.SCRIPTS"); //$NON-NLS-1$
 			readGroup(c,root,Script.class);
-			LGM.setProgress(50,Messages.getString("ProgressDialog.SHADERS")); //$NON-NLS-1$
+			ip.updateProgress(50,"ProgressDialog.SHADERS"); //$NON-NLS-1$
 			readGroup(c,root,Shader.class);
-			LGM.setProgress(60,Messages.getString("ProgressDialog.FONTS")); //$NON-NLS-1$
+			ip.updateProgress(60,"ProgressDialog.FONTS"); //$NON-NLS-1$
 			readGroup(c,root,Font.class);
-			LGM.setProgress(70,Messages.getString("ProgressDialog.TIMELINES")); //$NON-NLS-1$
+			ip.updateProgress(70,"ProgressDialog.TIMELINES"); //$NON-NLS-1$
 			readGroup(c,root,Timeline.class);
-			LGM.setProgress(80,Messages.getString("ProgressDialog.OBJECTS")); //$NON-NLS-1$
+			ip.updateProgress(80,"ProgressDialog.OBJECTS"); //$NON-NLS-1$
 			readGroup(c,root,GmObject.class);
-			LGM.setProgress(90,Messages.getString("ProgressDialog.ROOMS")); //$NON-NLS-1$
+			ip.updateProgress(90,"ProgressDialog.ROOMS"); //$NON-NLS-1$
 			readGroup(c,root,Room.class);
-			LGM.setProgress(100,Messages.getString("ProgressDialog.INCLUDEFILES")); //$NON-NLS-1$
+			ip.updateProgress(100,"ProgressDialog.INCLUDEFILES"); //$NON-NLS-1$
 			readGroup(c,root,Include.class);
-			LGM.setProgress(110,Messages.getString("ProgressDialog.EXTENSIONS")); //$NON-NLS-1$
+			ip.updateProgress(110,"ProgressDialog.EXTENSIONS"); //$NON-NLS-1$
 			readExtensions(c,root);
-			LGM.setProgress(120,Messages.getString("ProgressDialog.CONSTANTS")); //$NON-NLS-1$
+			ip.updateProgress(120,"ProgressDialog.CONSTANTS"); //$NON-NLS-1$
 			readDefaultConstants(c,root);
-			LGM.setProgress(130,Messages.getString("ProgressDialog.GAMEINFORMATION")); //$NON-NLS-1$
+			ip.updateProgress(130,"ProgressDialog.GAMEINFORMATION"); //$NON-NLS-1$
 			readGameInformation(c,root);
-			LGM.setProgress(140,Messages.getString("ProgressDialog.SETTINGS")); //$NON-NLS-1$
+			ip.updateProgress(140,"ProgressDialog.SETTINGS"); //$NON-NLS-1$
 			readConfigurations(c,root);
-			LGM.setProgress(150,Messages.getString("ProgressDialog.PACKAGES")); //$NON-NLS-1$
+			ip.updateProgress(150,"ProgressDialog.PACKAGES"); //$NON-NLS-1$
 			readPackages(c,root);
 
-			LGM.setProgress(160,Messages.getString("ProgressDialog.POSTPONED")); //$NON-NLS-1$
+			ip.updateProgress(160,"ProgressDialog.POSTPONED"); //$NON-NLS-1$
 			// All resources read, now we can invoke our postponed references.
 			for (PostponedRef i : postpone)
 				i.invoke();
 			postpone.clear();
 
-			LGM.setProgress(160,Messages.getString("ProgressDialog.FINISHED")); //$NON-NLS-1$
-			System.out.println(Messages.format("ProjectFileReader.LOADTIME",System.currentTimeMillis() //$NON-NLS-1$
-					- startTime));
+			ip.updateProgress(160,"ProgressDialog.FINISHED"); //$NON-NLS-1$
 			}
 		catch (Exception e)
 			{
@@ -327,7 +323,7 @@ public final class GMXFileReader
 				}
 			catch (IOException ex)
 				{
-				String key = Messages.getString("GmFileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
+				String key = ip.translate("GmFileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
 				throw new GmFormatException(file,key);
 				}
 			}
