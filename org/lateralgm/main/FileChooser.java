@@ -85,6 +85,38 @@ public class FileChooser
 	FilterSet openFs = new FilterSet(), saveFs = new FilterSet();
 	FilterUnion openAllFilter = new FilterUnion(), saveAllFilter = new FilterUnion();
 
+	static
+		{
+		// Replace the default project UI provider with one coupled to Swing.
+		ProjectFile.interfaceProvider = new ProjectFile.InterfaceProvider()
+			{
+			@Override
+			public void setProgress(int percent, String messageKey)
+				{
+				LGM.setProgress(percent,Messages.getString(messageKey));
+				}
+		
+			@Override
+			public String translate(String key)
+				{
+				return Messages.getString(key);
+				}
+		
+			@Override
+			public String format(String key, Object...arguments)
+				{
+				return Messages.format(key,arguments);
+				}
+		
+			@Override
+			public void init(int max, String titleKey)
+				{
+				LGM.getProgressDialogBar().setMaximum(max);
+				LGM.setProgressTitle(translate(titleKey));
+				}
+			};
+		}
+	
 	public static void addDefaultReadersAndWriters()
 		{
 		if (gmxIO == null)
@@ -625,7 +657,7 @@ public class FileChooser
 		ErrorDialog.getInstance().setMessage(Messages.getString("FileChooser.ERROR_LOAD")); //$NON-NLS-1$
 		ErrorDialog.getInstance().setTitle(Messages.getString("FileChooser.ERROR_LOAD_TITLE")); //$NON-NLS-1$
 		}
-	
+
 	/**
 	 * Both open() methods are not headless. For a headless open:
 	 * <code>findReader(uri).read(uriStream,uri,root)</code>
@@ -633,7 +665,9 @@ public class FileChooser
 	public void open(final URI uri, final FileReader reader)
 		{
 		if (uri == null) return;
+
 		LGM.getProgressDialog().setVisible(false);
+
 		Thread t = new Thread(new Runnable()
 			{
 				public void run()
@@ -643,7 +677,11 @@ public class FileChooser
 						{
 						ProjectFile f =  new ProjectFile();
 						f.uri = uri;
+						long startTime = System.currentTimeMillis();
 						reader.read(uri.toURL().openStream(),f,uri,LGM.newRoot());
+						long delta = System.currentTimeMillis() - startTime;
+						System.out.println(ProjectFile.interfaceProvider.format(
+								"ProjectFileReader.LOADTIME",delta)); //$NON-NLS-1$
 						LGM.currentFile = f;
 						}
 					catch (ProjectFormatException ex)
