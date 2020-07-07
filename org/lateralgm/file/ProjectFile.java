@@ -295,7 +295,7 @@ public class ProjectFile implements UpdateListener
 		public void setProgress(int percent, String messageKey);
 		public String translate(String key);
 		public String format(String key, Object...arguments);
-		public void handleRecoverableException(Exception e);
+		public void handleException(Exception e);
 		}
 
 	// The default interface will just sink the progress of the project loading.
@@ -310,7 +310,7 @@ public class ProjectFile implements UpdateListener
 		@Override
 		public void init(int max, String titleKey) {}
 		@Override
-		public void handleRecoverableException(Exception e)
+		public void handleException(Exception e)
 			{
 			Thread t = Thread.currentThread();
 			t.getUncaughtExceptionHandler().uncaughtException(t,e);

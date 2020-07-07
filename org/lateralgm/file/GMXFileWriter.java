@@ -292,7 +292,7 @@ public final class GMXFileWriter
 			}
 		catch (GmFormatException e)
 			{
-			interfaceProvider.handleRecoverableException(e);
+			interfaceProvider.handleException(e);
 			}
 		}
 

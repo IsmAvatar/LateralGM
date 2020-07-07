@@ -189,7 +189,7 @@ public final class GMXFileReader
 				}
 			catch (GmFormatException e)
 				{
-				interfaceProvider.handleRecoverableException(e);
+				interfaceProvider.handleException(e);
 				}
 			return doc;
 		}
@@ -523,7 +523,7 @@ public final class GMXFileReader
 					}
 				catch (IOException e)
 					{
-					interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "failed to read: " + icopath, e));
+					interfaceProvider.handleException(new GmFormatException(c.f, "failed to read: " + icopath, e));
 					}
 				pSet.put(PGameSettings.GAME_ID,
 						Integer.parseInt(setdoc.getElementsByTagName("option_gameid").item(0).getTextContent())); //$NON-NLS-1$
@@ -664,7 +664,7 @@ public final class GMXFileReader
 					}
 				catch (IOException e)
 					{
-					interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
+					interfaceProvider.handleException(new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
 					}
 				}
 			}
@@ -725,7 +725,7 @@ public final class GMXFileReader
 				}
 			catch (IOException e)
 				{
-				interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "failed to read: " + fname, e));
+				interfaceProvider.handleException(new GmFormatException(c.f, "failed to read: " + fname, e));
 				}
 			}
 		}
@@ -785,7 +785,7 @@ public final class GMXFileReader
 				}
 			catch (IOException e)
 				{
-				interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
+				interfaceProvider.handleException(new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
 				}
 			}
 		}
@@ -895,11 +895,11 @@ public final class GMXFileReader
 			}
 		catch (FileNotFoundException e)
 			{
-			interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "file not found: " + path, e));
+			interfaceProvider.handleException(new GmFormatException(c.f, "file not found: " + path, e));
 			}
 		catch (IOException e)
 			{
-			interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "unable to read file: " + path, e));
+			interfaceProvider.handleException(new GmFormatException(c.f, "unable to read file: " + path, e));
 			}
 		}
 
@@ -926,11 +926,11 @@ public final class GMXFileReader
 			}
 		catch (FileNotFoundException e)
 			{
-			interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "file not found: " + path, e));
+			interfaceProvider.handleException(new GmFormatException(c.f, "file not found: " + path, e));
 			}
 		catch (IOException e)
 			{
-			interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "unable to read file: " + path, e));
+			interfaceProvider.handleException(new GmFormatException(c.f, "unable to read file: " + path, e));
 			}
 
 		String[] splitcode = code.split(STUPID_SHADER_MARKER);
@@ -1624,7 +1624,7 @@ public final class GMXFileReader
 			}
 		catch (IOException e)
 			{
-			interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "failed to read: " + dataFile.getAbsolutePath(), e));
+			interfaceProvider.handleException(new GmFormatException(c.f, "failed to read: " + dataFile.getAbsolutePath(), e));
 			}
 		}
 
@@ -1711,11 +1711,11 @@ public final class GMXFileReader
 			}
 		catch (FileNotFoundException e)
 			{
-			interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "file not found: " + path, e));
+			interfaceProvider.handleException(new GmFormatException(c.f, "file not found: " + path, e));
 			}
 		catch (IOException e)
 			{
-			interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "unable to read file: " + path, e));
+			interfaceProvider.handleException(new GmFormatException(c.f, "unable to read file: " + path, e));
 			}
 
 		gameInfo.put(PGameInformation.TEXT,text);
