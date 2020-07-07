@@ -51,7 +51,6 @@ import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.ProjectFile.InterfaceProvider;
 import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.iconio.ICOFile;
-import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
@@ -188,7 +187,7 @@ public final class GMXFileReader
 				}
 			catch (GmFormatException e)
 				{
-				LGM.showDefaultExceptionHandler(e);
+				ProjectFile.interfaceProvider.handleRecoverableException(e);
 				}
 			return doc;
 		}
@@ -523,7 +522,7 @@ public final class GMXFileReader
 					}
 				catch (IOException e)
 					{
-					LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "failed to read: " + icopath, e));
+					ProjectFile.interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "failed to read: " + icopath, e));
 					}
 				pSet.put(PGameSettings.GAME_ID,
 						Integer.parseInt(setdoc.getElementsByTagName("option_gameid").item(0).getTextContent())); //$NON-NLS-1$
@@ -664,7 +663,7 @@ public final class GMXFileReader
 					}
 				catch (IOException e)
 					{
-					LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
+					ProjectFile.interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
 					}
 				}
 			}
@@ -725,7 +724,7 @@ public final class GMXFileReader
 				}
 			catch (IOException e)
 				{
-				LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "failed to read: " + fname, e));
+				ProjectFile.interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "failed to read: " + fname, e));
 				}
 			}
 		}
@@ -785,7 +784,7 @@ public final class GMXFileReader
 				}
 			catch (IOException e)
 				{
-				LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
+				ProjectFile.interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
 				}
 			}
 		}
@@ -895,11 +894,11 @@ public final class GMXFileReader
 			}
 		catch (FileNotFoundException e)
 			{
-			LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "file not found: " + path, e));
+			ProjectFile.interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "file not found: " + path, e));
 			}
 		catch (IOException e)
 			{
-			LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "unable to read file: " + path, e));
+			ProjectFile.interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "unable to read file: " + path, e));
 			}
 		}
 
@@ -926,11 +925,11 @@ public final class GMXFileReader
 			}
 		catch (FileNotFoundException e)
 			{
-			LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "file not found: " + path, e));
+			ProjectFile.interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "file not found: " + path, e));
 			}
 		catch (IOException e)
 			{
-			LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "unable to read file: " + path, e));
+			ProjectFile.interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "unable to read file: " + path, e));
 			}
 
 		String[] splitcode = code.split(STUPID_SHADER_MARKER);
@@ -1624,7 +1623,7 @@ public final class GMXFileReader
 			}
 		catch (IOException e)
 			{
-			LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "failed to read: " + dataFile.getAbsolutePath(), e));
+			ProjectFile.interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "failed to read: " + dataFile.getAbsolutePath(), e));
 			}
 		}
 
@@ -1711,11 +1710,11 @@ public final class GMXFileReader
 			}
 		catch (FileNotFoundException e)
 			{
-			LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "file not found: " + path, e));
+			ProjectFile.interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "file not found: " + path, e));
 			}
 		catch (IOException e)
 			{
-			LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "unable to read file: " + path, e));
+			ProjectFile.interfaceProvider.handleRecoverableException(new GmFormatException(c.f, "unable to read file: " + path, e));
 			}
 
 		gameInfo.put(PGameInformation.TEXT,text);

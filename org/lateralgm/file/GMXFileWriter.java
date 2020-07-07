@@ -58,7 +58,6 @@ import javax.xml.transform.stream.StreamResult;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.ProjectFile.InterfaceProvider;
 import org.lateralgm.file.iconio.ICOFile;
-import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
@@ -294,7 +293,7 @@ public final class GMXFileWriter
 			}
 		catch (GmFormatException e)
 			{
-			LGM.showDefaultExceptionHandler(e);
+			ProjectFile.interfaceProvider.handleRecoverableException(e);
 			}
 		}
 

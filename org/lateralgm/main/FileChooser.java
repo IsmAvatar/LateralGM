@@ -88,7 +88,7 @@ public class FileChooser
 	static
 		{
 		// Replace the default project UI provider with one coupled to Swing.
-		ProjectFile.interfaceProvider = new ProjectFile.InterfaceProvider()
+		ProjectFile.interfaceProvider = new ProjectFile.DefaultInterfaceProvider()
 			{
 			@Override
 			public void setProgress(int percent, String messageKey)
