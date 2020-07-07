@@ -265,46 +265,46 @@ public final class GMXFileReader
 
 			ProjectFileContext c = new ProjectFileContext(file,document,timeids,objids,rmids);
 
-			ip.updateProgress(0,"ProgressDialog.SPRITES"); //$NON-NLS-1$
+			ip.setProgress(0,"ProgressDialog.SPRITES"); //$NON-NLS-1$
 			readGroup(c,root,Sprite.class);
-			ip.updateProgress(10,"ProgressDialog.SOUNDS"); //$NON-NLS-1$
+			ip.setProgress(10,"ProgressDialog.SOUNDS"); //$NON-NLS-1$
 			readGroup(c,root,Sound.class);
-			ip.updateProgress(20,"ProgressDialog.BACKGROUNDS"); //$NON-NLS-1$
+			ip.setProgress(20,"ProgressDialog.BACKGROUNDS"); //$NON-NLS-1$
 			readGroup(c,root,Background.class);
-			ip.updateProgress(30,"ProgressDialog.PATHS"); //$NON-NLS-1$
+			ip.setProgress(30,"ProgressDialog.PATHS"); //$NON-NLS-1$
 			readGroup(c,root,Path.class);
-			ip.updateProgress(40,"ProgressDialog.SCRIPTS"); //$NON-NLS-1$
+			ip.setProgress(40,"ProgressDialog.SCRIPTS"); //$NON-NLS-1$
 			readGroup(c,root,Script.class);
-			ip.updateProgress(50,"ProgressDialog.SHADERS"); //$NON-NLS-1$
+			ip.setProgress(50,"ProgressDialog.SHADERS"); //$NON-NLS-1$
 			readGroup(c,root,Shader.class);
-			ip.updateProgress(60,"ProgressDialog.FONTS"); //$NON-NLS-1$
+			ip.setProgress(60,"ProgressDialog.FONTS"); //$NON-NLS-1$
 			readGroup(c,root,Font.class);
-			ip.updateProgress(70,"ProgressDialog.TIMELINES"); //$NON-NLS-1$
+			ip.setProgress(70,"ProgressDialog.TIMELINES"); //$NON-NLS-1$
 			readGroup(c,root,Timeline.class);
-			ip.updateProgress(80,"ProgressDialog.OBJECTS"); //$NON-NLS-1$
+			ip.setProgress(80,"ProgressDialog.OBJECTS"); //$NON-NLS-1$
 			readGroup(c,root,GmObject.class);
-			ip.updateProgress(90,"ProgressDialog.ROOMS"); //$NON-NLS-1$
+			ip.setProgress(90,"ProgressDialog.ROOMS"); //$NON-NLS-1$
 			readGroup(c,root,Room.class);
-			ip.updateProgress(100,"ProgressDialog.INCLUDEFILES"); //$NON-NLS-1$
+			ip.setProgress(100,"ProgressDialog.INCLUDEFILES"); //$NON-NLS-1$
 			readGroup(c,root,Include.class);
-			ip.updateProgress(110,"ProgressDialog.EXTENSIONS"); //$NON-NLS-1$
+			ip.setProgress(110,"ProgressDialog.EXTENSIONS"); //$NON-NLS-1$
 			readExtensions(c,root);
-			ip.updateProgress(120,"ProgressDialog.CONSTANTS"); //$NON-NLS-1$
+			ip.setProgress(120,"ProgressDialog.CONSTANTS"); //$NON-NLS-1$
 			readDefaultConstants(c,root);
-			ip.updateProgress(130,"ProgressDialog.GAMEINFORMATION"); //$NON-NLS-1$
+			ip.setProgress(130,"ProgressDialog.GAMEINFORMATION"); //$NON-NLS-1$
 			readGameInformation(c,root);
-			ip.updateProgress(140,"ProgressDialog.SETTINGS"); //$NON-NLS-1$
+			ip.setProgress(140,"ProgressDialog.SETTINGS"); //$NON-NLS-1$
 			readConfigurations(c,root);
-			ip.updateProgress(150,"ProgressDialog.PACKAGES"); //$NON-NLS-1$
+			ip.setProgress(150,"ProgressDialog.PACKAGES"); //$NON-NLS-1$
 			readPackages(c,root);
 
-			ip.updateProgress(160,"ProgressDialog.POSTPONED"); //$NON-NLS-1$
+			ip.setProgress(160,"ProgressDialog.POSTPONED"); //$NON-NLS-1$
 			// All resources read, now we can invoke our postponed references.
 			for (PostponedRef i : postpone)
 				i.invoke();
 			postpone.clear();
 
-			ip.updateProgress(160,"ProgressDialog.FINISHED"); //$NON-NLS-1$
+			ip.setProgress(160,"ProgressDialog.FINISHED"); //$NON-NLS-1$
 			}
 		catch (Exception e)
 			{

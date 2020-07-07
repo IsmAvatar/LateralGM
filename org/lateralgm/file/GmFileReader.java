@@ -202,7 +202,7 @@ public final class GmFileReader
 
 			GameSettings gs = c.f.gameSettings.get(0);
 
-			ip.updateProgress(0,"ProgressDialog.SETTINGS"); //$NON-NLS-1$
+			ip.setProgress(0,"ProgressDialog.SETTINGS"); //$NON-NLS-1$
 			if (ver == 530) in.skip(4); //reserved 0
 			if (ver == 701)
 				{
@@ -224,32 +224,32 @@ public final class GmFileReader
 
 			if (ver >= 800)
 				{
-				ip.updateProgress(10,"ProgressDialog.TRIGGERS"); //$NON-NLS-1$
+				ip.setProgress(10,"ProgressDialog.TRIGGERS"); //$NON-NLS-1$
 				readTriggers(c);
-				ip.updateProgress(20,"ProgressDialog.CONSTANTS"); //$NON-NLS-1$
+				ip.setProgress(20,"ProgressDialog.CONSTANTS"); //$NON-NLS-1$
 				readConstants(c,gs);
 				}
 
-			ip.updateProgress(30,"ProgressDialog.SOUNDS"); //$NON-NLS-1$
+			ip.setProgress(30,"ProgressDialog.SOUNDS"); //$NON-NLS-1$
 			readSounds(c);
-			ip.updateProgress(40,"ProgressDialog.SPRITES"); //$NON-NLS-1$
+			ip.setProgress(40,"ProgressDialog.SPRITES"); //$NON-NLS-1$
 			readSprites(c);
-			ip.updateProgress(50,"ProgressDialog.BACKGROUNDS"); //$NON-NLS-1$
+			ip.setProgress(50,"ProgressDialog.BACKGROUNDS"); //$NON-NLS-1$
 			int bgVer = readBackgrounds(c);
-			ip.updateProgress(60,"ProgressDialog.PATHS"); //$NON-NLS-1$
+			ip.setProgress(60,"ProgressDialog.PATHS"); //$NON-NLS-1$
 			readPaths(c);
-			ip.updateProgress(70,"ProgressDialog.SCRIPTS"); //$NON-NLS-1$
+			ip.setProgress(70,"ProgressDialog.SCRIPTS"); //$NON-NLS-1$
 			readScripts(c);
-			ip.updateProgress(80,"ProgressDialog.SHADERS"); //$NON-NLS-1$
+			ip.setProgress(80,"ProgressDialog.SHADERS"); //$NON-NLS-1$
 			//TODO: GMK 820 reads shaders first
-			ip.updateProgress(90,"ProgressDialog.FONTS"); //$NON-NLS-1$
+			ip.setProgress(90,"ProgressDialog.FONTS"); //$NON-NLS-1$
 			int rver = in.read4();
 			readFonts(c,rver);
-			ip.updateProgress(100,"ProgressDialog.TIMELINES"); //$NON-NLS-1$
+			ip.setProgress(100,"ProgressDialog.TIMELINES"); //$NON-NLS-1$
 			readTimelines(c);
-			ip.updateProgress(110,"ProgressDialog.OBJECTS"); //$NON-NLS-1$
+			ip.setProgress(110,"ProgressDialog.OBJECTS"); //$NON-NLS-1$
 			readGmObjects(c);
-			ip.updateProgress(120,"ProgressDialog.ROOMS"); //$NON-NLS-1$
+			ip.setProgress(120,"ProgressDialog.ROOMS"); //$NON-NLS-1$
 			readRooms(c);
 
 			//If the "use as tileset" flag was not part of this version,
@@ -270,28 +270,28 @@ public final class GmFileReader
 
 			if (ver >= 700)
 				{
-				ip.updateProgress(130,"ProgressDialog.INCLUDEFILES"); //$NON-NLS-1$
+				ip.setProgress(130,"ProgressDialog.INCLUDEFILES"); //$NON-NLS-1$
 				readIncludedFiles(c);
-				ip.updateProgress(140,"ProgressDialog.PACKAGES"); //$NON-NLS-1$
+				ip.setProgress(140,"ProgressDialog.PACKAGES"); //$NON-NLS-1$
 				readPackages(c);
 				}
 
-			ip.updateProgress(150,"ProgressDialog.GAMEINFORMATION"); //$NON-NLS-1$
+			ip.setProgress(150,"ProgressDialog.GAMEINFORMATION"); //$NON-NLS-1$
 			readGameInformation(c);
 
-			ip.updateProgress(160,"ProgressDialog.POSTPONED"); //$NON-NLS-1$
+			ip.setProgress(160,"ProgressDialog.POSTPONED"); //$NON-NLS-1$
 			//Resources read. Now we can invoke our postpones.
 			int percent = 0;
 			for (PostponedRef i : postpone)
 				{
 				i.invoke();
 				percent += 1;
-				ip.updateProgress(160 + percent / postpone.size(),
+				ip.setProgress(160 + percent / postpone.size(),
 						"ProgressDialog.POSTPONED"); //$NON-NLS-1$
 				}
 			postpone.clear();
 
-			ip.updateProgress(170,"ProgressDialog.LIBRARYCREATION"); //$NON-NLS-1$
+			ip.setProgress(170,"ProgressDialog.LIBRARYCREATION"); //$NON-NLS-1$
 			//Library Creation Code
 			ver = in.read4();
 			if (ver != 500)
@@ -301,7 +301,7 @@ public final class GmFileReader
 			for (int j = 0; j < no; j++)
 				in.skip(in.read4());
 
-			ip.updateProgress(180,"ProgressDialog.ROOMEXECUTION"); //$NON-NLS-1$
+			ip.setProgress(180,"ProgressDialog.ROOMEXECUTION"); //$NON-NLS-1$
 			//Room Execution Order
 			ver = in.read4();
 			if (ver != 500 && ver != 540 && ver != 700)
@@ -309,10 +309,10 @@ public final class GmFileReader
 						ip.translate("ProjectFileReader.AFTERINFO2"),ver)); //$NON-NLS-1$
 			in.skip(in.read4() * 4);
 
-			ip.updateProgress(190,"ProgressDialog.FILETREE"); //$NON-NLS-1$
+			ip.setProgress(190,"ProgressDialog.FILETREE"); //$NON-NLS-1$
 			readTree(c,root,ver);
 
-			ip.updateProgress(200,"ProgressDialog.FINISHED"); //$NON-NLS-1$
+			ip.setProgress(200,"ProgressDialog.FINISHED"); //$NON-NLS-1$
 			}
 		catch (Exception e)
 			{

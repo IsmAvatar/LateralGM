@@ -293,7 +293,7 @@ public class ProjectFile implements UpdateListener
 	public static interface InterfaceProvider
 		{
 		public void init(int max, String titleKey);
-		public void updateProgress(int percent, String messageKey);
+		public void setProgress(int percent, String messageKey);
 		public String translate(String key);
 		public String format(String key, Object...arguments);
 		}
@@ -302,7 +302,7 @@ public class ProjectFile implements UpdateListener
 	public static InterfaceProvider interfaceProvider = new InterfaceProvider()
 		{
 		@Override
-		public void updateProgress(int percent, String messageKey) {}
+		public void setProgress(int percent, String messageKey) {}
 		@Override
 		public String translate(String key) { return key; }
 		@Override

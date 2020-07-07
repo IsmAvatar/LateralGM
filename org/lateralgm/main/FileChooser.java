@@ -91,7 +91,7 @@ public class FileChooser
 		ProjectFile.interfaceProvider = new ProjectFile.InterfaceProvider()
 			{
 			@Override
-			public void updateProgress(int percent, String messageKey)
+			public void setProgress(int percent, String messageKey)
 				{
 				LGM.setProgress(percent,Messages.getString(messageKey));
 				}

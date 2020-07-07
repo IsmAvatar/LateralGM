@@ -94,7 +94,7 @@ public final class GmFileWriter
 
 		GameSettings gs = f.gameSettings.get(0);
 
-		ip.updateProgress(0,"ProgressDialog.SETTINGS");
+		ip.setProgress(0,"ProgressDialog.SETTINGS");
 		if (ver >= 810)
 			out.setCharset(Charset.forName("UTF-8"));
 		else
@@ -120,29 +120,29 @@ public final class GmFileWriter
 
 		if (ver >= 800)
 			{
-			ip.updateProgress(10,"ProgressDialog.TRIGGERS");
+			ip.setProgress(10,"ProgressDialog.TRIGGERS");
 			writeTriggers(f,out,ver,gs);
-			ip.updateProgress(20,"ProgressDialog.CONSTANTS");
+			ip.setProgress(20,"ProgressDialog.CONSTANTS");
 			writeConstants(f,out,ver,gs);
 			}
 
-		ip.updateProgress(30,"ProgressDialog.SOUNDS");
+		ip.setProgress(30,"ProgressDialog.SOUNDS");
 		writeSounds(f,out,ver,gs);
-		ip.updateProgress(40,"ProgressDialog.SPRITES");
+		ip.setProgress(40,"ProgressDialog.SPRITES");
 		writeSprites(f,out,ver,gs);
-		ip.updateProgress(50,"ProgressDialog.BACKGROUNDS");
+		ip.setProgress(50,"ProgressDialog.BACKGROUNDS");
 		writeBackgrounds(f,out,ver,gs);
-		ip.updateProgress(60,"ProgressDialog.PATHS");
+		ip.setProgress(60,"ProgressDialog.PATHS");
 		writePaths(f,out,ver,gs);
-		ip.updateProgress(70,"ProgressDialog.SCRIPTS");
+		ip.setProgress(70,"ProgressDialog.SCRIPTS");
 		writeScripts(f,out,ver,gs);
-		ip.updateProgress(80,"ProgressDialog.FONTS");
+		ip.setProgress(80,"ProgressDialog.FONTS");
 		writeFonts(f,out,ver,gs);
-		ip.updateProgress(90,"ProgressDialog.TIMELINES");
+		ip.setProgress(90,"ProgressDialog.TIMELINES");
 		writeTimelines(f,out,ver,gs);
-		ip.updateProgress(100,"ProgressDialog.OBJECTS");
+		ip.setProgress(100,"ProgressDialog.OBJECTS");
 		writeGmObjects(f,out,ver,gs);
-		ip.updateProgress(110,"ProgressDialog.ROOMS");
+		ip.setProgress(110,"ProgressDialog.ROOMS");
 		writeRooms(f,out,ver,gs);
 
 		out.write4(f.lastInstanceId);
@@ -150,29 +150,29 @@ public final class GmFileWriter
 
 		if (ver >= 700)
 			{
-			ip.updateProgress(120,"ProgressDialog.INCLUDEFILES");
+			ip.setProgress(120,"ProgressDialog.INCLUDEFILES");
 			writeIncludedFiles(f,out,ver,gs);
-			ip.updateProgress(130,"ProgressDialog.PACKAGES");
+			ip.setProgress(130,"ProgressDialog.PACKAGES");
 			writePackages(f,out,ver);
 			}
 
-		ip.updateProgress(140,"ProgressDialog.GAMEINFORMATION");
+		ip.setProgress(140,"ProgressDialog.GAMEINFORMATION");
 		writeGameInformation(f,out,ver,gs);
 
-		ip.updateProgress(150,"ProgressDialog.LIBRARYCREATION");
+		ip.setProgress(150,"ProgressDialog.LIBRARYCREATION");
 		//Library Creation Code
 		out.write4(500);
 		out.write4(0);
 
-		ip.updateProgress(160,"ProgressDialog.ROOMEXECUTION");
+		ip.setProgress(160,"ProgressDialog.ROOMEXECUTION");
 		//Room Execution Order
 		out.write4(ver >= 700 ? 700 : 540);
 		out.write4(0);
 
-		ip.updateProgress(170,"ProgressDialog.FILETREE");
+		ip.setProgress(170,"ProgressDialog.FILETREE");
 		writeTree(out,root);
 		out.close();
-		ip.updateProgress(200,"ProgressDialog.FINISHED");
+		ip.setProgress(200,"ProgressDialog.FINISHED");
 		}
 
 	public static void writeSettings(ProjectFile f, GmStreamEncoder out, int ver, long savetime, GameSettings g)
