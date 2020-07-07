@@ -292,10 +292,10 @@ public class ProjectFile implements UpdateListener
 	 */
 	public static interface InterfaceProvider
 		{
-			public void init(int max, String titleKey);
-			public void updateProgress(int percent, String messageKey);
-			public String translate(String key);
-			public String format(String key, Object...arguments);
+		public void init(int max, String titleKey);
+		public void updateProgress(int percent, String messageKey);
+		public String translate(String key);
+		public String format(String key, Object...arguments);
 		}
 
 	// The default interface will just sink the progress of the project loading.

@@ -677,7 +677,11 @@ public class FileChooser
 						{
 						ProjectFile f =  new ProjectFile();
 						f.uri = uri;
+						long startTime = System.currentTimeMillis();
 						reader.read(uri.toURL().openStream(),f,uri,LGM.newRoot());
+						long delta = System.currentTimeMillis() - startTime;
+						System.out.println(ProjectFile.interfaceProvider.format(
+								"ProjectFileReader.LOADTIME",delta)); //$NON-NLS-1$
 						LGM.currentFile = f;
 						}
 					catch (ProjectFormatException ex)

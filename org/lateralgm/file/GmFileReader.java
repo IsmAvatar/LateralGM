@@ -178,7 +178,6 @@ public final class GmFileReader
 		RefList<Room> rmids = new RefList<Room>(Room.class); // room id
 		try
 			{
-			long startTime = System.currentTimeMillis();
 			in = new GmStreamDecoder(stream);
 			ProjectFileContext c = new ProjectFileContext(file,in,timeids,objids,rmids);
 			int identifier = in.read4();
@@ -255,7 +254,8 @@ public final class GmFileReader
 			ip.updateProgress(120,"ProgressDialog.ROOMS"); //$NON-NLS-1$
 			readRooms(c);
 
-			//If the "use as tileset" flag was not part of this version, try to infer it from the backgrounds used in room tiles.
+			//If the "use as tileset" flag was not part of this version,
+			//try to infer it from the backgrounds used in room tiles.
 			if (bgVer <= 400) {
 				for (Room rm : file.resMap.getList(Room.class)) {
 					for (Tile tl : rm.tiles) {
@@ -315,8 +315,6 @@ public final class GmFileReader
 			readTree(c,root,ver);
 
 			ip.updateProgress(200,"ProgressDialog.FINISHED"); //$NON-NLS-1$
-			System.out.println(ip.format("ProjectFileReader.LOADTIME",System.currentTimeMillis() //$NON-NLS-1$
-					- startTime));
 			}
 		catch (Exception e)
 			{
