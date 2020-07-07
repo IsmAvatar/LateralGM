@@ -295,10 +295,11 @@ public class ProjectFile implements UpdateListener
 		public void setProgress(int percent, String messageKey);
 		public String translate(String key);
 		public String format(String key, Object...arguments);
+		public void handleException(Exception e);
 		}
 
 	// The default interface will just sink the progress of the project loading.
-	public static InterfaceProvider interfaceProvider = new InterfaceProvider()
+	public static class DefaultInterfaceProvider implements InterfaceProvider
 		{
 		@Override
 		public void setProgress(int percent, String messageKey) {}
@@ -308,7 +309,16 @@ public class ProjectFile implements UpdateListener
 		public String format(String key, Object...arguments) { return key; }
 		@Override
 		public void init(int max, String titleKey) {}
+		@Override
+		public void handleException(Exception e)
+			{
+			Thread t = Thread.currentThread();
+			t.getUncaughtExceptionHandler().uncaughtException(t,e);
+			}
 		};
+
+	// This is the one that the project readers will actually use and depend upon.
+	public static InterfaceProvider interfaceProvider = new DefaultInterfaceProvider();
 
 	public ProjectFile()
 		{

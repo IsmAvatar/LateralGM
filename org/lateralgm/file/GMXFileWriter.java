@@ -24,6 +24,7 @@
 package org.lateralgm.file;
 
 import static org.lateralgm.main.Util.deRef;
+import static org.lateralgm.file.ProjectFile.interfaceProvider;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
@@ -56,9 +57,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.file.ProjectFile.InterfaceProvider;
 import org.lateralgm.file.iconio.ICOFile;
-import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
@@ -176,8 +175,7 @@ public final class GMXFileWriter
 	public static void writeProjectFile(OutputStream os, ProjectFile f, ResNode rootRes)
 			throws IOException,GmFormatException
 		{
-		InterfaceProvider ip = ProjectFile.interfaceProvider;
-		ip.init(160,"ProgressDialog.GMX_SAVING"); //$NON-NLS-1$
+		interfaceProvider.init(160,"ProgressDialog.GMX_SAVING"); //$NON-NLS-1$
 		f.format = ProjectFile.FormatFlavor.GMX;
 		long savetime = System.currentTimeMillis();
 
@@ -211,44 +209,44 @@ public final class GMXFileWriter
 
 		ProjectFileContext c = new ProjectFileContext(f,dom);
 		Element root = dom.createElement("assets"); //$NON-NLS-1$
-		ip.setProgress(0,"ProgressDialog.SETTINGS"); //$NON-NLS-1$
+		interfaceProvider.setProgress(0,"ProgressDialog.SETTINGS"); //$NON-NLS-1$
 		writeConfigurations(c,root,savetime);
 
-		ip.setProgress(10,"ProgressDialog.SPRITES"); //$NON-NLS-1$
+		interfaceProvider.setProgress(10,"ProgressDialog.SPRITES"); //$NON-NLS-1$
 		writeGroup(c,root,Sprite.class);
-		ip.setProgress(20,"ProgressDialog.SOUNDS"); //$NON-NLS-1$
+		interfaceProvider.setProgress(20,"ProgressDialog.SOUNDS"); //$NON-NLS-1$
 		writeGroup(c,root,Sound.class);
-		ip.setProgress(30,"ProgressDialog.BACKGROUNDS"); //$NON-NLS-1$
+		interfaceProvider.setProgress(30,"ProgressDialog.BACKGROUNDS"); //$NON-NLS-1$
 		writeGroup(c,root,Background.class);
-		ip.setProgress(40,"ProgressDialog.PATHS"); //$NON-NLS-1$
+		interfaceProvider.setProgress(40,"ProgressDialog.PATHS"); //$NON-NLS-1$
 		writeGroup(c,root,Path.class);
-		ip.setProgress(50,"ProgressDialog.SCRIPTS"); //$NON-NLS-1$
+		interfaceProvider.setProgress(50,"ProgressDialog.SCRIPTS"); //$NON-NLS-1$
 		writeGroup(c,root,Script.class);
-		ip.setProgress(60,"ProgressDialog.SHADERS"); //$NON-NLS-1$
+		interfaceProvider.setProgress(60,"ProgressDialog.SHADERS"); //$NON-NLS-1$
 		writeGroup(c,root,Shader.class);
-		ip.setProgress(70,"ProgressDialog.FONTS"); //$NON-NLS-1$
+		interfaceProvider.setProgress(70,"ProgressDialog.FONTS"); //$NON-NLS-1$
 		writeGroup(c,root,Font.class);
-		ip.setProgress(80,"ProgressDialog.TIMELINES"); //$NON-NLS-1$
+		interfaceProvider.setProgress(80,"ProgressDialog.TIMELINES"); //$NON-NLS-1$
 		writeGroup(c,root,Timeline.class);
-		ip.setProgress(90,"ProgressDialog.OBJECTS"); //$NON-NLS-1$
+		interfaceProvider.setProgress(90,"ProgressDialog.OBJECTS"); //$NON-NLS-1$
 		writeGroup(c,root,GmObject.class);
-		ip.setProgress(100,"ProgressDialog.ROOMS"); //$NON-NLS-1$
+		interfaceProvider.setProgress(100,"ProgressDialog.ROOMS"); //$NON-NLS-1$
 		writeGroup(c,root,Room.class);
-		ip.setProgress(110,"ProgressDialog.INCLUDEFILES"); //$NON-NLS-1$
+		interfaceProvider.setProgress(110,"ProgressDialog.INCLUDEFILES"); //$NON-NLS-1$
 		writeGroup(c,root,Include.class);
-		ip.setProgress(120,"ProgressDialog.PACKAGES"); //$NON-NLS-1$
+		interfaceProvider.setProgress(120,"ProgressDialog.PACKAGES"); //$NON-NLS-1$
 		//writePackages(c, root);
-		ip.setProgress(130,"ProgressDialog.CONSTANTS"); //$NON-NLS-1$
+		interfaceProvider.setProgress(130,"ProgressDialog.CONSTANTS"); //$NON-NLS-1$
 		writeDefaultConstants(c, root);
-		ip.setProgress(140,"ProgressDialog.EXTENSIONS"); //$NON-NLS-1$
+		interfaceProvider.setProgress(140,"ProgressDialog.EXTENSIONS"); //$NON-NLS-1$
 		//writeExtensions(c, root);
-		ip.setProgress(150,"ProgressDialog.GAMEINFORMATION"); //$NON-NLS-1$
+		interfaceProvider.setProgress(150,"ProgressDialog.GAMEINFORMATION"); //$NON-NLS-1$
 		writeGameInformation(c,root);
 
 		dom.appendChild(root);
 
 		// Now take the serialized XML data and format and write it to the actual file
-		ip.setProgress(150,"ProgressDialog.DOCUMENT"); //$NON-NLS-1$
+		interfaceProvider.setProgress(150,"ProgressDialog.DOCUMENT"); //$NON-NLS-1$
 		try
 			{
 			// send DOM to file
@@ -263,7 +261,7 @@ public final class GMXFileWriter
 			// close up the stream and release the lock on the file
 			os.close();
 			}
-		ip.setProgress(160,"ProgressDialog.FINISHED"); //$NON-NLS-1$
+		interfaceProvider.setProgress(160,"ProgressDialog.FINISHED"); //$NON-NLS-1$
 		}
 
 	private static Element createElement(Document dom, String name, String value)
@@ -294,7 +292,7 @@ public final class GMXFileWriter
 			}
 		catch (GmFormatException e)
 			{
-			LGM.showDefaultExceptionHandler(e);
+			interfaceProvider.handleException(e);
 			}
 		}
 
