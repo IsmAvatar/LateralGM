@@ -286,12 +286,36 @@ public class ProjectFile implements UpdateListener
 			}
 		}
 
+	/* This interface is used by the file readers
+	 * to report progress to the UI or to ask the
+	 * frontend to translate a message.
+	 */
+	public static interface InterfaceProvider
+		{
+			public void init(int max, String titleKey);
+			public void updateProgress(int percent, String messageKey);
+			public String translate(String key);
+			public String format(String key, Object...arguments);
+		}
+
+	// The default interface will just sink the progress of the project loading.
+	public static InterfaceProvider interfaceProvider = new InterfaceProvider()
+		{
+		@Override
+		public void updateProgress(int percent, String messageKey) {}
+		@Override
+		public String translate(String key) { return key; }
+		@Override
+		public String format(String key, Object...arguments) { return key; }
+		@Override
+		public void init(int max, String titleKey) {}
+		};
+
 	public ProjectFile()
 		{
 		resMap = new ResourceMap();
 		for (Class<?> kind : Resource.kinds)
 			if (InstantiableResource.class.isAssignableFrom(kind)) resMap.addList(kind);
-
 
 		// Default initial configuration
 		GameSettings gs = createDefaultConfig();

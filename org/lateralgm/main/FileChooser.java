@@ -85,6 +85,38 @@ public class FileChooser
 	FilterSet openFs = new FilterSet(), saveFs = new FilterSet();
 	FilterUnion openAllFilter = new FilterUnion(), saveAllFilter = new FilterUnion();
 
+	static
+		{
+		// Replace the default project UI provider with one coupled to Swing.
+		ProjectFile.interfaceProvider = new ProjectFile.InterfaceProvider()
+			{
+			@Override
+			public void updateProgress(int percent, String messageKey)
+				{
+				LGM.setProgress(percent,Messages.getString(messageKey));
+				}
+		
+			@Override
+			public String translate(String key)
+				{
+				return Messages.getString(key);
+				}
+		
+			@Override
+			public String format(String key, Object...arguments)
+				{
+				return Messages.format(key,arguments);
+				}
+		
+			@Override
+			public void init(int max, String titleKey)
+				{
+				LGM.getProgressDialogBar().setMaximum(max);
+				LGM.setProgressTitle(translate(titleKey));
+				}
+			};
+		}
+	
 	public static void addDefaultReadersAndWriters()
 		{
 		if (gmxIO == null)
@@ -625,7 +657,7 @@ public class FileChooser
 		ErrorDialog.getInstance().setMessage(Messages.getString("FileChooser.ERROR_LOAD")); //$NON-NLS-1$
 		ErrorDialog.getInstance().setTitle(Messages.getString("FileChooser.ERROR_LOAD_TITLE")); //$NON-NLS-1$
 		}
-	
+
 	/**
 	 * Both open() methods are not headless. For a headless open:
 	 * <code>findReader(uri).read(uriStream,uri,root)</code>
@@ -633,7 +665,9 @@ public class FileChooser
 	public void open(final URI uri, final FileReader reader)
 		{
 		if (uri == null) return;
+
 		LGM.getProgressDialog().setVisible(false);
+
 		Thread t = new Thread(new Runnable()
 			{
 				public void run()
