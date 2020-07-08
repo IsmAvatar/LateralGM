@@ -293,6 +293,11 @@ public class ProjectFile implements UpdateListener
 	 * refer to both project readers and writers synonymously in
 	 * this context.
 	 *
+	 * Any of the methods in this class which are called by the
+	 * reader could potentially be running on a background thread
+	 * and may therefore not be safe to perform UI work.
+	 *
+	 * @see javax.swing.SwingUtilities#invokeLater()
 	 * @since 1.8.111
 	 */
 	public static interface InterfaceProvider
@@ -315,7 +320,7 @@ public class ProjectFile implements UpdateListener
 		 * called by the frontend on the EDT, such as in
 		 * the done method of {@code SwingWorker}.
 		 *
-		 * @see   javax.swing.SwingWorker SwingWorker
+		 * @see   javax.swing.SwingWorker
 		 * @since 1.8.113
 		 */
 		public void done();
@@ -374,7 +379,7 @@ public class ProjectFile implements UpdateListener
 	 * not need to override every interface method. Most of the
 	 * methods simply sink the progress output of the readers.
 	 *
-	 * @see   java.awt.event.MouseAdapter MouseAdapter
+	 * @see   java.awt.event.MouseAdapter
 	 * @since 1.8.112
 	 */
 	public static class DefaultInterfaceProvider implements InterfaceProvider
