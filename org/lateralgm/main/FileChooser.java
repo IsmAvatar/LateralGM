@@ -722,17 +722,10 @@ public class FileChooser
 				OutputManager.append("\n" + Messages.getString("FileChooser.PROJECTLOADED") + ": " +
 						new Date().toString() + " " + uri.getPath());
 
-				// TODO: Since project reading still mutates the LGM root
-				// we must always perform this, even when the load fails.
-				// Ultimately, we should change project reading to not
-				// immediately assign the new root, to make it thread safe
-				// as well as decoupled from Swing. Then we wouldn't have
-				// to unnecessarily reload LGM when project reading fails.
-				LGM.reload(true);
-
+				ProjectFile pf = null;
 				try
 					{
-					LGM.currentFile = get();
+					pf = get();
 					Listener.checkIdsInteractive(false);
 					}
 				catch (InterruptedException e)
@@ -744,16 +737,29 @@ public class FileChooser
 					if (e.getCause() instanceof ProjectFormatException)
 						{
 						ProjectFormatException pe = (ProjectFormatException)e.getCause();
-						LGM.currentFile = pe.file;
+						pf = pe.file;
 						}
 					openExceptionHelper(e);
 					}
+				if (pf != null) LGM.currentFile = pf;
 
-				setTitleURI(uri);
-				PrefsStore.addRecentFile(uri.toString());
-				((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
+				// TODO: Since project reading still mutates the LGM root
+				// we must always perform this, even when the load fails.
+				// Ultimately, we should change project reading to not
+				// immediately assign the new root, to make it thread safe
+				// as well as decoupled from Swing. Then we wouldn't have
+				// to unnecessarily reload LGM when project reading fails.
+				LGM.reload(true);
+
+				// full or partial success
+				if (pf != null)
+					{
+					setTitleURI(uri);
+					PrefsStore.addRecentFile(uri.toString());
+					((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
+					}
+
 				selectedWriter = null;
-
 				ProjectFile.interfaceProvider.done(); // <- end modal blocking
 				}
 			}.execute(); // <- spin up the thread before blocking
