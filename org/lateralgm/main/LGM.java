@@ -42,7 +42,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -133,7 +132,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.114"; //$NON-NLS-1$
+	public static final String version = "1.8.115"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
