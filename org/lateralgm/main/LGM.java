@@ -1171,6 +1171,7 @@ public final class LGM
 			System.out.println("Some program functionality will be limited due to your outdated Java version"); //$NON-NLS-1$
 
 		// Create the main window on the EDT for safety.
+		// https://docs.oracle.com/javase/tutorial/uiswing/concurrency/initial.html
 		SwingUtilities.invokeLater(new Runnable()
 			{
 				@Override
