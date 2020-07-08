@@ -27,17 +27,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -48,6 +47,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.TransferHandler;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileView;
@@ -87,13 +88,49 @@ public class FileChooser
 
 	static
 		{
-		// Replace the default project UI provider with one coupled to Swing.
+		// Replace the default reader UI provider with one coupled to Swing.
 		ProjectFile.interfaceProvider = new ProjectFile.DefaultInterfaceProvider()
 			{
 			@Override
-			public void setProgress(int percent, String messageKey)
+			public void start()
 				{
-				LGM.setProgress(percent,Messages.getString(messageKey));
+				// start blocking the EDT with modal progress dialog
+				LGM.showProgressDialog();
+				}
+
+			@Override
+			public void done()
+				{
+				// stop blocking the EDT with modal progress dialog
+				LGM.setProgressDialogVisible(false);
+				}
+
+			@Override
+			public void init(final int max, final String titleKey)
+				{
+				// send the initial state of the progress now
+				SwingUtilities.invokeLater(new Runnable()
+					{
+					@Override
+					public void run()
+						{
+						LGM.initProgressDialog(0,max,translate(titleKey));
+						}
+					});
+				}
+
+			@Override
+			public void setProgress(final int percent, final String messageKey)
+				{
+				// send progress messages to event queue which reads them FIFO
+				SwingUtilities.invokeLater(new Runnable()
+					{
+					@Override
+					public void run()
+						{
+						LGM.setProgress(percent,translate(messageKey));
+						}
+					});
 				}
 		
 			@Override
@@ -106,13 +143,6 @@ public class FileChooser
 			public String format(String key, Object...arguments)
 				{
 				return Messages.format(key,arguments);
-				}
-		
-			@Override
-			public void init(int max, String titleKey)
-				{
-				LGM.getProgressDialogBar().setMaximum(max);
-				LGM.setProgressTitle(translate(titleKey));
 				}
 			};
 		}
@@ -666,46 +696,76 @@ public class FileChooser
 		{
 		if (uri == null) return;
 
-		LGM.getProgressDialog().setVisible(false);
-
-		Thread t = new Thread(new Runnable()
+		new SwingWorker<ProjectFile,Object>()
 			{
-				public void run()
+			// The background part runs on a thread!
+			// DON'T use Swing components on it at ALL!
+			@Override
+			protected ProjectFile doInBackground() throws Exception
+				{
+				LGM.addDefaultExceptionHandler();
+				ProjectFile f =  new ProjectFile();
+				f.uri = uri;
+				long startTime = System.currentTimeMillis();
+				reader.read(uri.toURL().openStream(),f,uri,LGM.newRoot());
+				long delta = System.currentTimeMillis() - startTime;
+				System.out.println(ProjectFile.interfaceProvider.format(
+						"ProjectFileReader.LOADTIME",delta)); //$NON-NLS-1$
+				return f;
+				}
+
+			// The done part runs on the EDT and it is safe
+			// to use normal Swing components here.
+			@Override
+			protected void done()
+				{
+				OutputManager.append("\n" + Messages.getString("FileChooser.PROJECTLOADED") + ": " +
+						new Date().toString() + " " + uri.getPath());
+
+				ProjectFile pf = null;
+				try
 					{
-					LGM.addDefaultExceptionHandler();
-					try
+					pf = get();
+					Listener.checkIdsInteractive(false);
+					}
+				catch (InterruptedException e)
+					{
+					openExceptionHelper(e);
+					}
+				catch (ExecutionException e)
+					{
+					if (e.getCause() instanceof ProjectFormatException)
 						{
-						ProjectFile f =  new ProjectFile();
-						f.uri = uri;
-						long startTime = System.currentTimeMillis();
-						reader.read(uri.toURL().openStream(),f,uri,LGM.newRoot());
-						long delta = System.currentTimeMillis() - startTime;
-						System.out.println(ProjectFile.interfaceProvider.format(
-								"ProjectFileReader.LOADTIME",delta)); //$NON-NLS-1$
-						LGM.currentFile = f;
+						ProjectFormatException pe = (ProjectFormatException)e.getCause();
+						pf = pe.file;
 						}
-					catch (ProjectFormatException ex)
-						{
-						LGM.currentFile = ex.file;
-						openExceptionHelper(ex);
-						}
-					catch (Exception e)
-						{
-						openExceptionHelper(e);
-						}
+					openExceptionHelper(e);
+					}
+				if (pf != null) LGM.currentFile = pf;
+
+				// TODO: Since project reading still mutates the LGM root
+				// we must always perform this, even when the load fails.
+				// Ultimately, we should change project reading to not
+				// immediately assign the new root, to make it thread safe
+				// as well as decoupled from Swing. Then we wouldn't have
+				// to unnecessarily reload LGM when project reading fails.
+				LGM.reload(true);
+
+				// full or partial success
+				if (pf != null)
+					{
 					setTitleURI(uri);
 					PrefsStore.addRecentFile(uri.toString());
 					((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
-					selectedWriter = null;
-					LGM.setProgressDialogVisible(false);
-					OutputManager.append("\n" + Messages.getString("FileChooser.PROJECTLOADED") + ": " +
-							new Date().toString() + " " + uri.getPath());
 					}
-			});
-		t.start();
-		LGM.setProgressDialogVisible(true);
-		LGM.reload(true);
-		Listener.checkIdsInteractive(false);
+
+				selectedWriter = null;
+				ProjectFile.interfaceProvider.done(); // <- end modal blocking
+				}
+			}.execute(); // <- spin up the thread before blocking
+
+		// begin modal blocking, if desired, until finished
+		ProjectFile.interfaceProvider.start();
 		}
 
 	public static FileReader findReader(URI uri)
@@ -772,10 +832,18 @@ public class FileChooser
 		}
 
 	/**
-	 * This method is not headless. For a headless save:
-	 * <code>save(uri,findWriter(flavor))</code>
+	 * <p>This method saves the project in the requested format. User input may be
+	 * requested and modal dialogs may be invoked so this method should therefore
+	 * not be considered headless safe for use in a server esque environment.</p>
+	 * 
+	 * <p>For a headless safe version see {@link #save(URI,FileWriter) save} in
+	 * this class.</p>
+	 * 
+	 * @return {@code true} if the operation completed fully, {@code false} otherwise.
+	 * @param uri The URI where the project should be written.
+	 * @param flavor The flavor that should be used to format the project.
 	 */
-	public boolean save(URI uri, FormatFlavor flavor)
+	public boolean save(final URI uri, FormatFlavor flavor)
 		{
 		selectedWriter = findWriter(flavor);
 		System.out.println(selectedWriter == null ? "null writer" : selectedWriter.getSelectionName());
@@ -792,6 +860,7 @@ public class FileChooser
 			}
 
 		LGM.commitAll();
+		LGM.resetChanges();
 
 		String ext = selectedWriter.getExtension();
 		if (!uri.getPath().endsWith(ext))
@@ -805,75 +874,69 @@ public class FileChooser
 			}
 
 		attemptBackup();
+		SwingWorker<Object,Object> sw = new SwingWorker<Object,Object>()
+			{
+			// The background part runs on a thread!
+			// DON'T use Swing components on it at ALL!
+			@Override
+			protected Object doInBackground() throws Exception
+				{
+				LGM.addDefaultExceptionHandler();
+				save(uri,selectedWriter);
+				return null;
+				}
+
+			// The done part runs on the EDT and it is safe
+			// to use normal Swing components here.
+			@Override
+			protected void done()
+				{
+				ProjectFile.interfaceProvider.done(); // <- end modal blocking
+				}
+			};
+
+		sw.execute(); // <- spin up the thread before blocking
+		ProjectFile.interfaceProvider.start(); // <- begin modal blocking, if desired
 		try
 			{
-			save(uri,selectedWriter);
-			return true;
+			sw.get();
+			OutputManager.append("\n" + Messages.getString("FileChooser.PROJECTSAVED") + ": " +
+					new Date().toString() + " " + uri.getPath());
 			}
-		catch (IOException e)
+		catch (ExecutionException | InterruptedException e)
 			{
-			e.printStackTrace();
+			// ExecutionException means writing actually failed
+			// InterruptedException is indeterminate
+			LGM.showDefaultExceptionHandler(e); // <- give a full stacktrace first
 			JOptionPane.showMessageDialog(LGM.frame,Messages.format("FileChooser.ERROR_SAVE", //$NON-NLS-1$
 					uri,e.getClass().getName(),e.getMessage()),
 					Messages.getString("FileChooser.ERROR_SAVE_TITLE"),JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 			return false;
 			}
+		return true;
 		}
 
-	/** This method is headless-safe. */
-	public static void save(final URI uri, final FileWriter writer) throws IOException
+	/**
+	 * This method is headless-safe when saving the project. It does not invoke any modal
+	 * dialogs or require user interaction. Although modal blocking does not occur, the
+	 * writer may still report progress to
+	 * {@link org.lateralgm.file.ProjectFile#interfaceProvider interfaceProvider} who may
+	 * still dispatch UI updates to the EDT or ask the frontend to translate an exception.
+	 * This method is a blocking operation and writing is not explicitly threaded.
+	 * 
+	 * @see org.lateralgm.file.ProjectFile.InterfaceProvider InterfaceProvider
+	 * @param uri The URI where the project should be written.
+	 * @param writer The writer that should be used to format the project.
+	 * @throws IOException If the URI couldn't be opened or there was an I/O issue while writing.
+	 * @throws ProjectFormatException If there was an I/O issue writing the project.
+	 */
+	public static void save(final URI uri, final FileWriter writer) throws IOException, ProjectFormatException
 		{
-		LGM.resetChanges();
 		System.out.println(uri);
-		LGM.getProgressDialog().setVisible(false);
-		Thread t = new Thread(new Runnable()
+		try (OutputStream os = Util.openURIOutputStream(uri))
 			{
-				public void run()
-					{
-					LGM.addDefaultExceptionHandler();
-					try
-						{
-						writer.write(new FileOutputStream(new File(uri)),LGM.currentFile,LGM.root);
-						OutputManager.append("\n" + Messages.getString("FileChooser.PROJECTSAVED") + ": " +
-								new Date().toString() + " " + uri.getPath());
-						LGM.setProgressDialogVisible(false);
-						return;
-						}
-					catch (ProjectFormatException e)
-						{
-						LGM.showDefaultExceptionHandler(e);
-						}
-					catch (Exception e)
-						{
-						LGM.showDefaultExceptionHandler(e);
-						}
-					URLConnection uc = null;
-					try
-						{
-						uc = uri.toURL().openConnection();
-						}
-					catch (Exception e)
-						{
-						LGM.showDefaultExceptionHandler(e);
-						}
-					uc.setDoOutput(true);
-					try
-						{
-						writer.write(uc.getOutputStream(),LGM.currentFile,LGM.root);
-						}
-					catch (ProjectFormatException e)
-						{
-						LGM.showDefaultExceptionHandler(e);
-						}
-					catch (Exception e)
-						{
-						LGM.showDefaultExceptionHandler(e);
-						}
-					LGM.setProgressDialogVisible(false);
-					}
-			});
-		t.start();
-		LGM.setProgressDialogVisible(true);
+			writer.write(os,LGM.currentFile,LGM.root);
+			}
 		}
 
 	public FileWriter findWriter(FormatFlavor flavor)

@@ -133,15 +133,16 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.112"; //$NON-NLS-1$
+	public static final String version = "1.8.113"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
 	public final static ArrayList<URLClassLoader> classLoaders = new ArrayList<URLClassLoader>();
 
 	public static boolean LOADING_PROJECT = false;
-	public static JDialog progressDialog = null;
-	public static JProgressBar progressDialogBar = null;
+	private static JDialog progressDialog = null;
+	private static JProgressBar progressDialogBar = null;
+	private static String progressTitle;
 
 	public static String iconspath = "org/lateralgm/icons/"; //$NON-NLS-1$
 	public static String iconspack = "Calico"; //$NON-NLS-1$
@@ -208,7 +209,6 @@ public final class LGM
 	public static Cursor zoomCursor;
 	public static Cursor zoomInCursor;
 	public static Cursor zoomOutCursor;
-	private static String progressTitle;
 	public static GmMenuBar menuBar;
 
 	public static JComboBox<GameSettings> configsCombo;
@@ -219,12 +219,12 @@ public final class LGM
 
 	public static JDialog getProgressDialog()
 		{
+		// lazy create the progress dialog
 		if (progressDialog == null)
 			{
 			progressDialog = new JDialog(LGM.frame,true);
-			progressDialogBar = new JProgressBar(0,140);
+			progressDialogBar = new JProgressBar(0,100);
 			progressDialogBar.setStringPainted(true);
-			progressDialogBar.setPreferredSize(new Dimension(240,20));
 			progressDialog.add(BorderLayout.CENTER,progressDialogBar);
 			progressDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 
@@ -235,24 +235,40 @@ public final class LGM
 		return progressDialog;
 		}
 
-	public static JProgressBar getProgressDialogBar()
+	public static void showProgressDialog()
 		{
-		return progressDialogBar;
+		getProgressDialog(); // lazy create
+		// reset the progress just in case look
+		// and feel doesn't support indeterminate
+		progressDialogBar.setValue(0);
+		progressDialogBar.setMinimum(0);
+		progressDialogBar.setMaximum(100);
+		// just starting to block, worker/thread
+		// possibly hasn't told us actual size
+		progressDialogBar.setIndeterminate(true);
+		// empty title indeterminate
+		progressDialog.setTitle("");
+		// begin modal blocking
+		progressDialog.setVisible(true);
 		}
 
 	public static void setProgressDialogVisible(final boolean visible)
 		{
-		if (progressDialog != null)
-			{
-			progressDialogBar.setValue(0);
-			progressDialog.setVisible(visible);
-			return;
-			}
-		getProgressDialog().setVisible(visible);
+		if (visible) showProgressDialog();
+		else progressDialog.setVisible(false);
 		}
 
 	public static void setProgressTitle(String title)
 		{
+		progressTitle = title; // main progress title
+		}
+
+	public static void initProgressDialog(int min, int max, final String title)
+		{
+		progressDialogBar.setMinimum(min);
+		progressDialogBar.setMaximum(max);
+		// work size known so no longer indeterminate
+		progressDialogBar.setIndeterminate(false);
 		progressTitle = title;
 		}
 
@@ -797,26 +813,12 @@ public final class LGM
 		{
 		LGM.mdi.closeAll();
 
-		//TODO: Swing code must be executed on the Swing thread,
-		//without delaying this passing a GMX to the main method
-		//when launching will sometimes, about once every 5 loads,
-		//throw an exception when setModel is called.
-		//After several hours and days of testing I still haven't figured out why
-		//the GMK reader doesn't have this but the GMX reader does, I believe because the GMX
-		//reader uses more postponed references, but I can't figure out where or how it correlates. - Robert
-		SwingUtilities.invokeLater(new Runnable()
-			{
-			@Override
-			public void run()
-				{
-				InvisibleTreeModel ml = new InvisibleTreeModel(LGM.root);
-				LGM.tree.setModel(ml);
-				ml.activateFilter(Search.pruneResultsCB.isSelected());
-				if (ml.isActivatedFilter())
-					Search.applyFilter(root.getChildren(),ml.isActivatedFilter(),Search.filterText.getText(),false,Search.wholeWordCB.isSelected(),true);
-				LGM.tree.setSelectionRow(0);
-				}
-			});
+		InvisibleTreeModel ml = new InvisibleTreeModel(LGM.root);
+		LGM.tree.setModel(ml);
+		ml.activateFilter(Search.pruneResultsCB.isSelected());
+		if (ml.isActivatedFilter())
+			Search.applyFilter(root.getChildren(),ml.isActivatedFilter(),Search.filterText.getText(),false,Search.wholeWordCB.isSelected(),true);
+		LGM.tree.setSelectionRow(0);
 
 		// Reload the search tree so that orphaned references can be dumped.
 		DefaultMutableTreeNode searchRoot = (DefaultMutableTreeNode) searchTree.getModel().getRoot();
