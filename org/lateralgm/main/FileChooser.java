@@ -726,7 +726,6 @@ public class FileChooser
 				try
 					{
 					pf = get();
-					Listener.checkIdsInteractive(false);
 					}
 				catch (InterruptedException e)
 					{
@@ -757,6 +756,7 @@ public class FileChooser
 					setTitleURI(uri);
 					PrefsStore.addRecentFile(uri.toString());
 					((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
+					Listener.checkIdsInteractive(false);
 					}
 
 				selectedWriter = null;
