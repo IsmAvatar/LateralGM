@@ -195,8 +195,7 @@ public final class Util
 	 * @return An OutputStream opened from the URI.
 	 * @param uri The URI to convert to an OutputStream.
 	 * @throws NullPointerException If {@code uri} is {@code null}
-	 * @throws IOException If the URI could not be found,
-	 *                     was a malformed URL, or the
+	 * @throws IOException If the URI was malformed, or the
 	 *                     connection otherwise failed.
 	 */
 	public static OutputStream openURIOutputStream(URI uri) throws NullPointerException,IOException

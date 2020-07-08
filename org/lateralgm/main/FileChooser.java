@@ -696,35 +696,22 @@ public class FileChooser
 		{
 		if (uri == null) return;
 
-		new SwingWorker()
+		new SwingWorker<ProjectFile,Object>()
 			{
 			// The background part runs on a thread!
 			// DON'T use Swing components on it at ALL!
 			@Override
-			protected Object doInBackground() throws Exception
+			protected ProjectFile doInBackground() throws Exception
 				{
 				LGM.addDefaultExceptionHandler();
-				try
-					{
-					ProjectFile f =  new ProjectFile();
-					f.uri = uri;
-					long startTime = System.currentTimeMillis();
-					reader.read(uri.toURL().openStream(),f,uri,LGM.newRoot());
-					long delta = System.currentTimeMillis() - startTime;
-					System.out.println(ProjectFile.interfaceProvider.format(
-							"ProjectFileReader.LOADTIME",delta)); //$NON-NLS-1$
-					LGM.currentFile = f;
-					}
-				catch (ProjectFormatException ex)
-					{
-					LGM.currentFile = ex.file;
-					openExceptionHelper(ex);
-					}
-				catch (Exception e)
-					{
-					openExceptionHelper(e);
-					}
-				return null;
+				ProjectFile f =  new ProjectFile();
+				f.uri = uri;
+				long startTime = System.currentTimeMillis();
+				reader.read(uri.toURL().openStream(),f,uri,LGM.newRoot());
+				long delta = System.currentTimeMillis() - startTime;
+				System.out.println(ProjectFile.interfaceProvider.format(
+						"ProjectFileReader.LOADTIME",delta)); //$NON-NLS-1$
+				return f;
 				}
 
 			// The done part runs on the EDT and it is safe
@@ -732,6 +719,9 @@ public class FileChooser
 			@Override
 			protected void done()
 				{
+				OutputManager.append("\n" + Messages.getString("FileChooser.PROJECTLOADED") + ": " +
+						new Date().toString() + " " + uri.getPath());
+
 				// TODO: Since project reading still mutates the LGM root
 				// we must always perform this, even when the load fails.
 				// Ultimately, we should change project reading to not
@@ -740,13 +730,29 @@ public class FileChooser
 				// to unnecessarily reload LGM when project reading fails.
 				LGM.reload(true);
 
-				Listener.checkIdsInteractive(false);
+				try
+					{
+					LGM.currentFile = get();
+					Listener.checkIdsInteractive(false);
+					}
+				catch (InterruptedException e)
+					{
+					openExceptionHelper(e);
+					}
+				catch (ExecutionException e)
+					{
+					if (e.getCause() instanceof ProjectFormatException)
+						{
+						ProjectFormatException pe = (ProjectFormatException)e.getCause();
+						LGM.currentFile = pe.file;
+						}
+					openExceptionHelper(e);
+					}
+
 				setTitleURI(uri);
 				PrefsStore.addRecentFile(uri.toString());
 				((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
 				selectedWriter = null;
-				OutputManager.append("\n" + Messages.getString("FileChooser.PROJECTLOADED") + ": " +
-						new Date().toString() + " " + uri.getPath());
 
 				ProjectFile.interfaceProvider.done(); // <- end modal blocking
 				}
@@ -895,6 +901,7 @@ public class FileChooser
 			{
 			// ExecutionException means writing actually failed
 			// InterruptedException is indeterminate
+			LGM.showDefaultExceptionHandler(e); // <- give a full stacktrace first
 			JOptionPane.showMessageDialog(LGM.frame,Messages.format("FileChooser.ERROR_SAVE", //$NON-NLS-1$
 					uri,e.getClass().getName(),e.getMessage()),
 					Messages.getString("FileChooser.ERROR_SAVE_TITLE"),JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
