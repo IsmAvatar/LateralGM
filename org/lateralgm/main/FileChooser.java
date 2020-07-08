@@ -748,7 +748,8 @@ public class FileChooser
 				selectedWriter = null;
 				OutputManager.append("\n" + Messages.getString("FileChooser.PROJECTLOADED") + ": " +
 						new Date().toString() + " " + uri.getPath());
-				ProjectFile.interfaceProvider.done();
+
+				ProjectFile.interfaceProvider.done(); // <- end modal blocking
 				}
 			}.execute(); // <- spin up the thread before blocking
 
@@ -927,7 +928,7 @@ public class FileChooser
 			@Override
 			protected void done()
 				{
-				ProjectFile.interfaceProvider.done();
+				ProjectFile.interfaceProvider.done(); // <- end modal blocking
 				}
 			}.execute(); // <- spin up the thread before blocking
 
