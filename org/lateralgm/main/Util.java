@@ -188,15 +188,13 @@ public final class Util
 		}
 
 	/**
-	 * Converts a URI to an open OutputStream regardless
-	 * of whether the URI refers to a local file or a
-	 * remote URL on a network.
-	 * 
+	 * Converts a URI to an open OutputStream regardless of whether the URI refers to a local file
+	 * or a remote URL on a network.
+	 *
 	 * @return An OutputStream opened from the URI.
 	 * @param uri The URI to convert to an OutputStream.
 	 * @throws NullPointerException If {@code uri} is {@code null}
-	 * @throws IOException If the URI was malformed, or the
-	 *                     connection otherwise failed.
+	 * @throws IOException If the URI was malformed, or the connection otherwise failed.
 	 */
 	public static OutputStream openURIOutputStream(URI uri) throws NullPointerException,IOException
 		{
