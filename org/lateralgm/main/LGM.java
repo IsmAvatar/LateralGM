@@ -1023,11 +1023,8 @@ public final class LGM
 		}
 	}
 
-	public static void main(final String[] args) throws InvocationTargetException, InterruptedException
+	private static void createAndShowGUI(String[] args)
 		{
-		// Set the default uncaught exception handler.
-		LGM.setDefaultExceptionHandler();
-
 		LGM.applyPreferences();
 		Messages.updateLangPack();
 
@@ -1036,10 +1033,6 @@ public final class LGM
 		System.setProperty("apple.laf.useScreenMenuBar","true"); //$NON-NLS-1$ //$NON-NLS-2$
 		//Set the Mac menu bar title to the correct name (also adds a useless About entry, so disabled)
 		//System.setProperty("com.apple.mrj.application.apple.menu.about.name",Messages.getString("LGM.NAME")); //$NON-NLS-1$ //$NON-NLS-2$
-
-		System.out.format("Java Version: %d (%s)\n",javaVersion,System.getProperty("java.version")); //$NON-NLS-1$
-		if (javaVersion < 10700)
-			System.out.println("Some program functionality will be limited due to your outdated Java version"); //$NON-NLS-1$
 
 		iconspack = Prefs.iconPack;
 		setLookAndFeel(Prefs.swingTheme);
@@ -1164,6 +1157,29 @@ public final class LGM
 			{
 			LOADING_PROJECT = false;
 			}
+		}
+
+	// Swing component GUI stuff does NOT go in the main method!
+	// The initial thread is not running on the EDT and is not
+	// safe to perform any GUI work.
+	public static void main(final String[] args)
+		{
+		// Set the default uncaught exception handler.
+		LGM.setDefaultExceptionHandler();
+
+		System.out.format("Java Version: %d (%s)\n",javaVersion,System.getProperty("java.version")); //$NON-NLS-1$
+		if (javaVersion < 10700)
+			System.out.println("Some program functionality will be limited due to your outdated Java version"); //$NON-NLS-1$
+
+		// Create the main window on the EDT for safety.
+		SwingUtilities.invokeLater(new Runnable()
+			{
+				@Override
+				public void run()
+					{
+					createAndShowGUI(args);
+					}
+			});
 		}
 
 	public static int getTabIndex(JTabbedPane tabs, String title) {
