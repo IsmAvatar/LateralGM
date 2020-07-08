@@ -235,12 +235,6 @@ public final class LGM
 		return progressDialog;
 		}
 
-	public static void setProgressDialogVisible(final boolean visible)
-		{
-		if (visible) showProgressDialog();
-		else progressDialog.setVisible(false);
-		}
-	
 	public static void showProgressDialog()
 		{
 		getProgressDialog(); // lazy create
@@ -256,6 +250,12 @@ public final class LGM
 		progressDialog.setTitle("");
 		// begin modal blocking
 		progressDialog.setVisible(true);
+		}
+
+	public static void setProgressDialogVisible(final boolean visible)
+		{
+		if (visible) showProgressDialog();
+		else progressDialog.setVisible(false);
 		}
 
 	public static void setProgressTitle(String title)
