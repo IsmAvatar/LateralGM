@@ -733,6 +733,15 @@ public class FileChooser
 			@Override
 			protected void done()
 				{
+				// TODO: Since project reading still mutates the LGM root
+				// we must always perform this, even when the load fails.
+				// Ultimately, we should change project reading to not
+				// immediately assign the new root, to make it thread safe
+				// as well as decoupled from Swing. Then we wouldn't have
+				// to unnecessarily reload LGM when project reading fails.
+				LGM.reload(true);
+
+				Listener.checkIdsInteractive(false);
 				setTitleURI(uri);
 				PrefsStore.addRecentFile(uri.toString());
 				((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
@@ -745,8 +754,6 @@ public class FileChooser
 
 		// begin modal blocking, if desired, until finished
 		ProjectFile.interfaceProvider.start();
-		LGM.reload(true);
-		Listener.checkIdsInteractive(false);
 		}
 
 	public static FileReader findReader(URI uri)

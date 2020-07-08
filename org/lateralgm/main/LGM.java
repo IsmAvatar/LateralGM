@@ -813,26 +813,12 @@ public final class LGM
 		{
 		LGM.mdi.closeAll();
 
-		//TODO: Swing code must be executed on the Swing thread,
-		//without delaying this passing a GMX to the main method
-		//when launching will sometimes, about once every 5 loads,
-		//throw an exception when setModel is called.
-		//After several hours and days of testing I still haven't figured out why
-		//the GMK reader doesn't have this but the GMX reader does, I believe because the GMX
-		//reader uses more postponed references, but I can't figure out where or how it correlates. - Robert
-		SwingUtilities.invokeLater(new Runnable()
-			{
-			@Override
-			public void run()
-				{
-				InvisibleTreeModel ml = new InvisibleTreeModel(LGM.root);
-				LGM.tree.setModel(ml);
-				ml.activateFilter(Search.pruneResultsCB.isSelected());
-				if (ml.isActivatedFilter())
-					Search.applyFilter(root.getChildren(),ml.isActivatedFilter(),Search.filterText.getText(),false,Search.wholeWordCB.isSelected(),true);
-				LGM.tree.setSelectionRow(0);
-				}
-			});
+		InvisibleTreeModel ml = new InvisibleTreeModel(LGM.root);
+		LGM.tree.setModel(ml);
+		ml.activateFilter(Search.pruneResultsCB.isSelected());
+		if (ml.isActivatedFilter())
+			Search.applyFilter(root.getChildren(),ml.isActivatedFilter(),Search.filterText.getText(),false,Search.wholeWordCB.isSelected(),true);
+		LGM.tree.setSelectionRow(0);
 
 		// Reload the search tree so that orphaned references can be dumped.
 		DefaultMutableTreeNode searchRoot = (DefaultMutableTreeNode) searchTree.getModel().getRoot();
