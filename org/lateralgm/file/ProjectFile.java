@@ -286,35 +286,152 @@ public class ProjectFile implements UpdateListener
 			}
 		}
 
-	/* This interface is used by the file readers to report progress to the UI
-	 * or to ask the frontend to translate a message.
+	/**
+	 * Class {@code InterfaceProvider} is used by the file readers
+	 * to report progress changes to the UI or to ask the frontend
+	 * to translate a message. The remaining documentation shall
+	 * refer to both project readers and writers synonymously in
+	 * this context.
+	 *
+	 * @since 1.8.111
 	 */
 	public static interface InterfaceProvider
 		{
+		/**
+		 * Called by the frontend when project reading begins.
+		 * This is where any desired modal blocking, such
+		 * as a progress dialog, should begin. As a result of
+		 * this usually starting the modal blocking, it is
+		 * usually called by the frontend on the EDT.
+		 *
+		 * @since 1.8.113
+		 */
 		public void start();
+		/**
+		 * Called by the frontend when project reading is done.
+		 * This is where any modal blocking should be finished
+		 * by hiding any shown progress dialogs. As a result of
+		 * this usually ending the modal blocking, it is usually
+		 * called by the frontend on the EDT, such as in
+		 * the done method of {@code SwingWorker}.
+		 *
+		 * @see   javax.swing.SwingWorker SwingWorker
+		 * @since 1.8.113
+		 */
 		public void done();
+		/**
+		 * Called by the reader when it has determined the size
+		 * of its workload and can provide a primary caption.
+		 *
+		 * @param max The maximum progress value.
+		 * @param titleKey A translatable key of the primary caption.
+		 */
 		public void init(int max, String titleKey);
+		/**
+		 * Called by the reader when progress has been made and
+		 * a secondary caption is available.
+		 *
+		 * @param percent The current progress value.
+		 * @param messageKey A translatable key of the secondary caption.
+		 */
 		public void setProgress(int percent, String messageKey);
+		/**
+		 * Called by the reader when it needs a message translated.
+		 * Usually required for translating exception messages.
+		 * Although the frontend is free to use it for translation
+		 * of progress message keys as well.
+		 *
+		 * @param  key A translatable key of the message.
+		 * @return The translation of the key.
+		 */
 		public String translate(String key);
+		/**
+		 * Called by the reader when it needs a message translated
+		 * and formated. Usually required for translating exception
+		 * messages. Although the frontend is free to use it for
+		 * translation of progress message keys as well.
+		 *
+		 * @param  key A translatable key of the message to format.
+		 * @param  arguments Variadic number of arguments to format.
+		 * @return The translation of the key formatted with arguments.
+		 */
 		public String format(String key, Object...arguments);
+		/**
+		 * Called by the reader whenever a recoverable exception
+		 * is encountered, allowing the frontend to decide how to
+		 * proceed.
+		 *
+		 * @param e The recoverable exception that should be handled.
+		 * @since 1.8.112
+		 */
 		public void handleException(Exception e);
 		}
 
-	// The default interface will just sink the progress of the project loading.
+	/**
+	 * Class {@code DefaultInterfaceProvider} provides a default
+	 * implementation of InterfaceProvider. This makes it easy to
+	 * subclass and is equivalent to MouseAdapter in that you do
+	 * not need to override every interface method. Most of the
+	 * methods simply sink the progress output of the readers.
+	 *
+	 * @see   java.awt.event.MouseAdapter MouseAdapter
+	 * @since 1.8.112
+	 */
 	public static class DefaultInterfaceProvider implements InterfaceProvider
 		{
+		/**
+		 * Does nothing.
+		 *
+		 * @since 1.8.113
+		 */
 		@Override
 		public void start() {}
+		/**
+		 * Does nothing.
+		 *
+		 * @since 1.8.113
+		 */
 		@Override
 		public void done() {}
-		@Override
-		public void setProgress(int percent, String messageKey) {}
-		@Override
-		public String translate(String key) { return key; }
-		@Override
-		public String format(String key, Object...arguments) { return key; }
+		/**
+		 * Does nothing.
+		 *
+		 * @param max Unused
+		 * @param titleKey Unused
+		 */
 		@Override
 		public void init(int max, String titleKey) {}
+		/**
+		 * Does nothing.
+		 *
+		 * @param percent Unused
+		 * @param messageKey Unused
+		 */
+		@Override
+		public void setProgress(int percent, String messageKey) {}
+		/**
+		 * Returns the unused key.
+		 *
+		 * @param  key Unused
+		 * @return The unused key.
+		 */
+		@Override
+		public String translate(String key) { return key; }
+		/**
+		 * Returns the unused key.
+		 *
+		 * @param  key Unused
+		 * @param  arguments Unused
+		 * @return The unused key.
+		 */
+		@Override
+		public String format(String key, Object...arguments) { return key; }
+		/**
+		 * Forwards the recoverable exception to the current thread's
+		 * default uncaught exception handler.
+		 *
+		 * @param e The recoverable exception that should be handled.
+		 */
 		@Override
 		public void handleException(Exception e)
 			{
