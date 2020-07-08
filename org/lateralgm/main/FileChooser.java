@@ -27,17 +27,21 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -821,10 +825,18 @@ public class FileChooser
 		}
 
 	/**
-	 * This method is not headless. For a headless save:
-	 * <code>save(uri,findWriter(flavor))</code>
+	 * <p>This method saves the project in the requested format. User input may be
+	 * requested and modal dialogs may be invoked so this method should therefore
+	 * not be considered headless safe for use in a server esque environment.</p>
+	 * 
+	 * <p>For a headless safe version see {@link #save(URI,FileWriter) save} in
+	 * this class.</p>
+	 * 
+	 * @return {@code true} if the operation completed fully, {@code false} otherwise.
+	 * @param uri The URI where the project should be written.
+	 * @param flavor The flavor that should be used to format the project.
 	 */
-	public boolean save(URI uri, FormatFlavor flavor)
+	public boolean save(final URI uri, FormatFlavor flavor)
 		{
 		selectedWriter = findWriter(flavor);
 		System.out.println(selectedWriter == null ? "null writer" : selectedWriter.getSelectionName());
@@ -841,6 +853,7 @@ public class FileChooser
 			}
 
 		LGM.commitAll();
+		LGM.resetChanges();
 
 		String ext = selectedWriter.getExtension();
 		if (!uri.getPath().endsWith(ext))
@@ -854,28 +867,7 @@ public class FileChooser
 			}
 
 		attemptBackup();
-		try
-			{
-			save(uri,selectedWriter);
-			return true;
-			}
-		catch (IOException e)
-			{
-			e.printStackTrace();
-			JOptionPane.showMessageDialog(LGM.frame,Messages.format("FileChooser.ERROR_SAVE", //$NON-NLS-1$
-					uri,e.getClass().getName(),e.getMessage()),
-					Messages.getString("FileChooser.ERROR_SAVE_TITLE"),JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
-			return false;
-			}
-		}
-
-	/** This method is headless-safe. */
-	public static void save(final URI uri, final FileWriter writer) throws IOException
-		{
-		LGM.resetChanges();
-		System.out.println(uri);
-
-		new SwingWorker()
+		SwingWorker<Object,Object> sw = new SwingWorker<Object,Object>()
 			{
 			// The background part runs on a thread!
 			// DON'T use Swing components on it at ALL!
@@ -883,43 +875,7 @@ public class FileChooser
 			protected Object doInBackground() throws Exception
 				{
 				LGM.addDefaultExceptionHandler();
-				try
-					{
-					writer.write(new FileOutputStream(new File(uri)),LGM.currentFile,LGM.root);
-					OutputManager.append("\n" + Messages.getString("FileChooser.PROJECTSAVED") + ": " +
-							new Date().toString() + " " + uri.getPath());
-					return null;
-					}
-				catch (ProjectFormatException e)
-					{
-					LGM.showDefaultExceptionHandler(e);
-					}
-				catch (Exception e)
-					{
-					LGM.showDefaultExceptionHandler(e);
-					}
-				URLConnection uc = null;
-				try
-					{
-					uc = uri.toURL().openConnection();
-					}
-				catch (Exception e)
-					{
-					LGM.showDefaultExceptionHandler(e);
-					}
-				uc.setDoOutput(true);
-				try
-					{
-					writer.write(uc.getOutputStream(),LGM.currentFile,LGM.root);
-					}
-				catch (ProjectFormatException e)
-					{
-					LGM.showDefaultExceptionHandler(e);
-					}
-				catch (Exception e)
-					{
-					LGM.showDefaultExceptionHandler(e);
-					}
+				save(uri,selectedWriter);
 				return null;
 				}
 
@@ -930,10 +886,49 @@ public class FileChooser
 				{
 				ProjectFile.interfaceProvider.done(); // <- end modal blocking
 				}
-			}.execute(); // <- spin up the thread before blocking
+			};
 
-		// begin modal blocking, if desired, until finished
-		ProjectFile.interfaceProvider.start();
+		sw.execute(); // <- spin up the thread before blocking
+		ProjectFile.interfaceProvider.start(); // <- begin modal blocking, if desired
+		try
+			{
+			sw.get();
+			OutputManager.append("\n" + Messages.getString("FileChooser.PROJECTSAVED") + ": " +
+					new Date().toString() + " " + uri.getPath());
+			}
+		catch (ExecutionException | InterruptedException e)
+			{
+			// ExecutionException means writing actually failed
+			// InterruptedException is indeterminate
+			JOptionPane.showMessageDialog(LGM.frame,Messages.format("FileChooser.ERROR_SAVE", //$NON-NLS-1$
+					uri,e.getClass().getName(),e.getMessage()),
+					Messages.getString("FileChooser.ERROR_SAVE_TITLE"),JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
+			return false;
+			}
+		return true;
+		}
+
+	/**
+	 * This method is headless-safe when saving the project. It does not invoke any modal
+	 * dialogs or require user interaction. Although modal blocking does not occur, the
+	 * writer may still report progress to
+	 * {@link org.lateralgm.file.ProjectFile#interfaceProvider interfaceProvider} who may
+	 * still dispatch UI updates to the EDT or ask the frontend to translate an exception.
+	 * This method is a blocking operation and writing is not explicitly threaded.
+	 * 
+	 * @see org.lateralgm.file.ProjectFile.InterfaceProvider InterfaceProvider
+	 * @param uri The URI where the project should be written.
+	 * @param writer The writer that should be used to format the project.
+	 * @throws IOException If the URI couldn't be opened or there was an I/O issue while writing.
+	 * @throws ProjectFormatException If there was an I/O issue writing the project.
+	 */
+	public static void save(final URI uri, final FileWriter writer) throws IOException, ProjectFormatException
+		{
+		System.out.println(uri);
+		try (OutputStream os = Util.openURIOutputStream(uri))
+			{
+			writer.write(os,LGM.currentFile,LGM.root);
+			}
 		}
 
 	public FileWriter findWriter(FormatFlavor flavor)

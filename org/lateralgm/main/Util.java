@@ -38,7 +38,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.DecimalFormat;
@@ -182,6 +185,35 @@ public final class Util
 		{
 		return paintBackgroundScaled(width,height,TILE,new Color(Prefs.imagePreviewBackgroundColor),
 				new Color(Prefs.imagePreviewForegroundColor));
+		}
+
+	/**
+	 * Converts a URI to an open OutputStream regardless
+	 * of whether the URI refers to a local file or a
+	 * remote URL on a network.
+	 * 
+	 * @return An OutputStream opened from the URI.
+	 * @param uri The URI to convert to an OutputStream.
+	 * @throws NullPointerException If {@code uri} is {@code null}
+	 * @throws IOException If the URI could not be found,
+	 *                     was a malformed URL, or the
+	 *                     connection otherwise failed.
+	 */
+	public static OutputStream openURIOutputStream(URI uri) throws NullPointerException,IOException
+		{
+		if (uri == null) throw new NullPointerException();
+		File file = null;
+		try
+			{
+			file = new File(uri);
+			}
+		catch (IllegalArgumentException e) // not a local file, try URL
+			{
+			URLConnection uc = uri.toURL().openConnection();
+			uc.setDoOutput(true);
+			return uc.getOutputStream();
+			}
+		return new FileOutputStream(file);
 		}
 
 	public static String urlEncode(String s)

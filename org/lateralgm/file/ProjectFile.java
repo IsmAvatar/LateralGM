@@ -295,7 +295,7 @@ public class ProjectFile implements UpdateListener
 	 *
 	 * Any of the methods in this class which are called by the
 	 * reader could potentially be running on a background thread
-	 * and may therefore not be safe to perform UI work.
+	 * and may therefore not be safe to perform UI work directly.
 	 *
 	 * @see javax.swing.SwingUtilities#invokeLater()
 	 * @since 1.8.111
