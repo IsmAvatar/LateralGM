@@ -140,8 +140,9 @@ public final class LGM
 	public final static ArrayList<URLClassLoader> classLoaders = new ArrayList<URLClassLoader>();
 
 	public static boolean LOADING_PROJECT = false;
-	public static JDialog progressDialog = null;
-	public static JProgressBar progressDialogBar = null;
+	private static JDialog progressDialog = null;
+	private static JProgressBar progressDialogBar = null;
+	private static String progressTitle;
 
 	public static String iconspath = "org/lateralgm/icons/"; //$NON-NLS-1$
 	public static String iconspack = "Calico"; //$NON-NLS-1$
@@ -208,7 +209,6 @@ public final class LGM
 	public static Cursor zoomCursor;
 	public static Cursor zoomInCursor;
 	public static Cursor zoomOutCursor;
-	private static String progressTitle;
 	public static GmMenuBar menuBar;
 
 	public static JComboBox<GameSettings> configsCombo;
@@ -219,12 +219,12 @@ public final class LGM
 
 	public static JDialog getProgressDialog()
 		{
+		// lazy create the progress dialog
 		if (progressDialog == null)
 			{
 			progressDialog = new JDialog(LGM.frame,true);
-			progressDialogBar = new JProgressBar(0,140);
+			progressDialogBar = new JProgressBar(0,100);
 			progressDialogBar.setStringPainted(true);
-			progressDialogBar.setPreferredSize(new Dimension(240,20));
 			progressDialog.add(BorderLayout.CENTER,progressDialogBar);
 			progressDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 
@@ -235,24 +235,40 @@ public final class LGM
 		return progressDialog;
 		}
 
-	public static JProgressBar getProgressDialogBar()
-		{
-		return progressDialogBar;
-		}
-
 	public static void setProgressDialogVisible(final boolean visible)
 		{
-		if (progressDialog != null)
-			{
-			progressDialogBar.setValue(0);
-			progressDialog.setVisible(visible);
-			return;
-			}
-		getProgressDialog().setVisible(visible);
+		if (visible) showProgressDialog();
+		else progressDialog.setVisible(false);
+		}
+	
+	public static void showProgressDialog()
+		{
+		getProgressDialog(); // lazy create
+		// reset the progress just in case look
+		// and feel doesn't support indeterminate
+		progressDialogBar.setValue(0);
+		progressDialogBar.setMinimum(0);
+		progressDialogBar.setMaximum(100);
+		// just starting to block, worker/thread
+		// possibly hasn't told us actual size
+		progressDialogBar.setIndeterminate(true);
+		// empty title indeterminate
+		progressDialog.setTitle("");
+		// begin modal blocking
+		progressDialog.setVisible(true);
 		}
 
 	public static void setProgressTitle(String title)
 		{
+		progressTitle = title; // main progress title
+		}
+
+	public static void initProgressDialog(int min, int max, final String title)
+		{
+		progressDialogBar.setMinimum(min);
+		progressDialogBar.setMaximum(max);
+		// work size known so no longer indeterminate
+		progressDialogBar.setIndeterminate(false);
 		progressTitle = title;
 		}
 

@@ -291,6 +291,8 @@ public class ProjectFile implements UpdateListener
 	 */
 	public static interface InterfaceProvider
 		{
+		public void start();
+		public void done();
 		public void init(int max, String titleKey);
 		public void setProgress(int percent, String messageKey);
 		public String translate(String key);
@@ -301,6 +303,10 @@ public class ProjectFile implements UpdateListener
 	// The default interface will just sink the progress of the project loading.
 	public static class DefaultInterfaceProvider implements InterfaceProvider
 		{
+		@Override
+		public void start() {}
+		@Override
+		public void done() {}
 		@Override
 		public void setProgress(int percent, String messageKey) {}
 		@Override
