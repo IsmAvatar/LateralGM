@@ -1584,7 +1584,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 					e.printStackTrace();
 					}
 				show.setEnabled(timer == null);
-				//show.setValue(subList.getSelectedIndex());
+				show.setValue(subList.getSelectedIndex());
 				}
 			}
 		else
