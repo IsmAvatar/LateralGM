@@ -58,6 +58,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.DropMode;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -272,7 +273,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		// will cause a height of 13,000 with some elongated subimages (8 x 56 as an example)
 		// setFixedCellWidth/Height is not an alternative because it does not work with subimages
 		// of varying dimensions
-		this.setSize(getWidth(),634);
+		this.setSize(getWidth(),682);
 		SwingUtilities.invokeLater(new Runnable()
 			{
 			@Override
@@ -627,14 +628,18 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(nameLabel)
 		/*	*/.addComponent(name))
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addComponent(smooth)
 		/**/.addComponent(preload)
 		/**/.addComponent(transparent)
 		/**/.addComponent(separateMasks)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addComponent(origin)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addComponent(coll)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addComponent(bbox)
-		/**/.addGap(0,0,MAX_VALUE)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED,0,MAX_VALUE)
 		/**/.addComponent(save));
 
 		return pane;

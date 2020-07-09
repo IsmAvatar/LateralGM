@@ -203,7 +203,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		updateScrollBars();
 
 		pack();
-		this.setSize(640,432);
+		this.setSize(640,462);
 		}
 
 	private JButton makeJButton(String key)
@@ -379,13 +379,14 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(nameLabel)
 		/*	*/.addComponent(name))
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addComponent(smooth)
 		/**/.addComponent(preload)
 		/**/.addComponent(transparent)
 		/**/.addComponent(tileset)
-		/**/.addGap(8)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addComponent(groupPanel)
-		/**/.addGap(0,0,MAX_VALUE)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED,0,MAX_VALUE)
 		/**/.addComponent(save));
 
 		// pretend like the group panel is always there
