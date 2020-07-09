@@ -132,7 +132,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.115"; //$NON-NLS-1$
+	public static final String version = "1.8.116"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -1025,7 +1025,6 @@ public final class LGM
 	private static void createAndShowGUI(String[] args)
 		{
 		LGM.applyPreferences();
-		Messages.updateLangPack();
 
 		//TODO: Should probably make these preferences as well, but I don't have a Mac to test - Robert
 		//Put the Mac menu bar where it belongs (ignored by other systems)
