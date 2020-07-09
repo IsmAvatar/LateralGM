@@ -288,17 +288,17 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		tool.setFloatable(false);
 		tool.setAlignmentX(0);
 
-		tool.add(makeJButton("SpriteFrame.ZOOM"));
-		tool.add(makeJButton("SpriteFrame.ZOOM_IN"));
-		tool.add(makeJButton("SpriteFrame.ZOOM_OUT"));
+		tool.add(makeJButton("SpriteFrame.ZOOM")); //$NON-NLS-1$
+		tool.add(makeJButton("SpriteFrame.ZOOM_IN")); //$NON-NLS-1$
+		tool.add(makeJButton("SpriteFrame.ZOOM_OUT")); //$NON-NLS-1$
 
 		tool.addSeparator();
 
-		showBbox = new JCheckBox(Messages.getString("SpriteFrame.SHOW_BBOX"),true);
+		showBbox = new JCheckBox(Messages.getString("SpriteFrame.SHOW_BBOX"),true); //$NON-NLS-1$
 		showBbox.addActionListener(this);
 		showBbox.setOpaque(false);
 		tool.add(showBbox);
-		showOrigin = new JCheckBox(Messages.getString("SpriteFrame.SHOW_ORIGIN"),true);
+		showOrigin = new JCheckBox(Messages.getString("SpriteFrame.SHOW_ORIGIN"),true); //$NON-NLS-1$
 		showOrigin.addActionListener(this);
 		showOrigin.setOpaque(false);
 		tool.add(showOrigin);
@@ -606,7 +606,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		JPanel coll = makeCollisionPane();
 		JPanel bbox = makeBBoxPane();
 
-		JLabel nameLabel = new JLabel(Messages.getString("SpriteFrame.NAME"));
+		JLabel nameLabel = new JLabel(Messages.getString("SpriteFrame.NAME")); //$NON-NLS-1$
 		save.setText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
@@ -756,36 +756,36 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		final JPopupMenu popup = new JPopupMenu();
 
-		popup.add(makeJMenuItem("SpriteFrame.EDIT"));
+		popup.add(makeJMenuItem("SpriteFrame.EDIT")); //$NON-NLS-1$
 
 		popup.addSeparator();
 
-		popup.add(makeJMenuItem("SpriteFrame.SELECT_ALL"));
+		popup.add(makeJMenuItem("SpriteFrame.SELECT_ALL")); //$NON-NLS-1$
 
 		JToolBar tool = new JToolBar();
 		tool.setFloatable(false);
 		pane.add(tool,BorderLayout.NORTH);
 
-		tool.add(makeJButton("SpriteFrame.ADD"));
-		tool.add(makeJButton("SpriteFrame.LOAD"));
-		tool.add(makeJButton("SpriteFrame.LOAD_SUBIMAGE"));
-		tool.add(makeJButton("SpriteFrame.LOAD_STRIP"));
-		tool.add(makeJButton("SpriteFrame.SAVE_SUBIMAGE"));
+		tool.add(makeJButton("SpriteFrame.ADD")); //$NON-NLS-1$
+		tool.add(makeJButton("SpriteFrame.LOAD")); //$NON-NLS-1$
+		tool.add(makeJButton("SpriteFrame.LOAD_SUBIMAGE")); //$NON-NLS-1$
+		tool.add(makeJButton("SpriteFrame.LOAD_STRIP")); //$NON-NLS-1$
+		tool.add(makeJButton("SpriteFrame.SAVE_SUBIMAGE")); //$NON-NLS-1$
 
 		tool.addSeparator();
 
-		tool.add(makeJButton("SpriteFrame.REMOVE"));
+		tool.add(makeJButton("SpriteFrame.REMOVE")); //$NON-NLS-1$
 
 		tool.addSeparator();
 
-		tool.add(makeJButton("SpriteFrame.EDIT"));
-		tool.add(makeJButton("SpriteFrame.EFFECT"));
+		tool.add(makeJButton("SpriteFrame.EDIT")); //$NON-NLS-1$
+		tool.add(makeJButton("SpriteFrame.EFFECT")); //$NON-NLS-1$
 
 		tool.addSeparator();
 
-		tool.add(makeJButton("SpriteFrame.CUT"));
-		tool.add(makeJButton("SpriteFrame.COPY"));
-		tool.add(makeJButton("SpriteFrame.PASTE"));
+		tool.add(makeJButton("SpriteFrame.CUT")); //$NON-NLS-1$
+		tool.add(makeJButton("SpriteFrame.COPY")); //$NON-NLS-1$
+		tool.add(makeJButton("SpriteFrame.PASTE")); //$NON-NLS-1$
 
 		tool.addSeparator();
 
