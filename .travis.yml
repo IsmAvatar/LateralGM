@@ -14,5 +14,15 @@ dist: xenial
 script:
   - cd ..
   - ls
+  - cd ..
+  - ls
+  - cd ..
+  - ls
+  - cd ..
+  - ls
+  - cd ..
+  - ls
+  - cd ..
+  - ls
   - ls ~/
 
