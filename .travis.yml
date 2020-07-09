@@ -12,21 +12,5 @@ os: linux
 dist: xenial
 
 script:
-  - cd ..
-  - ls
-  - cd ..
-  - ls
-  - cd ..
-  - ls
-  - cd ..
-  - ls
-  - cd ..
-  - ls
-  - cd ..
-  - ls
-  - ls ~/
-  - ls /usr/share/eclipse/
-  - ls /etc/
-  - ls ~/usr/share/eclipse/
-  - ls ~/etc/
+  - make
 
