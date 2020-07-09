@@ -119,9 +119,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon PLAY_ICON = LGM.getIconForKey("SpriteFrame.PLAY"); //$NON-NLS-1$
 	private static final ImageIcon STOP_ICON = LGM.getIconForKey("SpriteFrame.STOP"); //$NON-NLS-1$
-	private static final ImageIcon ZOOM_ICON = LGM.getIconForKey("SpriteFrame.ZOOM"); //$NON-NLS-1$
-	private static final ImageIcon ZOOM_IN_ICON = LGM.getIconForKey("SpriteFrame.ZOOM_IN"); //$NON-NLS-1$
-	private static final ImageIcon ZOOM_OUT_ICON = LGM.getIconForKey("SpriteFrame.ZOOM_OUT"); //$NON-NLS-1$
 
 	//toolbar
 	public JButton load, loadSubimages, loadStrip, saveSubimages, zoomIn, zoomOut;
@@ -291,20 +288,9 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		tool.setFloatable(false);
 		tool.setAlignmentX(0);
 
-		zoomButton = new JToggleButton(ZOOM_ICON);
-		zoomButton.setToolTipText(Messages.getString("SpriteFrame.ZOOM"));
-		zoomButton.addActionListener(this);
-		tool.add(zoomButton);
-
-		zoomIn = new JButton(ZOOM_IN_ICON);
-		zoomIn.setToolTipText(Messages.getString("SpriteFrame.ZOOM_IN")); //$NON-NLS-1$
-		zoomIn.addActionListener(this);
-		tool.add(zoomIn);
-
-		zoomOut = new JButton(ZOOM_OUT_ICON);
-		zoomOut.setToolTipText(Messages.getString("SpriteFrame.ZOOM_OUT")); //$NON-NLS-1$
-		zoomOut.addActionListener(this);
-		tool.add(zoomOut);
+		tool.add(makeJButton("SpriteFrame.ZOOM"));
+		tool.add(makeJButton("SpriteFrame.ZOOM_IN"));
+		tool.add(makeJButton("SpriteFrame.ZOOM_OUT"));
 
 		tool.addSeparator();
 
