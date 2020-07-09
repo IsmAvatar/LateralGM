@@ -645,7 +645,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		/**/.addComponent(origin)
 		/**/.addComponent(coll)
 		/**/.addComponent(bbox)
-		/**/.addGap(8,8,MAX_VALUE)
+		/**/.addGap(0,0,MAX_VALUE)
 		/**/.addComponent(save));
 
 		return pane;
