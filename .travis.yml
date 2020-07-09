@@ -12,5 +12,7 @@ os: linux
 dist: xenial
 
 script:
+  - cd ..
   - ls
+  - ls ~/
 
