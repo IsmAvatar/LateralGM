@@ -117,10 +117,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		UpdateListener,ValueChangeListener,ClipboardOwner,EffectsFrameListener
 	{
 	private static final long serialVersionUID = 1L;
-	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("SpriteFrame.LOAD"); //$NON-NLS-1$
-	private static final ImageIcon SAVE_ICON = LGM.getIconForKey("SpriteFrame.SAVE"); //$NON-NLS-1$
-	private static final ImageIcon LOAD_SUBIMAGE_ICON = LGM.getIconForKey("SpriteFrame.LOAD_SUBIMAGE"); //$NON-NLS-1$
-	private static final ImageIcon LOAD_STRIP_ICON = LGM.getIconForKey("SpriteFrame.LOAD_STRIP"); //$NON-NLS-1$
 	private static final ImageIcon PLAY_ICON = LGM.getIconForKey("SpriteFrame.PLAY"); //$NON-NLS-1$
 	private static final ImageIcon STOP_ICON = LGM.getIconForKey("SpriteFrame.STOP"); //$NON-NLS-1$
 	private static final ImageIcon ZOOM_ICON = LGM.getIconForKey("SpriteFrame.ZOOM"); //$NON-NLS-1$
