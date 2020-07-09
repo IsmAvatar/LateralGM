@@ -793,11 +793,12 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		subLeft.addActionListener(this);
 		tool.add(subLeft);
 
-		show = new NumberField(0,res.subImages.size() - 1,0);
+		show = new NumberField(0,res.subImages.size() - 1);
 		show.setHorizontalAlignment(SwingConstants.CENTER);
 		show.addValueChangeListener(this);
 		show.setColumns(10);
 		show.setMaximumSize(show.getPreferredSize());
+		//		show.setValue(0);
 		tool.add(show);
 
 		subRight = new JButton(LGM.getIconForKey("SpriteFrame.NEXT")); //$NON-NLS-1$
@@ -1554,7 +1555,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 					e.printStackTrace();
 					}
 				show.setEnabled(timer == null);
-				show.setValue(subList.getSelectedIndex());
+				//show.setValue(subList.getSelectedIndex());
 				}
 			}
 		else
@@ -1586,9 +1587,16 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 	private void setSubIndex(int i)
 		{
+		if (currSub == i)
+			{
+			return;
+			}
 		currSub = i;
 		preview.setIndex(i);
-		updateImageControls();
+		if (timer == null)
+			{
+			updateImageControls();
+			}
 		}
 
 	private void updateBoundingBoxEditors()
