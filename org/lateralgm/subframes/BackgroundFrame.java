@@ -10,6 +10,7 @@
 
 package org.lateralgm.subframes;
 
+import static java.lang.Integer.MAX_VALUE;
 import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
@@ -242,13 +243,6 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		tool.add(makeJButton("BackgroundFrame.ZOOM_IN"));
 		tool.add(makeJButton("BackgroundFrame.ZOOM_OUT"));
 
-		tool.addSeparator();
-
-		name.setColumns(13);
-		name.setMaximumSize(name.getPreferredSize());
-		tool.add(new JLabel(Messages.getString("BackgroundFrame.NAME"))); //$NON-NLS-1$
-		tool.add(name);
-
 		return tool;
 		}
 
@@ -270,6 +264,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		{
 		JPanel panel = new JPanel(new BorderLayout());
 		GroupLayout layout = new GroupLayout(panel);
+		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
 
 		panel.setLayout(layout);
@@ -376,14 +371,23 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		/**/.addContainerGap(8,8));
 
 		//groupPanel.setVisible(tileset.isSelected());
-		panel.add(groupPanel);
+
+		JLabel nameLabel = new JLabel(Messages.getString("SpriteFrame.NAME")); //$NON-NLS-1$
+		save.setText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
+
 		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
+		/*	*/.addComponent(nameLabel)
+		/*	*/.addComponent(name,DEFAULT_SIZE,120,MAX_VALUE))
 		/**/.addComponent(smooth)
 		/**/.addComponent(preload)
 		/**/.addComponent(transparent)
 		/**/.addComponent(tileset)
 		/**/.addComponent(groupPanel));
 		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(nameLabel)
+		/*	*/.addComponent(name))
 		/**/.addComponent(smooth)
 		/**/.addComponent(preload)
 		/**/.addComponent(transparent)
