@@ -600,9 +600,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 	@SuppressWarnings("unchecked")
 	private static <P extends Piece, V extends PieceVisual<P>>Class<V> getVisualClass(Class<P> p)
 		{
-		if (p == Piece.class) return (Class<V>) PieceVisual.class;
-		if (p == Instance.class) return (Class<V>) InstanceVisual.class;
-		if (p == Tile.class) return (Class<V>) TileVisual.class;
+		if (p == Piece.class) return (Class<V>) (Class) PieceVisual.class;
+		if (p == Instance.class) return (Class<V>) (Class) InstanceVisual.class;
+		if (p == Tile.class) return (Class<V>) (Class) TileVisual.class;
 		throw new IllegalArgumentException();
 		}
 
