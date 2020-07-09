@@ -236,7 +236,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 					makePropertiesPane(),previewPane);
 		}
 
-		add(makeToolBar(),BorderLayout.NORTH);
 		add(splitPane,BorderLayout.CENTER);
 		add(makeStatusBar(),BorderLayout.SOUTH);
 
@@ -316,7 +315,14 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		saveSubimages.addActionListener(this);
 		tool.add(saveSubimages);
 
-		tool.addSeparator();
+		return tool;
+		}
+
+	private JToolBar makeAnimationToolBar()
+		{
+		JToolBar tool = new JToolBar();
+		tool.setFloatable(false);
+		tool.setAlignmentX(0);
 
 		zoomButton = new JToggleButton(ZOOM_ICON);
 		zoomButton.setToolTipText(Messages.getString("SpriteFrame.ZOOM"));
@@ -647,12 +653,14 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		JPanel bbox = makeBBoxPane();
 
 		JLabel nameLabel = new JLabel(Messages.getString("SpriteFrame.NAME"));
+		JToolBar loadToolBar = makeToolBar();
 		save.setText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(nameLabel)
 		/*	*/.addComponent(name,DEFAULT_SIZE,120,MAX_VALUE))
+		/**/.addComponent(loadToolBar)
 		/**/.addComponent(smooth)
 		/**/.addComponent(preload)
 		/**/.addComponent(transparent)
@@ -665,6 +673,9 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(nameLabel)
 		/*	*/.addComponent(name))
+		/**/.addGap(4,4,MAX_VALUE)
+		/**/.addComponent(loadToolBar)
+		/**/.addGap(4,4,MAX_VALUE)
 		/**/.addComponent(smooth)
 		/**/.addComponent(preload)
 		/**/.addComponent(transparent)
@@ -672,7 +683,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		/**/.addComponent(origin)
 		/**/.addComponent(coll)
 		/**/.addComponent(bbox)
-		/**/.addGap(32,32,MAX_VALUE)
+		/**/.addGap(8,8,MAX_VALUE)
 		/**/.addComponent(save));
 
 		return pane;
@@ -1016,6 +1027,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		previewScroll = new JScrollPane(preview);
 		previewScroll.setPreferredSize(previewScroll.getSize());
 
+		pane.add(makeAnimationToolBar(),BorderLayout.NORTH);
 		pane.add(previewScroll,BorderLayout.CENTER);
 
 		return pane;
