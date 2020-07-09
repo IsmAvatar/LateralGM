@@ -296,10 +296,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		tool.setFloatable(false);
 		tool.setAlignmentX(0);
 
-		tool.add(save);
-
-		tool.addSeparator();
-
 		load = new JButton(LOAD_ICON);
 		load.setToolTipText(Messages.getString("SpriteFrame.LOAD")); //$NON-NLS-1$
 		load.addActionListener(this);
@@ -316,7 +312,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		tool.add(loadStrip);
 
 		saveSubimages = new JButton(SAVE_ICON);
-		saveSubimages.setToolTipText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
+		saveSubimages.setToolTipText(Messages.getString("SpriteFrame.SAVE_SUBIMAGE")); //$NON-NLS-1$
 		saveSubimages.addActionListener(this);
 		tool.add(saveSubimages);
 
@@ -651,6 +647,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		JPanel bbox = makeBBoxPane();
 
 		JLabel nameLabel = new JLabel(Messages.getString("SpriteFrame.NAME"));
+		save.setText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
@@ -662,7 +659,8 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		/**/.addComponent(separateMasks)
 		/**/.addComponent(origin)
 		/**/.addComponent(coll)
-		/**/.addComponent(bbox));
+		/**/.addComponent(bbox)
+		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(nameLabel)
@@ -673,7 +671,9 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		/**/.addComponent(separateMasks)
 		/**/.addComponent(origin)
 		/**/.addComponent(coll)
-		/**/.addComponent(bbox));
+		/**/.addComponent(bbox)
+		/**/.addGap(32,32,MAX_VALUE)
+		/**/.addComponent(save));
 
 		return pane;
 		}
