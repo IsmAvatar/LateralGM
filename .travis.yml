@@ -12,5 +12,6 @@ os: linux
 dist: xenial
 
 script:
+  - ls modules
   - make
 
