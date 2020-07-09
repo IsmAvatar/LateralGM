@@ -823,12 +823,11 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		subLeft.addActionListener(this);
 		tool.add(subLeft);
 
-		show = new NumberField(0,res.subImages.size() - 1);
+		show = new NumberField(0,res.subImages.size() - 1,0);
 		show.setHorizontalAlignment(SwingConstants.CENTER);
 		show.addValueChangeListener(this);
 		show.setColumns(10);
 		show.setMaximumSize(show.getPreferredSize());
-		//		show.setValue(0);
 		tool.add(show);
 
 		subRight = new JButton(LGM.getIconForKey("SpriteFrame.NEXT")); //$NON-NLS-1$
