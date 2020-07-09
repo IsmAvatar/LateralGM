@@ -11,6 +11,8 @@
 
 package org.lateralgm.subframes;
 
+import static java.lang.Integer.MAX_VALUE;
+import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
 import java.awt.BorderLayout;
@@ -372,13 +374,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		play.addActionListener(this);
 		tool.add(play);
 
-		tool.addSeparator();
-
-		name.setColumns(13);
-		name.setMaximumSize(name.getPreferredSize());
-		tool.add(new JLabel(Messages.getString("SpriteFrame.NAME"))); //$NON-NLS-1$
-		tool.add(name);
-
 		return tool;
 		}
 
@@ -655,7 +650,12 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		JPanel coll = makeCollisionPane();
 		JPanel bbox = makeBBoxPane();
 
+		JLabel nameLabel = new JLabel(Messages.getString("SpriteFrame.NAME"));
+
 		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
+		/*	*/.addComponent(nameLabel)
+		/*	*/.addComponent(name,DEFAULT_SIZE,120,MAX_VALUE))
 		/**/.addComponent(smooth)
 		/**/.addComponent(preload)
 		/**/.addComponent(transparent)
@@ -664,6 +664,9 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		/**/.addComponent(coll)
 		/**/.addComponent(bbox));
 		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(nameLabel)
+		/*	*/.addComponent(name))
 		/**/.addComponent(smooth)
 		/**/.addComponent(preload)
 		/**/.addComponent(transparent)
