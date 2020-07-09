@@ -218,9 +218,6 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		tool.setFloatable(false);
 		tool.setAlignmentX(0);
 
-		tool.add(save);
-		tool.addSeparator();
-
 		tool.add(makeJButton("BackgroundFrame.CREATE"));
 		tool.add(makeJButton("BackgroundFrame.LOAD"));
 		tool.add(makeJButton("BackgroundFrame.SAVE"));
@@ -383,7 +380,8 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		/**/.addComponent(preload)
 		/**/.addComponent(transparent)
 		/**/.addComponent(tileset)
-		/**/.addComponent(groupPanel));
+		/**/.addComponent(groupPanel)
+		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(nameLabel)
@@ -393,7 +391,9 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		/**/.addComponent(transparent)
 		/**/.addComponent(tileset)
 		/**/.addGap(8)
-		/**/.addComponent(groupPanel));
+		/**/.addComponent(groupPanel)
+		/**/.addGap(0,0,MAX_VALUE)
+		/**/.addComponent(save));
 
 		return panel;
 		}
