@@ -277,7 +277,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		// will cause a height of 13,000 with some elongated subimages (8 x 56 as an example)
 		// setFixedCellWidth/Height is not an alternative because it does not work with subimages
 		// of varying dimensions
-		this.setSize(getWidth(),650);
 		SwingUtilities.invokeLater(new Runnable()
 			{
 			@Override
@@ -290,35 +289,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		}
 
 	private JToolBar makeToolBar()
-		{
-		JToolBar tool = new JToolBar();
-		tool.setFloatable(false);
-		tool.setAlignmentX(0);
-
-		load = new JButton(LOAD_ICON);
-		load.setToolTipText(Messages.getString("SpriteFrame.LOAD")); //$NON-NLS-1$
-		load.addActionListener(this);
-		tool.add(load);
-
-		loadSubimages = new JButton(LOAD_SUBIMAGE_ICON);
-		loadSubimages.setToolTipText(Messages.getString("SpriteFrame.LOAD_SUBIMAGE")); //$NON-NLS-1$
-		loadSubimages.addActionListener(this);
-		tool.add(loadSubimages);
-
-		loadStrip = new JButton(LOAD_STRIP_ICON);
-		loadStrip.setToolTipText(Messages.getString("SpriteFrame.LOAD_STRIP")); //$NON-NLS-1$
-		loadStrip.addActionListener(this);
-		tool.add(loadStrip);
-
-		saveSubimages = new JButton(SAVE_ICON);
-		saveSubimages.setToolTipText(Messages.getString("SpriteFrame.SAVE_SUBIMAGE")); //$NON-NLS-1$
-		saveSubimages.addActionListener(this);
-		tool.add(saveSubimages);
-
-		return tool;
-		}
-
-	private JToolBar makeAnimationToolBar()
 		{
 		JToolBar tool = new JToolBar();
 		tool.setFloatable(false);
@@ -633,6 +603,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		{
 		JPanel pane = new JPanel();
 		GroupLayout layout = new GroupLayout(pane);
+		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
 
 		pane.setLayout(layout);
@@ -653,14 +624,12 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		JPanel bbox = makeBBoxPane();
 
 		JLabel nameLabel = new JLabel(Messages.getString("SpriteFrame.NAME"));
-		JToolBar loadToolBar = makeToolBar();
 		save.setText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(nameLabel)
 		/*	*/.addComponent(name,DEFAULT_SIZE,120,MAX_VALUE))
-		/**/.addComponent(loadToolBar)
 		/**/.addComponent(smooth)
 		/**/.addComponent(preload)
 		/**/.addComponent(transparent)
@@ -673,9 +642,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(nameLabel)
 		/*	*/.addComponent(name))
-		/**/.addGap(4,4,MAX_VALUE)
-		/**/.addComponent(loadToolBar)
-		/**/.addGap(4,4,MAX_VALUE)
 		/**/.addComponent(smooth)
 		/**/.addComponent(preload)
 		/**/.addComponent(transparent)
@@ -818,6 +784,13 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		pane.add(tool,BorderLayout.NORTH);
 
 		tool.add(makeJButton("SpriteFrame.ADD"));
+		tool.add(makeJButton("SpriteFrame.LOAD"));
+		tool.add(makeJButton("SpriteFrame.LOAD_SUBIMAGE"));
+		tool.add(makeJButton("SpriteFrame.LOAD_STRIP"));
+		tool.add(makeJButton("SpriteFrame.SAVE_SUBIMAGE"));
+
+		tool.addSeparator();
+
 		tool.add(makeJButton("SpriteFrame.REMOVE"));
 
 		tool.addSeparator();
@@ -1027,7 +1000,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		previewScroll = new JScrollPane(preview);
 		previewScroll.setPreferredSize(previewScroll.getSize());
 
-		pane.add(makeAnimationToolBar(),BorderLayout.NORTH);
+		pane.add(makeToolBar(),BorderLayout.NORTH);
 		pane.add(previewScroll,BorderLayout.CENTER);
 
 		return pane;
