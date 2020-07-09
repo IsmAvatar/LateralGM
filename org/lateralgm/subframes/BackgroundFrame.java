@@ -146,6 +146,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 
 		this.setLayout(new BorderLayout());
 
+		JPanel previewPanel = new JPanel(new BorderLayout());
 		preview = new BackgroundPreview(res);
 		preview.setVerticalAlignment(SwingConstants.TOP);
 
@@ -178,18 +179,18 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 					preview.setCursor(LGM.zoomCursor);
 					}
 			};
-
 		previewScroll = new JScrollPane(preview);
+		previewPanel.add(previewScroll,BorderLayout.CENTER);
+		previewPanel.add(makeToolBar(),BorderLayout.NORTH);
 
-		this.add(makeToolBar(),BorderLayout.NORTH);
 		JSplitPane orientationSplit = new JSplitPane();
 		if (Prefs.rightOrientation) {
 			orientationSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-					previewScroll,makeOptionsPanel());
+					previewPanel,makeOptionsPanel());
 			orientationSplit.setResizeWeight(1d);
 		} else {
 			orientationSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-					makeOptionsPanel(),previewScroll);
+					makeOptionsPanel(),previewPanel);
 		}
 		this.add(orientationSplit, BorderLayout.CENTER);
 		this.add(makeStatusBar(),BorderLayout.SOUTH);
