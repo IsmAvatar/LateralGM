@@ -36,6 +36,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFormattedTextField;
@@ -202,7 +203,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		updateScrollBars();
 
 		pack();
-		this.setSize(640,400);
+		this.setSize(640,432);
 		}
 
 	private JButton makeJButton(String key)
@@ -279,6 +280,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 
 		groupPanel = new JPanel();
 		GroupLayout pLayout = new GroupLayout(groupPanel);
+		pLayout.setAutoCreateContainerGaps(true);
 		groupPanel.setLayout(pLayout);
 		String tileProps = Messages.getString("BackgroundFrame.TILE_PROPERTIES"); //$NON-NLS-1$
 		groupPanel.setBorder(BorderFactory.createTitledBorder(tileProps));
@@ -320,7 +322,6 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		vSep.setColumns(3);
 
 		pLayout.setHorizontalGroup(pLayout.createSequentialGroup()
-		/**/.addContainerGap(4,4)
 		/**/.addGroup(pLayout.createParallelGroup(Alignment.TRAILING)
 		/*		*/.addComponent(twLabel)
 		/*		*/.addComponent(thLabel)
@@ -328,41 +329,38 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		/*		*/.addComponent(voLabel)
 		/*		*/.addComponent(hsLabel)
 		/*		*/.addComponent(vsLabel))
-		/**/.addGap(4)
+		/**/.addPreferredGap(ComponentPlacement.RELATED)
 		/**/.addGroup(pLayout.createParallelGroup()
 		/*		*/.addComponent(tWidth,PREFERRED_SIZE,DEFAULT_SIZE,DEFAULT_SIZE)
 		/*		*/.addComponent(tHeight,PREFERRED_SIZE,DEFAULT_SIZE,DEFAULT_SIZE)
 		/*		*/.addComponent(hOffset,PREFERRED_SIZE,DEFAULT_SIZE,DEFAULT_SIZE)
 		/*		*/.addComponent(vOffset,PREFERRED_SIZE,DEFAULT_SIZE,DEFAULT_SIZE)
 		/*		*/.addComponent(hSep,PREFERRED_SIZE,DEFAULT_SIZE,DEFAULT_SIZE)
-		/*		*/.addComponent(vSep,PREFERRED_SIZE,DEFAULT_SIZE,DEFAULT_SIZE))
-		/**/.addContainerGap(4,4));
+		/*		*/.addComponent(vSep,PREFERRED_SIZE,DEFAULT_SIZE,DEFAULT_SIZE)));
 		pLayout.setVerticalGroup(pLayout.createSequentialGroup()
-		/**/.addGap(2)
 		/**/.addGroup(pLayout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(twLabel)
 		/*		*/.addComponent(tWidth))
-		/**/.addGap(2)
+		/**/.addPreferredGap(ComponentPlacement.RELATED)
 		/**/.addGroup(pLayout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(thLabel)
 		/*		*/.addComponent(tHeight))
-		/**/.addGap(8)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addGroup(pLayout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(hoLabel)
 		/*		*/.addComponent(hOffset))
-		/**/.addGap(2)
+		/**/.addPreferredGap(ComponentPlacement.RELATED)
 		/**/.addGroup(pLayout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(voLabel)
 		/*		*/.addComponent(vOffset))
-		/**/.addGap(8)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addGroup(pLayout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(hsLabel)
 		/*		*/.addComponent(hSep))
-		/**/.addGap(2)
+		/**/.addPreferredGap(ComponentPlacement.RELATED)
 		/**/.addGroup(pLayout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(vsLabel)
-		/*		*/.addComponent(vSep))
-		/**/.addContainerGap(8,8));
+		/*		*/.addComponent(vSep)));
 
 		JLabel nameLabel = new JLabel(Messages.getString("SpriteFrame.NAME")); //$NON-NLS-1$
 		save.setText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
