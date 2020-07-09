@@ -142,6 +142,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 	public BackgroundFrame(Background res, ResNode node)
 		{
 		super(res,node);
+		this.getRootPane().setDefaultButton(save);
 		res.properties.getUpdateSource(PBackground.USE_AS_TILESET).addListener(bpl);
 		res.reference.updateSource.addListener(this);
 
