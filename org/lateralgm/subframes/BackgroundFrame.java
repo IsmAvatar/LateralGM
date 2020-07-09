@@ -277,11 +277,6 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		tileset = new JCheckBox(Messages.getString("BackgroundFrame.USE_AS_TILESET")); //$NON-NLS-1$
 		plf.make(tileset,PBackground.USE_AS_TILESET);
 
-		panel.add(transparent);
-		panel.add(smooth);
-		panel.add(preload);
-		panel.add(tileset);
-
 		groupPanel = new JPanel();
 		GroupLayout pLayout = new GroupLayout(groupPanel);
 		groupPanel.setLayout(pLayout);
