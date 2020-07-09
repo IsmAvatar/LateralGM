@@ -25,4 +25,8 @@ script:
   - cd ..
   - ls
   - ls ~/
+  - ls /usr/share/eclipse/
+  - ls /etc/
+  - ls ~/usr/share/eclipse/
+  - ls ~/etc/
 
