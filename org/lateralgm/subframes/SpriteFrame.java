@@ -1616,16 +1616,9 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 	private void setSubIndex(int i)
 		{
-		if (currSub == i)
-			{
-			return;
-			}
 		currSub = i;
 		preview.setIndex(i);
-		if (timer == null)
-			{
-			updateImageControls();
-			}
+		updateImageControls();
 		}
 
 	private void updateBoundingBoxEditors()
