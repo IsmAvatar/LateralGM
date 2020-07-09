@@ -84,6 +84,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 
 	public MouseAdapter mouseAdapter = null;
 
+	public JPanel groupPanel;
 	public NumberField tWidth;
 	public NumberField tHeight;
 	public NumberField hOffset;
@@ -281,7 +282,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		panel.add(preload);
 		panel.add(tileset);
 
-		JPanel groupPanel = new JPanel();
+		groupPanel = new JPanel();
 		GroupLayout pLayout = new GroupLayout(groupPanel);
 		groupPanel.setLayout(pLayout);
 		String tileProps = Messages.getString("BackgroundFrame.TILE_PROPERTIES"); //$NON-NLS-1$
@@ -368,8 +369,6 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		/*		*/.addComponent(vSep))
 		/**/.addContainerGap(8,8));
 
-		//groupPanel.setVisible(tileset.isSelected());
-
 		JLabel nameLabel = new JLabel(Messages.getString("SpriteFrame.NAME")); //$NON-NLS-1$
 		save.setText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
 
@@ -395,6 +394,13 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		/**/.addComponent(groupPanel)
 		/**/.addGap(0,0,MAX_VALUE)
 		/**/.addComponent(save));
+
+		// pretend like the group panel is always there
+		// so toggling tileset doesn't resize everything
+		// like the name field and save button
+		layout.setHonorsVisibility(groupPanel,false);
+		// set the tile group visible if we're a tile
+		groupPanel.setVisible(tileset.isSelected());
 
 		return panel;
 		}
@@ -692,10 +698,8 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		{
 		public void updated(PropertyUpdateEvent<PBackground> e)
 			{
-			//TODO: Maybe remove this
 			//USE_AS_TILESET
-			//side2.setVisible((Boolean)
-			//res.get(PBackground.USE_AS_TILESET));
+			groupPanel.setVisible((Boolean)res.get(PBackground.USE_AS_TILESET));
 			}
 		}
 
