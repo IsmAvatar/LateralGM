@@ -211,6 +211,8 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	public SpriteFrame(Sprite res, ResNode node)
 		{
 		super(res,node);
+		this.getRootPane().setDefaultButton(save);
+
 		res.properties.getUpdateSource(PSprite.BB_MODE).addListener(spl);
 		res.reference.updateSource.addListener(this);
 
