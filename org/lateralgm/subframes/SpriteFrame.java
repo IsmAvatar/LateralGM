@@ -1450,15 +1450,14 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 				play.setIcon(PLAY_ICON);
 				timer.stop();
 				timer = null; //used to indicate that this is not animating, and frees memory
-				updateImageControls();
 				}
 			else if (res.subImages.size() > 1)
 				{
 				play.setIcon(STOP_ICON);
 				timer = new Timer(1000 / speed.getIntValue(),this);
 				timer.start();
-				updateImageControls();
 				}
+			updateImageControls();
 			return;
 			}
 		else if (e.getSource() == timer)
