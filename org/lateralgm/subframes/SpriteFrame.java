@@ -291,9 +291,15 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		tool.setFloatable(false);
 		tool.setAlignmentX(0);
 
-		tool.add(makeJButton("SpriteFrame.ZOOM")); //$NON-NLS-1$
-		tool.add(makeJButton("SpriteFrame.ZOOM_IN")); //$NON-NLS-1$
-		tool.add(makeJButton("SpriteFrame.ZOOM_OUT")); //$NON-NLS-1$
+		zoomButton = new JToggleButton(LGM.getIconForKey("SpriteFrame.ZOOM")); //$NON-NLS-1$
+		zoomButton.setToolTipText(Messages.getString("SpriteFrame.ZOOM")); //$NON-NLS-1$
+		zoomButton.addActionListener(this);
+		tool.add(zoomButton);
+
+		zoomIn = makeJButton("SpriteFrame.ZOOM_IN"); //$NON-NLS-1$
+		zoomOut = makeJButton("SpriteFrame.ZOOM_OUT"); //$NON-NLS-1$
+		tool.add(zoomIn);
+		tool.add(zoomOut);
 
 		tool.addSeparator();
 
@@ -773,11 +779,17 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		tool.setFloatable(false);
 		pane.add(tool,BorderLayout.NORTH);
 
+		load = makeJButton("SpriteFrame.LOAD"); //$NON-NLS-1$
+		loadSubimages = makeJButton("SpriteFrame.LOAD_SUBIMAGE"); //$NON-NLS-1$
+		loadStrip = makeJButton("SpriteFrame.LOAD_STRIP"); //$NON-NLS-1$
+		saveSubimages = makeJButton("SpriteFrame.SAVE_SUBIMAGE"); //$NON-NLS-1$
+
 		tool.add(makeJButton("SpriteFrame.ADD")); //$NON-NLS-1$
-		tool.add(makeJButton("SpriteFrame.LOAD")); //$NON-NLS-1$
-		tool.add(makeJButton("SpriteFrame.LOAD_SUBIMAGE")); //$NON-NLS-1$
-		tool.add(makeJButton("SpriteFrame.LOAD_STRIP")); //$NON-NLS-1$
-		tool.add(makeJButton("SpriteFrame.SAVE_SUBIMAGE")); //$NON-NLS-1$
+		tool.add(load);
+		tool.add(loadSubimages);
+		tool.add(loadStrip);
+		tool.add(saveSubimages);
+		
 
 		tool.addSeparator();
 
