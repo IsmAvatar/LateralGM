@@ -1256,7 +1256,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 				imageChanged = true;
 				res.subImages.add(pos,bi);
 				subList.setSelectedIndex(pos);
-				setSubIndex(pos);
 				}
 			return;
 			}
@@ -1616,6 +1615,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	/**
 	 * Sets the current subframe displayed by the preview panel if different
 	 * from the subindex specified. Animation playback controls are updated.
+	 * This method is usually called by the animation timer.
 	 */
 	private void setSubIndex(int i)
 		{
