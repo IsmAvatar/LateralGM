@@ -1530,6 +1530,13 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		addSubimages(img,clear);
 		}
 
+	/**
+	 * Updates the image controls to reflect the state of the animation playback.
+	 * This may be called when the subindex of the preview has changed or when
+	 * changes to the underlying data model have occurred. It is called once
+	 * during construction by {@link #updateImageList()} when the subimage list
+	 * is loaded.
+	 */
 	private void updateImageControls()
 		{
 		int s = res.subImages.size();
@@ -1547,7 +1554,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			subLeft.setEnabled(timer == null && !firstAndNotWrapping);
 			subRight.setEnabled(timer == null && !lastAndNotWrapping);
 
-			play.setEnabled(s > 1);
+			play.setEnabled(s > 1); // we have enough images to be able to play
 			if (updateSub)
 				{
 				try
@@ -1575,6 +1582,12 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			}
 		}
 
+	/**
+	 * Loads the subimages from the sprite model into the subimage list
+	 * and updates the animation playback controls. This typically occurs
+	 * as a result of changes to the underlying data model. It is called
+	 * once during construction to initialize the subimage list.
+	 */
 	private void updateImageList()
 		{
 		ImageIcon ii[] = new ImageIcon[res.subImages.size()];
