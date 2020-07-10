@@ -133,7 +133,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.125"; //$NON-NLS-1$
+	public static final String version = "1.8.126"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -515,12 +515,10 @@ public final class LGM
 		getExtensionPackages().toTop();
 		}
 
-	private static final HashMap<String,ImageIcon> iconCache = new HashMap<>();
-	public static ImageIcon findIcon(String filename)
+	// low-level icon reading helper, no cache/keys just
+	// straight up read the file and return the icon
+	private static ImageIcon loadIcon(String filename)
 		{
-		ImageIcon ico = iconCache.get(filename);
-		if (ico != null) return ico;
-
 		String location = null;
 		URL url = null;
 		if (Prefs.iconPack.equals("Custom")) //$NON-NLS-1$
@@ -539,10 +537,20 @@ public final class LGM
 			String jarpath = iconspath + iconspack + '/' + filename;
 			url = LGM.class.getClassLoader().getResource(jarpath);
 		}
+	
+		if (location != null) return new ImageIcon(location);
+		else if (url != null) return new ImageIcon(url);
+		return null;
+		}
 
-		if (url == null && location == null) return null; // not found
-		if (url == null) ico = new ImageIcon(location);
-		else ico = new ImageIcon(url);
+	// cached icon reading from filename
+	private static final HashMap<String,ImageIcon> iconCache = new HashMap<>();
+	public static ImageIcon findIcon(String filename)
+		{
+		ImageIcon ico = iconCache.get(filename);
+		if (ico != null) return ico;
+
+		ico = loadIcon(filename);
 
 		// cache relative filename so we don't cache
 		// multiple icon packs at the same time
@@ -551,6 +559,31 @@ public final class LGM
 		return ico;
 		}
 
+	// helper method for purging the icon cache such
+	// as when changing icon packs in preferences
+	public static void reloadIcons()
+		{
+		for (Entry<String,ImageIcon> ico : iconCache.entrySet())
+			{
+			// flush the image first in case we are
+			// reloading the same file
+			ico.getValue().getImage().flush();
+			// load in the icon from the right pack
+			ImageIcon fresh = loadIcon(ico.getKey());
+			// put the fresh image into the old ico
+			// so everybody using it gets updated
+			ico.getValue().setImage(fresh.getImage());
+			}
+		// repaint all the windows (dialogs included)
+		// and have them revalidate layouts in case
+		// the icons have different sizes than before
+		Window windows[] = Window.getWindows();
+		for (Window window : windows)
+			window.repaint();
+		}
+
+	// high-level, key-indexed icon reading used for initial
+	// icon setting on components & buttons
 	private static Properties iconProps = null;
 	public static ImageIcon getIconForKey(String key)
 		{
