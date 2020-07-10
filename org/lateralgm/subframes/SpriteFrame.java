@@ -1585,8 +1585,8 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	/**
 	 * Loads the subimages from the sprite model into the subimage list
 	 * and updates the animation playback controls. This typically occurs
-	 * as a result of changes to the underlying data model. It is called
-	 * once during construction to initialize the subimage list.
+	 * automatically as a result of changes to the underlying data model.
+	 * It is called once during construction to initialize the subimage list.
 	 */
 	private void updateImageList()
 		{
@@ -1602,6 +1602,10 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		updateImageControls();
 		}
 
+	/**
+	 * Sets the current subframe displayed by the preview panel if different
+	 * from the subindex specified. Animation playback controls are updated.
+	 */
 	private void setSubIndex(int i)
 		{
 		if (currSub == i) return;
