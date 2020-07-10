@@ -1521,9 +1521,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		for (BufferedImage i : img)
 			res.subImages.add(i);
 		show.setRange(0,res.subImages.size());
-		if (clear) setSubIndex(0);
-		updateStatusLabel();
-		updateScrollBars();
 		}
 
 	public void addFromStrip(boolean clear)
@@ -1611,6 +1608,8 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			}
 		subList.setListData(ii);
 
+		updateStatusLabel();
+		updateScrollBars();
 		updateImageControls();
 		}
 
