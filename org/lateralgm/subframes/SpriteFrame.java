@@ -1457,7 +1457,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 				timer = new Timer(1000 / speed.getIntValue(),this);
 				timer.start();
 				}
-			updateImageControls();
+			updateImageControls(); // toggle playback controls
 			return;
 			}
 		else if (e.getSource() == timer)
@@ -1534,7 +1534,8 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	 * This may be called when the subindex of the preview has changed or when
 	 * changes to the underlying data model have occurred. It is called once
 	 * during construction by {@link #updateImageList()} when the subimage list
-	 * is loaded.
+	 * is loaded. This method is called by {@link #actionPerformed(ActionEvent)}
+	 * when starting and stopping animation playback.
 	 */
 	private void updateImageControls()
 		{
