@@ -46,6 +46,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
@@ -132,7 +133,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.121"; //$NON-NLS-1$
+	public static final String version = "1.8.122"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -514,12 +515,16 @@ public final class LGM
 		getExtensionPackages().toTop();
 		}
 
+	private static HashMap<String,ImageIcon> iconCache = new HashMap<>();
 	public static ImageIcon findIcon(String filename)
 		{
+		ImageIcon ico = iconCache.get(filename);
+		if (ico != null) return ico;
+
 		String custompath = Prefs.iconPath + filename;
 		String jarpath = iconspath + iconspack + '/' + filename;
 		String location = ""; //$NON-NLS-1$
-		if (Prefs.iconPack.equals("Custom"))
+		if (Prefs.iconPack.equals("Custom")) //$NON-NLS-1$
 		{
 			if (new File(custompath).exists()) {
 				location = custompath;
@@ -530,7 +535,7 @@ public final class LGM
 			location = jarpath;
 		}
 
-		ImageIcon ico = new ImageIcon(location);
+		ico = new ImageIcon(location);
 		if (ico.getIconWidth() == -1)
 			{
 			URL url = LGM.class.getClassLoader().getResource(location);
@@ -539,22 +544,29 @@ public final class LGM
 				ico = new ImageIcon(url);
 				}
 			}
+		// cache relative filename so we don't cache
+		// multiple icon packs at the same time
+		iconCache.put(filename,ico);
 		return ico;
 		}
 
+	private static Properties iconProps = null;
 	public static ImageIcon getIconForKey(String key)
 		{
-		Properties iconProps = new Properties();
-		InputStream is = LGM.class.getClassLoader().getResourceAsStream(
-				"org/lateralgm/main/icons.properties"); //$NON-NLS-1$
-		try
+		if (iconProps == null)
 			{
-			if (is == null) throw new IOException();
-			iconProps.load(is);
-			}
-		catch (IOException e)
-			{
-			System.err.println("Unable to read icons.properties");
+			iconProps = new Properties();
+			InputStream is = LGM.class.getClassLoader().getResourceAsStream(
+					"org/lateralgm/main/icons.properties"); //$NON-NLS-1$
+			try
+				{
+				if (is == null) throw new IOException();
+				iconProps.load(is);
+				}
+			catch (IOException e)
+				{
+				System.err.println("Unable to read icons.properties"); //$NON-NLS-1$
+				}
 			}
 		String filename = iconProps.getProperty(key,""); //$NON-NLS-1$
 		if (!filename.isEmpty()) return findIcon(filename);
