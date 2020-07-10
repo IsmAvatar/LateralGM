@@ -133,7 +133,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.122"; //$NON-NLS-1$
+	public static final String version = "1.8.123"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -515,7 +515,7 @@ public final class LGM
 		getExtensionPackages().toTop();
 		}
 
-	private static HashMap<String,ImageIcon> iconCache = new HashMap<>();
+	private static final HashMap<String,ImageIcon> iconCache = new HashMap<>();
 	public static ImageIcon findIcon(String filename)
 		{
 		ImageIcon ico = iconCache.get(filename);
