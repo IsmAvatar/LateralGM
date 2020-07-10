@@ -1533,23 +1533,20 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	private void updateImageControls()
 		{
 		int s = res.subImages.size();
-		if (s > 0)
+		if (s > 0) // if we have subimages
 			{
 			if (subList.getSelectedIndex() > s)
 				{
 				setSubIndex(s - 1);
 				return;
 				}
-			if (!wrapBox.isSelected())
-				{
-				subLeft.setEnabled(timer == null && subList.getSelectedIndex() > 0);
-				subRight.setEnabled(timer == null && subList.getSelectedIndex() < s - 1);
-				}
-			else
-				{
-				subLeft.setEnabled(timer == null);
-				subRight.setEnabled(timer == null);
-				}
+
+			// left/right buttons disabled when playing or at bounds without wrapping
+			boolean firstAndNotWrapping = subList.getSelectedIndex() <= 0 && !wrapBox.isSelected();
+			boolean lastAndNotWrapping = subList.getSelectedIndex() >= (s - 1) && !wrapBox.isSelected();
+			subLeft.setEnabled(timer == null && !firstAndNotWrapping);
+			subRight.setEnabled(timer == null && !lastAndNotWrapping);
+
 			play.setEnabled(s > 1);
 			if (updateSub)
 				{
@@ -1565,7 +1562,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 				//show.setValue(subList.getSelectedIndex());
 				}
 			}
-		else
+		else // can't play without subimages
 			{
 			subLeft.setEnabled(false);
 			subRight.setEnabled(false);
@@ -1594,16 +1591,10 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 	private void setSubIndex(int i)
 		{
-		if (currSub == i)
-			{
-			return;
-			}
+		if (currSub == i) return;
 		currSub = i;
 		preview.setIndex(i);
-		if (timer == null)
-			{
-			updateImageControls();
-			}
+		updateImageControls();
 		}
 
 	private void updateBoundingBoxEditors()
