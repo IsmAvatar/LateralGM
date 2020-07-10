@@ -133,7 +133,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.123"; //$NON-NLS-1$
+	public static final String version = "1.8.124"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -521,32 +521,33 @@ public final class LGM
 		ImageIcon ico = iconCache.get(filename);
 		if (ico != null) return ico;
 
-		String custompath = Prefs.iconPath + filename;
-		String jarpath = iconspath + iconspack + '/' + filename;
-		String location = ""; //$NON-NLS-1$
+		String location = null;
+		URL url = null;
 		if (Prefs.iconPack.equals("Custom")) //$NON-NLS-1$
 		{
-			if (new File(custompath).exists()) {
+			String custompath = Prefs.iconPath + filename;
+			if ((new File(custompath)).exists()) {
+				// we found the users custom icon where they said it would be
 				location = custompath;
 			} else {
-				location = jarpath;
+				// fallback to Calico built into the jar
+				String fallback = iconspath + "Calico/" + filename; //$NON-NLS-1$
+				url = LGM.class.getClassLoader().getResource(fallback);
 			}
 		} else {
-			location = jarpath;
+			// standard icon pack built into the jar is requested
+			String jarpath = iconspath + iconspack + '/' + filename;
+			url = LGM.class.getClassLoader().getResource(jarpath);
 		}
 
-		ico = new ImageIcon(location);
-		if (ico.getIconWidth() == -1)
-			{
-			URL url = LGM.class.getClassLoader().getResource(location);
-			if (url != null)
-				{
-				ico = new ImageIcon(url);
-				}
-			}
+		if (url == null && location == null) return null; // not found
+		if (url == null) ico = new ImageIcon(location);
+		else ico = new ImageIcon(url);
+
 		// cache relative filename so we don't cache
 		// multiple icon packs at the same time
-		iconCache.put(filename,ico);
+		if (ico != null) iconCache.put(filename,ico);
+
 		return ico;
 		}
 
