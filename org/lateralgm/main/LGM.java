@@ -133,7 +133,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.127"; //$NON-NLS-1$
+	public static final String version = "1.8.128"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -987,6 +987,12 @@ public final class LGM
 			Locale.setDefault(Prefs.locale);
 		}
 
+		//TODO: Should probably make these preferences as well, but I don't have a Mac to test - Robert
+		//Put the Mac menu bar where it belongs (ignored by other systems)
+		System.setProperty("apple.laf.useScreenMenuBar","true"); //$NON-NLS-1$ //$NON-NLS-2$
+		//Set the Mac menu bar title to the correct name (also adds a useless About entry, so disabled)
+		//System.setProperty("com.apple.mrj.application.apple.menu.about.name",Messages.getString("LGM.NAME")); //$NON-NLS-1$ //$NON-NLS-2$
+
 		if (Prefs.direct3DAcceleration.equals("off")) { //$NON-NLS-1$
 			//java6u10 regression causes graphical xor to be very slow
 			System.setProperty("sun.java2d.d3d","false"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1072,18 +1078,9 @@ public final class LGM
 		{
 		LGM.applyPreferences();
 
-		//TODO: Should probably make these preferences as well, but I don't have a Mac to test - Robert
-		//Put the Mac menu bar where it belongs (ignored by other systems)
-		System.setProperty("apple.laf.useScreenMenuBar","true"); //$NON-NLS-1$ //$NON-NLS-2$
-		//Set the Mac menu bar title to the correct name (also adds a useless About entry, so disabled)
-		//System.setProperty("com.apple.mrj.application.apple.menu.about.name",Messages.getString("LGM.NAME")); //$NON-NLS-1$ //$NON-NLS-2$
-
 		iconspack = Prefs.iconPack;
 		setLookAndFeel(Prefs.swingTheme);
 		themechanged = false;
-		// must be called after setting the look and feel
-		JFrame.setDefaultLookAndFeelDecorated(Prefs.decorateWindowBorders);
-		JDialog.setDefaultLookAndFeelDecorated(Prefs.decorateWindowBorders);
 
 		SplashProgress splashProgress = new SplashProgress();
 		splashProgress.start();
