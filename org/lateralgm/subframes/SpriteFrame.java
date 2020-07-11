@@ -233,7 +233,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		}
 
 		add(splitPane,BorderLayout.CENTER);
-		add(makeStatusBar(),BorderLayout.SOUTH);
 
 		previewMouseAdapter = new MouseAdapter()
 			{
@@ -273,7 +272,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		// will cause a height of 13,000 with some elongated subimages (8 x 56 as an example)
 		// setFixedCellWidth/Height is not an alternative because it does not work with subimages
 		// of varying dimensions
-		this.setSize(getWidth(),682);
+		this.setSize(getWidth(),642);
 		SwingUtilities.invokeLater(new Runnable()
 			{
 			@Override
@@ -789,7 +788,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		tool.add(loadSubimages);
 		tool.add(loadStrip);
 		tool.add(saveSubimages);
-		
 
 		tool.addSeparator();
 
@@ -894,6 +892,8 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		subimagesScroll.getHorizontalScrollBar().setUnitIncrement(0);
 		subimagesScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		pane.add(subimagesScroll,BorderLayout.CENTER);
+
+		pane.add(makeStatusBar(),BorderLayout.SOUTH);
 
 		return pane;
 		}

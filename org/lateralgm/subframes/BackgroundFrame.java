@@ -186,6 +186,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		previewScroll = new JScrollPane(preview);
 		previewPanel.add(previewScroll,BorderLayout.CENTER);
 		previewPanel.add(makeToolBar(),BorderLayout.NORTH);
+		previewPanel.add(makeStatusBar(),BorderLayout.SOUTH);
 
 		JSplitPane orientationSplit = new JSplitPane();
 		if (Prefs.rightOrientation) {
@@ -197,7 +198,6 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 					makeOptionsPanel(),previewPanel);
 		}
 		this.add(orientationSplit, BorderLayout.CENTER);
-		this.add(makeStatusBar(),BorderLayout.SOUTH);
 
 		updateStatusBar();
 		updateScrollBars();
