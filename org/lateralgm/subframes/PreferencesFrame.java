@@ -924,6 +924,7 @@ public class PreferencesFrame extends JDialog implements ActionListener
 
 			LGM.setLookAndFeel((String) themeCombo.getSelectedItem());
 			LGM.updateLookAndFeel();
+			LGM.reloadIcons();
 			// must be called after updating the look and feel so that laf can be asked if window borders
 			// should be decorated
 			LGM.applyPreferences();
