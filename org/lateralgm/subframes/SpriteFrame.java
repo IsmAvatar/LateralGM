@@ -41,7 +41,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.instrument.Instrumentation;
 import java.net.URI;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -54,12 +53,11 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.DropMode;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -80,6 +78,7 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.LayoutStyle;
+import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -90,8 +89,8 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.text.NumberFormatter;
 
 import org.lateralgm.components.EffectsFrame;
-import org.lateralgm.components.NumberField;
 import org.lateralgm.components.EffectsFrame.EffectsFrameListener;
+import org.lateralgm.components.NumberField;
 import org.lateralgm.components.NumberField.ValueChangeEvent;
 import org.lateralgm.components.NumberField.ValueChangeListener;
 import org.lateralgm.components.impl.IndexButtonGroup;
@@ -338,21 +337,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		tool.add(play);
 
 		return tool;
-		}
-
-	public static class ObjectSizeFetcher
-		{
-		private static Instrumentation instrumentation;
-
-		public static void premain(String args, Instrumentation inst)
-			{
-			instrumentation = inst;
-			}
-
-		public static long getObjectSize(Object o)
-			{
-			return instrumentation.getObjectSize(o);
-			}
 		}
 
 	private void updateStatusLabel()
