@@ -134,7 +134,7 @@ public final class Prefs
 		backupSave = getBoolean("backupSave",true);
 		backupExit = getBoolean("backupExit",true);
 		backupInterval = getBoolean("backupInterval",false);
-		backupCopies = getInt("backupCopies",3);
+		backupCopies = getInt("backupCopies",5);
 		backupHours = getInt("backupHours",0);
 		backupMinutes = getInt("backupMinutes",5);
 

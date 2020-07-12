@@ -880,7 +880,7 @@ public class FileChooser
 			//if result == yes then continue
 			}
 
-		attemptBackup();
+		if (!attemptBackup()) return false; // <- failed & user declined
 		SwingWorker<Object,Object> sw = new SwingWorker<Object,Object>()
 			{
 			// The background part runs on a thread!
@@ -991,7 +991,7 @@ public class FileChooser
 	private static boolean pushBackups(File f)
 		{
 		String fn = f.getPath();
-		int nb = PrefsStore.getNumberOfBackups();
+		int nb = Prefs.backupCopies;
 		if (nb <= 0 || !new File(fn).exists()) return true;
 		String bn;
 		if (fn.endsWith(".gm6") || fn.endsWith(".gmk"))

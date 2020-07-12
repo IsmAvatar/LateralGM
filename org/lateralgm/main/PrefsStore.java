@@ -384,8 +384,8 @@ public final class PrefsStore
 		Prefs.multipleSelectionOutsideColor = selectionOutsideColor;
 		}
 
-	public static int getNumberOfBackups()
+	public static void setNumberOfBackups(int backupCopies)
 		{
-		return PREFS.getInt("FILE_BACKUP_COUNT",1);
+		PREFS.putInt("backupCopies",backupCopies);
 		}
 	}
