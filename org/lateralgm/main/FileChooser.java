@@ -420,17 +420,23 @@ public class FileChooser
 	protected static class ProjectReader implements FileReader,GroupFilter
 		{
 		protected CustomFileFilter[] filters;
-		protected CustomFileFilter groupFilter;
+		protected CustomFileFilter groupFilter, backupsFilter;
 
 		protected ProjectReader()
 			{
 			String[] exts = { ".gm81",".gmk",".gm6",".gmd", }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			String[] descs = { "GM81","GMK","GM6","GMD" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			groupFilter = new CustomFileFilter(Messages.getString("FileChooser.FORMAT_READERS_GM"),exts); //$NON-NLS-1$
-			filters = new CustomFileFilter[exts.length];
+			filters = new CustomFileFilter[exts.length+1];
 			for (int i = 0; i < exts.length; i++)
 				filters[i] = new CustomFileFilter(
 						Messages.getString("FileChooser.FORMAT_" + descs[i]),exts[i]); //$NON-NLS-1$
+			String backupExts[] = new String[9];
+			for (int i = 0; i < backupExts.length; ++i)
+				backupExts[i] = ".gb" + (i + 1); //$NON-NLS-1$
+			backupsFilter = new CustomFileFilter(
+					Messages.getString("FileChooser.FORMAT_GB"),backupExts); //$NON-NLS-1$
+			filters[filters.length-1] = backupsFilter;
 			}
 
 		public FileFilter getGroupFilter()
@@ -445,7 +451,8 @@ public class FileChooser
 
 		public boolean canRead(URI f)
 			{
-			return groupFilter.accept(new File(f));
+			File file = new File(f);
+			return groupFilter.accept(file) || backupsFilter.accept(file);
 			}
 
 		public void read(InputStream is, ProjectFile file, URI uri, ResNode root) throws ProjectFormatException
