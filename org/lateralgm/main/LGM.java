@@ -133,7 +133,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.130"; //$NON-NLS-1$
+	public static final String version = "1.8.131"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -522,22 +522,27 @@ public final class LGM
 		String location = null;
 		URL url = null;
 		if (Prefs.iconPack.equals("Custom")) //$NON-NLS-1$
-		{
+			{
 			String custompath = Prefs.iconPath + filename;
-			if ((new File(custompath)).exists()) {
+			if ((new File(custompath)).exists())
+				{
 				// we found the users custom icon where they said it would be
 				location = custompath;
-			} else {
+				}
+			else
+				{
 				// fallback to Calico built into the jar
 				String fallback = iconspath + "Calico/" + filename; //$NON-NLS-1$
 				url = LGM.class.getClassLoader().getResource(fallback);
+				}
 			}
-		} else {
+		else
+			{
 			// standard icon pack built into the jar is requested
 			String jarpath = iconspath + iconspack + '/' + filename;
 			url = LGM.class.getClassLoader().getResource(jarpath);
-		}
-	
+			}
+
 		if (location != null) return new ImageIcon(location);
 		else if (url != null) return new ImageIcon(url);
 		return null;
