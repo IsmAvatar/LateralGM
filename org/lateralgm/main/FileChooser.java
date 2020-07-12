@@ -940,6 +940,11 @@ public class FileChooser
 	public static void save(final URI uri, final FileWriter writer) throws IOException, ProjectFormatException
 		{
 		System.out.println(uri);
+		// create a directory for the file
+		// used by formats like GMX
+		File pf = new File(uri).getParentFile();
+		if (!pf.exists()) pf.mkdir();
+		// open the main file and write
 		try (OutputStream os = Util.openURIOutputStream(uri))
 			{
 			writer.write(os,LGM.currentFile,LGM.root);
@@ -993,6 +998,11 @@ public class FileChooser
 			bn = fn.substring(0,fn.length() - 4);
 		else if (fn.endsWith(".gm81"))
 			bn = fn.substring(0,fn.length() - 5);
+		else if (fn.endsWith(".project.gmx"))
+			{
+			fn = f.getParent();
+			bn = fn.substring(0,fn.length() - 4);
+			}
 		else
 			bn = fn;
 		block:
