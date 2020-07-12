@@ -133,7 +133,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.128"; //$NON-NLS-1$
+	public static final String version = "1.8.135"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -522,22 +522,27 @@ public final class LGM
 		String location = null;
 		URL url = null;
 		if (Prefs.iconPack.equals("Custom")) //$NON-NLS-1$
-		{
+			{
 			String custompath = Prefs.iconPath + filename;
-			if ((new File(custompath)).exists()) {
+			if ((new File(custompath)).exists())
+				{
 				// we found the users custom icon where they said it would be
 				location = custompath;
-			} else {
+				}
+			else
+				{
 				// fallback to Calico built into the jar
 				String fallback = iconspath + "Calico/" + filename; //$NON-NLS-1$
 				url = LGM.class.getClassLoader().getResource(fallback);
+				}
 			}
-		} else {
+		else
+			{
 			// standard icon pack built into the jar is requested
 			String jarpath = iconspath + iconspack + '/' + filename;
 			url = LGM.class.getClassLoader().getResource(jarpath);
-		}
-	
+			}
+
 		if (location != null) return new ImageIcon(location);
 		else if (url != null) return new ImageIcon(url);
 		return null;
@@ -987,6 +992,12 @@ public final class LGM
 			Locale.setDefault(Prefs.locale);
 		}
 
+		//TODO: Should probably make these preferences as well, but I don't have a Mac to test - Robert
+		//Put the Mac menu bar where it belongs (ignored by other systems)
+		System.setProperty("apple.laf.useScreenMenuBar","true"); //$NON-NLS-1$ //$NON-NLS-2$
+		//Set the Mac menu bar title to the correct name (also adds a useless About entry, so disabled)
+		//System.setProperty("com.apple.mrj.application.apple.menu.about.name",Messages.getString("LGM.NAME")); //$NON-NLS-1$ //$NON-NLS-2$
+
 		if (Prefs.direct3DAcceleration.equals("off")) { //$NON-NLS-1$
 			//java6u10 regression causes graphical xor to be very slow
 			System.setProperty("sun.java2d.d3d","false"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1072,18 +1083,9 @@ public final class LGM
 		{
 		LGM.applyPreferences();
 
-		//TODO: Should probably make these preferences as well, but I don't have a Mac to test - Robert
-		//Put the Mac menu bar where it belongs (ignored by other systems)
-		System.setProperty("apple.laf.useScreenMenuBar","true"); //$NON-NLS-1$ //$NON-NLS-2$
-		//Set the Mac menu bar title to the correct name (also adds a useless About entry, so disabled)
-		//System.setProperty("com.apple.mrj.application.apple.menu.about.name",Messages.getString("LGM.NAME")); //$NON-NLS-1$ //$NON-NLS-2$
-
 		iconspack = Prefs.iconPack;
 		setLookAndFeel(Prefs.swingTheme);
 		themechanged = false;
-		// must be called after setting the look and feel
-		JFrame.setDefaultLookAndFeelDecorated(Prefs.decorateWindowBorders);
-		JDialog.setDefaultLookAndFeelDecorated(Prefs.decorateWindowBorders);
 
 		SplashProgress splashProgress = new SplashProgress();
 		splashProgress.start();
@@ -1201,6 +1203,10 @@ public final class LGM
 			{
 			LOADING_PROJECT = false;
 			}
+
+		// we can start the autosave timer after loading
+		// if the user has it enabled in preferences
+		Listener.getInstance().updateBackupTimer();
 		}
 
 	// Swing component GUI stuff does NOT go in the main method!
