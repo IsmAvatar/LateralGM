@@ -133,9 +133,8 @@ public final class Prefs
 
 		backupSave = getBoolean("backupSave",true);
 		backupExit = getBoolean("backupExit",true);
-		backupInterval = getBoolean("backupInterval",false);
+		backupAuto = getBoolean("backupAuto",false);
 		backupCopies = getInt("backupCopies",5);
-		backupHours = getInt("backupHours",0);
 		backupMinutes = getInt("backupMinutes",5);
 
 		externalSpriteExtension = getString("externalSpriteExtension","png");
@@ -220,11 +219,10 @@ public final class Prefs
 	public static int actionToolTipLines;
 
 	public static int backupCopies;
-	public static int backupHours;
 	public static int backupMinutes;
 	public static boolean backupSave;
+	public static boolean backupAuto;
 	public static boolean backupExit;
-	public static boolean backupInterval;
 
 	public static boolean useExternalBackgroundEditor;
 	public static String externalBackgroundEditorCommand;

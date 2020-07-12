@@ -384,8 +384,33 @@ public final class PrefsStore
 		Prefs.multipleSelectionOutsideColor = selectionOutsideColor;
 		}
 
-	public static void setNumberOfBackups(int backupCopies)
+	public static void setBackupCopies(int backupCopies)
 		{
 		PREFS.putInt("backupCopies",backupCopies);
+		Prefs.backupCopies = backupCopies;
+		}
+
+	public static void setBackupMinutes(int backupMinutes)
+		{
+		PREFS.putInt("backupMinutes",backupMinutes);
+		Prefs.backupMinutes = backupMinutes;
+		}
+
+	public static void setBackupSave(boolean backupSave)
+		{
+		PREFS.putBoolean("backupSave",backupSave);
+		Prefs.backupSave = backupSave;
+		}
+
+	public static void setBackupAuto(boolean backupAuto)
+		{
+		PREFS.putBoolean("backupAuto",backupAuto);
+		Prefs.backupAuto = backupAuto;
+		}
+
+	public static void setBackupExit(boolean backupExit)
+		{
+		PREFS.putBoolean("backupExit",backupExit);
+		Prefs.backupExit = backupExit;
 		}
 	}

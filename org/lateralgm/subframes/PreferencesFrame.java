@@ -34,6 +34,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -86,6 +88,7 @@ import org.lateralgm.joshedit.lexers.GLSLTokenMarker;
 import org.lateralgm.joshedit.lexers.GMLTokenMarker;
 import org.lateralgm.joshedit.lexers.HLSLTokenMarker;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Listener;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.PrefsStore;
 import org.lateralgm.main.Util;
@@ -323,10 +326,11 @@ public class PreferencesFrame extends JDialog implements ActionListener
 	private static class GeneralGroup extends PreferencesGroup
 		{
 		JCheckBox dndEnable, expandEventsEnable, restrictTreeEnable, extraNodesEnable, showTreeFilter,
-			rightOrientation;
+			rightOrientation, backupSave, backupExit, backupAuto;
 		JComboBox<Locale> localeCombo;
 		JComboBox<String> actionsCombo;
 		JTextField documentationURI, websiteURI, communityURI, issueURI, actionsPath;
+		JSpinner backupCopies, backupMinutes;
 
 		protected GeneralGroup()
 			{
@@ -389,18 +393,43 @@ public class PreferencesFrame extends JDialog implements ActionListener
 			actionsPath.setText(Prefs.userLibraryPath);
 
 			JPanel backupsPanel = new JPanel();
-			backupsPanel.setBorder(BorderFactory.createTitledBorder("Backups"));
+			backupsPanel.setBorder(BorderFactory.createTitledBorder(
+					Messages.getString("PreferencesFrame.BACKUPS"))); //$NON-NLS-1$
 
-			JCheckBox backupSave = new JCheckBox("On save", Prefs.backupSave);
-			JCheckBox backupExit = new JCheckBox("On exit", Prefs.backupExit);
-			JCheckBox backupFrequently = new JCheckBox("On interval", Prefs.backupInterval);
+			backupSave = new JCheckBox(
+					Messages.getString("PreferencesFrame.BACKUP_SAVE"), Prefs.backupSave); //$NON-NLS-1$
+			backupSave.setToolTipText(
+					Messages.getString("PreferencesFrame.BACKUP_SAVE_TOOLTIP")); //$NON-NLS-1$
+			backupAuto = new JCheckBox(
+					Messages.getString("PreferencesFrame.BACKUP_AUTO"), Prefs.backupAuto); //$NON-NLS-1$
+			backupAuto.setToolTipText(
+					Messages.getString("PreferencesFrame.BACKUP_AUTO_TOOLTIP")); //$NON-NLS-1$
+			backupExit = new JCheckBox(
+					Messages.getString("PreferencesFrame.BACKUP_EXIT"), Prefs.backupExit); //$NON-NLS-1$
 
-			JLabel maxCopiesLabel = new JLabel("Copies:");
-			JSpinner maxCopiesField = new JSpinner(new SpinnerNumberModel(Prefs.backupCopies, 0, 5, 1));
-			JLabel hoursLabel = new JLabel("Hours:");
-			JSpinner hoursField = new JSpinner(new SpinnerNumberModel(Prefs.backupHours, 0, 12, 1));
-			JLabel minutesLabel = new JLabel("Minutes:");
-			JSpinner minutesField = new JSpinner(new SpinnerNumberModel(Prefs.backupMinutes, 0, 59, 1));
+			JLabel backupCopiesLabel = new JLabel(
+					Messages.getString("PreferencesFrame.BACKUP_COPIES")); //$NON-NLS-1$
+			backupCopies = new JSpinner(new SpinnerNumberModel(Prefs.backupCopies, 1, 9, 1));
+			JLabel backupMinutesLabel = new JLabel(
+					Messages.getString("PreferencesFrame.BACKUP_MINUTES")); //$NON-NLS-1$
+			backupMinutes = new JSpinner(new SpinnerNumberModel(Prefs.backupMinutes, 1, 60, 1));
+
+			backupSave.addItemListener(new ItemListener()
+				{
+				@Override
+				public void itemStateChanged(ItemEvent e)
+					{
+					backupCopies.setEnabled(backupSave.isSelected());
+					}
+				});
+			backupAuto.addItemListener(new ItemListener()
+				{
+				@Override
+				public void itemStateChanged(ItemEvent e)
+					{
+					backupMinutes.setEnabled(backupAuto.isSelected());
+					}
+				});
 
 			GroupLayout backupsLayout = new GroupLayout(backupsPanel);
 			backupsLayout.setAutoCreateGaps(true);
@@ -409,31 +438,24 @@ public class PreferencesFrame extends JDialog implements ActionListener
 
 			backupsLayout.setHorizontalGroup(backupsLayout.createSequentialGroup()
 			/**/.addGroup(backupsLayout.createParallelGroup(Alignment.TRAILING)
-			/*	*/.addComponent(maxCopiesLabel)
-			/*	*/.addComponent(hoursLabel)
-			/*	*/.addComponent(minutesLabel))
+			/*	*/.addComponent(backupCopiesLabel)
+			/*	*/.addComponent(backupMinutesLabel))
 			/**/.addGroup(backupsLayout.createParallelGroup()
-			/*	*/.addComponent(maxCopiesField)
-			/*	*/.addComponent(hoursField)
-			/*	*/.addComponent(minutesField))
+			/*	*/.addComponent(backupCopies)
+			/*	*/.addComponent(backupMinutes))
 			/**/.addGroup(backupsLayout.createParallelGroup()
 			/*	*/.addComponent(backupSave)
-			/*	*/.addComponent(backupExit)
-			/*	*/.addComponent(backupFrequently)));
+			/*	*/.addComponent(backupAuto)));
 
 			backupsLayout.setVerticalGroup(backupsLayout.createSequentialGroup()
 			/**/.addGroup(backupsLayout.createParallelGroup(Alignment.BASELINE)
-			/*	*/.addComponent(maxCopiesLabel)
-			/*	*/.addComponent(maxCopiesField)
+			/*	*/.addComponent(backupCopiesLabel)
+			/*	*/.addComponent(backupCopies)
 			/*	*/.addComponent(backupSave))
 			/**/.addGroup(backupsLayout.createParallelGroup(Alignment.BASELINE)
-			/*	*/.addComponent(hoursLabel)
-			/*	*/.addComponent(hoursField)
-			/*	*/.addComponent(backupExit))
-			/**/.addGroup(backupsLayout.createParallelGroup(Alignment.BASELINE)
-			/*	*/.addComponent(minutesLabel)
-			/*	*/.addComponent(minutesField)
-			/*	*/.addComponent(backupFrequently)));
+			/*	*/.addComponent(backupMinutesLabel)
+			/*	*/.addComponent(backupMinutes)
+			/*	*/.addComponent(backupAuto)));
 
 			JLabel localeLabel = new JLabel(Messages.getString("PreferencesFrame.LOCALE")); //$NON-NLS-1$
 			JLabel localeWarningLabel = new JLabel(Messages.getString("PreferencesFrame.LOCALE_WARNING")); //$NON-NLS-1$
@@ -514,9 +536,6 @@ public class PreferencesFrame extends JDialog implements ActionListener
 			/*		*/.addComponent(rightOrientation)
 			/*		*/.addComponent(showTreeFilter))));
 
-			//TODO: Finish backup preferences.
-			Util.setComponentTreeEnabled(backupsPanel,false);
-
 			return p;
 			}
 
@@ -535,6 +554,15 @@ public class PreferencesFrame extends JDialog implements ActionListener
 			websiteURI.setText(Prefs.websiteURI);
 			communityURI.setText(Prefs.communityURI);
 			issueURI.setText(Prefs.issueURI);
+
+			backupSave.setSelected(Prefs.backupSave);
+			backupAuto.setSelected(Prefs.backupAuto);
+			backupExit.setSelected(Prefs.backupExit);
+
+			backupCopies.setEnabled(backupSave.isSelected());
+			backupMinutes.setEnabled(backupAuto.isSelected());
+			backupCopies.setValue(Prefs.backupCopies);
+			backupMinutes.setValue(Prefs.backupMinutes);
 			}
 
 		@Override
@@ -543,16 +571,24 @@ public class PreferencesFrame extends JDialog implements ActionListener
 			LGM.filterPanel.setVisible(showTreeFilter.isSelected());
 			PrefsStore.setLocale((Locale) localeCombo.getSelectedItem());
 			PrefsStore.setIconPack(LGM.iconspack);
-			PrefsStore.setDocumentationURI(documentationURI.getText());
-			PrefsStore.setWebsiteURI(websiteURI.getText());
-			PrefsStore.setCommunityURI(communityURI.getText());
-			PrefsStore.setIssueURI(issueURI.getText());
 			PrefsStore.setDNDEnabled(dndEnable.isSelected());
 			PrefsStore.setExpandEventTree(expandEventsEnable.isSelected());
 			PrefsStore.setExtraNodes(extraNodesEnable.isSelected());
 			PrefsStore.setShowTreeFilter(showTreeFilter.isSelected());
 			PrefsStore.setRightOrientation(rightOrientation.isSelected());
 			PrefsStore.setUserLibraryPath(actionsPath.getText());
+
+			PrefsStore.setDocumentationURI(documentationURI.getText());
+			PrefsStore.setWebsiteURI(websiteURI.getText());
+			PrefsStore.setCommunityURI(communityURI.getText());
+			PrefsStore.setIssueURI(issueURI.getText());
+
+			PrefsStore.setBackupSave(backupSave.isSelected());
+			PrefsStore.setBackupAuto(backupAuto.isSelected());
+			PrefsStore.setBackupExit(backupExit.isSelected());
+			PrefsStore.setBackupCopies((int) backupCopies.getValue());
+			PrefsStore.setBackupMinutes((int) backupMinutes.getValue());
+			Listener.getInstance().updateBackupTimer();
 			}
 		}
 

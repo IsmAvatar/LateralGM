@@ -133,7 +133,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.133"; //$NON-NLS-1$
+	public static final String version = "1.8.134"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -1203,6 +1203,10 @@ public final class LGM
 			{
 			LOADING_PROJECT = false;
 			}
+
+		// we can start the autosave timer after loading
+		// if the user has it enabled in preferences
+		Listener.getInstance().updateBackupTimer();
 		}
 
 	// Swing component GUI stuff does NOT go in the main method!

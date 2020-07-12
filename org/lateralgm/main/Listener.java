@@ -35,10 +35,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
 import javax.swing.JTree;
+import javax.swing.Timer;
 import javax.swing.TransferHandler;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
@@ -67,6 +70,28 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 
 	MListener mListener = new MListener();
 	public FileChooser fc = new FileChooser();
+
+	// A timer controlled by autosave backup preferences.
+	private final Timer backupTimer = new Timer((int) TimeUnit.MINUTES.toMillis(Prefs.backupMinutes),
+			new ActionListener()
+		{
+		@Override
+		public void actionPerformed(ActionEvent e)
+			{
+			if (!Prefs.backupAuto) return; // << autosave got disabled
+			// this will only prompt the user if this was a new project
+			// without a previous save location to backup to
+			fc.save(LGM.currentFile.uri,LGM.currentFile.format); // << pretend save was pressed
+			}
+		});
+
+	public void updateBackupTimer()
+		{
+		backupTimer.setCoalesce(true); // << don't ask more than once
+		backupTimer.setDelay((int) TimeUnit.MINUTES.toMillis(Prefs.backupMinutes));
+		if (Prefs.backupAuto) backupTimer.start();
+		else if (backupTimer.isRunning()) backupTimer.stop();
+		}
 
 	private Listener()
 		{

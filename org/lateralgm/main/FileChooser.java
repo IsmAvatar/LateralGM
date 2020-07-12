@@ -767,9 +767,9 @@ public class FileChooser
 					}
 
 				selectedWriter = null;
-				ProjectFile.interfaceProvider.done(); // <- end modal blocking
+				ProjectFile.interfaceProvider.done(); // << end modal blocking
 				}
-			}.execute(); // <- spin up the thread before blocking
+			}.execute(); // << spin up the thread before blocking
 
 		// begin modal blocking, if desired, until finished
 		ProjectFile.interfaceProvider.start();
@@ -880,7 +880,8 @@ public class FileChooser
 			//if result == yes then continue
 			}
 
-		if (!attemptBackup()) return false; // <- failed & user declined
+		if (Prefs.backupSave && !attemptBackup())
+			return false; // << failed backup & user declined overwrite
 		SwingWorker<Object,Object> sw = new SwingWorker<Object,Object>()
 			{
 			// The background part runs on a thread!
@@ -898,12 +899,12 @@ public class FileChooser
 			@Override
 			protected void done()
 				{
-				ProjectFile.interfaceProvider.done(); // <- end modal blocking
+				ProjectFile.interfaceProvider.done(); // << end modal blocking
 				}
 			};
 
-		sw.execute(); // <- spin up the thread before blocking
-		ProjectFile.interfaceProvider.start(); // <- begin modal blocking, if desired
+		sw.execute(); // << spin up the thread before blocking
+		ProjectFile.interfaceProvider.start(); // << begin modal blocking, if desired
 		try
 			{
 			sw.get();
