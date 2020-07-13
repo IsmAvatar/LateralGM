@@ -188,15 +188,8 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		previewPanel.add(makeToolBar(),BorderLayout.NORTH);
 		previewPanel.add(makeStatusBar(),BorderLayout.SOUTH);
 
-		JSplitPane orientationSplit = new JSplitPane();
-		if (Prefs.rightOrientation) {
-			orientationSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-					previewPanel,makeOptionsPanel());
-			orientationSplit.setResizeWeight(1d);
-		} else {
-			orientationSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-					makeOptionsPanel(),previewPanel);
-		}
+		JSplitPane orientationSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true);
+		Util.orientSplit(orientationSplit,Prefs.rightOrientation,makeOptionsPanel(),previewPanel);
 		this.add(orientationSplit, BorderLayout.CENTER);
 
 		updateStatusBar();

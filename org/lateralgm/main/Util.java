@@ -67,6 +67,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
@@ -1290,5 +1291,13 @@ public final class Util
 		{
 		if (suffix == null || str == null) return false;
 		return str.endsWith(suffix);
+		}
+
+	// Reverses the left and right sides of a split and recalculates weight.
+	public static void orientSplit(JSplitPane orientationSplit,boolean reverse,Component left,Component right)
+		{
+		orientationSplit.setLeftComponent(reverse ? right : left);
+		orientationSplit.setRightComponent(reverse ? left : right);
+		if (reverse) orientationSplit.setResizeWeight(1.0d - orientationSplit.getResizeWeight());
 		}
 	}

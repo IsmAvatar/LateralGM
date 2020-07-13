@@ -10,11 +10,12 @@
 
 package org.lateralgm.subframes;
 
+import static java.lang.Integer.MAX_VALUE;
+import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedInputStream;
@@ -25,7 +26,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;
 
 import javax.sound.sampled.AudioFormat;
@@ -39,8 +39,6 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -50,12 +48,12 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JSlider;
+import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
-import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -102,8 +100,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 	private CustomFileChooser fc = new CustomFileChooser("/org/lateralgm","LAST_SOUND_DIR");
 	private SoundEditor editor;
 	private Clip clip;
-	private JLabel statusLabel, lPosition;
-	private JPanel statusBar;
+	private JLabel fileLabel, memoryLabel, lPosition;
 	private JSlider position;
 	private Timer playbackTimer;
 
@@ -144,11 +141,9 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 	public SoundFrame(Sound res, ResNode node)
 		{
 		super(res,node);
-		setLayout(new BorderLayout());
+		this.getRootPane().setDefaultButton(save);
 
-		statusBar = makeStatusBar();
-		add(statusBar,BorderLayout.SOUTH);
-		add(makeToolBar(),BorderLayout.NORTH);
+		setLayout(new BorderLayout());
 
 		String s[] = { ".ogg",".wav",".mid",".mp3",".mod",".xm",".s3m",".it",".nfs",".gfs",".minigfs",
 				".flac" };
@@ -166,8 +161,95 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		fc.addChoosableFileFilter(new CustomFileFilter(d[4],s[3]));
 		fc.setFileFilter(soundsFilter);
 
+		JSplitPane orientationSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true);
+		Util.orientSplit(orientationSplit,Prefs.rightOrientation,makeLeftPane(),makeRightPane());
+		add(orientationSplit, BorderLayout.CENTER);
+
+		data = res.data;
+		loadClip();
+
+		pack();
+		}
+
+	private JButton makeJButton(String key, ImageIcon icon)
+		{
+		JButton button = new JButton(icon);
+		button.setToolTipText(Messages.getString(key));
+		button.addActionListener(this);
+		return button;
+		}
+	private JToolBar makeToolBar()
+		{
+		JToolBar tool = new JToolBar();
+		tool.setFloatable(false);
+
+		tool.add(load = makeJButton("SoundFrame.LOAD",LOAD_ICON)); //$NON-NLS-1$
+		tool.add(store = makeJButton("SoundFrame.STORE",STORE_ICON)); //$NON-NLS-1$
+		tool.add(edit = makeJButton("SoundFrame.EDIT",EDIT_ICON)); //$NON-NLS-1$
+		tool.addSeparator();
+		tool.add(play = makeJButton("SoundFrame.PLAY",PLAY_ICON)); //$NON-NLS-1$
+		tool.add(stop = makeJButton("SoundFrame.STOP",STOP_ICON)); //$NON-NLS-1$
+		play.setEnabled(false);
+		stop.setEnabled(false);
+
+		return tool;
+		}
+
+	private JPanel makeLeftPane()
+		{
+		JPanel panel = new JPanel();
+
+		name.setColumns(13);
+		name.setMaximumSize(name.getPreferredSize());
+		JLabel nameLabel = new JLabel(Messages.getString("SoundFrame.NAME")); //$NON-NLS-1$
+
+		preload = new JCheckBox(Messages.getString("SoundFrame.PRELOAD")); //$NON-NLS-1$
+		preload.setOpaque(false);
+		plf.make(preload,PSound.PRELOAD);
+
+		fileLabel = new JLabel();
+		memoryLabel = new JLabel();
+
 		JPanel pKind = makeKindPane();
 		JPanel pEffects = makeEffectsPane();
+
+		GroupLayout layout = new GroupLayout(panel);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
+		/*	*/.addComponent(nameLabel)
+		/*	*/.addComponent(name,DEFAULT_SIZE,120,MAX_VALUE))
+		/**/.addComponent(fileLabel,0,DEFAULT_SIZE,PREFERRED_SIZE)
+		/**/.addComponent(memoryLabel,0,DEFAULT_SIZE,PREFERRED_SIZE)
+		/**/.addComponent(preload)
+		/**/.addComponent(pEffects,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/**/.addComponent(pKind,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
+
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(nameLabel)
+		/*	*/.addComponent(name))
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
+		/**/.addComponent(fileLabel)
+		/**/.addComponent(memoryLabel)
+		/**/.addComponent(preload)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
+		/**/.addComponent(pKind)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
+		/**/.addComponent(pEffects)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED,8,Integer.MAX_VALUE)
+		/**/.addComponent(save));
+
+		panel.setLayout(layout);
+		return panel;
+		}
+
+	private JPanel makeRightPane()
+		{
+		JPanel panel = new JPanel(new BorderLayout());
+
 		JPanel pFormat = makeFormatPane();
 
 		final JLabel lVolume = new JLabel(Messages.getString("SoundFrame.VOLUME") + ": 100"); //$NON-NLS-1$
@@ -225,127 +307,74 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			});
 		playbackTimer.setInitialDelay(0);
 
-		data = res.data;
-		loadClip();
+		save.setText(Messages.getString("ResourceFrame.SAVE")); //$NON-NLS-1$
 
 		JPanel content = new JPanel();
 		GroupLayout layout = new GroupLayout(content);
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
 		layout.setHorizontalGroup(layout.createParallelGroup()
-		/**/.addGroup(layout.createParallelGroup()
-		/*	*/.addComponent(lPosition)
-		/*	*/.addComponent(position)
-		/*	*/.addComponent(lVolume)
-		/*	*/.addComponent(volume)
-		/*	*/.addComponent(lPan)
-		/*	*/.addComponent(pan))
-		/**/.addGroup(layout.createSequentialGroup()
-		/*	*/.addComponent(pKind)
-		/*	*/.addComponent(pEffects)
-		/*	*/.addComponent(pFormat,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)));
+		/**/.addComponent(pFormat)
+		/**/.addComponent(lPan)
+		/**/.addComponent(pan)
+		/**/.addComponent(lVolume)
+		/**/.addComponent(volume)
+		/**/.addComponent(position));
 
 		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addGroup(layout.createSequentialGroup()
-		/*	*/.addComponent(lPosition)
-		/*	*/.addComponent(position)
-		/*	*/.addComponent(lVolume)
-		/*	*/.addComponent(volume)
-		/*	*/.addComponent(lPan)
-		/*	*/.addComponent(pan))
-		/**/.addGroup(layout.createParallelGroup(Alignment.CENTER)
-		/*	*/.addComponent(pKind)
-		/*	*/.addComponent(pEffects)
-		/*	*/.addComponent(pFormat)));
+		/**/.addComponent(position)
+		/**/.addComponent(lVolume)
+		/**/.addComponent(volume)
+		/**/.addComponent(lPan)
+		/**/.addComponent(pan)
+		/**/.addComponent(pFormat));
 
-		layout.linkSize(SwingConstants.VERTICAL,pKind,pEffects,pFormat);
 		content.setLayout(layout);
-		add(content,BorderLayout.CENTER);
 
-		pack();
-		}
+		JToolBar playbackToolBar = makeToolBar();
+		playbackToolBar.add(lPosition);
+		panel.add(playbackToolBar,BorderLayout.NORTH);
+		panel.add(content,BorderLayout.CENTER);
 
-	private JToolBar makeToolBar()
-		{
-		JToolBar tool = new JToolBar();
-		tool.setFloatable(false);
-
-		tool.add(save);
-		tool.addSeparator();
-
-		load = new JButton(LOAD_ICON);
-		load.setToolTipText(Messages.getString("SoundFrame.LOAD")); //$NON-NLS-1$
-		load.addActionListener(this);
-		tool.add(load);
-
-		store = new JButton(STORE_ICON);
-		store.setToolTipText(Messages.getString("SoundFrame.STORE")); //$NON-NLS-1$
-		store.addActionListener(this);
-		tool.add(store);
-
-		tool.addSeparator();
-
-		edit = new JButton(EDIT_ICON);
-		edit.setToolTipText(Messages.getString("SoundFrame.EDIT"));
-		edit.addActionListener(this);
-		tool.add(edit);
-
-		play = new JButton(PLAY_ICON);
-		play.setToolTipText(Messages.getString("SoundFrame.PLAY"));
-		play.addActionListener(this);
-		play.setEnabled(false);
-		tool.add(play);
-
-		stop = new JButton(STOP_ICON);
-		stop.setToolTipText(Messages.getString("SoundFrame.STOP"));
-		stop.addActionListener(this);
-		stop.setEnabled(false);
-		tool.add(stop);
-
-		tool.addSeparator();
-
-		preload = new JCheckBox(Messages.getString("SoundFrame.PRELOAD")); //$NON-NLS-1$
-		preload.setOpaque(false);
-		plf.make(preload,PSound.PRELOAD);
-		tool.add(preload);
-
-		tool.addSeparator();
-
-		name.setColumns(13);
-		name.setMaximumSize(name.getPreferredSize());
-		tool.add(new JLabel(Messages.getString("SoundFrame.NAME"))); //$NON-NLS-1$
-		tool.add(name);
-
-		return tool;
+		return panel;
 		}
 
 	private JPanel makeKindPane()
 		{
-		ButtonGroup g = new ButtonGroup();
-		// The buttons must be added in the order corresponding to Sound.SoundKind.
-		AbstractButton kNormal = new JRadioButton(Messages.getString("SoundFrame.NORMAL")); //$NON-NLS-1$
-		g.add(kNormal);
-		AbstractButton kBackground = new JRadioButton(Messages.getString("SoundFrame.BACKGROUND")); //$NON-NLS-1$
-		g.add(kBackground);
-		AbstractButton k3d = new JRadioButton(Messages.getString("SoundFrame.THREE")); //$NON-NLS-1$
-		g.add(k3d);
-		AbstractButton kMult = new JRadioButton(Messages.getString("SoundFrame.MULT")); //$NON-NLS-1$
-		g.add(kMult);
-		plf.make(g,PSound.KIND,SoundKind.class);
-		JPanel pKind = new JPanel();
-		pKind.setBorder(BorderFactory.createTitledBorder(Messages.getString("SoundFrame.KIND")));
-		pKind.setLayout(new BoxLayout(pKind,BoxLayout.PAGE_AXIS));
-		for (Enumeration<AbstractButton> e = g.getElements(); e.hasMoreElements();)
-			pKind.add(e.nextElement());
-		return pKind;
+		// The options must be added in the order corresponding to Sound.SoundKind
+		final String kindOptions[] = { "SoundFrame.NORMAL", //$NON-NLS-1$
+				"SoundFrame.BACKGROUND","SoundFrame.THREE", //$NON-NLS-1$ //$NON-NLS-2$
+				"SoundFrame.MULT" }; //$NON-NLS-1$
+		Messages.translate(kindOptions);
+
+		JComboBox<String> kindCombo = new JComboBox<String>(kindOptions);
+		plf.make(kindCombo,PSound.KIND,new KeyComboBoxConversion<SoundKind>(ProjectFile.SOUND_KIND,
+			ProjectFile.SOUND_KIND_CODE));
+
+		JPanel panel = new JPanel();
+		panel.setBorder(BorderFactory.createTitledBorder(Messages.getString("SoundFrame.KIND")));
+
+		GroupLayout gl = new GroupLayout(panel);
+		gl.setAutoCreateContainerGaps(true);
+
+		gl.setHorizontalGroup(gl.createParallelGroup()
+		/**/.addComponent(kindCombo));
+
+		gl.setVerticalGroup(gl.createParallelGroup()
+		/**/.addComponent(kindCombo,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE));
+
+		panel.setLayout(gl);
+
+		return panel;
 		}
 
 	private JPanel makeFormatPane()
 		{
 		JPanel pFormat = new JPanel();
 
-		final String typeOptions[] = { Messages.getString("SoundFrame.MONO"),
-				Messages.getString("SoundFrame.STEREO"),Messages.getString("SoundFrame.THREE") };
+		final String typeOptions[] = { "SoundFrame.MONO", //$NON-NLS-1$
+				"SoundFrame.STEREO","SoundFrame.THREE" }; //$NON-NLS-1$ //$NON-NLS-2$
+		Messages.translate(typeOptions);
 		JComboBox<String> typeCombo = new JComboBox<String>(typeOptions);
 		plf.make(typeCombo,PSound.TYPE,new KeyComboBoxConversion<SoundType>(ProjectFile.SOUND_TYPE,
 			ProjectFile.SOUND_TYPE_CODE));
@@ -357,7 +386,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		final Integer sampleOptions[] = { 5512,11025,22050,32000,44100,48000 };
 		JComboBox<Integer> sampleCombo = new JComboBox<Integer>(sampleOptions);
 		plf.make(sampleCombo,PSound.SAMPLE_RATE,new DefaultComboBoxConversion<Integer>());
-		JLabel sampleLabel = new JLabel(Messages.getString("SoundFrame.SAMPLERATE"));
+		JLabel sampleLabel = new JLabel(Messages.getString("SoundFrame.SAMPLERATE")); //$NON-NLS-1$
 
 		ArrayList<Integer> bitOptions = new ArrayList<Integer>();
 		for (int i = 8; i <= 512; i += 8 * Math.floor(Math.log(i) / Math.log(8)))
@@ -367,19 +396,20 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		JComboBox<Integer> bitCombo = new JComboBox<Integer>(
 				bitOptions.toArray(new Integer[bitOptions.size()]));
 		plf.make(bitCombo,PSound.BIT_RATE,new DefaultComboBoxConversion<Integer>());
-		JLabel bitLabel = new JLabel(Messages.getString("SoundFrame.BITRATE"));
+		JLabel bitLabel = new JLabel(Messages.getString("SoundFrame.BITRATE")); //$NON-NLS-1$
 
-		JCheckBox compressedCB = new JCheckBox(Messages.getString("SoundFrame.COMPRESSED"));
+		JCheckBox compressedCB = new JCheckBox(Messages.getString("SoundFrame.COMPRESSED")); //$NON-NLS-1$
 		plf.make(compressedCB,PSound.COMPRESSED);
-		JCheckBox streamedCB = new JCheckBox(Messages.getString("SoundFrame.STREAMED"));
+		JCheckBox streamedCB = new JCheckBox(Messages.getString("SoundFrame.STREAMED")); //$NON-NLS-1$
 		plf.make(streamedCB,PSound.STREAMED);
-		JCheckBox decompressCB = new JCheckBox(Messages.getString("SoundFrame.DECOMPRESS"));
+		JCheckBox decompressCB = new JCheckBox(Messages.getString("SoundFrame.DECOMPRESS")); //$NON-NLS-1$
 		plf.make(decompressCB,PSound.DECOMPRESS_ON_LOAD);
 
 		GroupLayout aLayout = new GroupLayout(pFormat);
 		aLayout.setAutoCreateGaps(true);
+		aLayout.setAutoCreateContainerGaps(true);
 		pFormat.setLayout(aLayout);
-		pFormat.setBorder(BorderFactory.createTitledBorder(Messages.getString("SoundFrame.FORMAT")));
+		pFormat.setBorder(BorderFactory.createTitledBorder(Messages.getString("SoundFrame.FORMAT"))); //$NON-NLS-1$
 		aLayout.setHorizontalGroup(aLayout.createParallelGroup()
 		/**/.addGroup(aLayout.createSequentialGroup()
 		/*  */.addGroup(aLayout.createParallelGroup()
@@ -429,6 +459,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		JPanel pEffects = new JPanel();
 		GroupLayout eLayout = new GroupLayout(pEffects);
 		eLayout.setAutoCreateGaps(true);
+		eLayout.setAutoCreateContainerGaps(true);
 		pEffects.setLayout(eLayout);
 		pEffects.setBorder(BorderFactory.createTitledBorder(Messages.getString("SoundFrame.EFFECTS")));
 		eLayout.setHorizontalGroup(eLayout.createSequentialGroup()
@@ -459,8 +490,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			position = clip.getMicrosecondPosition();
 			}
 
-		lPosition.setText(Messages.getString("SoundFrame.DURATION") + ": " + formatTime(length)
-				+ " | " + Messages.getString("SoundFrame.POSITION") + ": " + formatTime(position));
+		lPosition.setText(formatTime(position) + " / " + formatTime(length));
 		}
 
 	protected boolean areResourceFieldsEqual()
@@ -582,28 +612,13 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		super.actionPerformed(e);
 		}
 
-	private JPanel makeStatusBar()
-		{
-		JPanel status = new JPanel(new FlowLayout());
-		BoxLayout layout = new BoxLayout(status,BoxLayout.X_AXIS);
-		status.setLayout(layout);
-		status.setMaximumSize(new Dimension(Integer.MAX_VALUE,11));
-
-		statusLabel = new JLabel();
-		status.add(statusLabel);
-
-		updateStatusLabel();
-
-		return status;
-		}
-
 	public void loadClip()
 		{
 		cleanup();
 		position.setValue(0);
 		playbackTimer.stop();
 		play.setEnabled(false);
-		updateStatusLabel();
+		updateStatusLabels();
 		if (data == null || data.length <= 0)
 			{
 			updatePositionLabel();
@@ -661,25 +676,22 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		updatePositionLabel();
 		}
 
-	private void updateStatusLabel()
+	private void updateStatusLabels()
 		{
-		String stat = " " + Messages.getString("SoundFrame.FILENAME") + ": "
-				+ res.get(PSound.FILE_NAME) + " | " + Messages.getString("SoundFrame.MEMORY") + ": ";
+		String fileName = res.get(PSound.FILE_NAME);
+		String shortName = new File(fileName).getName();
+		fileLabel.setText(Messages.format("SoundFrame.FILENAME",shortName)); //$NON-NLS-1$
+		if (!fileName.isEmpty()) fileLabel.setToolTipText(fileName);
 
+		long length = 0;
 		if (res.data != null && res.data.length != 0)
-			{
-			stat += Util.formatDataSize(res.data.length);
-			}
+			length = res.data.length;
 		else if (data != null)
-			{
-			stat += Util.formatDataSize(data.length);
-			}
-		else
-			{
-			stat += Util.formatDataSize(0);
-			}
+			length = data.length;
 
-		statusLabel.setText(stat);
+		String sizeString = Util.formatDataSize(length);
+		memoryLabel.setText(Messages.format("SoundFrame.MEMORY",sizeString)); //$NON-NLS-1$
+		memoryLabel.setToolTipText(sizeString);
 		}
 
 	private class SoundEditor implements UpdateListener

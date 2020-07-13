@@ -133,7 +133,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.135"; //$NON-NLS-1$
+	public static final String version = "1.8.137"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -1151,13 +1151,8 @@ public final class LGM
 		//OutputManager.initialize();
 
 		JSplitPane verSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT,true,contents,OutputManager.outputTabs);
-		final JSplitPane horSplit;
-		if (Prefs.rightOrientation) {
-			horSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,verSplit,hierarchyPanel);
-			horSplit.setResizeWeight(1d);
-		} else {
-			horSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,hierarchyPanel,verSplit);
-		}
+		final JSplitPane horSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true);
+		Util.orientSplit(horSplit,Prefs.rightOrientation,hierarchyPanel,verSplit);
 		f.add(horSplit);
 
 		frame.setContentPane(f);

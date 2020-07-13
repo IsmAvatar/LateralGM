@@ -54,13 +54,13 @@ import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.DropMode;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -77,7 +77,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.LayoutStyle;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
@@ -98,6 +97,7 @@ import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.impl.SpriteStripDialog;
 import org.lateralgm.components.visual.SubimagePreview;
 import org.lateralgm.file.FileChangeMonitor;
+import org.lateralgm.file.ProjectFile;
 import org.lateralgm.file.FileChangeMonitor.FileUpdateEvent;
 import org.lateralgm.main.FileChooser.FileDropHandler;
 import org.lateralgm.main.LGM;
@@ -108,7 +108,9 @@ import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Sprite.BBMode;
+import org.lateralgm.resources.Sprite.MaskShape;
 import org.lateralgm.resources.Sprite.PSprite;
+import org.lateralgm.ui.swing.propertylink.ComboBoxLink.KeyComboBoxConversion;
 import org.lateralgm.ui.swing.util.SwingExecutor;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
@@ -218,19 +220,12 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		setLayout(new BorderLayout());
 
-		final JSplitPane previewPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,makePreviewPane(),
-				makeSubimagesPane());
+		final JSplitPane previewPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,true,
+				makePreviewPane(),makeSubimagesPane());
 		previewPane.setResizeWeight(1);
 
-		if (Prefs.rightOrientation) {
-			splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-					previewPane,makePropertiesPane());
-			splitPane.setResizeWeight(1d);
-		} else {
-			splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-					makePropertiesPane(),previewPane);
-		}
-
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true);
+		Util.orientSplit(splitPane,Prefs.rightOrientation,makePropertiesPane(),previewPane);
 		add(splitPane,BorderLayout.CENTER);
 
 		previewMouseAdapter = new MouseAdapter()
@@ -271,7 +266,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		// will cause a height of 13,000 with some elongated subimages (8 x 56 as an example)
 		// setFixedCellWidth/Height is not an alternative because it does not work with subimages
 		// of varying dimensions
-		this.setSize(getWidth(),642);
+		this.setSize(getWidth(),586);
 		SwingUtilities.invokeLater(new Runnable()
 			{
 			@Override
@@ -428,38 +423,27 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		{
 		JPanel pane = new JPanel();
 		GroupLayout bLayout = new GroupLayout(pane);
+		bLayout.setAutoCreateContainerGaps(true);
 
 		pane.setLayout(bLayout);
 		pane.setBorder(BorderFactory.createTitledBorder(Messages.getString("SpriteFrame.COLLISION"))); //$NON-NLS-1$
 
-		ButtonGroup g = new ButtonGroup();
-		prec = new JRadioButton(Messages.getString("SpriteFrame.PRECISE")); //$NON-NLS-1$
-		g.add(prec);
-		rect = new JRadioButton(Messages.getString("SpriteFrame.RECTANGLE")); //$NON-NLS-1$
-		g.add(rect);
-		disk = new JRadioButton(Messages.getString("SpriteFrame.DISK")); //$NON-NLS-1$
-		g.add(disk);
-		diam = new JRadioButton(Messages.getString("SpriteFrame.DIAMOND")); //$NON-NLS-1$
-		g.add(diam);
-		poly = new JRadioButton(Messages.getString("SpriteFrame.POLYGON")); //$NON-NLS-1$
-		g.add(poly);
-		plf.make(g,PSprite.SHAPE,Sprite.MaskShape.class);
+		// The options must be added in the order corresponding to Sprite.MaskShape
+		final String kindOptions[] = { "SpriteFrame.PRECISE", //$NON-NLS-1$
+				"SpriteFrame.RECTANGLE","SpriteFrame.DISK", //$NON-NLS-1$ //$NON-NLS-2$
+				"SpriteFrame.DIAMOND" }; //$NON-NLS-1$ //$NON-NLS-2$
+		//TODO: what the fuck "SpriteFrame.POLYGON"
+		Messages.translate(kindOptions);
+
+		JComboBox<String> shapeCombo = new JComboBox<String>(kindOptions);
+		plf.make(shapeCombo,PSprite.SHAPE,new KeyComboBoxConversion<MaskShape>(ProjectFile.SPRITE_MASK_SHAPE,
+			ProjectFile.SPRITE_MASK_CODE));
 
 		bLayout.setHorizontalGroup(bLayout.createSequentialGroup()
-		.addGroup(bLayout.createParallelGroup()
-		/**/.addComponent(prec)
-		/**/.addComponent(rect)
-		/**/.addComponent(disk)
-		/**/.addComponent(diam)
-		/**/.addComponent(poly))
-		/**/.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, PREFERRED_SIZE, Short.MAX_VALUE));
+		/**/.addComponent(shapeCombo));
 
 		bLayout.setVerticalGroup(bLayout.createSequentialGroup()
-		/**/.addComponent(prec)
-		/**/.addComponent(rect)
-		/**/.addComponent(disk)
-		/**/.addComponent(diam)
-		/**/.addComponent(poly));
+		/**/.addComponent(shapeCombo,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE));
 
 		return pane;
 		}
@@ -468,6 +452,8 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		{
 		JPanel pane = new JPanel();
 		GroupLayout bLayout = new GroupLayout(pane);
+		bLayout.setAutoCreateGaps(true);
+		bLayout.setAutoCreateContainerGaps(true);
 		pane.setLayout(bLayout);
 		pane.setBorder(BorderFactory.createTitledBorder(
 				Messages.getString("SpriteFrame.BBOX"))); //$NON-NLS-1$
@@ -479,14 +465,14 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		JSlider toleranceSlider = new JSlider(0, 255);
 		plf.make(toleranceSlider.getModel(),PSprite.ALPHA_TOLERANCE);
 
-		ButtonGroup g = new ButtonGroup();
-		auto = new JRadioButton(Messages.getString("SpriteFrame.AUTO")); //$NON-NLS-1$
-		g.add(auto);
-		full = new JRadioButton(Messages.getString("SpriteFrame.FULL")); //$NON-NLS-1$
-		g.add(full);
-		manual = new JRadioButton(Messages.getString("SpriteFrame.MANUAL")); //$NON-NLS-1$
-		g.add(manual);
-		plf.make(g,PSprite.BB_MODE,BBMode.class);
+		// The options must be added in the order corresponding to Sprite.BBMode
+		final String kindOptions[] = { "SpriteFrame.AUTO", //$NON-NLS-1$
+				"SpriteFrame.FULL","SpriteFrame.MANUAL" }; //$NON-NLS-1$ //$NON-NLS-2$
+		Messages.translate(kindOptions);
+
+		JComboBox<String> bboxCombo = new JComboBox<String>(kindOptions);
+		plf.make(bboxCombo,PSprite.BB_MODE,new KeyComboBoxConversion<BBMode>(ProjectFile.SPRITE_BB_MODE,
+			ProjectFile.SPRITE_BB_CODE));
 
 		JLabel lLab = new JLabel(Messages.getString("SpriteFrame.LEFT")); //$NON-NLS-1$
 		lLab.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -515,61 +501,44 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		updateBoundingBoxEditors();
 
 		bLayout.setHorizontalGroup(bLayout.createParallelGroup()
+		/**/.addComponent(bboxCombo)
 		/**/.addGroup(bLayout.createSequentialGroup()
-		/*	*/.addComponent(auto)
-		/*	*/.addComponent(full))
-		/**/.addComponent(manual)
-		/**/.addGroup(bLayout.createSequentialGroup()
-		/*	*/.addContainerGap(4,4)
 		/*	*/.addGroup(bLayout.createParallelGroup()
 		/*		*/.addGroup(bLayout.createSequentialGroup()
 		/*			*/.addGroup(bLayout.createParallelGroup(Alignment.TRAILING)
 		/*				*/.addComponent(lLab)
 		/*				*/.addComponent(tLab))
-		/*			*/.addGap(2)
 		/*			*/.addGroup(bLayout.createParallelGroup()
-		/*				*/.addComponent(bboxLeft)
-		/*				*/.addComponent(bboxTop))
-		/*			*/.addGap(8)
+		/*				*/.addComponent(bboxLeft, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE)
+		/*				*/.addComponent(bboxTop, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE))
 		/*			*/.addGroup(bLayout.createParallelGroup(Alignment.TRAILING)
 		/*				*/.addComponent(rLab)
 		/*				*/.addComponent(bLab))
-		/*			*/.addGap(2)
 		/*			*/.addGroup(bLayout.createParallelGroup()
-		/*				*/.addComponent(bboxRight)
-		/*				*/.addComponent(bboxBottom)))
+		/*				*/.addComponent(bboxRight, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE)
+		/*				*/.addComponent(bboxBottom, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE)))
 		/*		*/.addGroup(bLayout.createSequentialGroup()
 		/*			*/.addComponent(toleranceLabel))
 		/*		*/.addGroup(bLayout.createSequentialGroup()
 		/*			*/.addComponent(toleranceSlider, 0, 0, Short.MAX_VALUE)
-		/*			*/.addGap(2)
-		/*			*/.addComponent(tolerance, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)))
-		/*	*/.addContainerGap(4,4)));
+		/*			*/.addComponent(tolerance, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)))));
 		bLayout.setVerticalGroup(bLayout.createSequentialGroup()
 		/**/.addGroup(bLayout.createParallelGroup(Alignment.BASELINE)
-		/*	*/.addComponent(auto)
-		/*	*/.addComponent(full))
-		/**/.addComponent(manual)
-		/**/.addGap(4)
-		/**/.addGroup(bLayout.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(toleranceLabel))
-		/**/.addGap(2)
 		/**/.addGroup(bLayout.createParallelGroup(Alignment.CENTER)
 		/*	*/.addComponent(toleranceSlider)
 		/*	*/.addComponent(tolerance, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
-		/**/.addGap(4)
+		/**/.addComponent(bboxCombo,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
 		/**/.addGroup(bLayout.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(lLab)
 		/*	*/.addComponent(bboxLeft)
 		/*	*/.addComponent(rLab)
 		/*	*/.addComponent(bboxRight))
-		/**/.addGap(4)
 		/**/.addGroup(bLayout.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(tLab)
 		/*	*/.addComponent(bboxTop)
 		/*	*/.addComponent(bLab)
-		/*	*/.addComponent(bboxBottom))
-		/**/.addContainerGap(2,2));
+		/*	*/.addComponent(bboxBottom)));
 
 		return pane;
 		}
@@ -797,8 +766,9 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		show = new NumberField(0,res.subImages.size() - 1);
 		show.setHorizontalAlignment(SwingConstants.CENTER);
 		show.addValueChangeListener(this);
-		show.setColumns(10);
+		show.setColumns(4);
 		show.setMaximumSize(show.getPreferredSize());
+		show.setMinimumSize(show.getPreferredSize());
 		//		show.setValue(0);
 		tool.add(show);
 
