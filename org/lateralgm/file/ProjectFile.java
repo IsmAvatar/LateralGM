@@ -123,16 +123,8 @@ public class ProjectFile implements UpdateListener
 	public static final BBMode[] SPRITE_BB_MODE = { BBMode.AUTO,BBMode.FULL,BBMode.MANUAL };
 	public static final Map<BBMode,Integer> SPRITE_BB_CODE = enumCodeMap(SPRITE_BB_MODE,BBMode.class);
 	public static final MaskShape[] SPRITE_MASK_SHAPE = { MaskShape.PRECISE,MaskShape.RECTANGLE,
-			MaskShape.DISK,MaskShape.DIAMOND };
-	public static final Map<MaskShape,Integer> SPRITE_MASK_CODE;
-	static
-		{
-		EnumMap<MaskShape,Integer> m = new EnumMap<MaskShape,Integer>(MaskShape.class);
-		for (int i = 0; i < SPRITE_MASK_SHAPE.length; i++)
-			m.put(SPRITE_MASK_SHAPE[i],i);
-		m.put(MaskShape.POLYGON,m.get(MaskShape.RECTANGLE));
-		SPRITE_MASK_CODE = Collections.unmodifiableMap(m);
-		}
+			MaskShape.DISK,MaskShape.DIAMOND,MaskShape.POLYGON };
+	public static final Map<MaskShape,Integer> SPRITE_MASK_CODE = enumCodeMap(SPRITE_MASK_SHAPE,MaskShape.class);
 	public static final ExportAction[] INCLUDE_EXPORT_ACTION = { ExportAction.DONT_EXPORT, ExportAction.TEMP_DIRECTORY,
 			ExportAction.SAME_FOLDER, ExportAction.CUSTOM_FOLDER };
 	public static final Map<ExportAction,Integer> INCLUDE_EXPORT_CODE = enumCodeMap(INCLUDE_EXPORT_ACTION,ExportAction.class);
