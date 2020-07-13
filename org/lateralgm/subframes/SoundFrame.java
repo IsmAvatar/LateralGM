@@ -466,18 +466,18 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		/**/.addGroup(eLayout.createParallelGroup()
 		/*		*/.addComponent(eChorus)
 		/*		*/.addComponent(eFlanger)
-		/*		*/.addComponent(eReverb))
+		/*		*/.addComponent(eGargle))
 		/**/.addGroup(eLayout.createParallelGroup()
 		/*		*/.addComponent(eEcho)
-		/*		*/.addComponent(eGargle)));
+		/*		*/.addComponent(eReverb)));
 		eLayout.setVerticalGroup(eLayout.createSequentialGroup()
 		/**/.addGroup(eLayout.createParallelGroup()
 		/*		*/.addComponent(eChorus)
 		/*		*/.addComponent(eEcho))
 		/**/.addGroup(eLayout.createParallelGroup()
 		/*		*/.addComponent(eFlanger)
-		/*		*/.addComponent(eGargle))
-		/**/.addComponent(eReverb));
+		/*		*/.addComponent(eReverb))
+		/**/.addComponent(eGargle));
 		return pEffects;
 		}
 
