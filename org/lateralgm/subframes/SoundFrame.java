@@ -161,15 +161,8 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		fc.addChoosableFileFilter(new CustomFileFilter(d[4],s[3]));
 		fc.setFileFilter(soundsFilter);
 
-		JSplitPane orientationSplit = new JSplitPane();
-		if (Prefs.rightOrientation) {
-			orientationSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-					makeRightPane(),makeLeftPane());
-			orientationSplit.setResizeWeight(1d);
-		} else {
-			orientationSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-					makeLeftPane(),makeRightPane());
-		}
+		JSplitPane orientationSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true);
+		Util.orientSplit(orientationSplit,Prefs.rightOrientation,makeLeftPane(),makeRightPane());
 		add(orientationSplit, BorderLayout.CENTER);
 
 		data = res.data;

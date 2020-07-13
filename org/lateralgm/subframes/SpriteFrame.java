@@ -220,19 +220,12 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		setLayout(new BorderLayout());
 
-		final JSplitPane previewPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,makePreviewPane(),
-				makeSubimagesPane());
+		final JSplitPane previewPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,true,
+				makePreviewPane(),makeSubimagesPane());
 		previewPane.setResizeWeight(1);
 
-		if (Prefs.rightOrientation) {
-			splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-					previewPane,makePropertiesPane());
-			splitPane.setResizeWeight(1d);
-		} else {
-			splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-					makePropertiesPane(),previewPane);
-		}
-
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true);
+		Util.orientSplit(splitPane,Prefs.rightOrientation,makePropertiesPane(),previewPane);
 		add(splitPane,BorderLayout.CENTER);
 
 		previewMouseAdapter = new MouseAdapter()
