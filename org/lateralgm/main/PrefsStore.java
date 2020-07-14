@@ -23,16 +23,19 @@ public final class PrefsStore
 
 	private static final Preferences PREFS = Preferences.userRoot().node("/org/lateralgm");
 
-	public static void resetToDefaults() {
+	public static void resetToDefaults()
+		{
 		try
-		{
-			PREFS.clear();
-		}
+			{
+			for (String key : PREFS.keys())
+				if (key != null && !key.equals("FILE_RECENT"))
+					PREFS.remove(key);
+			}
 		catch (BackingStoreException e)
-		{
+			{
 			LGM.showDefaultExceptionHandler(e);
+			}
 		}
-	}
 
 	public static void clearRecentFiles()
 		{
