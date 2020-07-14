@@ -1036,7 +1036,7 @@ public final class GmFileReader
 			//NOTE: GM8.1 is inconsistent with the views clear option being negated.
 			int backgroundViewClear = in.read4();
 			rm.put(PRoom.DRAW_BACKGROUND_COLOR,(backgroundViewClear & 1) != 0);
-			rm.put(PRoom.VIEWS_CLEAR,(backgroundViewClear & 0b10) == 0);
+			if (ver >= 810) rm.put(PRoom.VIEWS_CLEAR,(backgroundViewClear & 0b10) == 0);
 			rm.put(PRoom.CREATION_CODE,in.readStr());
 			int nobackgrounds = in.read4();
 			for (int j = 0; j < nobackgrounds; j++)
