@@ -394,12 +394,9 @@ public final class GmFileReader
 			// is the high bit of the use vsync setting
 			int sync = in.read4();
 			p.put(PGameSettings.USE_SYNCHRONIZATION,(sync & 0x01) != 0);
-			if (ver >= 800)
-				{
-				p.put(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING,(sync & 0x80000000) != 0);
-				in.readBool(p,PGameSettings.DISABLE_SCREENSAVERS);
-				}
+			p.put(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING,(sync & 0x80000000) != 0);
 			}
+		if (ver >= 800) in.readBool(p,PGameSettings.DISABLE_SCREENSAVERS);
 		in.readBool(p,PGameSettings.LET_F4_SWITCH_FULLSCREEN,PGameSettings.LET_F1_SHOW_GAME_INFO,
 				PGameSettings.LET_ESC_END_GAME,PGameSettings.LET_F5_SAVE_F6_LOAD);
 		if (ver == 530) in.skip(8); //unknown bytes, both 0
