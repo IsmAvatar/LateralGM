@@ -93,7 +93,6 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 	public IndexButtonGroup scaling;
 	public NumberField scale;
 	public JCheckBox interpolatecolors;
-	public JCheckBox softwareVertexProcessing;
 	public ColorSelect colorbutton;
 	public JCheckBox resizeWindow;
 	public JCheckBox stayOnTop;
@@ -101,6 +100,8 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 	public JCheckBox noWindowButtons;
 	public JCheckBox displayMouse;
 	public JCheckBox freezeGame;
+	public JCheckBox disableScreensavers;
+	public JCheckBox softwareVertexProcessing;
 
 	private JPanel makeGraphicsPane()
 		{
@@ -148,9 +149,6 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 		t = Messages.getString("GameSettingFrame.INTERPOLATE"); //$NON-NLS-1$
 		plf.make(interpolatecolors = new JCheckBox(t),PGameSettings.INTERPOLATE);
-		softwareVertexProcessing = new JCheckBox(
-				Messages.getString("GameSettingFrame.FORCE_SOFTWARE_VERTEX_PROCESSING")); //$NON-NLS-1$
-		plf.make(softwareVertexProcessing,PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING);
 
 		JLabel backcolor = new JLabel(Messages.getString("GameSettingFrame.BACKCOLOR")); //$NON-NLS-1$
 		plf.make(colorbutton = new ColorSelect(),PGameSettings.COLOR_OUTSIDE_ROOM);
@@ -161,6 +159,10 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		noWindowButtons = new JCheckBox(Messages.getString("GameSettingFrame.NOBUTTONS")); //$NON-NLS-1$
 		displayMouse = new JCheckBox(Messages.getString("GameSettingFrame.DISPLAYCURSOR")); //$NON-NLS-1$
 		freezeGame = new JCheckBox(Messages.getString("GameSettingFrame.FREEZE")); //$NON-NLS-1$
+		disableScreensavers = new JCheckBox(
+				Messages.getString("GameSettingFrame.DISABLE_SCREENSAVERS")); //$NON-NLS-1$
+		softwareVertexProcessing = new JCheckBox(
+				Messages.getString("GameSettingFrame.FORCE_SOFTWARE_VERTEX_PROCESSING")); //$NON-NLS-1$
 
 		plf.make(resizeWindow,PGameSettings.ALLOW_WINDOW_RESIZE);
 		plf.make(stayOnTop,PGameSettings.ALWAYS_ON_TOP);
@@ -168,12 +170,13 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		plf.make(noWindowButtons,PGameSettings.DONT_SHOW_BUTTONS);
 		plf.make(displayMouse,PGameSettings.DISPLAY_CURSOR);
 		plf.make(freezeGame,PGameSettings.FREEZE_ON_LOSE_FOCUS);
+		plf.make(disableScreensavers,PGameSettings.DISABLE_SCREENSAVERS);
+		plf.make(softwareVertexProcessing,PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addComponent(startFullscreen)
 		/**/.addComponent(scalegroup)
 		/**/.addComponent(interpolatecolors)
-		/**/.addComponent(softwareVertexProcessing)
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(backcolor)
 		/*	*/.addComponent(colorbutton))
@@ -182,12 +185,13 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		/**/.addComponent(noWindowBorder)
 		/**/.addComponent(noWindowButtons)
 		/**/.addComponent(displayMouse)
-		/**/.addComponent(freezeGame));
+		/**/.addComponent(freezeGame)
+		/**/.addComponent(disableScreensavers)
+		/**/.addComponent(softwareVertexProcessing));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(startFullscreen)
 		/**/.addComponent(scalegroup)
 		/**/.addComponent(interpolatecolors)
-		/**/.addComponent(softwareVertexProcessing)
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE,false)
 		/*	*/.addComponent(backcolor)
 		/*	*/.addComponent(colorbutton))
@@ -197,6 +201,8 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		/**/.addComponent(noWindowButtons)
 		/**/.addComponent(displayMouse)
 		/**/.addComponent(freezeGame)
+		/**/.addComponent(disableScreensavers)
+		/**/.addComponent(softwareVertexProcessing)
 		/**/.addGap(4,4,MAX_VALUE));
 		return panel;
 		}
