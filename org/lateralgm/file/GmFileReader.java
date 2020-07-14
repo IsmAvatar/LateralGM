@@ -79,6 +79,7 @@ import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
+import org.lateralgm.resources.sub.ShapePoint;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.resources.sub.Trigger;
@@ -964,7 +965,7 @@ public final class GmFileReader
 			obj.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			int ver2 = in.read4();
-			if (ver2 != 430) throw versionError(f,"IN","OBJ",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver2 != 430 && ver2 != 820) throw versionError(f,"IN","OBJ",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
 			Sprite temp = f.resMap.getList(Sprite.class).getUnsafe(in.read4());
 			if (temp != null) obj.put(PGmObject.SPRITE,temp.reference);
 			in.readBool(obj.properties,PGmObject.SOLID,PGmObject.VISIBLE);
@@ -998,6 +999,22 @@ public final class GmFileReader
 						done = true;
 					}
 				}
+			if (ver2 >= 820)
+				{
+				in.readBool(obj.properties,PGmObject.PHYSICS_OBJECT,PGmObject.PHYSICS_SENSOR);
+				in.read4(obj.properties,PGmObject.PHYSICS_SHAPE);
+				in.readD(obj.properties,PGmObject.PHYSICS_DENSITY,PGmObject.PHYSICS_RESTITUTION);
+				in.read4(obj.properties,PGmObject.PHYSICS_GROUP);
+				in.readD(obj.properties,PGmObject.PHYSICS_DAMPING_LINEAR,PGmObject.PHYSICS_DAMPING_ANGULAR);
+				int ptc = in.read4(); // << number of shape points
+				if (ver2 >= 821)
+					{
+					in.readD(obj.properties,PGmObject.PHYSICS_FRICTION);
+					in.readBool(obj.properties,PGmObject.PHYSICS_AWAKE,PGmObject.PHYSICS_KINEMATIC);
+					}
+				for (int j = 0; j < ptc; ++j)
+					obj.shapePoints.add(new ShapePoint(in.readD(),in.readD()));
+				}
 			in.endInflate();
 			}
 		f.resMap.getList(GmObject.class).lastId = noGmObjects - 1;
@@ -1026,7 +1043,7 @@ public final class GmFileReader
 			rm.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			int ver2 = in.read4();
-			if (ver2 != 520 && ver2 != 541) throw versionError(f,"IN","RMM",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver2 != 520 && ver2 != 541 && ver2 != 820) throw versionError(f,"IN","RMM",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
 			rm.put(PRoom.CAPTION,in.readStr());
 			in.read4(rm.properties,PRoom.WIDTH,PRoom.HEIGHT,PRoom.SNAP_Y,PRoom.SNAP_X);
 			rm.put(PRoom.ISOMETRIC,in.readBool());
@@ -1097,6 +1114,14 @@ public final class GmFileReader
 				t.properties.put(PTile.ID,in.read4());
 				t.setLocked(in.readBool());
 				rm.tiles.add(t);
+				}
+			if (ver2 >= 820)
+				{
+				rm.put(PRoom.PHYSICS_WORLD,in.readBool());
+				in.read4(rm.properties,PRoom.PHYSICS_TOP,PRoom.PHYSICS_LEFT,
+						PRoom.PHYSICS_RIGHT,PRoom.PHYSICS_BOTTOM);
+				in.readD(rm.properties,PRoom.PHYSICS_GRAVITY_X,PRoom.PHYSICS_GRAVITY_Y,
+						PRoom.PHYSICS_PIXTOMETERS);
 				}
 			rm.put(PRoom.REMEMBER_WINDOW_SIZE,in.readBool());
 			in.read4(rm.properties,PRoom.EDITOR_WIDTH,PRoom.EDITOR_HEIGHT);
