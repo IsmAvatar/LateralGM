@@ -386,8 +386,19 @@ public final class GmFileReader
 		p.put(PGameSettings.FREQUENCY,ProjectFile.GS_FREQS[frequency]);
 
 		in.readBool(p,PGameSettings.DONT_SHOW_BUTTONS);
-		if (ver > 530) in.readBool(p,PGameSettings.USE_SYNCHRONIZATION);
-		if (ver >= 800) in.readBool(p,PGameSettings.DISABLE_SCREENSAVERS);
+		if (ver > 530)
+			{
+			// shout out to nik for finding this one!
+			// GM 8.1.141 D3D force software vertex processing
+			// is the high bit of the use vsync setting
+			int sync = in.read4();
+			p.put(PGameSettings.USE_SYNCHRONIZATION,(sync & 0x01) != 0);
+			if (ver >= 800)
+				{
+				p.put(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING,(sync & 0x80000000) != 0);
+				in.readBool(p,PGameSettings.DISABLE_SCREENSAVERS);
+				}
+			}
 		in.readBool(p,PGameSettings.LET_F4_SWITCH_FULLSCREEN,PGameSettings.LET_F1_SHOW_GAME_INFO,
 				PGameSettings.LET_ESC_END_GAME,PGameSettings.LET_F5_SAVE_F6_LOAD);
 		if (ver == 530) in.skip(8); //unknown bytes, both 0

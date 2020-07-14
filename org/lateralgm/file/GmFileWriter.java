@@ -191,7 +191,13 @@ public final class GmFileWriter
 		out.write4(ProjectFile.GS_DEPTH_CODE.get(p.get(PGameSettings.COLOR_DEPTH)));
 		out.write4(ProjectFile.GS_RESOL_CODE.get(p.get(PGameSettings.RESOLUTION)));
 		out.write4(ProjectFile.GS_FREQ_CODE.get(p.get(PGameSettings.FREQUENCY)));
-		out.writeBool(p,PGameSettings.DONT_SHOW_BUTTONS,PGameSettings.USE_SYNCHRONIZATION);
+		out.writeBool(p,PGameSettings.DONT_SHOW_BUTTONS);
+		// see GmFileReader comment about GM 8.1.141
+		int sync = p.get(PGameSettings.USE_SYNCHRONIZATION) ? 1 : 0;
+		if (ver >= 810)
+			if (p.get(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING))
+				sync |= 0x80000000;
+		out.write4(sync);
 		if (ver >= 800) out.writeBool(p,PGameSettings.DISABLE_SCREENSAVERS);
 		out.writeBool(p,PGameSettings.LET_F4_SWITCH_FULLSCREEN,PGameSettings.LET_F1_SHOW_GAME_INFO,
 				PGameSettings.LET_ESC_END_GAME,PGameSettings.LET_F5_SAVE_F6_LOAD);
