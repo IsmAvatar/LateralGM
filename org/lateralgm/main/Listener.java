@@ -72,7 +72,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	public FileChooser fc = new FileChooser();
 
 	// A timer controlled by autosave backup preferences.
-	private final Timer backupTimer = new Timer((int) TimeUnit.MINUTES.toMillis(Prefs.backupMinutes),
+	private final Timer backupTimer = new Timer(0,
 			new ActionListener()
 		{
 		@Override
@@ -87,9 +87,15 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 
 	public void updateBackupTimer()
 		{
-		backupTimer.setCoalesce(true); // << don't ask more than once
-		backupTimer.setDelay((int) TimeUnit.MINUTES.toMillis(Prefs.backupMinutes));
-		if (Prefs.backupAuto) backupTimer.start();
+		if (Prefs.backupAuto)
+			{
+			int delay = (int) TimeUnit.MINUTES.toMillis(Prefs.backupMinutes);
+			backupTimer.setCoalesce(true); // << don't ask more than once
+			backupTimer.setDelay(delay);
+			backupTimer.setInitialDelay(delay);
+			if (backupTimer.isRunning()) backupTimer.restart();
+			else backupTimer.start();
+			}
 		else if (backupTimer.isRunning()) backupTimer.stop();
 		}
 
