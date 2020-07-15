@@ -804,10 +804,10 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			if (scale.getX() != 1.0 || scale.getY() != 1.0 || angle != 0)
 				{
 				at = new AffineTransform(); // << start with identity
-				if (scale.getX() != 1.0 || scale.getY() != 1.0)
-					at.scale(scale.getX(),scale.getY()); // << scale bounds & drawing
 				if (angle != 0)
 					at.rotate(Math.toRadians(-angle)); // << rotate bounds & drawing
+				if (scale.getX() != 1.0 || scale.getY() != 1.0)
+					at.scale(scale.getX(),scale.getY()); // << scale bounds & drawing
 
 				// Apply the transformation
 				Shape newRect = at.createTransformedShape(newBounds);
