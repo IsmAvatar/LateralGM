@@ -98,7 +98,8 @@ public final class Prefs
 		String d = "OBJ>obj_	SPR>spr_	SND>snd_	RMM>rm_	 BKG>bkg_  PTH>path_	SCR>scr_"
 				+ "  SHR>shr_	 FNT>font_	TML>time_";
 		createPrefixes(getString("prefixes",d));
-		locale = Locale.forLanguageTag(getString("localeTag","und"));
+		String localeTag = getString("localeTag",Locale.getDefault().toLanguageTag());
+		locale = Locale.forLanguageTag(localeTag);
 		documentationURI = getString("documentationURI","http://enigma-dev.org/docs/Wiki/Main_Page");
 		websiteURI = getString("websiteURI","http://github.com/IsmAvatar/LateralGM");
 		communityURI = getString("communityURI","http://enigma-dev.org/forums");

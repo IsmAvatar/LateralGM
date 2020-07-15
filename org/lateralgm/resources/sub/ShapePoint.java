@@ -45,7 +45,7 @@ public class ShapePoint implements PropertyValidator<ShapePoint.PShapePoint>
 		properties = new PropertyMap<PShapePoint>(PShapePoint.class,this,DEFS);
 		}
 
-	public ShapePoint(int x, int y)
+	public ShapePoint(double x, double y)
 		{
 		properties = new PropertyMap<PShapePoint>(PShapePoint.class,this,PropertyMap.makeDefaultMap(
 				PShapePoint.class,x,y));
@@ -59,22 +59,22 @@ public class ShapePoint implements PropertyValidator<ShapePoint.PShapePoint>
 		return r;
 		}
 
-	public int getX()
+	public double getX()
 		{
 		return properties.get(PShapePoint.X);
 		}
 
-	public void setX(int x)
+	public void setX(double x)
 		{
 		properties.put(PShapePoint.X,x);
 		}
 
-	public int getY()
+	public double getY()
 		{
 		return properties.get(PShapePoint.Y);
 		}
 
-	public void setY(int y)
+	public void setY(double y)
 		{
 		properties.put(PShapePoint.Y,y);
 		}

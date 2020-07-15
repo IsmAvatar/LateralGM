@@ -133,7 +133,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.140"; //$NON-NLS-1$
+	public static final String version = "1.8.151"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -988,7 +988,7 @@ public final class LGM
 		}
 
 	public static void applyPreferences() {
-		if (javaVersion >= 10700 && !Prefs.locale.toLanguageTag().equals("und")) {
+		if (javaVersion >= 10700 && Prefs.locale != null) {
 			Locale.setDefault(Prefs.locale);
 		}
 
@@ -1220,11 +1220,11 @@ public final class LGM
 		// https://docs.oracle.com/javase/tutorial/uiswing/concurrency/initial.html
 		SwingUtilities.invokeLater(new Runnable()
 			{
-				@Override
-				public void run()
-					{
-					createAndShowGUI(args);
-					}
+			@Override
+			public void run()
+				{
+				createAndShowGUI(args);
+				}
 			});
 		}
 

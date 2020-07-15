@@ -327,10 +327,33 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		{
 		JCheckBox dndEnable, expandEventsEnable, restrictTreeEnable, extraNodesEnable, showTreeFilter,
 			rightOrientation, backupSave, backupExit, backupAuto;
-		JComboBox<Locale> localeCombo;
+		JComboBox<LocaleItem> localeCombo;
 		JComboBox<String> actionsCombo;
 		JTextField documentationURI, websiteURI, communityURI, issueURI, actionsPath;
 		JSpinner backupCopies, backupMinutes;
+
+		private static class LocaleItem
+			{
+			public final Locale locale;
+			public LocaleItem(Locale locale)
+				{
+				this.locale = locale;
+				}
+
+			@Override
+			public String toString()
+				{
+				return locale.getDisplayName();
+				}
+
+			@Override
+			public boolean equals(Object object)
+				{
+				if (object instanceof LocaleItem)
+					return ((LocaleItem)object).locale.equals(locale);
+				return false;
+				}
+			}
 
 		protected GeneralGroup()
 			{
@@ -462,14 +485,26 @@ public class PreferencesFrame extends JDialog implements ActionListener
 
 			Locale[] locales = Locale.getAvailableLocales();
 			// sort our list of locales by display name
-			Arrays.sort(locales, new Comparator<Locale>() {
+			Arrays.sort(locales, new Comparator<Locale>()
+				{
 				@Override
 				public int compare(Locale o1, Locale o2)
 					{
 					return o1.getDisplayName().compareTo(o2.getDisplayName());
 					}
-			});
-			localeCombo = new JComboBox<Locale>(locales);
+				});
+			localeCombo = new JComboBox<LocaleItem>();
+			// show every locale except the root locale
+			// which is just the language neutral base
+			// its display name is an empty string
+			// and will break the baseline alignment of
+			// the combobox under Windows L&F
+			for (int i = 0; i < locales.length; ++i)
+				{
+				Locale locale = locales[i];
+				if (!locale.equals(Locale.ROOT))
+					localeCombo.addItem(new LocaleItem(locale));
+				}
 
 			GroupLayout gl = new GroupLayout(p);
 			gl.setAutoCreateGaps(true);
@@ -542,7 +577,9 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		@Override
 		public void load()
 			{
-			localeCombo.setSelectedItem(Prefs.locale);
+			Locale currentLocale = Prefs.locale == null ? Locale.getDefault() : Prefs.locale;
+			LocaleItem selectedLocale = new LocaleItem(currentLocale);
+			localeCombo.setSelectedItem(selectedLocale);
 			dndEnable.setSelected(Prefs.enableDragAndDrop);
 			expandEventsEnable.setSelected(Prefs.expandEventTree);
 			restrictTreeEnable.setSelected(Prefs.restrictHierarchy);
@@ -569,7 +606,8 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		public void save()
 			{
 			LGM.filterPanel.setVisible(showTreeFilter.isSelected());
-			PrefsStore.setLocale((Locale) localeCombo.getSelectedItem());
+			LocaleItem selectedLocale = (LocaleItem) localeCombo.getSelectedItem();
+			PrefsStore.setLocale(selectedLocale.locale);
 			PrefsStore.setIconPack(LGM.iconspack);
 			PrefsStore.setDNDEnabled(dndEnable.isSelected());
 			PrefsStore.setExpandEventTree(expandEventsEnable.isSelected());

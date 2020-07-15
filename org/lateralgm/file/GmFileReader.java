@@ -13,6 +13,7 @@ package org.lateralgm.file;
 
 import static org.lateralgm.file.ProjectFile.interfaceProvider;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.io.File;
@@ -79,6 +80,7 @@ import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
+import org.lateralgm.resources.sub.ShapePoint;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.resources.sub.Trigger;
@@ -386,7 +388,15 @@ public final class GmFileReader
 		p.put(PGameSettings.FREQUENCY,ProjectFile.GS_FREQS[frequency]);
 
 		in.readBool(p,PGameSettings.DONT_SHOW_BUTTONS);
-		if (ver > 530) in.readBool(p,PGameSettings.USE_SYNCHRONIZATION);
+		if (ver > 530)
+			{
+			// shout out to nik for finding this one!
+			// GM 8.1.141 D3D force software vertex processing
+			// is the high bit of the use vsync setting
+			int sync = in.read4();
+			p.put(PGameSettings.USE_SYNCHRONIZATION,(sync & 0x01) != 0);
+			p.put(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING,(sync & 0x80000000) != 0);
+			}
 		if (ver >= 800) in.readBool(p,PGameSettings.DISABLE_SCREENSAVERS);
 		in.readBool(p,PGameSettings.LET_F4_SWITCH_FULLSCREEN,PGameSettings.LET_F1_SHOW_GAME_INFO,
 				PGameSettings.LET_ESC_END_GAME,PGameSettings.LET_F5_SAVE_F6_LOAD);
@@ -953,7 +963,7 @@ public final class GmFileReader
 			obj.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			int ver2 = in.read4();
-			if (ver2 != 430) throw versionError(f,"IN","OBJ",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver2 != 430 && ver2 != 820) throw versionError(f,"IN","OBJ",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
 			Sprite temp = f.resMap.getList(Sprite.class).getUnsafe(in.read4());
 			if (temp != null) obj.put(PGmObject.SPRITE,temp.reference);
 			in.readBool(obj.properties,PGmObject.SOLID,PGmObject.VISIBLE);
@@ -987,6 +997,22 @@ public final class GmFileReader
 						done = true;
 					}
 				}
+			if (ver2 >= 820)
+				{
+				in.readBool(obj.properties,PGmObject.PHYSICS_OBJECT,PGmObject.PHYSICS_SENSOR);
+				in.read4(obj.properties,PGmObject.PHYSICS_SHAPE);
+				in.readD(obj.properties,PGmObject.PHYSICS_DENSITY,PGmObject.PHYSICS_RESTITUTION);
+				in.read4(obj.properties,PGmObject.PHYSICS_GROUP);
+				in.readD(obj.properties,PGmObject.PHYSICS_DAMPING_LINEAR,PGmObject.PHYSICS_DAMPING_ANGULAR);
+				int ptc = in.read4(); // << number of shape points
+				if (ver2 >= 821)
+					{
+					in.readD(obj.properties,PGmObject.PHYSICS_FRICTION);
+					in.readBool(obj.properties,PGmObject.PHYSICS_AWAKE,PGmObject.PHYSICS_KINEMATIC);
+					}
+				for (int j = 0; j < ptc; ++j)
+					obj.shapePoints.add(new ShapePoint(in.readD(),in.readD()));
+				}
 			in.endInflate();
 			}
 		f.resMap.getList(GmObject.class).lastId = noGmObjects - 1;
@@ -1015,16 +1041,20 @@ public final class GmFileReader
 			rm.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			int ver2 = in.read4();
-			if (ver2 != 520 && ver2 != 541) throw versionError(f,"IN","RMM",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver2 != 520 && ver2 != 541 && ver2 != 810 && ver2 != 811 && ver2 != 820)
+				throw versionError(f,"IN","RMM",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
 			rm.put(PRoom.CAPTION,in.readStr());
 			in.read4(rm.properties,PRoom.WIDTH,PRoom.HEIGHT,PRoom.SNAP_Y,PRoom.SNAP_X);
 			rm.put(PRoom.ISOMETRIC,in.readBool());
 			rm.put(PRoom.SPEED,in.read4());
 			rm.put(PRoom.PERSISTENT,in.readBool());
 			rm.put(PRoom.BACKGROUND_COLOR,Util.convertGmColor(in.read4()));
-			//NOTE: GM8.1 is inconsistent with the views clear option being negated.
+			// NOTE: GM 8.1 is inconsistent with the views clear option being negated.
 			int backgroundViewClear = in.read4();
 			rm.put(PRoom.DRAW_BACKGROUND_COLOR,(backgroundViewClear & 1) != 0);
+			// GM 8.1 did not change version number of rooms for views clear
+			// because its meaning is the same as clearing the background color
+			// in prior Game Maker versions.
 			rm.put(PRoom.VIEWS_CLEAR,(backgroundViewClear & 0b10) == 0);
 			rm.put(PRoom.CREATION_CODE,in.readStr());
 			int nobackgrounds = in.read4();
@@ -1045,7 +1075,6 @@ public final class GmFileReader
 				{
 				View vw = rm.views.get(j);
 				in.readBool(vw.properties,PView.VISIBLE);
-				//vw.properties.put(PView.VISIBLE,in.readBool());
 				in.read4(vw.properties,PView.VIEW_X,PView.VIEW_Y,PView.VIEW_W,PView.VIEW_H,PView.PORT_X,
 						PView.PORT_Y);
 				if (ver2 > 520)
@@ -1069,6 +1098,14 @@ public final class GmFileReader
 				if (temp != null) inst.properties.put(PInstance.OBJECT,temp.reference);
 				inst.properties.put(PInstance.ID,in.read4());
 				inst.setCreationCode(in.readStr());
+				if (ver2 >= 810)
+					{
+					in.readD(inst.properties,PInstance.SCALE_X,PInstance.SCALE_Y);
+					Color color = Util.convertGmColorWithAlpha(in.read4());
+					inst.setColor(color);
+					inst.setAlpha(color.getAlpha());
+					}
+				if (ver2 >= 811) inst.properties.put(PInstance.ROTATION, in.readD());
 				inst.setLocked(in.readBool());
 				}
 			int notiles = in.read4();
@@ -1084,8 +1121,23 @@ public final class GmFileReader
 				t.setSize(new Dimension(in.read4(),in.read4()));
 				t.setDepth(in.read4());
 				t.properties.put(PTile.ID,in.read4());
+				if (ver2 >= 810)
+					{
+					in.readD(t.properties,PTile.SCALE_X,PTile.SCALE_Y);
+					Color color = Util.convertGmColorWithAlpha(in.read4());
+					t.setColor(color);
+					t.setAlpha(color.getAlpha());
+					}
 				t.setLocked(in.readBool());
 				rm.tiles.add(t);
+				}
+			if (ver2 >= 820)
+				{
+				rm.put(PRoom.PHYSICS_WORLD,in.readBool());
+				in.read4(rm.properties,PRoom.PHYSICS_TOP,PRoom.PHYSICS_LEFT,
+						PRoom.PHYSICS_RIGHT,PRoom.PHYSICS_BOTTOM);
+				in.readD(rm.properties,PRoom.PHYSICS_GRAVITY_X,PRoom.PHYSICS_GRAVITY_Y,
+						PRoom.PHYSICS_PIXTOMETERS);
 				}
 			rm.put(PRoom.REMEMBER_WINDOW_SIZE,in.readBool());
 			in.read4(rm.properties,PRoom.EDITOR_WIDTH,PRoom.EDITOR_HEIGHT);

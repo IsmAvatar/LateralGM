@@ -191,7 +191,12 @@ public final class GmFileWriter
 		out.write4(ProjectFile.GS_DEPTH_CODE.get(p.get(PGameSettings.COLOR_DEPTH)));
 		out.write4(ProjectFile.GS_RESOL_CODE.get(p.get(PGameSettings.RESOLUTION)));
 		out.write4(ProjectFile.GS_FREQ_CODE.get(p.get(PGameSettings.FREQUENCY)));
-		out.writeBool(p,PGameSettings.DONT_SHOW_BUTTONS,PGameSettings.USE_SYNCHRONIZATION);
+		out.writeBool(p,PGameSettings.DONT_SHOW_BUTTONS);
+		// see GmFileReader comment about GM 8.1.141
+		int sync = p.get(PGameSettings.USE_SYNCHRONIZATION) ? 1 : 0;
+		if (p.get(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING))
+			sync |= 0x80000000;
+		out.write4(sync);
 		if (ver >= 800) out.writeBool(p,PGameSettings.DISABLE_SCREENSAVERS);
 		out.writeBool(p,PGameSettings.LET_F4_SWITCH_FULLSCREEN,PGameSettings.LET_F1_SHOW_GAME_INFO,
 				PGameSettings.LET_ESC_END_GAME,PGameSettings.LET_F5_SAVE_F6_LOAD);
@@ -667,9 +672,11 @@ public final class GmFileWriter
 				out.write4(rm.properties,PRoom.SPEED);
 				out.writeBool(rm.properties,PRoom.PERSISTENT);
 				out.write4(Util.getGmColor((Color) rm.get(PRoom.BACKGROUND_COLOR)));
-				//NOTE: GM8.1 is inconsistent with the views clear option being negated, see GMK reader comment.
+				// NOTE: GM 8.1 view clears is connected to background color, see GMK reader comment.
 				int viewBackgroundClear = rm.get(PRoom.DRAW_BACKGROUND_COLOR)?1:0;
-				if (f.format.version >= 810 && !(boolean)rm.get(PRoom.VIEWS_CLEAR)) viewBackgroundClear |= 0b10;
+				// Always set this so if an actual GMK 800 is exported, then draw background color
+				// will be checked if you open it in GM 8.0, this is why the version did not change.
+				if (!(boolean)rm.get(PRoom.VIEWS_CLEAR)) viewBackgroundClear |= 0b10;
 				out.write4(viewBackgroundClear);
 				out.writeStr(rm.properties,PRoom.CREATION_CODE);
 				out.write4(rm.backgroundDefs.size());
