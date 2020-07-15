@@ -1220,11 +1220,11 @@ public final class LGM
 		// https://docs.oracle.com/javase/tutorial/uiswing/concurrency/initial.html
 		SwingUtilities.invokeLater(new Runnable()
 			{
-				@Override
-				public void run()
-					{
-					createAndShowGUI(args);
-					}
+			@Override
+			public void run()
+				{
+				createAndShowGUI(args);
+				}
 			});
 		}
 
