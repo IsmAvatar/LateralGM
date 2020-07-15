@@ -745,10 +745,8 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		private BufferedImage image;
 		private final InstancePropertyListener ipl = new InstancePropertyListener();
 
-		// When rotating an instance, used to set the new position
-		private int offsetx = 0, offsety = 0;
-		// Sprite's origin. Used for rotation
-		private int originx = 0, originy = 0;
+		// The instance's local transformation.
+		AffineTransform at = null;
 
 		public InstanceVisual(Instance i)
 			{
@@ -761,7 +759,6 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		@Override
 		protected void validate()
 			{
-
 			ResourceReference<GmObject> ro = piece.properties.get(PInstance.OBJECT);
 			GmObject o = ro == null ? null : ro.get();
 			ResourceReference<Sprite> rs = null;
@@ -770,28 +767,20 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			image = s == null ? null : s.getDisplayImage();
 			if (image == null) image = EMPTY_IMAGE;
 
-			// Get sprite's origin
+			// Get instance's base dimensions
+			Point position = piece.getPosition();
+			int newWidth = image.getWidth();
+			int newHeight = image.getHeight();
+
+			// Get instance's local transformation
+			int originx = 0, originy = 0;
 			if (s != null)
 				{
 				originx = (Integer) s.get(PSprite.ORIGIN_X);
 				originy = (Integer) s.get(PSprite.ORIGIN_Y);
 				}
-			else
-				{
-				originx = 0;
-				originy = 0;
-				}
-
 			Point2D scale = piece.getScale();
-
-			Point position = piece.getPosition();
-			if (s != null)
-				position.translate(-(int) (originx * scale.getX()),-(int) (originy * scale.getY()));
-
-			// Get instance's properties
 			double angle = piece.getRotation();
-			int newWidth = image.getWidth();
-			int newHeight = image.getHeight();
 
 			int borderOffsetx = 0;
 			int borderOffsety = 0;
@@ -802,49 +791,51 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				binVisual.setDepth(this,o == null ? 0 : Integer.MIN_VALUE,true);
 				newWidth += 4;
 				newHeight += 4;
-				borderOffsetx = (int) (2 * scale.getX());
-				borderOffsety = (int) (2 * scale.getY());
+				borderOffsetx = 2;
+				borderOffsety = 2;
 				}
 			else
-				{
 				binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH),false);
-				}
 
-			// Apply scaling
-			if (scale.getX() != 1.0 || scale.getY() != 1.0)
+			// Create a rectangle with image's size
+			Rectangle newBounds = new Rectangle(-originx,-originy,newWidth,newHeight);
+
+			// Calculate the new bounds when there is a local transformation
+			if (scale.getX() != 1.0 || scale.getY() != 1.0 || angle != 0)
 				{
-				newWidth *= scale.getX();
-				newHeight *= scale.getY();
-				}
+				at = new AffineTransform(); // << start with identity
+				if (scale.getX() != 1.0 || scale.getY() != 1.0)
+					at.scale(scale.getX(),scale.getY()); // << scale bounds & drawing
+				if (angle != 0)
+					at.rotate(Math.toRadians(-angle)); // << rotate bounds & drawing
 
-			// Calculate the new bounds when there is a rotation
-			if (angle != 0)
-				{
-				AffineTransform at = new AffineTransform();
-				// Create a rectangle with image's size
-				Rectangle myRect = new Rectangle(position.x,position.y,newWidth,newHeight);
-				// Apply the rotation
-				at = AffineTransform.getRotateInstance(Math.toRadians(-angle),
-						position.x + originx * scale.getX(),position.y + originy * scale.getY());
-				Shape rotatedRect = at.createTransformedShape(myRect);
+				// Apply the transformation
+				Shape newRect = at.createTransformedShape(newBounds);
 
-				// Use a rectangle2D and round manually values with Math.round. getBounds doesn't give correct rounded values.
-				Rectangle2D newBounds2D = rotatedRect.getBounds2D();
+				// Use a rectangle2D and round manually values with Math.round.
+				// getBounds doesn't give correct rounded values.
+				Rectangle2D newBounds2D = newRect.getBounds2D();
 
+				int offsetx = (int) Math.round(newBounds2D.getX());
+				int offsety = (int) Math.round(newBounds2D.getY());
 				newWidth = (int) Math.round(newBounds2D.getWidth());
 				newHeight = (int) Math.round(newBounds2D.getHeight());
 
-				offsetx = (int) Math.round(newBounds2D.getX()) - position.x;
-				offsety = (int) Math.round(newBounds2D.getY()) - position.y;
+				newBounds = new Rectangle(offsetx,offsety,newWidth,newHeight);
+
+				if (scale.getX() < 0) at.translate(-newWidth,0); // mirror x on drawing
+				if (scale.getY() < 0) at.translate(0,-newHeight); // mirror y on drawing
 				}
 			else
-				{
-				offsetx = 0;
-				offsety = 0;
-				}
+				at = null;
 
-			setBounds(new Rectangle(position.x + offsetx - borderOffsetx,position.y + offsety
-					- borderOffsety,newWidth,newHeight));
+			// the bounds cares about position, origin, scaling, & rotation
+			// the drawing only cares about scaling & rotation
+			// so the at used to transform bounds will be cached until the paint
+			// to make scaling & rotation be reused
+
+			newBounds.translate(position.x, position.y);
+			setBounds(newBounds);
 			}
 
 		public void paint(Graphics g)
@@ -856,25 +847,14 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
 						RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
-				boolean rotationOrScaling = false;
-
-				// Get instance's properties
-				Point2D scale = piece.getScale();
-				double rotation = piece.getRotation();
-				int alpha = piece.getAlpha();
-
-				// If there is a rotation or a scaling, the border size is different
-				if (rotation != 0 || scale.getX() != 1.0 || scale.getY() != 1.0) rotationOrScaling = true;
-
-				// Apply scaling, rotation and translation
-				if (offsetx != 0 || offsety != 0) g2.translate(-offsetx,-offsety);
-				if (rotation != 0)
-					g2.rotate(Math.toRadians(-rotation),originx * scale.getX(),originy * scale.getY());
-				if (scale.getX() != 1.0 || scale.getY() != 1.0) g2.scale(scale.getX(),scale.getY());
+				// Apply cached local transformation.
+				if (at != null) g2.transform(at);
 
 				Image newImage;
 
+				// Get instance's properties
 				Color selectedColor = piece.getAWTColor();
+				int alpha = piece.getAlpha();
 
 				// If a color has been selected, apply color blending
 				if (!Color.WHITE.equals(selectedColor))
@@ -929,7 +909,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 						}
 					else
 						{
-						if (rotationOrScaling == false)
+						if (at != null)
 							g2.drawRect(1,1,image.getWidth() + 1,image.getHeight() + 1);
 						else
 							g2.drawRect(1,1,image.getWidth() + 2,image.getHeight() + 2);
@@ -942,7 +922,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 						g2.setColor(Util.convertGmColorWithAlpha(Prefs.selectionOutsideColor));
 
 					// Draw the outside border
-					if (rotationOrScaling == false)
+					if (at != null)
 						g2.drawRect(0,0,image.getWidth() + 3,image.getHeight() + 3);
 					else
 						g2.drawRect(0,0,image.getWidth() + 4,image.getHeight() + 4);
