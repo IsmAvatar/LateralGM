@@ -801,7 +801,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			Rectangle newBounds = new Rectangle(0,0,newWidth,newHeight);
 
 			// Calculate the new bounds when there is a local transformation
-			if (scale.getX() != 1.0 || scale.getY() != 1.0 || angle != 0 || originx != 0 || originy != 0)
+			if (angle != 0 || scale.getX() != 1.0 || scale.getY() != 1.0 || originx != 0 || originy != 0)
 				{
 				at = new AffineTransform(); // << start with identity
 				if (angle != 0)
@@ -834,9 +834,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				at = null;
 
 			// the bounds cares about position, origin, scaling, & rotation
-			// the drawing only cares about scaling & rotation
-			// so the at used to transform bounds will be cached until the paint
-			// to make scaling & rotation be reused
+			// the drawing only cares about scaling, & rotation
+			// the at with only scaling and rotation and without translation
+			// will be cached and reused to paint the graphic
 
 			newBounds.translate(position.x, position.y);
 			setBounds(newBounds);
