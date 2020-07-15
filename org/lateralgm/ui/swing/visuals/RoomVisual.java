@@ -782,17 +782,15 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			Point2D scale = piece.getScale();
 			double angle = piece.getRotation();
 
-			int borderOffsetx = 0;
-			int borderOffsety = 0;
-
 			// If the instance is selected use bigger bounds for border, and make sure the instance is visible
 			if (piece.isSelected())
 				{
 				binVisual.setDepth(this,o == null ? 0 : Integer.MIN_VALUE,true);
+				// we want these included in the local transformation
 				newWidth += 4;
 				newHeight += 4;
-				borderOffsetx = 2;
-				borderOffsety = 2;
+				originx += 2;
+				originy += 2;
 				}
 			else
 				binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH),false);
