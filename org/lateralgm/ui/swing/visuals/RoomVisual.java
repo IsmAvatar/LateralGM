@@ -911,10 +911,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 						}
 					else
 						{
-						if (at != null)
-							g2.drawRect(1,1,image.getWidth() + 1,image.getHeight() + 1);
-						else
-							g2.drawRect(1,1,image.getWidth() + 2,image.getHeight() + 2);
+						g2.drawRect(1,1,image.getWidth() + 2,image.getHeight() + 2);
 						}
 
 					// If the option 'Invert colors' is set
@@ -924,10 +921,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 						g2.setColor(Util.convertGmColorWithAlpha(Prefs.selectionOutsideColor));
 
 					// Draw the outside border
-					if (at != null)
-						g2.drawRect(0,0,image.getWidth() + 3,image.getHeight() + 3);
-					else
-						g2.drawRect(0,0,image.getWidth() + 4,image.getHeight() + 4);
+					g2.drawRect(0,0,image.getWidth() + 4,image.getHeight() + 4);
 					}
 
 				}
