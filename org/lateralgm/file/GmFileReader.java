@@ -13,6 +13,7 @@ package org.lateralgm.file;
 
 import static org.lateralgm.file.ProjectFile.interfaceProvider;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.io.File;
@@ -1040,7 +1041,8 @@ public final class GmFileReader
 			rm.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			int ver2 = in.read4();
-			if (ver2 != 520 && ver2 != 541 && ver2 != 820) throw versionError(f,"IN","RMM",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver2 != 520 && ver2 != 541 && ver2 != 810 && ver2 != 811 && ver2 != 820)
+				throw versionError(f,"IN","RMM",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
 			rm.put(PRoom.CAPTION,in.readStr());
 			in.read4(rm.properties,PRoom.WIDTH,PRoom.HEIGHT,PRoom.SNAP_Y,PRoom.SNAP_X);
 			rm.put(PRoom.ISOMETRIC,in.readBool());
@@ -1073,7 +1075,6 @@ public final class GmFileReader
 				{
 				View vw = rm.views.get(j);
 				in.readBool(vw.properties,PView.VISIBLE);
-				//vw.properties.put(PView.VISIBLE,in.readBool());
 				in.read4(vw.properties,PView.VIEW_X,PView.VIEW_Y,PView.VIEW_W,PView.VIEW_H,PView.PORT_X,
 						PView.PORT_Y);
 				if (ver2 > 520)
@@ -1097,6 +1098,14 @@ public final class GmFileReader
 				if (temp != null) inst.properties.put(PInstance.OBJECT,temp.reference);
 				inst.properties.put(PInstance.ID,in.read4());
 				inst.setCreationCode(in.readStr());
+				if (ver2 >= 810)
+					{
+					in.readD(inst.properties,PInstance.SCALE_X,PInstance.SCALE_Y);
+					Color color = Util.convertGmColorWithAlpha(in.read4());
+					inst.setColor(color);
+					inst.setAlpha(color.getAlpha());
+					}
+				if (ver2 >= 811) inst.properties.put(PInstance.ROTATION, in.readD());
 				inst.setLocked(in.readBool());
 				}
 			int notiles = in.read4();
@@ -1112,6 +1121,13 @@ public final class GmFileReader
 				t.setSize(new Dimension(in.read4(),in.read4()));
 				t.setDepth(in.read4());
 				t.properties.put(PTile.ID,in.read4());
+				if (ver2 >= 810)
+					{
+					in.readD(t.properties,PTile.SCALE_X,PTile.SCALE_Y);
+					Color color = Util.convertGmColorWithAlpha(in.read4());
+					t.setColor(color);
+					t.setAlpha(color.getAlpha());
+					}
 				t.setLocked(in.readBool());
 				rm.tiles.add(t);
 				}
