@@ -798,16 +798,18 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH),false);
 
 			// Create a rectangle with image's size
-			Rectangle newBounds = new Rectangle(-originx,-originy,newWidth,newHeight);
+			Rectangle newBounds = new Rectangle(0,0,newWidth,newHeight);
 
 			// Calculate the new bounds when there is a local transformation
-			if (scale.getX() != 1.0 || scale.getY() != 1.0 || angle != 0)
+			if (scale.getX() != 1.0 || scale.getY() != 1.0 || angle != 0 || originx != 0 || originy != 0)
 				{
 				at = new AffineTransform(); // << start with identity
 				if (angle != 0)
 					at.rotate(Math.toRadians(-angle)); // << rotate bounds & drawing
 				if (scale.getX() != 1.0 || scale.getY() != 1.0)
 					at.scale(scale.getX(),scale.getY()); // << scale bounds & drawing
+				if (originx != 0 && originy != 0)
+					at.translate(-originx,-originy); // << translate bounds & drawing
 
 				// Apply the transformation
 				Shape newRect = at.createTransformedShape(newBounds);
