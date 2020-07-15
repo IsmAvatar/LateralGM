@@ -831,9 +831,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			else
 				at = null;
 
-			// the bounds cares about position, origin, scaling, & rotation
-			// the drawing only cares about scaling, & rotation
-			// the at with only scaling and rotation and without translation
+			// 1) the bounds cares about position, origin, scaling, & rotation
+			// 2) the drawing only cares about scaling, & rotation
+			// the at with only scaling and rotation, and without translation,
 			// will be cached and reused to paint the graphic
 
 			newBounds.translate(position.x, position.y);
