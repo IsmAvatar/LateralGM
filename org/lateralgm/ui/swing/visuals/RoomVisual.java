@@ -823,8 +823,10 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 				newBounds = new Rectangle(offsetx,offsety,newWidth,newHeight);
 
-				if (scale.getX() < 0) at.translate(-newWidth,0); // mirror x on drawing
-				if (scale.getY() < 0) at.translate(0,-newHeight); // mirror y on drawing
+				// preconcatenate acts like we translated before rotating and scaling
+				// this moves the graphics by however much the scale or rotation caused
+				// a mirror of the origin
+				at.preConcatenate(AffineTransform.getTranslateInstance(-offsetx,-offsety));
 				}
 			else
 				at = null;
