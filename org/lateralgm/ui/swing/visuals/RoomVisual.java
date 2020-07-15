@@ -746,7 +746,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		private final InstancePropertyListener ipl = new InstancePropertyListener();
 
 		// The instance's local transformation.
-		AffineTransform at = null;
+		private AffineTransform at = null;
 
 		public InstanceVisual(Instance i)
 			{
