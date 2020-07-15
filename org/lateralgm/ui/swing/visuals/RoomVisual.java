@@ -906,13 +906,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 					// If the option 'Fill rectangle' is set
 					if (Prefs.useFilledRectangleForSelection)
-						{
 						g2.fillRect(1,1,image.getWidth() + 2,image.getHeight() + 2);
-						}
 					else
-						{
 						g2.drawRect(1,1,image.getWidth() + 2,image.getHeight() + 2);
-						}
 
 					// If the option 'Invert colors' is set
 					if (Prefs.useInvertedColorForSelection)
