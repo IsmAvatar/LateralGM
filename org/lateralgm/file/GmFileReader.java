@@ -1075,7 +1075,6 @@ public final class GmFileReader
 				{
 				View vw = rm.views.get(j);
 				in.readBool(vw.properties,PView.VISIBLE);
-				//vw.properties.put(PView.VISIBLE,in.readBool());
 				in.read4(vw.properties,PView.VIEW_X,PView.VIEW_Y,PView.VIEW_W,PView.VIEW_H,PView.PORT_X,
 						PView.PORT_Y);
 				if (ver2 > 520)
