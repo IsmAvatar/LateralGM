@@ -11,6 +11,7 @@
 package org.lateralgm.file;
 
 import static org.lateralgm.main.Util.deRef;
+import static org.lateralgm.file.ProjectFile.interfaceProvider;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -21,13 +22,9 @@ import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.List;
 
-import javax.swing.JProgressBar;
-
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.iconio.ICOFile;
-import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
-import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.Constants;
@@ -89,17 +86,14 @@ public final class GmFileWriter
 	public static void writeProjectFile(OutputStream os, ProjectFile f, ResNode root, int ver)
 			throws IOException
 		{
+		interfaceProvider.init(200,"ProgressDialog.GMK_SAVING"); //$NON-NLS-1$
 		f.format = ProjectFile.FormatFlavor.getVersionFlavor(ver);
 		long savetime = System.currentTimeMillis();
 		GmStreamEncoder out = new GmStreamEncoder(os);
 
-		JProgressBar progressBar = LGM.getProgressDialogBar();
-		progressBar.setMaximum(200);
-		LGM.setProgressTitle(Messages.getString("ProgressDialog.GMK_SAVING"));
-
 		GameSettings gs = f.gameSettings.get(0);
 
-		LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS"));
+		interfaceProvider.setProgress(0,"ProgressDialog.SETTINGS");
 		if (ver >= 810)
 			out.setCharset(Charset.forName("UTF-8"));
 		else
@@ -125,29 +119,29 @@ public final class GmFileWriter
 
 		if (ver >= 800)
 			{
-			LGM.setProgress(10,Messages.getString("ProgressDialog.TRIGGERS"));
+			interfaceProvider.setProgress(10,"ProgressDialog.TRIGGERS");
 			writeTriggers(f,out,ver,gs);
-			LGM.setProgress(20,Messages.getString("ProgressDialog.CONSTANTS"));
+			interfaceProvider.setProgress(20,"ProgressDialog.CONSTANTS");
 			writeConstants(f,out,ver,gs);
 			}
 
-		LGM.setProgress(30,Messages.getString("ProgressDialog.SOUNDS"));
+		interfaceProvider.setProgress(30,"ProgressDialog.SOUNDS");
 		writeSounds(f,out,ver,gs);
-		LGM.setProgress(40,Messages.getString("ProgressDialog.SPRITES"));
+		interfaceProvider.setProgress(40,"ProgressDialog.SPRITES");
 		writeSprites(f,out,ver,gs);
-		LGM.setProgress(50,Messages.getString("ProgressDialog.BACKGROUNDS"));
+		interfaceProvider.setProgress(50,"ProgressDialog.BACKGROUNDS");
 		writeBackgrounds(f,out,ver,gs);
-		LGM.setProgress(60,Messages.getString("ProgressDialog.PATHS"));
+		interfaceProvider.setProgress(60,"ProgressDialog.PATHS");
 		writePaths(f,out,ver,gs);
-		LGM.setProgress(70,Messages.getString("ProgressDialog.SCRIPTS"));
+		interfaceProvider.setProgress(70,"ProgressDialog.SCRIPTS");
 		writeScripts(f,out,ver,gs);
-		LGM.setProgress(80,Messages.getString("ProgressDialog.FONTS"));
+		interfaceProvider.setProgress(80,"ProgressDialog.FONTS");
 		writeFonts(f,out,ver,gs);
-		LGM.setProgress(90,Messages.getString("ProgressDialog.TIMELINES"));
+		interfaceProvider.setProgress(90,"ProgressDialog.TIMELINES");
 		writeTimelines(f,out,ver,gs);
-		LGM.setProgress(100,Messages.getString("ProgressDialog.OBJECTS"));
+		interfaceProvider.setProgress(100,"ProgressDialog.OBJECTS");
 		writeGmObjects(f,out,ver,gs);
-		LGM.setProgress(110,Messages.getString("ProgressDialog.ROOMS"));
+		interfaceProvider.setProgress(110,"ProgressDialog.ROOMS");
 		writeRooms(f,out,ver,gs);
 
 		out.write4(f.lastInstanceId);
@@ -155,29 +149,29 @@ public final class GmFileWriter
 
 		if (ver >= 700)
 			{
-			LGM.setProgress(120,Messages.getString("ProgressDialog.INCLUDEFILES"));
+			interfaceProvider.setProgress(120,"ProgressDialog.INCLUDEFILES");
 			writeIncludedFiles(f,out,ver,gs);
-			LGM.setProgress(130,Messages.getString("ProgressDialog.PACKAGES"));
+			interfaceProvider.setProgress(130,"ProgressDialog.PACKAGES");
 			writePackages(f,out,ver);
 			}
 
-		LGM.setProgress(140,Messages.getString("ProgressDialog.GAMEINFORMATION"));
+		interfaceProvider.setProgress(140,"ProgressDialog.GAMEINFORMATION");
 		writeGameInformation(f,out,ver,gs);
 
-		LGM.setProgress(150,Messages.getString("ProgressDialog.LIBRARYCREATION"));
+		interfaceProvider.setProgress(150,"ProgressDialog.LIBRARYCREATION");
 		//Library Creation Code
 		out.write4(500);
 		out.write4(0);
 
-		LGM.setProgress(160,Messages.getString("ProgressDialog.ROOMEXECUTION"));
+		interfaceProvider.setProgress(160,"ProgressDialog.ROOMEXECUTION");
 		//Room Execution Order
 		out.write4(ver >= 700 ? 700 : 540);
 		out.write4(0);
 
-		LGM.setProgress(170,Messages.getString("ProgressDialog.FILETREE"));
+		interfaceProvider.setProgress(170,"ProgressDialog.FILETREE");
 		writeTree(out,root);
 		out.close();
-		LGM.setProgress(200,Messages.getString("ProgressDialog.FINISHED"));
+		interfaceProvider.setProgress(200,"ProgressDialog.FINISHED");
 		}
 
 	public static void writeSettings(ProjectFile f, GmStreamEncoder out, int ver, long savetime, GameSettings g)
@@ -197,7 +191,12 @@ public final class GmFileWriter
 		out.write4(ProjectFile.GS_DEPTH_CODE.get(p.get(PGameSettings.COLOR_DEPTH)));
 		out.write4(ProjectFile.GS_RESOL_CODE.get(p.get(PGameSettings.RESOLUTION)));
 		out.write4(ProjectFile.GS_FREQ_CODE.get(p.get(PGameSettings.FREQUENCY)));
-		out.writeBool(p,PGameSettings.DONT_SHOW_BUTTONS,PGameSettings.USE_SYNCHRONIZATION);
+		out.writeBool(p,PGameSettings.DONT_SHOW_BUTTONS);
+		// see GmFileReader comment about GM 8.1.141
+		int sync = p.get(PGameSettings.USE_SYNCHRONIZATION) ? 1 : 0;
+		if (p.get(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING))
+			sync |= 0x80000000;
+		out.write4(sync);
 		if (ver >= 800) out.writeBool(p,PGameSettings.DISABLE_SCREENSAVERS);
 		out.writeBool(p,PGameSettings.LET_F4_SWITCH_FULLSCREEN,PGameSettings.LET_F1_SHOW_GAME_INFO,
 				PGameSettings.LET_ESC_END_GAME,PGameSettings.LET_F5_SAVE_F6_LOAD);
@@ -369,14 +368,7 @@ public final class GmFileWriter
 					}
 				else
 					out.writeBool(false);
-				int effects = 0;
-				int n = 1;
-				for (PSound k : ProjectFile.SOUND_FX_FLAGS)
-					{
-					if (snd.get(k)) effects |= n;
-					n <<= 1;
-					}
-				out.write4(effects);
+				out.write4(snd.getEffects());
 				out.writeD(snd.properties,PSound.VOLUME,PSound.PAN);
 				out.writeBool(snd.properties,PSound.PRELOAD);
 				}
@@ -680,9 +672,11 @@ public final class GmFileWriter
 				out.write4(rm.properties,PRoom.SPEED);
 				out.writeBool(rm.properties,PRoom.PERSISTENT);
 				out.write4(Util.getGmColor((Color) rm.get(PRoom.BACKGROUND_COLOR)));
-				//NOTE: GM8.1 is inconsistent with the views clear option being negated, see GMK reader comment.
+				// NOTE: GM 8.1 view clears is connected to background color, see GMK reader comment.
 				int viewBackgroundClear = rm.get(PRoom.DRAW_BACKGROUND_COLOR)?1:0;
-				if (f.format.version >= 810 && !(boolean)rm.get(PRoom.VIEWS_CLEAR)) viewBackgroundClear |= 0b10;
+				// Always set this so if an actual GMK 800 is exported, then draw background color
+				// will be checked if you open it in GM 8.0, this is why the version did not change.
+				if (!(boolean)rm.get(PRoom.VIEWS_CLEAR)) viewBackgroundClear |= 0b10;
 				out.write4(viewBackgroundClear);
 				out.writeStr(rm.properties,PRoom.CREATION_CODE);
 				out.write4(rm.backgroundDefs.size());

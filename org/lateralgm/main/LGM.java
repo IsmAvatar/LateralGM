@@ -42,12 +42,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
@@ -89,7 +88,6 @@ import javax.swing.RootPaneContainer;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.metal.DefaultMetalTheme;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
@@ -135,15 +133,16 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.90"; //$NON-NLS-1$
+	public static final String version = "1.8.149"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
 	public final static ArrayList<URLClassLoader> classLoaders = new ArrayList<URLClassLoader>();
 
 	public static boolean LOADING_PROJECT = false;
-	public static JDialog progressDialog = null;
-	public static JProgressBar progressDialogBar = null;
+	private static JDialog progressDialog = null;
+	private static JProgressBar progressDialogBar = null;
+	private static String progressTitle;
 
 	public static String iconspath = "org/lateralgm/icons/"; //$NON-NLS-1$
 	public static String iconspack = "Calico"; //$NON-NLS-1$
@@ -210,7 +209,6 @@ public final class LGM
 	public static Cursor zoomCursor;
 	public static Cursor zoomInCursor;
 	public static Cursor zoomOutCursor;
-	private static String progressTitle;
 	public static GmMenuBar menuBar;
 
 	public static JComboBox<GameSettings> configsCombo;
@@ -221,12 +219,12 @@ public final class LGM
 
 	public static JDialog getProgressDialog()
 		{
+		// lazy create the progress dialog
 		if (progressDialog == null)
 			{
 			progressDialog = new JDialog(LGM.frame,true);
-			progressDialogBar = new JProgressBar(0,140);
+			progressDialogBar = new JProgressBar(0,100);
 			progressDialogBar.setStringPainted(true);
-			progressDialogBar.setPreferredSize(new Dimension(240,20));
 			progressDialog.add(BorderLayout.CENTER,progressDialogBar);
 			progressDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 
@@ -237,24 +235,40 @@ public final class LGM
 		return progressDialog;
 		}
 
-	public static JProgressBar getProgressDialogBar()
+	public static void showProgressDialog()
 		{
-		return progressDialogBar;
+		getProgressDialog(); // lazy create
+		// reset the progress just in case look
+		// and feel doesn't support indeterminate
+		progressDialogBar.setValue(0);
+		progressDialogBar.setMinimum(0);
+		progressDialogBar.setMaximum(100);
+		// just starting to block, worker/thread
+		// possibly hasn't told us actual size
+		progressDialogBar.setIndeterminate(true);
+		// empty title indeterminate
+		progressDialog.setTitle("");
+		// begin modal blocking
+		progressDialog.setVisible(true);
 		}
 
 	public static void setProgressDialogVisible(final boolean visible)
 		{
-		if (progressDialog != null)
-			{
-			progressDialogBar.setValue(0);
-			progressDialog.setVisible(visible);
-			return;
-			}
-		getProgressDialog().setVisible(visible);
+		if (visible) showProgressDialog();
+		else progressDialog.setVisible(false);
 		}
 
 	public static void setProgressTitle(String title)
 		{
+		progressTitle = title; // main progress title
+		}
+
+	public static void initProgressDialog(int min, int max, final String title)
+		{
+		progressDialogBar.setMinimum(min);
+		progressDialogBar.setMaximum(max);
+		// work size known so no longer indeterminate
+		progressDialogBar.setIndeterminate(false);
 		progressTitle = title;
 		}
 
@@ -296,6 +310,35 @@ public final class LGM
 			}
 		themechanged = true;
 		themename = LOOKANDFEEL;
+
+		ArrayList<URL> urls = new ArrayList<>();
+		if (workDir != null)
+			{
+			File dir = new File(workDir,"lookandfeels"); //$NON-NLS-1$
+			if (!dir.exists()) {
+				dir = new File(workDir.getParent(),"lookandfeels"); //$NON-NLS-1$
+			}
+			File[] ps = dir.listFiles(new CustomFileFilter(null,".jar")); //$NON-NLS-1$
+			if (ps != null)
+				{
+				for (File f : ps)
+					{
+					if (!f.exists()) continue;
+					try
+						{
+						urls.add(f.toURI().toURL());
+						}
+					catch (Exception e)
+						{
+						e.printStackTrace();
+						}
+					}
+				}
+			}
+
+		URLClassLoader lafClassLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]));
+		UIManager.put("ClassLoader", lafClassLoader);
+
 		String lookAndFeel = UIManager.getCrossPlatformLookAndFeelClassName();
 		if (LOOKANDFEEL != null)
 			{
@@ -360,6 +403,7 @@ public final class LGM
 						{
 						lookAndFeel = lnfs[i].getClassName();
 						foundMatch = true;
+						break;
 						}
 					}
 
@@ -370,28 +414,19 @@ public final class LGM
 					}
 				}
 
+			final ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
 			try
 				{
+				Thread.currentThread().setContextClassLoader(lafClassLoader);
 				UIManager.setLookAndFeel(lookAndFeel);
-				}
-			catch (ClassNotFoundException e)
-				{
-				System.err.println("Couldn't find class for specified look and feel:" + lookAndFeel);
-				System.err.println("Did you include the L&F library in the class path?");
-				System.err.println("Using the default look and feel.");
-				}
-			catch (UnsupportedLookAndFeelException e)
-				{
-				System.err.println("Can't use the specified look and feel (" + lookAndFeel
-						+ ") on this platform.");
-				System.err.println("Using the default look and feel.");
 				}
 			catch (Exception e)
 				{
-				System.err.println("Couldn't get specified look and feel (" + lookAndFeel
-						+ "), for some reason.");
-				System.err.println("Using the default look and feel.");
-				e.printStackTrace();
+				LGM.showDefaultExceptionHandler(e);
+				}
+			finally
+				{
+				Thread.currentThread().setContextClassLoader(originalClassLoader);
 				}
 			}
 		}
@@ -480,47 +515,97 @@ public final class LGM
 		getExtensionPackages().toTop();
 		}
 
-	public static ImageIcon findIcon(String filename)
+	// low-level icon reading helper, no cache/keys just
+	// straight up read the file and return the icon
+	private static ImageIcon loadIcon(String filename)
 		{
-		String custompath = Prefs.iconPath + filename;
-		String jarpath = iconspath + iconspack + '/' + filename;
-		String location = ""; //$NON-NLS-1$
-		if (Prefs.iconPack.equals("Custom"))
-		{
-			if (new File(custompath).exists()) {
-				location = custompath;
-			} else {
-				location = jarpath;
-			}
-		} else {
-			location = jarpath;
-		}
-
-		ImageIcon ico = new ImageIcon(location);
-		if (ico.getIconWidth() == -1)
+		String location = null;
+		URL url = null;
+		if (Prefs.iconPack.equals("Custom")) //$NON-NLS-1$
 			{
-			URL url = LGM.class.getClassLoader().getResource(location);
-			if (url != null)
+			String custompath = Prefs.iconPath + filename;
+			if ((new File(custompath)).exists())
 				{
-				ico = new ImageIcon(url);
+				// we found the users custom icon where they said it would be
+				location = custompath;
+				}
+			else
+				{
+				// fallback to Calico built into the jar
+				String fallback = iconspath + "Calico/" + filename; //$NON-NLS-1$
+				url = LGM.class.getClassLoader().getResource(fallback);
 				}
 			}
+		else
+			{
+			// standard icon pack built into the jar is requested
+			String jarpath = iconspath + iconspack + '/' + filename;
+			url = LGM.class.getClassLoader().getResource(jarpath);
+			}
+
+		if (location != null) return new ImageIcon(location);
+		else if (url != null) return new ImageIcon(url);
+		return null;
+		}
+
+	// cached icon reading from filename
+	private static final HashMap<String,ImageIcon> iconCache = new HashMap<>();
+	public static ImageIcon findIcon(String filename)
+		{
+		ImageIcon ico = iconCache.get(filename);
+		if (ico != null) return ico;
+
+		ico = loadIcon(filename);
+
+		// cache relative filename so we don't cache
+		// multiple icon packs at the same time
+		if (ico != null) iconCache.put(filename,ico);
+
 		return ico;
 		}
 
+	// helper method for purging the icon cache such
+	// as when changing icon packs in preferences
+	public static void reloadIcons()
+		{
+		for (Entry<String,ImageIcon> ico : iconCache.entrySet())
+			{
+			// flush the image first in case we are
+			// reloading the same file
+			ico.getValue().getImage().flush();
+			// load in the icon from the right pack
+			ImageIcon fresh = loadIcon(ico.getKey());
+			// put the fresh image into the old ico
+			// so everybody using it gets updated
+			ico.getValue().setImage(fresh.getImage());
+			}
+		// repaint all the windows (dialogs included)
+		// and have them revalidate layouts in case
+		// the icons have different sizes than before
+		Window windows[] = Window.getWindows();
+		for (Window window : windows)
+			window.repaint();
+		}
+
+	// high-level, key-indexed icon reading used for initial
+	// icon setting on components & buttons
+	private static Properties iconProps = null;
 	public static ImageIcon getIconForKey(String key)
 		{
-		Properties iconProps = new Properties();
-		InputStream is = LGM.class.getClassLoader().getResourceAsStream(
-				"org/lateralgm/main/icons.properties"); //$NON-NLS-1$
-		try
+		if (iconProps == null)
 			{
-			if (is == null) throw new IOException();
-			iconProps.load(is);
-			}
-		catch (IOException e)
-			{
-			System.err.println("Unable to read icons.properties");
+			iconProps = new Properties();
+			InputStream is = LGM.class.getClassLoader().getResourceAsStream(
+					"org/lateralgm/main/icons.properties"); //$NON-NLS-1$
+			try
+				{
+				if (is == null) throw new IOException();
+				iconProps.load(is);
+				}
+			catch (IOException e)
+				{
+				System.err.println("Unable to read icons.properties"); //$NON-NLS-1$
+				}
 			}
 		String filename = iconProps.getProperty(key,""); //$NON-NLS-1$
 		if (!filename.isEmpty()) return findIcon(filename);
@@ -647,41 +732,6 @@ public final class LGM
 		return scroll;
 		}
 
-	public static void addURL(URL url) throws Exception {
-		URLClassLoader classLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-		Class<?> clazz = URLClassLoader.class;
-
-		// Use reflection
-		Method method= clazz.getDeclaredMethod("addURL", new Class[] { URL.class }); //$NON-NLS-1$
-		method.setAccessible(true);
-		method.invoke(classLoader, new Object[] { url });
-	}
-
-	public static void loadLookAndFeels()
-		{
-		if (workDir == null) return;
-
-		File dir = new File(workDir,"lookandfeels"); //$NON-NLS-1$
-		if (!dir.exists()) {
-			dir = new File(workDir.getParent(),"lookandfeels"); //$NON-NLS-1$
-		}
-		File[] ps = dir.listFiles(new CustomFileFilter(null,".jar")); //$NON-NLS-1$
-		if (ps == null) return;
-
-		for (File f : ps)
-			{
-			if (!f.exists()) continue;
-			try
-				{
-				addURL(f.toURI().toURL());
-				}
-			catch (Exception e)
-				{
-				e.printStackTrace();
-				}
-			}
-		}
-
 	public static void loadPlugins()
 		{
 		if (workDir == null) return;
@@ -702,7 +752,7 @@ public final class LGM
 				if (clastr == null)
 					throw new Exception(Messages.format("LGM.PLUGIN_MISSING_ENTRY",pluginEntry)); //$NON-NLS-1$
 				URLClassLoader ucl = new URLClassLoader(new URL[] { f.toURI().toURL() });
-				ucl.loadClass(clastr).newInstance();
+				ucl.loadClass(clastr).getDeclaredConstructor().newInstance();
 				classLoaders.add(ucl);
 				}
 			catch (Exception e)
@@ -813,26 +863,12 @@ public final class LGM
 		{
 		LGM.mdi.closeAll();
 
-		//TODO: Swing code must be executed on the Swing thread,
-		//without delaying this passing a GMX to the main method
-		//when launching will sometimes, about once every 5 loads,
-		//throw an exception when setModel is called.
-		//After several hours and days of testing I still haven't figured out why
-		//the GMK reader doesn't have this but the GMX reader does, I believe because the GMX
-		//reader uses more postponed references, but I can't figure out where or how it correlates. - Robert
-		SwingUtilities.invokeLater(new Runnable()
-			{
-			@Override
-			public void run()
-				{
-				InvisibleTreeModel ml = new InvisibleTreeModel(LGM.root);
-				LGM.tree.setModel(ml);
-				ml.activateFilter(Search.pruneResultsCB.isSelected());
-				if (ml.isActivatedFilter())
-					Search.applyFilter(root.getChildren(),ml.isActivatedFilter(),Search.filterText.getText(),false,Search.wholeWordCB.isSelected(),true);
-				LGM.tree.setSelectionRow(0);
-				}
-			});
+		InvisibleTreeModel ml = new InvisibleTreeModel(LGM.root);
+		LGM.tree.setModel(ml);
+		ml.activateFilter(Search.pruneResultsCB.isSelected());
+		if (ml.isActivatedFilter())
+			Search.applyFilter(root.getChildren(),ml.isActivatedFilter(),Search.filterText.getText(),false,Search.wholeWordCB.isSelected(),true);
+		LGM.tree.setSelectionRow(0);
 
 		// Reload the search tree so that orphaned references can be dumped.
 		DefaultMutableTreeNode searchRoot = (DefaultMutableTreeNode) searchTree.getModel().getRoot();
@@ -952,9 +988,15 @@ public final class LGM
 		}
 
 	public static void applyPreferences() {
-		if (javaVersion >= 10700 && !Prefs.locale.toLanguageTag().equals("und")) {
+		if (javaVersion >= 10700 && Prefs.locale != null) {
 			Locale.setDefault(Prefs.locale);
 		}
+
+		//TODO: Should probably make these preferences as well, but I don't have a Mac to test - Robert
+		//Put the Mac menu bar where it belongs (ignored by other systems)
+		System.setProperty("apple.laf.useScreenMenuBar","true"); //$NON-NLS-1$ //$NON-NLS-2$
+		//Set the Mac menu bar title to the correct name (also adds a useless About entry, so disabled)
+		//System.setProperty("com.apple.mrj.application.apple.menu.about.name",Messages.getString("LGM.NAME")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		if (Prefs.direct3DAcceleration.equals("off")) { //$NON-NLS-1$
 			//java6u10 regression causes graphical xor to be very slow
@@ -1037,33 +1079,13 @@ public final class LGM
 		}
 	}
 
-	public static void main(final String[] args) throws InvocationTargetException, InterruptedException
+	private static void createAndShowGUI(String[] args)
 		{
-		// Set the default uncaught exception handler.
-		LGM.setDefaultExceptionHandler();
-
 		LGM.applyPreferences();
-		Messages.updateLangPack();
-
-		//TODO: Should probably make these preferences as well, but I don't have a Mac to test - Robert
-		//Put the Mac menu bar where it belongs (ignored by other systems)
-		System.setProperty("apple.laf.useScreenMenuBar","true"); //$NON-NLS-1$ //$NON-NLS-2$
-		//Set the Mac menu bar title to the correct name (also adds a useless About entry, so disabled)
-		//System.setProperty("com.apple.mrj.application.apple.menu.about.name",Messages.getString("LGM.NAME")); //$NON-NLS-1$ //$NON-NLS-2$
-
-		System.out.format("Java Version: %d (%s)\n",javaVersion,System.getProperty("java.version")); //$NON-NLS-1$
-		if (javaVersion < 10700)
-			System.out.println("Some program functionality will be limited due to your outdated Java version"); //$NON-NLS-1$
-
-		// Load external look and feels the user has plugged in
-		loadLookAndFeels();
 
 		iconspack = Prefs.iconPack;
 		setLookAndFeel(Prefs.swingTheme);
 		themechanged = false;
-		// must be called after setting the look and feel
-		JFrame.setDefaultLookAndFeelDecorated(Prefs.decorateWindowBorders);
-		JDialog.setDefaultLookAndFeelDecorated(Prefs.decorateWindowBorders);
 
 		SplashProgress splashProgress = new SplashProgress();
 		splashProgress.start();
@@ -1129,13 +1151,8 @@ public final class LGM
 		//OutputManager.initialize();
 
 		JSplitPane verSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT,true,contents,OutputManager.outputTabs);
-		final JSplitPane horSplit;
-		if (Prefs.rightOrientation) {
-			horSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,verSplit,hierarchyPanel);
-			horSplit.setResizeWeight(1d);
-		} else {
-			horSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,hierarchyPanel,verSplit);
-		}
+		final JSplitPane horSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true);
+		Util.orientSplit(horSplit,Prefs.rightOrientation,hierarchyPanel,verSplit);
 		f.add(horSplit);
 
 		frame.setContentPane(f);
@@ -1181,6 +1198,34 @@ public final class LGM
 			{
 			LOADING_PROJECT = false;
 			}
+
+		// we can start the autosave timer after loading
+		// if the user has it enabled in preferences
+		Listener.getInstance().updateBackupTimer();
+		}
+
+	// Swing component GUI stuff does NOT go in the main method!
+	// The initial thread is not running on the EDT and is not
+	// safe to perform any GUI work.
+	public static void main(final String[] args)
+		{
+		// Set the default uncaught exception handler.
+		LGM.setDefaultExceptionHandler();
+
+		System.out.format("Java Version: %d (%s)\n",javaVersion,System.getProperty("java.version")); //$NON-NLS-1$
+		if (javaVersion < 10700)
+			System.out.println("Some program functionality will be limited due to your outdated Java version"); //$NON-NLS-1$
+
+		// Create the main window on the EDT for safety.
+		// https://docs.oracle.com/javase/tutorial/uiswing/concurrency/initial.html
+		SwingUtilities.invokeLater(new Runnable()
+			{
+			@Override
+			public void run()
+				{
+				createAndShowGUI(args);
+				}
+			});
 		}
 
 	public static int getTabIndex(JTabbedPane tabs, String title) {

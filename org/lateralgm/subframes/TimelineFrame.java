@@ -27,6 +27,7 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
+import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -229,9 +230,9 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		/*		*/.addComponent(shift)
 		/*		*/.addComponent(merge))
 		/**/.addComponent(clear)
-		/**/.addGap(8,8,MAX_VALUE)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED,0,MAX_VALUE)
 		/**/.addComponent(showInfo)
-		/**/.addGap(32,32,MAX_VALUE)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addComponent(save));
 		}
 

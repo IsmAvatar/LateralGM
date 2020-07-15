@@ -11,6 +11,8 @@
 
 package org.lateralgm.file;
 
+import static org.lateralgm.file.ProjectFile.interfaceProvider;
+
 import java.awt.Dimension;
 import java.awt.Point;
 import java.io.File;
@@ -23,15 +25,11 @@ import java.util.Queue;
 import java.util.Stack;
 import java.util.zip.DataFormatException;
 
-import javax.swing.JProgressBar;
-import javax.swing.tree.TreeNode;
-
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.file.ProjectFile.InterfaceProvider;
 import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.iconio.ICOFile;
-import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
-import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.Constants;
@@ -81,6 +79,7 @@ import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
+import org.lateralgm.resources.sub.ShapePoint;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.resources.sub.Trigger;
@@ -157,9 +156,10 @@ public final class GmFileReader
 	private static GmFormatException versionError(ProjectFile f, String error, String res, int i,
 			int ver)
 		{
-		return new GmFormatException(f,Messages.format(
-				"ProjectFileReader.ERROR_UNSUPPORTED",Messages.format( //$NON-NLS-1$
-						"ProjectFileReader." + error,Messages.getString("LGM." + res),i),ver)); //$NON-NLS-1$  //$NON-NLS-2$
+		InterfaceProvider ip = ProjectFile.interfaceProvider;
+		return new GmFormatException(f,ip.format(
+				"ProjectFileReader.ERROR_UNSUPPORTED",ip.format( //$NON-NLS-1$
+						"ProjectFileReader." + error,ip.translate("LGM." + res),i),ver)); //$NON-NLS-1$  //$NON-NLS-2$
 		}
 
 	public static void readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root)
@@ -171,24 +171,25 @@ public final class GmFileReader
 	public static void readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root,
 			Charset forceCharset) throws GmFormatException
 		{
+		interfaceProvider.init(200,"ProgressDialog.GMK_LOADING"); //$NON-NLS-1$
 		GmStreamDecoder in = null;
 		RefList<Timeline> timeids = new RefList<Timeline>(Timeline.class); // timeline ids
 		RefList<GmObject> objids = new RefList<GmObject>(GmObject.class); // object ids
 		RefList<Room> rmids = new RefList<Room>(Room.class); // room id
 		try
 			{
-			long startTime = System.currentTimeMillis();
 			in = new GmStreamDecoder(stream);
 			ProjectFileContext c = new ProjectFileContext(file,in,timeids,objids,rmids);
 			int identifier = in.read4();
 			if (identifier != 1234321)
-				throw new GmFormatException(file,Messages.format("ProjectFileReader.ERROR_INVALID",uri, //$NON-NLS-1$
-						identifier));
+				throw new GmFormatException(file,
+						interfaceProvider.format("ProjectFileReader.ERROR_INVALID", //$NON-NLS-1$
+						uri,identifier));
 			int ver = in.read4();
 			file.format = ProjectFile.FormatFlavor.getVersionFlavor(ver);
 			if (ver != 530 && ver != 600 && ver != 701 && ver != 800 && ver != 810)
 				{
-				String msg = Messages.format("ProjectFileReader.ERROR_UNSUPPORTED",uri,ver); //$NON-NLS-1$
+				String msg = interfaceProvider.format("ProjectFileReader.ERROR_UNSUPPORTED",uri,ver); //$NON-NLS-1$
 				throw new GmFormatException(file,msg);
 				}
 
@@ -202,14 +203,9 @@ public final class GmFileReader
 			else
 				in.setCharset(forceCharset);
 
-			//TODO: fix exception here caused by trying to open file too soon after loading LGM
-			JProgressBar progressBar = LGM.getProgressDialogBar();
-			progressBar.setMaximum(200);
-			LGM.setProgressTitle(Messages.getString("ProgressDialog.GMK_LOADING")); //$NON-NLS-1$
-
 			GameSettings gs = c.f.gameSettings.get(0);
 
-			LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS")); //$NON-NLS-1$
+			interfaceProvider.setProgress(0,"ProgressDialog.SETTINGS"); //$NON-NLS-1$
 			if (ver == 530) in.skip(4); //reserved 0
 			if (ver == 701)
 				{
@@ -231,35 +227,36 @@ public final class GmFileReader
 
 			if (ver >= 800)
 				{
-				LGM.setProgress(10,Messages.getString("ProgressDialog.TRIGGERS")); //$NON-NLS-1$
+				interfaceProvider.setProgress(10,"ProgressDialog.TRIGGERS"); //$NON-NLS-1$
 				readTriggers(c);
-				LGM.setProgress(20,Messages.getString("ProgressDialog.CONSTANTS")); //$NON-NLS-1$
+				interfaceProvider.setProgress(20,"ProgressDialog.CONSTANTS"); //$NON-NLS-1$
 				readConstants(c,gs);
 				}
 
-			LGM.setProgress(30,Messages.getString("ProgressDialog.SOUNDS")); //$NON-NLS-1$
+			interfaceProvider.setProgress(30,"ProgressDialog.SOUNDS"); //$NON-NLS-1$
 			readSounds(c);
-			LGM.setProgress(40,Messages.getString("ProgressDialog.SPRITES")); //$NON-NLS-1$
+			interfaceProvider.setProgress(40,"ProgressDialog.SPRITES"); //$NON-NLS-1$
 			readSprites(c);
-			LGM.setProgress(50,Messages.getString("ProgressDialog.BACKGROUNDS")); //$NON-NLS-1$
+			interfaceProvider.setProgress(50,"ProgressDialog.BACKGROUNDS"); //$NON-NLS-1$
 			int bgVer = readBackgrounds(c);
-			LGM.setProgress(60,Messages.getString("ProgressDialog.PATHS")); //$NON-NLS-1$
+			interfaceProvider.setProgress(60,"ProgressDialog.PATHS"); //$NON-NLS-1$
 			readPaths(c);
-			LGM.setProgress(70,Messages.getString("ProgressDialog.SCRIPTS")); //$NON-NLS-1$
+			interfaceProvider.setProgress(70,"ProgressDialog.SCRIPTS"); //$NON-NLS-1$
 			readScripts(c);
-			LGM.setProgress(80,Messages.getString("ProgressDialog.SHADERS")); //$NON-NLS-1$
+			interfaceProvider.setProgress(80,"ProgressDialog.SHADERS"); //$NON-NLS-1$
 			//TODO: GMK 820 reads shaders first
-			LGM.setProgress(90,Messages.getString("ProgressDialog.FONTS")); //$NON-NLS-1$
+			interfaceProvider.setProgress(90,"ProgressDialog.FONTS"); //$NON-NLS-1$
 			int rver = in.read4();
 			readFonts(c,rver);
-			LGM.setProgress(100,Messages.getString("ProgressDialog.TIMELINES")); //$NON-NLS-1$
+			interfaceProvider.setProgress(100,"ProgressDialog.TIMELINES"); //$NON-NLS-1$
 			readTimelines(c);
-			LGM.setProgress(110,Messages.getString("ProgressDialog.OBJECTS")); //$NON-NLS-1$
+			interfaceProvider.setProgress(110,"ProgressDialog.OBJECTS"); //$NON-NLS-1$
 			readGmObjects(c);
-			LGM.setProgress(120,Messages.getString("ProgressDialog.ROOMS")); //$NON-NLS-1$
+			interfaceProvider.setProgress(120,"ProgressDialog.ROOMS"); //$NON-NLS-1$
 			readRooms(c);
 
-			//If the "use as tileset" flag was not part of this version, try to infer it from the backgrounds used in room tiles.
+			//If the "use as tileset" flag was not part of this version,
+			//try to infer it from the backgrounds used in room tiles.
 			if (bgVer <= 400) {
 				for (Room rm : file.resMap.getList(Room.class)) {
 					for (Tile tl : rm.tiles) {
@@ -276,51 +273,51 @@ public final class GmFileReader
 
 			if (ver >= 700)
 				{
-				LGM.setProgress(130,Messages.getString("ProgressDialog.INCLUDEFILES")); //$NON-NLS-1$
+				interfaceProvider.setProgress(130,"ProgressDialog.INCLUDEFILES"); //$NON-NLS-1$
 				readIncludedFiles(c);
-				LGM.setProgress(140,Messages.getString("ProgressDialog.PACKAGES")); //$NON-NLS-1$
+				interfaceProvider.setProgress(140,"ProgressDialog.PACKAGES"); //$NON-NLS-1$
 				readPackages(c);
 				}
 
-			LGM.setProgress(150,Messages.getString("ProgressDialog.GAMEINFORMATION")); //$NON-NLS-1$
+			interfaceProvider.setProgress(150,"ProgressDialog.GAMEINFORMATION"); //$NON-NLS-1$
 			readGameInformation(c);
 
-			LGM.setProgress(160,Messages.getString("ProgressDialog.POSTPONED")); //$NON-NLS-1$
+			interfaceProvider.setProgress(160,"ProgressDialog.POSTPONED"); //$NON-NLS-1$
 			//Resources read. Now we can invoke our postpones.
 			int percent = 0;
 			for (PostponedRef i : postpone)
 				{
 				i.invoke();
 				percent += 1;
-				LGM.setProgress(160 + percent / postpone.size(),
-						Messages.getString("ProgressDialog.POSTPONED")); //$NON-NLS-1$
+				interfaceProvider.setProgress(160 + percent / postpone.size(),
+						"ProgressDialog.POSTPONED"); //$NON-NLS-1$
 				}
 			postpone.clear();
 
-			LGM.setProgress(170,Messages.getString("ProgressDialog.LIBRARYCREATION")); //$NON-NLS-1$
+			interfaceProvider.setProgress(170,"ProgressDialog.LIBRARYCREATION"); //$NON-NLS-1$
 			//Library Creation Code
 			ver = in.read4();
 			if (ver != 500)
-				throw new GmFormatException(file,Messages.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
-						Messages.getString("ProjectFileReader.AFTERINFO"),ver)); //$NON-NLS-1$
+				throw new GmFormatException(file,
+						interfaceProvider.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
+						interfaceProvider.translate("ProjectFileReader.AFTERINFO"),ver)); //$NON-NLS-1$
 			int no = in.read4();
 			for (int j = 0; j < no; j++)
 				in.skip(in.read4());
 
-			LGM.setProgress(180,Messages.getString("ProgressDialog.ROOMEXECUTION")); //$NON-NLS-1$
+			interfaceProvider.setProgress(180,"ProgressDialog.ROOMEXECUTION"); //$NON-NLS-1$
 			//Room Execution Order
 			ver = in.read4();
 			if (ver != 500 && ver != 540 && ver != 700)
-				throw new GmFormatException(file,Messages.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
-						Messages.getString("ProjectFileReader.AFTERINFO2"),ver)); //$NON-NLS-1$
+				throw new GmFormatException(file,
+						interfaceProvider.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
+						interfaceProvider.translate("ProjectFileReader.AFTERINFO2"),ver)); //$NON-NLS-1$
 			in.skip(in.read4() * 4);
 
-			LGM.setProgress(190,Messages.getString("ProgressDialog.FILETREE")); //$NON-NLS-1$
+			interfaceProvider.setProgress(190,"ProgressDialog.FILETREE"); //$NON-NLS-1$
 			readTree(c,root,ver);
 
-			LGM.setProgress(200,Messages.getString("ProgressDialog.FINISHED")); //$NON-NLS-1$
-			System.out.println(Messages.format("ProjectFileReader.LOADTIME",System.currentTimeMillis() //$NON-NLS-1$
-					- startTime));
+			interfaceProvider.setProgress(200,"ProgressDialog.FINISHED"); //$NON-NLS-1$
 			}
 		catch (Exception e)
 			{
@@ -339,7 +336,7 @@ public final class GmFileReader
 				}
 			catch (IOException ex)
 				{
-				String key = Messages.getString("GmFileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
+				String key = interfaceProvider.translate("GmFileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
 				throw new GmFormatException(file,key);
 				}
 			}
@@ -354,7 +351,8 @@ public final class GmFileReader
 		int ver = in.read4();
 		if (ver != 530 && ver != 542 && ver != 600 && ver != 702 && ver != 800 && ver != 810)
 			{
-			String msg = Messages.format("ProjectFileReader.ERROR_UNSUPPORTED","",ver); //$NON-NLS-1$ //$NON-NLS-2$
+			String msg = ProjectFile.interfaceProvider.format(
+					"ProjectFileReader.ERROR_UNSUPPORTED","",ver); //$NON-NLS-1$ //$NON-NLS-2$
 			throw new GmFormatException(c.f,msg);
 			}
 		if (ver >= 800) in.beginInflate();
@@ -389,7 +387,15 @@ public final class GmFileReader
 		p.put(PGameSettings.FREQUENCY,ProjectFile.GS_FREQS[frequency]);
 
 		in.readBool(p,PGameSettings.DONT_SHOW_BUTTONS);
-		if (ver > 530) in.readBool(p,PGameSettings.USE_SYNCHRONIZATION);
+		if (ver > 530)
+			{
+			// shout out to nik for finding this one!
+			// GM 8.1.141 D3D force software vertex processing
+			// is the high bit of the use vsync setting
+			int sync = in.read4();
+			p.put(PGameSettings.USE_SYNCHRONIZATION,(sync & 0x01) != 0);
+			p.put(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING,(sync & 0x80000000) != 0);
+			}
 		if (ver >= 800) in.readBool(p,PGameSettings.DISABLE_SCREENSAVERS);
 		in.readBool(p,PGameSettings.LET_F4_SWITCH_FULLSCREEN,PGameSettings.LET_F1_SHOW_GAME_INFO,
 				PGameSettings.LET_ESC_END_GAME,PGameSettings.LET_F5_SAVE_F6_LOAD);
@@ -602,12 +608,7 @@ public final class GmFileReader
 						in.read(snd.data);
 						}
 					}
-				int effects = in.read4();
-				for (PSound k : ProjectFile.SOUND_FX_FLAGS)
-					{
-					snd.put(k,(effects & 1) != 0);
-					effects >>= 1;
-					}
+				snd.setEffects(in.read4());
 				in.readD(snd.properties,PSound.VOLUME,PSound.PAN);
 				snd.put(PSound.PRELOAD,in.readBool());
 				}
@@ -843,8 +844,11 @@ public final class GmFileReader
 				if (!in.readBool()) continue;
 				in.skip(in.read4());
 				if (in.read4() != 440)
-					throw new GmFormatException(f,Messages.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
-							Messages.getString("ProjectFileReader.INDATAFILES"),ver)); //$NON-NLS-1$
+					{
+					InterfaceProvider ip = ProjectFile.interfaceProvider;
+					throw new GmFormatException(f,ip.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
+							ip.translate("ProjectFileReader.INDATAFILES"),ver)); //$NON-NLS-1$
+					}
 				Include inc = f.resMap.getList(Include.class).add();
 				String filepath = in.readStr();
 				String filename = new File(filepath).getName();
@@ -958,7 +962,7 @@ public final class GmFileReader
 			obj.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			int ver2 = in.read4();
-			if (ver2 != 430) throw versionError(f,"IN","OBJ",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver2 != 430 && ver2 != 820) throw versionError(f,"IN","OBJ",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
 			Sprite temp = f.resMap.getList(Sprite.class).getUnsafe(in.read4());
 			if (temp != null) obj.put(PGmObject.SPRITE,temp.reference);
 			in.readBool(obj.properties,PGmObject.SOLID,PGmObject.VISIBLE);
@@ -992,6 +996,22 @@ public final class GmFileReader
 						done = true;
 					}
 				}
+			if (ver2 >= 820)
+				{
+				in.readBool(obj.properties,PGmObject.PHYSICS_OBJECT,PGmObject.PHYSICS_SENSOR);
+				in.read4(obj.properties,PGmObject.PHYSICS_SHAPE);
+				in.readD(obj.properties,PGmObject.PHYSICS_DENSITY,PGmObject.PHYSICS_RESTITUTION);
+				in.read4(obj.properties,PGmObject.PHYSICS_GROUP);
+				in.readD(obj.properties,PGmObject.PHYSICS_DAMPING_LINEAR,PGmObject.PHYSICS_DAMPING_ANGULAR);
+				int ptc = in.read4(); // << number of shape points
+				if (ver2 >= 821)
+					{
+					in.readD(obj.properties,PGmObject.PHYSICS_FRICTION);
+					in.readBool(obj.properties,PGmObject.PHYSICS_AWAKE,PGmObject.PHYSICS_KINEMATIC);
+					}
+				for (int j = 0; j < ptc; ++j)
+					obj.shapePoints.add(new ShapePoint(in.readD(),in.readD()));
+				}
 			in.endInflate();
 			}
 		f.resMap.getList(GmObject.class).lastId = noGmObjects - 1;
@@ -1020,16 +1040,19 @@ public final class GmFileReader
 			rm.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			int ver2 = in.read4();
-			if (ver2 != 520 && ver2 != 541) throw versionError(f,"IN","RMM",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver2 != 520 && ver2 != 541 && ver2 != 820) throw versionError(f,"IN","RMM",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
 			rm.put(PRoom.CAPTION,in.readStr());
 			in.read4(rm.properties,PRoom.WIDTH,PRoom.HEIGHT,PRoom.SNAP_Y,PRoom.SNAP_X);
 			rm.put(PRoom.ISOMETRIC,in.readBool());
 			rm.put(PRoom.SPEED,in.read4());
 			rm.put(PRoom.PERSISTENT,in.readBool());
 			rm.put(PRoom.BACKGROUND_COLOR,Util.convertGmColor(in.read4()));
-			//NOTE: GM8.1 is inconsistent with the views clear option being negated.
+			// NOTE: GM 8.1 is inconsistent with the views clear option being negated.
 			int backgroundViewClear = in.read4();
 			rm.put(PRoom.DRAW_BACKGROUND_COLOR,(backgroundViewClear & 1) != 0);
+			// GM 8.1 did not change version number of rooms for views clear
+			// because its meaning is the same as clearing the background color
+			// in prior Game Maker versions.
 			rm.put(PRoom.VIEWS_CLEAR,(backgroundViewClear & 0b10) == 0);
 			rm.put(PRoom.CREATION_CODE,in.readStr());
 			int nobackgrounds = in.read4();
@@ -1092,6 +1115,14 @@ public final class GmFileReader
 				t.setLocked(in.readBool());
 				rm.tiles.add(t);
 				}
+			if (ver2 >= 820)
+				{
+				rm.put(PRoom.PHYSICS_WORLD,in.readBool());
+				in.read4(rm.properties,PRoom.PHYSICS_TOP,PRoom.PHYSICS_LEFT,
+						PRoom.PHYSICS_RIGHT,PRoom.PHYSICS_BOTTOM);
+				in.readD(rm.properties,PRoom.PHYSICS_GRAVITY_X,PRoom.PHYSICS_GRAVITY_Y,
+						PRoom.PHYSICS_PIXTOMETERS);
+				}
 			rm.put(PRoom.REMEMBER_WINDOW_SIZE,in.readBool());
 			in.read4(rm.properties,PRoom.EDITOR_WIDTH,PRoom.EDITOR_HEIGHT);
 			in.readBool(rm.properties,PRoom.SHOW_GRID,PRoom.SHOW_OBJECTS,PRoom.SHOW_TILES,
@@ -1123,8 +1154,11 @@ public final class GmFileReader
 				}
 			ver = in.read4();
 			if (ver != 620 && ver != 800 && ver != 810)
-				throw new GmFormatException(f,Messages.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
-						Messages.getString("ProjectFileReader.ININCLUDEDFILES"),ver)); //$NON-NLS-1$
+				{
+				InterfaceProvider ip = ProjectFile.interfaceProvider;
+				throw new GmFormatException(f,ip.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
+						ip.translate("ProjectFileReader.ININCLUDEDFILES"),ver)); //$NON-NLS-1$
+				}
 			Include inc = f.resMap.getList(Include.class).add();
 			inc.put(PInclude.FILENAME,in.readStr());
 			inc.put(PInclude.FILEPATH,in.readStr());
@@ -1226,7 +1260,8 @@ public final class GmFileReader
 
 				// GameMaker 5 did not have a dedicated primary fonts group, let's add one.
 				if (status == ResNode.STATUS_PRIMARY)
-					path.peek().addChild(Messages.getString("LGM.FNT"),status,Font.class); //$NON-NLS-1$
+					path.peek().addChild(ProjectFile.interfaceProvider.translate("LGM.FNT"),
+							status,Font.class); //$NON-NLS-1$
 				}
 
 			path.peek().add(node);
@@ -1249,7 +1284,7 @@ public final class GmFileReader
 			{
 			// For GameMaker 5 we need to move the "Data Files" folder
 			// to the place of the "Includes" folder in LGM's default tree
-			TreeNode dataFileNode = root.getChildAt(6);
+			ResNode dataFileNode = (ResNode) root.getChildAt(6);
 			if (dataFileNode instanceof ResNode)
 				{
 				incRoot = (ResNode)dataFileNode;
@@ -1293,8 +1328,9 @@ public final class GmFileReader
 		int ver = in.read4();
 		if (ver != 400)
 			{
-			throw new GmFormatException(f,Messages.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
-					Messages.format("ProjectFileReader." + errorKey,format1,format2),ver)); //$NON-NLS-1$
+			InterfaceProvider ip = ProjectFile.interfaceProvider;
+			throw new GmFormatException(f,ip.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
+					ip.format("ProjectFileReader." + errorKey,format1,format2),ver)); //$NON-NLS-1$
 			}
 		int noacts = in.read4();
 		for (int k = 0; k < noacts; k++)

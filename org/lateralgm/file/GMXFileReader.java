@@ -23,6 +23,8 @@
 
 package org.lateralgm.file;
 
+import static org.lateralgm.file.ProjectFile.interfaceProvider;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -43,17 +45,15 @@ import java.util.List;
 import java.util.Queue;
 
 import javax.imageio.ImageIO;
-import javax.swing.JProgressBar;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.file.ProjectFile.InterfaceProvider;
 import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.iconio.ICOFile;
-import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
-import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.Constants;
@@ -106,6 +106,7 @@ import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.resources.sub.View;
 import org.lateralgm.resources.sub.View.PView;
 import org.lateralgm.util.PropertyMap;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -188,7 +189,7 @@ public final class GMXFileReader
 				}
 			catch (GmFormatException e)
 				{
-				LGM.showDefaultExceptionHandler(e);
+				interfaceProvider.handleException(e);
 				}
 			return doc;
 		}
@@ -226,9 +227,10 @@ public final class GMXFileReader
 	private static GmFormatException versionError(ProjectFile f, String error, String res, int i,
 			int ver)
 		{
-		return new GmFormatException(f,Messages.format(
-				"ProjectFileReader.ERROR_UNSUPPORTED",Messages.format(//$NON-NLS-1$
-						"ProjectFileReader." + error,Messages.getString("LGM." + res),i),ver)); //$NON-NLS-1$  //$NON-NLS-2$
+		InterfaceProvider ip = interfaceProvider;
+		return new GmFormatException(f,ip.format(
+				"ProjectFileReader.ERROR_UNSUPPORTED",ip.format( //$NON-NLS-1$
+						"ProjectFileReader." + error,ip.translate("LGM." + res),i),ver)); //$NON-NLS-1$  //$NON-NLS-2$
 		}
 
 	public static void readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root)
@@ -240,6 +242,7 @@ public final class GMXFileReader
 	public static void readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root,
 			Charset forceCharset) throws GmFormatException
 		{
+		interfaceProvider.init(160,"ProgressDialog.GMX_LOADING"); //$NON-NLS-1$
 		file.format = ProjectFile.FormatFlavor.GMX;
 		if (documentBuilderFactory == null)
 			documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -255,7 +258,6 @@ public final class GMXFileReader
 		RefList<Timeline> timeids = new RefList<Timeline>(Timeline.class); // timeline ids
 		RefList<GmObject> objids = new RefList<GmObject>(GmObject.class); // object ids
 		RefList<Room> rmids = new RefList<Room>(Room.class); // room id
-		long startTime = System.currentTimeMillis();
 
 		try
 			{
@@ -263,52 +265,46 @@ public final class GMXFileReader
 
 			ProjectFileContext c = new ProjectFileContext(file,document,timeids,objids,rmids);
 
-			JProgressBar progressBar = LGM.getProgressDialogBar();
-			progressBar.setMaximum(160);
-			LGM.setProgressTitle(Messages.getString("ProgressDialog.GMX_LOADING")); //$NON-NLS-1$
-
-			LGM.setProgress(0,Messages.getString("ProgressDialog.SPRITES")); //$NON-NLS-1$
+			interfaceProvider.setProgress(0,"ProgressDialog.SPRITES"); //$NON-NLS-1$
 			readGroup(c,root,Sprite.class);
-			LGM.setProgress(10,Messages.getString("ProgressDialog.SOUNDS")); //$NON-NLS-1$
+			interfaceProvider.setProgress(10,"ProgressDialog.SOUNDS"); //$NON-NLS-1$
 			readGroup(c,root,Sound.class);
-			LGM.setProgress(20,Messages.getString("ProgressDialog.BACKGROUNDS")); //$NON-NLS-1$
+			interfaceProvider.setProgress(20,"ProgressDialog.BACKGROUNDS"); //$NON-NLS-1$
 			readGroup(c,root,Background.class);
-			LGM.setProgress(30,Messages.getString("ProgressDialog.PATHS")); //$NON-NLS-1$
+			interfaceProvider.setProgress(30,"ProgressDialog.PATHS"); //$NON-NLS-1$
 			readGroup(c,root,Path.class);
-			LGM.setProgress(40,Messages.getString("ProgressDialog.SCRIPTS")); //$NON-NLS-1$
+			interfaceProvider.setProgress(40,"ProgressDialog.SCRIPTS"); //$NON-NLS-1$
 			readGroup(c,root,Script.class);
-			LGM.setProgress(50,Messages.getString("ProgressDialog.SHADERS")); //$NON-NLS-1$
+			interfaceProvider.setProgress(50,"ProgressDialog.SHADERS"); //$NON-NLS-1$
 			readGroup(c,root,Shader.class);
-			LGM.setProgress(60,Messages.getString("ProgressDialog.FONTS")); //$NON-NLS-1$
+			interfaceProvider.setProgress(60,"ProgressDialog.FONTS"); //$NON-NLS-1$
 			readGroup(c,root,Font.class);
-			LGM.setProgress(70,Messages.getString("ProgressDialog.TIMELINES")); //$NON-NLS-1$
+			interfaceProvider.setProgress(70,"ProgressDialog.TIMELINES"); //$NON-NLS-1$
 			readGroup(c,root,Timeline.class);
-			LGM.setProgress(80,Messages.getString("ProgressDialog.OBJECTS")); //$NON-NLS-1$
+			interfaceProvider.setProgress(80,"ProgressDialog.OBJECTS"); //$NON-NLS-1$
 			readGroup(c,root,GmObject.class);
-			LGM.setProgress(90,Messages.getString("ProgressDialog.ROOMS")); //$NON-NLS-1$
+			interfaceProvider.setProgress(90,"ProgressDialog.ROOMS"); //$NON-NLS-1$
 			readGroup(c,root,Room.class);
-			LGM.setProgress(100,Messages.getString("ProgressDialog.INCLUDEFILES")); //$NON-NLS-1$
+			interfaceProvider.setProgress(100,"ProgressDialog.INCLUDEFILES"); //$NON-NLS-1$
 			readGroup(c,root,Include.class);
-			LGM.setProgress(110,Messages.getString("ProgressDialog.EXTENSIONS")); //$NON-NLS-1$
+			interfaceProvider.setProgress(110,"ProgressDialog.EXTENSIONS"); //$NON-NLS-1$
 			readExtensions(c,root);
-			LGM.setProgress(120,Messages.getString("ProgressDialog.CONSTANTS")); //$NON-NLS-1$
+			interfaceProvider.setProgress(120,"ProgressDialog.CONSTANTS"); //$NON-NLS-1$
 			readDefaultConstants(c,root);
-			LGM.setProgress(130,Messages.getString("ProgressDialog.GAMEINFORMATION")); //$NON-NLS-1$
+			interfaceProvider.setProgress(130,"ProgressDialog.GAMEINFORMATION"); //$NON-NLS-1$
 			readGameInformation(c,root);
-			LGM.setProgress(140,Messages.getString("ProgressDialog.SETTINGS")); //$NON-NLS-1$
+			interfaceProvider.setProgress(140,"ProgressDialog.SETTINGS"); //$NON-NLS-1$
 			readConfigurations(c,root);
-			LGM.setProgress(150,Messages.getString("ProgressDialog.PACKAGES")); //$NON-NLS-1$
+			interfaceProvider.setProgress(150,"ProgressDialog.PACKAGES"); //$NON-NLS-1$
 			readPackages(c,root);
 
-			LGM.setProgress(160,Messages.getString("ProgressDialog.POSTPONED")); //$NON-NLS-1$
+			interfaceProvider.setProgress(160,"ProgressDialog.POSTPONED"); //$NON-NLS-1$
 			// All resources read, now we can invoke our postponed references.
 			for (PostponedRef i : postpone)
 				i.invoke();
 			postpone.clear();
 
-			LGM.setProgress(160,Messages.getString("ProgressDialog.FINISHED")); //$NON-NLS-1$
-			System.out.println(Messages.format("ProjectFileReader.LOADTIME",System.currentTimeMillis() //$NON-NLS-1$
-					- startTime));
+			interfaceProvider.setProgress(160,"ProgressDialog.FINISHED"); //$NON-NLS-1$
 			}
 		catch (Exception e)
 			{
@@ -327,7 +323,7 @@ public final class GMXFileReader
 				}
 			catch (IOException ex)
 				{
-				String key = Messages.getString("GmFileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
+				String key = interfaceProvider.translate("GmFileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
 				throw new GmFormatException(file,key);
 				}
 			}
@@ -527,7 +523,7 @@ public final class GMXFileReader
 					}
 				catch (IOException e)
 					{
-					LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "failed to read: " + icopath, e));
+					interfaceProvider.handleException(new GmFormatException(c.f, "failed to read: " + icopath, e));
 					}
 				pSet.put(PGameSettings.GAME_ID,
 						Integer.parseInt(setdoc.getElementsByTagName("option_gameid").item(0).getTextContent())); //$NON-NLS-1$
@@ -668,7 +664,7 @@ public final class GMXFileReader
 					}
 				catch (IOException e)
 					{
-					LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
+					interfaceProvider.handleException(new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
 					}
 				}
 			}
@@ -716,6 +712,8 @@ public final class GMXFileReader
 		int sndkind = Integer.parseInt(snddoc.getElementsByTagName("kind").item(0).getTextContent()); //$NON-NLS-1$
 		snd.put(PSound.KIND,ProjectFile.SOUND_KIND[sndkind]);
 		snd.put(PSound.FILE_TYPE,snddoc.getElementsByTagName("extension").item(0).getTextContent()); //$NON-NLS-1$
+		int effects = Integer.parseInt(snddoc.getElementsByTagName("effects").item(0).getTextContent());
+		snd.setEffects(effects);
 		NodeList data = snddoc.getElementsByTagName("data"); //$NON-NLS-1$
 		if (data.item(0) != null)
 			{
@@ -727,7 +725,7 @@ public final class GMXFileReader
 				}
 			catch (IOException e)
 				{
-				LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "failed to read: " + fname, e));
+				interfaceProvider.handleException(new GmFormatException(c.f, "failed to read: " + fname, e));
 				}
 			}
 		}
@@ -787,7 +785,7 @@ public final class GMXFileReader
 				}
 			catch (IOException e)
 				{
-				LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
+				interfaceProvider.handleException(new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
 				}
 			}
 		}
@@ -897,11 +895,11 @@ public final class GMXFileReader
 			}
 		catch (FileNotFoundException e)
 			{
-			LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "file not found: " + path, e));
+			interfaceProvider.handleException(new GmFormatException(c.f, "file not found: " + path, e));
 			}
 		catch (IOException e)
 			{
-			LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "unable to read file: " + path, e));
+			interfaceProvider.handleException(new GmFormatException(c.f, "unable to read file: " + path, e));
 			}
 		}
 
@@ -928,11 +926,11 @@ public final class GMXFileReader
 			}
 		catch (FileNotFoundException e)
 			{
-			LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "file not found: " + path, e));
+			interfaceProvider.handleException(new GmFormatException(c.f, "file not found: " + path, e));
 			}
 		catch (IOException e)
 			{
-			LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "unable to read file: " + path, e));
+			interfaceProvider.handleException(new GmFormatException(c.f, "unable to read file: " + path, e));
 			}
 
 		String[] splitcode = code.split(STUPID_SHADER_MARKER);
@@ -1061,7 +1059,7 @@ public final class GMXFileReader
 		final String sprname = objdoc.getElementsByTagName("spriteName").item(0).getTextContent(); //$NON-NLS-1$
 		if (!sprname.equals("<undefined>"))
 			{
-			postpone.add(new DefaultPostponedRef(f.resMap.getList(Sprite.class), obj.properties, PGmObject.SPRITE, sprname));
+			postpone.add(new DefaultPostponedRef<>(f.resMap.getList(Sprite.class), obj.properties, PGmObject.SPRITE, sprname));
 			}
 		else
 			{
@@ -1071,7 +1069,7 @@ public final class GMXFileReader
 		final String mskname = objdoc.getElementsByTagName("maskName").item(0).getTextContent(); //$NON-NLS-1$
 		if (!mskname.equals("<undefined>"))
 			{
-			postpone.add(new DefaultPostponedRef(f.resMap.getList(Sprite.class), obj.properties, PGmObject.MASK, mskname));
+			postpone.add(new DefaultPostponedRef<>(f.resMap.getList(Sprite.class), obj.properties, PGmObject.MASK, mskname));
 			}
 		else
 			{
@@ -1081,7 +1079,7 @@ public final class GMXFileReader
 		final String parname = objdoc.getElementsByTagName("parentName").item(0).getTextContent(); //$NON-NLS-1$
 		if (!parname.equals("<undefined>") && !parname.equals("self"))
 			{
-			postpone.add(new DefaultPostponedRef(f.resMap.getList(GmObject.class), obj.properties, PGmObject.PARENT, parname));
+			postpone.add(new DefaultPostponedRef<>(f.resMap.getList(GmObject.class), obj.properties, PGmObject.PARENT, parname));
 			}
 		else
 			{
@@ -1358,7 +1356,7 @@ public final class GMXFileReader
 							Integer.parseInt(bnode.getAttributes().getNamedItem("visible").getTextContent()) != 0); //$NON-NLS-1$
 					final String bkgname = bnode.getAttributes().getNamedItem("name").getTextContent(); //$NON-NLS-1$
 
-					postpone.add(new DefaultPostponedRef(f.resMap.getList(Background.class), bkg.properties, PBackgroundDef.BACKGROUND, bkgname));
+					postpone.add(new DefaultPostponedRef<>(f.resMap.getList(Background.class), bkg.properties, PBackgroundDef.BACKGROUND, bkgname));
 
 					bkg.properties.put(
 							PBackgroundDef.FOREGROUND,
@@ -1403,7 +1401,7 @@ public final class GMXFileReader
 							Integer.parseInt(vnode.getAttributes().getNamedItem("visible").getTextContent()) != 0); //$NON-NLS-1$
 					final String objname = vnode.getAttributes().getNamedItem("objName").getTextContent(); //$NON-NLS-1$
 
-					postpone.add(new DefaultPostponedRef(f.resMap.getList(GmObject.class), vw.properties, PView.OBJECT, objname));
+					postpone.add(new DefaultPostponedRef<>(f.resMap.getList(GmObject.class), vw.properties, PView.OBJECT, objname));
 
 					vw.properties.put(PView.SPEED_H,
 							Integer.parseInt(vnode.getAttributes().getNamedItem("hspeed").getTextContent())); //$NON-NLS-1$
@@ -1516,7 +1514,7 @@ public final class GMXFileReader
 							Integer.parseInt(attribs.getNamedItem("y").getTextContent()))); //$NON-NLS-1$
 
 					final String bkgname = tnode.getAttributes().getNamedItem("bgName").getTextContent(); //$NON-NLS-1$
-					postpone.add(new DefaultPostponedRef(f.resMap.getList(Background.class), tile.properties, PTile.BACKGROUND, bkgname));
+					postpone.add(new DefaultPostponedRef<>(f.resMap.getList(Background.class), tile.properties, PTile.BACKGROUND, bkgname));
 
 					tile.properties.put(PTile.NAME, attribs.getNamedItem("name").getNodeValue()); //$NON-NLS-1$
 
@@ -1626,7 +1624,7 @@ public final class GMXFileReader
 			}
 		catch (IOException e)
 			{
-			LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "failed to read: " + dataFile.getAbsolutePath(), e));
+			interfaceProvider.handleException(new GmFormatException(c.f, "failed to read: " + dataFile.getAbsolutePath(), e));
 			}
 		}
 
@@ -1713,11 +1711,11 @@ public final class GMXFileReader
 			}
 		catch (FileNotFoundException e)
 			{
-			LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "file not found: " + path, e));
+			interfaceProvider.handleException(new GmFormatException(c.f, "file not found: " + path, e));
 			}
 		catch (IOException e)
 			{
-			LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "unable to read file: " + path, e));
+			interfaceProvider.handleException(new GmFormatException(c.f, "unable to read file: " + path, e));
 			}
 
 		gameInfo.put(PGameInformation.TEXT,text);

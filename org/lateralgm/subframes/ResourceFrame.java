@@ -167,7 +167,7 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		resOriginal = res.clone();
 		setFrameIcon(ResNode.ICON.get(res.getClass()));
 
-		save.setToolTipText(Messages.getString("ResourceFrame.SAVE")); //$NON-NLS-1$
+		save.setToolTipText(Messages.getString("ResourceFrame.SAVE_TOOLTIP")); //$NON-NLS-1$
 		save.setIcon(LGM.getIconForKey("ResourceFrame.SAVE")); //$NON-NLS-1$
 		save.addActionListener(this);
 		}

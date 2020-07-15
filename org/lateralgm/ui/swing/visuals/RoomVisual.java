@@ -600,9 +600,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 	@SuppressWarnings("unchecked")
 	private static <P extends Piece, V extends PieceVisual<P>>Class<V> getVisualClass(Class<P> p)
 		{
-		if (p == Piece.class) return (Class<V>) PieceVisual.class;
-		if (p == Instance.class) return (Class<V>) InstanceVisual.class;
-		if (p == Tile.class) return (Class<V>) TileVisual.class;
+		if (p == Piece.class) return (Class<V>) (Class) PieceVisual.class;
+		if (p == Instance.class) return (Class<V>) (Class) InstanceVisual.class;
+		if (p == Tile.class) return (Class<V>) (Class) TileVisual.class;
 		throw new IllegalArgumentException();
 		}
 
@@ -671,7 +671,12 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			}
 
 		protected abstract void validate();
-
+		
+		/**
+		 * Validate the visual later on the event dispatch
+		 * thread allowing the caller to fully initialize
+		 * the visual before it becomes visible to the user.
+		 */
 		protected final void invalidate()
 			{
 			if (invalid) return;
@@ -750,7 +755,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			super(i);
 			i.updateSource.addListener(rul);
 			i.properties.updateSource.addListener(ipl);
-			validate();
+			invalidate();
 			}
 
 		@Override
@@ -985,7 +990,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			super(t);
 			t.updateSource.addListener(rul);
 			t.properties.updateSource.addListener(tpl);
-			validate();
+			invalidate();
 			}
 
 		@Override

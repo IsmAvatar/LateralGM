@@ -38,7 +38,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.DecimalFormat;
@@ -64,6 +67,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
@@ -182,6 +186,32 @@ public final class Util
 		{
 		return paintBackgroundScaled(width,height,TILE,new Color(Prefs.imagePreviewBackgroundColor),
 				new Color(Prefs.imagePreviewForegroundColor));
+		}
+
+	/**
+	 * Converts a URI to an open OutputStream regardless of whether the URI refers to a local file
+	 * or a remote URL on a network.
+	 *
+	 * @return An OutputStream opened from the URI.
+	 * @param uri The URI to convert to an OutputStream.
+	 * @throws NullPointerException If {@code uri} is {@code null}
+	 * @throws IOException If the URI was malformed, or the connection otherwise failed.
+	 */
+	public static OutputStream openURIOutputStream(URI uri) throws NullPointerException,IOException
+		{
+		if (uri == null) throw new NullPointerException();
+		File file = null;
+		try
+			{
+			file = new File(uri);
+			}
+		catch (IllegalArgumentException e) // not a local file, try URL
+			{
+			URLConnection uc = uri.toURL().openConnection();
+			uc.setDoOutput(true);
+			return uc.getOutputStream();
+			}
+		return new FileOutputStream(file);
 		}
 
 	public static String urlEncode(String s)
@@ -1261,5 +1291,13 @@ public final class Util
 		{
 		if (suffix == null || str == null) return false;
 		return str.endsWith(suffix);
+		}
+
+	// Reverses the left and right sides of a split and recalculates weight.
+	public static void orientSplit(JSplitPane orientationSplit,boolean reverse,Component left,Component right)
+		{
+		orientationSplit.setLeftComponent(reverse ? right : left);
+		orientationSplit.setRightComponent(reverse ? left : right);
+		if (reverse) orientationSplit.setResizeWeight(1.0d - orientationSplit.getResizeWeight());
 		}
 	}

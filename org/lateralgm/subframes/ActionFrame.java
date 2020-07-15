@@ -21,6 +21,8 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
@@ -45,9 +47,6 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.CodeTextArea;
 import org.lateralgm.components.MarkerCache;
@@ -132,13 +131,14 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 		button = new JRadioButton(Messages.getString("ActionFrame.OBJECT")); //$NON-NLS-1$
 		button.setHorizontalAlignment(JRadioButton.LEFT);
 		button.setOpaque(false);
-		button.addChangeListener(new ChangeListener()
+		button.addItemListener(new ItemListener()
 			{
-				public void stateChanged(ChangeEvent e)
-					{
-					boolean sel = ((JRadioButton) e.getSource()).isSelected();
-					appliesObject.setEnabled(sel);
-					}
+			@Override
+			public void itemStateChanged(ItemEvent e)
+				{
+				boolean sel = ((JRadioButton) e.getSource()).isSelected();
+				appliesObject.setEnabled(sel);
+				}
 			});
 		applies.add(button,0);
 		gbc = new GridBagConstraints();

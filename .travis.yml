@@ -1,0 +1,16 @@
+# competition for Thundercleese
+notifications:
+  irc: "chat.freenode.net#enigma"
+# don't build "feature" branches
+branches:
+  only:
+    - "master"
+# obviously this is java duh
+language: java
+
+os: linux
+dist: xenial
+
+script:
+  - make
+

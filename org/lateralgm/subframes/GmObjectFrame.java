@@ -50,6 +50,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
+import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.TransferHandler;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -477,8 +478,9 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addComponent(persistent)
 		/*		*/.addComponent(physics)))
-		/**/.addGap(8,8,MAX_VALUE)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED,0,MAX_VALUE)
 		/**/.addComponent(information)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addComponent(save));
 
 		return panel;
