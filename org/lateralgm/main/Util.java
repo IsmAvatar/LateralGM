@@ -1300,4 +1300,15 @@ public final class Util
 		orientationSplit.setRightComponent(reverse ? left : right);
 		if (reverse) orientationSplit.setResizeWeight(1.0d - orientationSplit.getResizeWeight());
 		}
+
+	// Recursively deletes a directory and all files and subdirectories.
+	// Use with caution! It's important this isn't abused anywhere.
+	// Consider asking the user for confirmation in most cases.
+	public static boolean directoryDelete(File f)
+		{
+		if (f.isDirectory())
+			for (File c : f.listFiles())
+				if (!directoryDelete(c)) return false;
+		return f.delete();
+		}
 	}

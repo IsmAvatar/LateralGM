@@ -1018,7 +1018,7 @@ public class FileChooser
 			if (i > nb)
 				{
 				i = nb;
-				if (!new File(String.format(ff,bn,i)).delete()) break block;
+				if (!Util.directoryDelete(new File(String.format(ff,bn,i)))) break block;
 				}
 			for (i--; i >= 0; i--)
 				{
