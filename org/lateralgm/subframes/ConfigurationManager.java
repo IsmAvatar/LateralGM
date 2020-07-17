@@ -63,13 +63,15 @@ public class ConfigurationManager extends JDialog implements ActionListener
 	private JButton deleteButton;
 	private static ConfigurationManager INSTANCE = null;
 
-	public static ConfigurationManager getInstance() {
-		if (INSTANCE == null) {
+	public static ConfigurationManager getInstance()
+		{
+		if (INSTANCE == null)
+			{
 			INSTANCE = new ConfigurationManager();
 			INSTANCE.setConfigList(LGM.currentFile.gameSettings);
-		}
+			}
 		return INSTANCE;
-	}
+		}
 
 	// The purpose of this internal class is because Vectors and ArrayLists are handled by reference for Java
 	// so instead of converting to an array and doing all kinds of crazy updating, we can just make a list model
@@ -140,64 +142,57 @@ public class ConfigurationManager extends JDialog implements ActionListener
 
 	}
 
-	public ConfigurationManager() {
+	public ConfigurationManager()
+		{
 		super(LGM.frame);
 		setResizable(false);
-		setTitle(Messages.getString("ConfigurationManager.TITLE"));
-		setIconImage(LGM.getIconForKey("ConfigurationManager.ICON").getImage());
+		setTitle(Messages.getString("ConfigurationManager.TITLE")); //$NON-NLS-1$
+		setIconImage(LGM.getIconForKey("ConfigurationManager.ICON").getImage()); //$NON-NLS-1$
 
 		JToolBar toolbar = new JToolBar();
 		toolbar.setFloatable(false);
 
-		deleteButton = makeToolbarButton("DELETE");
+		deleteButton = makeToolbarButton("DELETE"); //$NON-NLS-1$
 
 		configList = new JList<GameSettings>();
 
-		toolbar.add(makeToolbarButton("ADD"));
-		toolbar.add(makeToolbarButton("COPY"));
+		toolbar.add(makeToolbarButton("ADD")); //$NON-NLS-1$
+		toolbar.add(makeToolbarButton("COPY")); //$NON-NLS-1$
 		toolbar.add(deleteButton);
 		toolbar.addSeparator();
-		toolbar.add(makeToolbarButton("EDIT_SETTINGS"));
-		toolbar.add(makeToolbarButton("EDIT_CONSTANTS"));
+		toolbar.add(makeToolbarButton("EDIT_SETTINGS")); //$NON-NLS-1$
+		toolbar.add(makeToolbarButton("EDIT_CONSTANTS")); //$NON-NLS-1$
 		toolbar.addSeparator();
-		toolbar.add(new JLabel(Messages.getString("ConfigurationManager.NAME")));
+		toolbar.add(new JLabel(Messages.getString("ConfigurationManager.NAME"))); //$NON-NLS-1$
 		final JTextField nameField = new JTextField();
 		nameField.setDocument(new NameDocument());
 		nameField.setColumns(10);
 		nameField.setMaximumSize(nameField.getPreferredSize());
-		nameField.getDocument().addDocumentListener(new DocumentListener() {
-			public void changedUpdate(DocumentEvent e) {
-				updateNameField(e);
-			}
+		nameField.getDocument().addDocumentListener(new DocumentListener()
+			{
+			public void changedUpdate(DocumentEvent e) { updateNameField(e); }
+			public void removeUpdate(DocumentEvent e) { updateNameField(e); }
+			public void insertUpdate(DocumentEvent e) { updateNameField(e); }
 
-			public void removeUpdate(DocumentEvent e) {
-				updateNameField(e);
-			}
-
-			public void insertUpdate(DocumentEvent e) {
-				updateNameField(e);
-			}
-
-			public void updateNameField(DocumentEvent e) {
+			public void updateNameField(DocumentEvent e)
+				{
 				GameSettings sel = configList.getSelectedValue();
 				if (sel == null) return;
 				sel.setName(nameField.getText());
 				SwingUtilities.invokeLater(new Runnable() {
-
 					@Override
 					public void run()
 						{
 						configList.updateUI();
 						}
-
 				});
 				sel.constants.setName(nameField.getText());
 				LGM.getConstantsFrame().updateTitle();
 				LGM.getGameSettings().updateTitle();
-			}
-		});
-		configList.addListSelectionListener(new ListSelectionListener() {
-
+				}
+			});
+		configList.addListSelectionListener(new ListSelectionListener()
+			{
 			@Override
 			public void valueChanged(ListSelectionEvent ev)
 				{
@@ -205,8 +200,7 @@ public class ConfigurationManager extends JDialog implements ActionListener
 					if (sel == null) return;
 					nameField.setText(sel.getName());
 				}
-
-		});
+			});
 		toolbar.add(nameField);
 
 		this.add(toolbar, BorderLayout.NORTH);
@@ -217,24 +211,27 @@ public class ConfigurationManager extends JDialog implements ActionListener
 		this.pack();
 		this.setSize(this.getWidth(),320);
 		setLocationRelativeTo(LGM.frame);
-	}
+		}
 
-	JButton makeToolbarButton(String key) {
-		key = "ConfigurationManager." + key;
+	JButton makeToolbarButton(String key)
+		{
+		key = "ConfigurationManager." + key; //$NON-NLS-1$
 		JButton jb = new JButton();
 		jb.setToolTipText(Messages.getString(key));
 		jb.setIcon(LGM.getIconForKey(key));
 		jb.setActionCommand(key);
 		jb.addActionListener(this);
 		return jb;
-	}
+		}
 
 	@Override
 	public void actionPerformed(ActionEvent ev)
 		{
 		String cmd = ev.getActionCommand();
 		VectorListModel<GameSettings> model = (VectorListModel<GameSettings>) configList.getModel();
-		if (cmd.endsWith("ADD")) {
+		//TODO: Make default configuration name a prefix preference.
+		if (cmd.endsWith("ADD")) //$NON-NLS-1$
+			{
 			GameSettings config = ProjectFile.createDefaultConfig();
 			int id = 0;
 			for (GameSettings cfg : LGM.currentFile.gameSettings) {
@@ -246,21 +243,23 @@ public class ConfigurationManager extends JDialog implements ActionListener
 			model.addElement(config);
 			configList.setSelectedValue(config,true);
 			LGM.configsCombo.updateUI();
-		} else if (cmd.endsWith("COPY")) {
+			}
+		else if (cmd.endsWith("COPY")) //$NON-NLS-1$
+			{
 			GameSettings sel = configList.getSelectedValue();
 			if (sel == null) return;
 			GameSettings config = sel.clone();
 			int id = 0;
-			for (GameSettings cfg : LGM.currentFile.gameSettings) {
-				if (cfg.getName().startsWith("Configuration")) {
+			for (GameSettings cfg : LGM.currentFile.gameSettings)
+				if (cfg.getName().startsWith("Configuration"))
 					id++;
-				}
-			}
 			config.setName("Configuration" + id);
 			model.addElement(config);
 			configList.setSelectedValue(config,true);
 			LGM.configsCombo.updateUI();
-		} else if (cmd.endsWith("DELETE")) {
+			}
+		else if (cmd.endsWith("DELETE")) //$NON-NLS-1$
+			{
 			//Stop the user from deleting all configs, they must keep at least 1
 			List<GameSettings> selList = configList.getSelectedValuesList();
 			if (selList.size() >= model.getSize()) {
@@ -268,46 +267,49 @@ public class ConfigurationManager extends JDialog implements ActionListener
 			}
 			model.removeAll(selList);
 			// Make sure the JCombo on the main toolbar wasn't selecting what we just deleted
-			if (LGM.configsCombo.getSelectedIndex() >= LGM.configsCombo.getItemCount() || LGM.configsCombo.getSelectedIndex() < 0) {
+			if (LGM.configsCombo.getSelectedIndex() >= LGM.configsCombo.getItemCount() ||
+					LGM.configsCombo.getSelectedIndex() < 0)
 				LGM.configsCombo.setSelectedIndex(0);
-			}
 			LGM.configsCombo.updateUI();
-		} else if (cmd.endsWith("EDIT_SETTINGS")) {
+			}
+		else if (cmd.endsWith("EDIT_SETTINGS")) //$NON-NLS-1$
+			{
 			GameSettings sel = configList.getSelectedValue();
 			if (sel == null) return;
 			LGM.showGameSettings(sel);
-		} else if (cmd.endsWith("EDIT_CONSTANTS")) {
+			}
+		else if (cmd.endsWith("EDIT_CONSTANTS")) //$NON-NLS-1$
+			{
 			GameSettings sel = configList.getSelectedValue();
 			if (sel == null) return;
 			sel.constants.setName(sel.getName());
 			LGM.showConstantsFrame(sel.constants);
-		}
+			}
 		}
 
 	public void setConfigList(Vector<GameSettings> gameSettings)
 		{
 		vlm = new VectorListModel<GameSettings>(LGM.currentFile.gameSettings);
-		vlm.addListDataListener(new ListDataListener() {
-
+		vlm.addListDataListener(new ListDataListener()
+			{
 			@Override
 			public void contentsChanged(ListDataEvent arg0)
 				{
-					deleteButton.setEnabled(vlm.getSize() > 1);
+				deleteButton.setEnabled(vlm.getSize() > 1);
 				}
 
 			@Override
 			public void intervalAdded(ListDataEvent arg0)
 				{
-					deleteButton.setEnabled(vlm.getSize() > 1);
+				deleteButton.setEnabled(vlm.getSize() > 1);
 				}
 
 			@Override
 			public void intervalRemoved(ListDataEvent arg0)
 				{
-					deleteButton.setEnabled(vlm.getSize() > 1);
+				deleteButton.setEnabled(vlm.getSize() > 1);
 				}
-
-		});
+			});
 		configList.setModel(vlm);
 		// check at least once
 		deleteButton.setEnabled(vlm.getSize() > 1);
