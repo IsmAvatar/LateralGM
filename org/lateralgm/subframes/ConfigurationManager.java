@@ -143,7 +143,6 @@ public class ConfigurationManager extends JDialog implements ActionListener
 	public ConfigurationManager() {
 		super(LGM.frame);
 		setResizable(false);
-		setAlwaysOnTop(true);
 		setTitle(Messages.getString("ConfigurationManager.TITLE"));
 		setIconImage(LGM.getIconForKey("ConfigurationManager.ICON").getImage());
 
