@@ -18,13 +18,11 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -54,6 +52,7 @@ import javax.swing.JToolBar;
 import javax.swing.Timer;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -99,11 +98,230 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 	public boolean modified = false;
 	private CustomFileChooser fc = new CustomFileChooser("/org/lateralgm","LAST_SOUND_DIR");
 	private SoundEditor editor;
-	private Clip clip;
 	private JLabel fileLabel, memoryLabel, lPosition;
 	private JSlider position;
 	private Timer playbackTimer;
-	private AudioInputStream ais; // cached until first playback
+
+	/**
+	 * An abstraction of the sound playback preview.
+	 * Can be used for e.g, using OpenAL or JavaFX.
+	 */
+	public interface SoundPlayer
+		{
+		/**
+		 * Prepares the streams for playback but does
+		 * not actually begin reading any data. This
+		 * is to delay actual I/O until the first
+		 * playback so that the soundframe opens quickly.
+		 * Some implementations can take advantage of
+		 * this to stream the audio instead of
+		 * preloading the entire thing into memory.
+		 * The implementation may throw a reportable
+		 * exception only if a problem is encountered
+		 * other than unsupported file format which is
+		 * defined to be a silent failure.
+		 *
+		 * @throws Exception I/O problem or resource unavailable.
+		 * @return Whether the sound format is supported.
+		 */
+		public boolean load() throws Exception;
+		/**
+		 * Begins actual I/O or streaming of the sound
+		 * and starts playing it for the user.
+		 * The implementation may throw a reportable
+		 * exception only if a problem is encountered
+		 * other than unsupported file format which is
+		 * defined to be a silent failure.
+		 *
+		 * @throws Exception I/O problem or resource unavailable.
+		 * @return Whether I/O & playback started correctly.
+		 *         False indicates that playback control
+		 *         state should not change and playback did
+		 *         not actually start.
+		 */
+		public boolean play() throws Exception;
+		/**
+		 * Pauses the audio at its current playback
+		 * so that it can later be resumed.
+		 */
+		public void stop();
+		/**
+		 * Seeks the playback of the sound player to the
+		 * given position in microseconds.
+		 *
+		 * @param microseconds The microsecond position to seek.
+		 */
+		public void seek(long microseconds);
+		/**
+		 * Gets the microsecond position of playback.
+		 * @return Microsecond position.
+		 */
+		public long getPosition();
+		/**
+		 * Gets the microsecond duration of playback.
+		 * @return Microsecond duration.
+		 */
+		public long getDuration();
+		/**
+		 * Flushes and cleans up all remaining streams
+		 * and system resources being consumed. Once
+		 * this is called, sound playback can no longer
+		 * resume on the sound unless a new one is loaded.
+		 * 
+		 * @throws Exception I/O or stream closing problem.
+		 */
+		public void cleanup() throws Exception;
+		}
+
+	public class JavaSoundPlayer implements SoundPlayer
+		{
+		private Clip clip;
+		private AudioInputStream ais; // cached until first playback
+
+		@Override
+		public boolean load() throws Exception
+			{
+			try
+				{
+				ais = AudioSystem.getAudioInputStream(new ByteArrayInputStream(data));
+				// Java may lie and or downsample the frame rate such as with
+				// MIDI background song in 1945.gm6, see seek() comments
+				AudioFormat fmt = ais.getFormat();
+				//Forcibly convert to PCM Signed because non-pulse can't play unsigned (Java bug)
+				if (fmt.getEncoding() != AudioFormat.Encoding.PCM_SIGNED)
+					{
+					fmt = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,fmt.getSampleRate(),
+							fmt.getSampleSizeInBits() * 2,fmt.getChannels(),fmt.getFrameSize() * 2,
+							fmt.getFrameRate(),true);
+					ais = AudioSystem.getAudioInputStream(fmt,ais);
+					}
+				//Clip c = AudioSystem.getClip() generates a bogus format instead of using ais.getFormat.
+				clip = (Clip) AudioSystem.getLine(new DataLine.Info(Clip.class,fmt));
+				}
+			catch (IOException | LineUnavailableException | UnsupportedAudioFileException e)
+				{
+				if (ais != null)
+					ais.close(); // this may throw its own IOException
+				if (!(e instanceof UnsupportedAudioFileException))
+					throw e;
+				return false; // << unsupported file format is a silent fail
+				}
+			return true; // << supported and good to go
+			}
+
+		private boolean open() throws Exception
+			{
+			if (clip.isOpen()) return true;
+			clip.open(ais); // << may throw reportable I/O exceptions
+			// NOTE: Not EDT safe for GUI work!
+			// The update is called by Java internally from a
+			// background thread.
+			clip.addLineListener(new LineListener()
+				{
+				@Override
+				public void update(LineEvent event)
+					{
+					if (event.getType() == LineEvent.Type.STOP)
+						{
+						// see seek() and getDuration() comments
+						int lastFrameIndex = clip.getFrameLength()-1;
+						final boolean atEnd = (event.getFramePosition() >= lastFrameIndex);
+						if (atEnd)
+							{
+							clip.setFramePosition(0); // get ready for round 2.0
+							clip.flush(); // << free up buffered frames
+							}
+						SwingUtilities.invokeLater(new Runnable()
+							{
+							@Override
+							public void run()
+								{
+								stopSound(atEnd);
+								}
+							});
+						}
+					}
+				});
+			return true;
+			}
+
+		@Override
+		public boolean play() throws Exception
+			{
+			if (clip == null) loadSound();
+			if (clip == null) return false;
+			// open will throw reportable I/O exceptions
+			// other than unsupported file format
+			if (!this.open()) return false;
+			clip.start();
+			return true;
+			}
+
+		@Override
+		public void stop()
+			{
+			if (clip != null && clip.isOpen()) clip.stop();
+			}
+
+		@Override
+		public long getPosition()
+			{
+			return (clip == null) ? 0 : clip.getMicrosecondPosition();
+			}
+
+		@Override
+		public long getDuration()
+			{
+			// Java sample rate detection bug causes this to be inaccurate
+			// see load() and seek() comments
+			return (clip == null) ? 0 : clip.getMicrosecondLength();
+			}
+
+		@Override
+		public void seek(long microseconds)
+			{
+			if (clip == null || !clip.isOpen()) return;
+
+			// Java bug with some MIDI files such as
+			// the background song in 1945.gm6 reports
+			// longer microsecond durations because
+			// it uses a lower sample rate like 44,100
+			// instead of 48,000 like Windows Media Player
+			// for some unknown reason or bug
+
+			// basing seek off of the microsecond duration
+			// is problematic then because it can put us in
+			// an out of bounds frame which makes the clip
+			// unrecoverable and gets the sound playback
+			// stuck with no events received
+			// >> clip.setMicrosecondPosition(microseconds);
+
+			// workaround is to manually calculate the frame
+			// to seek to and ensure it's not out of bounds
+			int lastFrameIndex = clip.getFrameLength()-1;
+			AudioFormat fmt = clip.getFormat();
+			final float microsecondsPerSecond = 1000000.0f;
+			final float frameSeconds = microseconds * fmt.getFrameRate();
+			int frame = (int)(frameSeconds/microsecondsPerSecond);
+			if (frame > lastFrameIndex) frame = lastFrameIndex;
+			clip.setFramePosition(frame);
+			}
+
+		@Override
+		public void cleanup() throws Exception
+			{
+			if (clip != null && clip.isOpen())
+				{
+				clip.stop();
+				clip.close();
+				clip.flush();
+				}
+			if (ais != null) ais.close();
+			clip = null;
+			}
+		}
+
+	public SoundPlayer soundPlayer = null;
 
 	public String formatTime(long duration)
 		{
@@ -115,27 +333,17 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		return formated;
 		}
 
-	// Match the clip with the playback slider.
-	public void updateClipPosition()
+	// Match the sound player with the playback slider.
+	public void updatePlayerPosition()
 		{
-		if (clip == null) return;
-		// the index is 0 based so the last frame is
-		// one less than the number of frames
-		int lastFrameIndex = clip.getFrameLength()-1;
-		if (lastFrameIndex < 0) lastFrameIndex = 0;
-		float playbackPercent = position.getValue() / 100.0f;
-		clip.setFramePosition(Math.round(playbackPercent * lastFrameIndex));
+		float pos = position.getValue() / (float)position.getMaximum();
+		soundPlayer.seek((long)(pos * soundPlayer.getDuration()));
 		}
 
-	// Match the playback slider with the clip.
+	// Match the playback slider with the sound player.
 	public void updatePlaybackPosition()
 		{
-		if (clip == null) return;
-		// see updateClipPosition() comment
-		int lastFrameIndex = clip.getFrameLength()-1;
-		float pos = clip.getLongFramePosition();
-		if (lastFrameIndex > 0)
-			pos /= (float) lastFrameIndex;
+		float pos = soundPlayer.getPosition() / (float)soundPlayer.getDuration();
 		position.setValue(Math.round(pos * position.getMaximum()));
 		}
 
@@ -166,8 +374,10 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		Util.orientSplit(orientationSplit,Prefs.rightOrientation,makeLeftPane(),makeRightPane());
 		add(orientationSplit, BorderLayout.CENTER);
 
+		soundPlayer = new JavaSoundPlayer();
+		updatePositionLabel();
 		data = res.data;
-		loadClip();
+		loadSound();
 
 		pack();
 		}
@@ -179,6 +389,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		button.addActionListener(this);
 		return button;
 		}
+
 	private JToolBar makeToolBar()
 		{
 		JToolBar tool = new JToolBar();
@@ -281,7 +492,6 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		plf.make(pan.getModel(),PSound.PAN,100.0);
 
 		lPosition = new JLabel();
-		updatePositionLabel();
 		position = new JSlider(0,100,0);
 		position.setMajorTickSpacing(10);
 		position.setMinorTickSpacing(2);
@@ -291,7 +501,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 				public void stateChanged(ChangeEvent ev)
 					{
 					if (position.getValueIsAdjusting())
-						updateClipPosition();
+						updatePlayerPosition();
 					updatePositionLabel();
 					}
 			});
@@ -446,7 +656,6 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 	private JPanel makeEffectsPane()
 		{
 		// these are in bit order as appears in a GM6 file, not the same as GM shows them
-		//effects = new IndexButtonGroup(5,false);
 		AbstractButton eChorus = new JCheckBox(Messages.getString("SoundFrame.CHORUS")); //$NON-NLS-1$
 		plf.make(eChorus,PSound.CHORUS);
 		AbstractButton eEcho = new JCheckBox(Messages.getString("SoundFrame.ECHO")); //$NON-NLS-1$
@@ -484,12 +693,8 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 
 	private void updatePositionLabel()
 		{
-		long length = 0, position = 0;
-		if (clip != null)
-			{
-			length = clip.getMicrosecondLength();
-			position = clip.getMicrosecondPosition();
-			}
+		long position = soundPlayer.getPosition();
+		long length = soundPlayer.getDuration();
 
 		lPosition.setText(formatTime(position) + " / " + formatTime(length));
 		}
@@ -546,7 +751,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 				if (ft == null) ft = "";
 				res.put(PSound.FILE_TYPE,ft);
 				data = Util.readFully(f);
-				loadClip();
+				loadSound();
 				}
 			catch (Exception ex)
 				{
@@ -558,53 +763,28 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		if (e.getSource() == play)
 			{
 			if (data == null || data.length == 0) return;
-			if (clip == null) loadClip();
-			if (clip != null && !clip.isOpen())
+			// lazy open the clip on the first playback
+			// sound players are allowed to block here
+			// and that may slow down opening the frame
+			try
 				{
-				// lazy open the clip on the first playback
-				// this is a blocking operation that slows
-				// down opening the sound frame
-				try
-					{
-					clip.open(ais);
-					clip.addLineListener(new LineListener()
-						{
-						@Override
-						public void update(LineEvent event)
-							{
-							if (event.getType() == LineEvent.Type.STOP)
-								{
-								stop.setEnabled(false);
-								play.setEnabled(true);
-								playbackTimer.stop();
-
-								// see updateClipPosition() comment
-								int lastFrameIndex = clip.getFrameLength()-1;
-								if (event.getFramePosition() < lastFrameIndex) return;
-
-								clip.setFramePosition(0); // get ready for round 2.0
-								clip.flush(); // << free up buffered frames
-								position.setValue(0); // reset to beginning
-								}
-							}
-						});
-					}
-				catch (LineUnavailableException | IOException e1)
-					{
-					LGM.showDefaultExceptionHandler(e1);
-					return; // << can try again later
-					}
+				if (!soundPlayer.play()) return;
 				}
+			catch (Exception e1)
+				{
+				LGM.showDefaultExceptionHandler(e1); // << reportable I/O issue
+				}
+			// seek the sound player to our seek bar
+			updatePlayerPosition();
 			play.setEnabled(false);
 			stop.setEnabled(true);
 			playbackTimer.start();
-			updateClipPosition();
-			clip.start();
 			return;
 			}
 		if (e.getSource() == stop)
 			{
-			if (clip != null && clip.isOpen()) clip.stop();
+			soundPlayer.stop();
+			play.setEnabled(true);
 			return;
 			}
 		if (e.getSource() == store)
@@ -646,50 +826,36 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		super.actionPerformed(e);
 		}
 
+	// just a callback from the sound player
+	// letting us know that playback stopped
+	public void stopSound(boolean atEnd)
+		{
+		stop.setEnabled(false);
+		playbackTimer.stop(); // stop the clock
+		if (!atEnd) return;
+		play.setEnabled(true); // can go again
+		position.setValue(0); // reset to beginning
+		}
+
 	// prepares the in-memory audio stream for later playback
 	// and enables related playback controls upon success
 	// but does not actually open it until later when playback
 	// is requested so that the frame opens quicker
-	public void loadClip()
+	public void loadSound()
 		{
-		cleanup();
+		cleanup(); // << dump the old sound if there was one
 		position.setValue(0);
 		playbackTimer.stop();
-		play.setEnabled(false);
+		play.setEnabled(false); // << not sure yet if playable
 		updateStatusLabels();
-		if (data == null || data.length <= 0)
+		if (data != null && data.length > 0) try
 			{
-			updatePositionLabel();
-			return;
+			if (soundPlayer.load()) // << only prepares streams
+				play.setEnabled(true); // << it's playable!
 			}
-		try
+		catch (Exception e)
 			{
-			InputStream source = new ByteArrayInputStream(data);
-			ais = AudioSystem.getAudioInputStream(new BufferedInputStream(source));
-			AudioFormat fmt = ais.getFormat();
-			//Forcibly convert to PCM Signed because non-pulse can't play unsigned (Java bug)
-			if (fmt.getEncoding() != AudioFormat.Encoding.PCM_SIGNED)
-				{
-				fmt = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,fmt.getSampleRate(),
-						fmt.getSampleSizeInBits() * 2,fmt.getChannels(),fmt.getFrameSize() * 2,
-						fmt.getFrameRate(),true);
-				ais = AudioSystem.getAudioInputStream(fmt,ais);
-				}
-			//Clip c = AudioSystem.getClip() generates a bogus format instead of using ais.getFormat.
-			clip = (Clip) AudioSystem.getLine(new DataLine.Info(Clip.class,fmt));
-			play.setEnabled(true); // << only enable if supported
-			}
-		catch (IOException e)
-			{
-			LGM.showDefaultExceptionHandler(e);
-			}
-		catch (LineUnavailableException e)
-			{
-			LGM.showDefaultExceptionHandler(e);
-			}
-		catch (UnsupportedAudioFileException e)
-			{
-			// do nothing, file was unsupported
+			LGM.showDefaultExceptionHandler(e); // reportable I/O issue
 			}
 		updatePositionLabel(); // << update duration anyway
 		}
@@ -766,7 +932,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 					try
 						{
 						data = Util.readFully(monitor.file);
-						loadClip();
+						loadSound();
 						}
 					catch (IOException ioe)
 						{
@@ -781,21 +947,24 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			}
 		}
 
+	// throw everything, even the kitchen sink!
 	public void dispose()
 		{
 		cleanup();
 		super.dispose();
 		}
 
+	// helper for switching sounds & dispose
 	protected void cleanup()
 		{
 		if (editor != null) editor.stop();
-		if (clip != null && clip.isOpen())
+		try
 			{
-			clip.stop();
-			clip.close();
-			clip.flush();
+			soundPlayer.cleanup();
 			}
-		clip = null;
+		catch (Exception e)
+			{
+			LGM.showDefaultExceptionHandler(e); // << reportable I/O problem
+			}
 		}
 	}
