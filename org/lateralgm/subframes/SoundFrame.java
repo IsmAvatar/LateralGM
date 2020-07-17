@@ -848,15 +848,16 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		playbackTimer.stop();
 		play.setEnabled(false); // << not sure yet if playable
 		updateStatusLabels();
-		if (data != null && data.length > 0) try
-			{
-			if (soundPlayer.load()) // << only prepares streams
-				play.setEnabled(true); // << it's playable!
-			}
-		catch (Exception e)
-			{
-			LGM.showDefaultExceptionHandler(e); // reportable I/O issue
-			}
+		if (data != null && data.length > 0)
+			try
+				{
+				if (soundPlayer.load()) // << only prepares streams
+					play.setEnabled(true); // << it's playable!
+				}
+			catch (Exception e)
+				{
+				LGM.showDefaultExceptionHandler(e); // reportable I/O issue
+				}
 		updatePositionLabel(); // << update duration anyway
 		}
 
