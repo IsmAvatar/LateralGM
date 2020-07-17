@@ -103,6 +103,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 	private JLabel fileLabel, memoryLabel, lPosition;
 	private JSlider position;
 	private Timer playbackTimer;
+	private AudioInputStream ais; // cached until first playback
 
 	public String formatTime(long duration)
 		{
@@ -557,9 +558,42 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		if (e.getSource() == play)
 			{
 			if (data == null || data.length == 0) return;
-			if (clip == null)
+			if (clip == null) loadClip();
+			if (clip != null && !clip.isOpen())
 				{
-				loadClip();
+				// lazy open the clip on the first playback
+				// this is a blocking operation that slows
+				// down opening the sound frame
+				try
+					{
+					clip.open(ais);
+					clip.addLineListener(new LineListener()
+						{
+						@Override
+						public void update(LineEvent event)
+							{
+							if (event.getType() == LineEvent.Type.STOP)
+								{
+								stop.setEnabled(false);
+								play.setEnabled(true);
+								playbackTimer.stop();
+
+								// see updateClipPosition() comment
+								int lastFrameIndex = clip.getFrameLength()-1;
+								if (event.getFramePosition() < lastFrameIndex) return;
+
+								clip.setFramePosition(0); // get ready for round 2.0
+								clip.flush(); // << free up buffered frames
+								position.setValue(0); // reset to beginning
+								}
+							}
+						});
+					}
+				catch (LineUnavailableException | IOException e1)
+					{
+					LGM.showDefaultExceptionHandler(e1);
+					return; // << can try again later
+					}
 				}
 			play.setEnabled(false);
 			stop.setEnabled(true);
@@ -612,6 +646,10 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		super.actionPerformed(e);
 		}
 
+	// prepares the in-memory audio stream for later playback
+	// and enables related playback controls upon success
+	// but does not actually open it until later when playback
+	// is requested so that the frame opens quicker
 	public void loadClip()
 		{
 		cleanup();
@@ -627,7 +665,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		try
 			{
 			InputStream source = new ByteArrayInputStream(data);
-			AudioInputStream ais = AudioSystem.getAudioInputStream(new BufferedInputStream(source));
+			ais = AudioSystem.getAudioInputStream(new BufferedInputStream(source));
 			AudioFormat fmt = ais.getFormat();
 			//Forcibly convert to PCM Signed because non-pulse can't play unsigned (Java bug)
 			if (fmt.getEncoding() != AudioFormat.Encoding.PCM_SIGNED)
@@ -639,27 +677,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 				}
 			//Clip c = AudioSystem.getClip() generates a bogus format instead of using ais.getFormat.
 			clip = (Clip) AudioSystem.getLine(new DataLine.Info(Clip.class,fmt));
-
-			clip.open(ais);
-			clip.addLineListener(new LineListener()
-				{
-					@Override
-					public void update(LineEvent event)
-						{
-						if (event.getType() == LineEvent.Type.STOP)
-							{
-							stop.setEnabled(false);
-							play.setEnabled(true);
-							playbackTimer.stop();
-							// see updateClipPosition() comment
-							int lastFrameIndex = clip.getFrameLength()-1;
-							if (event.getFramePosition() < lastFrameIndex) return; 
-							clip.setFramePosition(0);
-							position.setValue(0);
-							}
-						}
-				});
-			play.setEnabled(true);
+			play.setEnabled(true); // << only enable if supported
 			}
 		catch (IOException e)
 			{
@@ -673,7 +691,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			{
 			// do nothing, file was unsupported
 			}
-		updatePositionLabel();
+		updatePositionLabel(); // << update duration anyway
 		}
 
 	private void updateStatusLabels()
