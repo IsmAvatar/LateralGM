@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: JoshEdit Syntax Highlighted Text Component
+    url: https://github.com/JoshDreamland/JoshEdit
+    about: Problems related only to the code editor such as text & caret painting, formatting, encoding, and serialization.
+  - name: ENIGMA Compiler, Command Line, & Engine
+    url: https://github.com/enigma-dev/enigma-dev/
+    about: Report issues related to building, running, and debugging a game.
+  - name: ENIGMA Java Plugin for LateralGM
+    url: https://github.com/enigma-dev/lgmplugin/
+    about: Problems with ENIGMA related UI issues, such as extension & API selection, logging, and populating resources.

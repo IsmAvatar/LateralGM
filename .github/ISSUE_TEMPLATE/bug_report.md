@@ -1,6 +1,6 @@
 ---
-name: Bug Report
-about: Report an issue with LateralGM
+name: LateralGM Bug Report
+about: Report an issue related to project reading, UI quirks, i18n, and other parts of the editor.
 title: ''
 labels: 'Unconfirmed'
 assignees: ''
@@ -26,6 +26,3 @@ If applicable, upload a simple game file and/or screenshots demonstrating the is
 
 ### Additional context
 Add any other context about the problem here.
-
-### ENIGMA
-Issues related to the ENIGMA project, compiler, engine, plugins & EGM formats do not belong here. They have their own repos under the http://www.github.com/enigma-dev account where you can post them for assistance and feedback.
