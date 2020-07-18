@@ -12,7 +12,7 @@ assignees: ''
 ### Describe the feature
 A clear and concise description of what the functionality is and the intended target audience.
 
-### Use Case
+### Use case
 Enumerate the series of events that would trigger the functionality or behavior.
 1. Go to '...'
 2. Click on '....'
