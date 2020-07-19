@@ -517,9 +517,15 @@ public final class GMXFileReader
 
 				String icopath = c.f.getDirectory() + '/'
 						+ setdoc.getElementsByTagName("option_windows_game_icon").item(0).getTextContent(); //$NON-NLS-1$
+				icopath = Util.getPOSIXPath(icopath);
 				try
 					{
-					pSet.put(PGameSettings.GAME_ICON,new ICOFile(Util.getPOSIXPath(icopath)));
+					// the icon not existing is a silent fail in GMSv1.4
+					// which will automatically recreate it as the default
+					// probably because the IDE does not require it, but
+					// the asset compiler does
+					if (new File(icopath).exists()) // << GMZ does not export if default icon
+						pSet.put(PGameSettings.GAME_ICON,new ICOFile(icopath));
 					}
 				catch (IOException e)
 					{
