@@ -133,7 +133,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.157"; //$NON-NLS-1$
+	public static final String version = "1.8.158"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -883,8 +883,8 @@ public final class LGM
 
 		// NOTE: We do this to update the reference to the one now loaded
 		// since we never close these frames, then we simply revert their controls.
-		constantsFrame.res = LGM.currentFile.gameSettings.firstElement().constants;
-		constantsFrame.resOriginal = LGM.currentFile.gameSettings.firstElement().constants.clone();
+		constantsFrame.res = LGM.currentFile.defaultConstants;
+		constantsFrame.resOriginal = LGM.currentFile.defaultConstants.clone();
 		constantsFrame.revertResource();
 		constantsFrame.setVisible(false);
 		gameInfo.res = LGM.currentFile.gameInfo;
