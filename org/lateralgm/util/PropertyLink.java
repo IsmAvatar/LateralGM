@@ -11,20 +11,14 @@ package org.lateralgm.util;
 
 import java.beans.ExceptionListener;
 
-import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
-import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory.PropertyLinkMapListener;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
-public abstract class PropertyLink<K extends Enum<K>, V> extends PropertyUpdateListener<K> implements PropertyLinkMapListener<K>
+public abstract class PropertyLink<K extends Enum<K>, V> extends PropertyUpdateListener<K>
 	{
-	public PropertyMap<K> map;
-	public final K key;
+	protected PropertyMap<K> map;
+	protected final K key;
 	private ExceptionListener exceptionListener;
-	/*
-	 * We keep a reference to our plf so that we can tell it to install/uninstall us as a listener.
-	 */
-	public PropertyLinkFactory<K> factory;
 
 	public PropertyLink(PropertyMap<K> m, K k)
 		{
@@ -36,15 +30,15 @@ public abstract class PropertyLink<K extends Enum<K>, V> extends PropertyUpdateL
 	public void remove()
 		{
 		map.getUpdateSource(key).removeListener(this);
-		factory.removeLinkMapListener(this);
 		}
 
-	public void mapChanged(PropertyMap<K> m) {
-		map.updateSource.removeListener(this);
+	public void setMap(PropertyMap<K> m)
+		{
+		this.remove();
 		map = m;
 		map.getUpdateSource(key).addListener(this);
 		reset();
-	}
+		}
 
 	protected abstract void setComponent(V v);
 
