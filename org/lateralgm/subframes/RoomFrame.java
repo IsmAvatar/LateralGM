@@ -22,7 +22,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Point;
@@ -65,7 +64,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -2076,7 +2075,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		}
 
 	// Window which displays the room controls
-	public static JFrame roomControlsFrame;
+	private static JDialog roomControlsFrame;
 
 	private void deleteAction()
 		{
@@ -2513,7 +2512,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (roomControlsFrame == null)
 				{
 				// Create a window and set the properties
-				roomControlsFrame = new JFrame(Messages.getString("RoomControls.TITLE"));
+				roomControlsFrame = new JDialog(LGM.frame,Messages.getString("RoomControls.TITLE"));
 				roomControlsFrame.setIconImage(LGM.getIconForKey("RoomFrame.ROOM_CONTROLS").getImage());
 				Border padding = BorderFactory.createEmptyBorder(15,15,15,15);
 				JPanel contentPanel = new JPanel();
@@ -2547,7 +2546,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			else
 				{
 				// Make sure the window is visible and not minimized
-				roomControlsFrame.setState(Frame.NORMAL);
 				roomControlsFrame.setVisible(true);
 				}
 
