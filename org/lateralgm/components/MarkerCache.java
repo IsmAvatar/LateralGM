@@ -55,21 +55,12 @@ public final class MarkerCache
 		DefaultTokenMarker marker = markers.get(language);
 		if (marker == null)
 			{
-			if (language == "glsles")
+			switch (language)
 				{
-				marker = new GLESTokenMarker();
-				}
-			if (language == "glsl")
-				{
-				marker = new GLSLTokenMarker();
-				}
-			if (language == "hlsl")
-				{
-				marker = new HLSLTokenMarker();
-				}
-			if (language == "gml")
-				{
-				marker = new GMLTokenMarker();
+				case "glsles": marker = new GLESTokenMarker(); break;
+				case "glsl": marker = new GLSLTokenMarker(); break;
+				case "hlsl": marker = new HLSLTokenMarker(); break;
+				case "gml": marker = new GMLTokenMarker(); break;
 				}
 			markers.put(language,marker);
 			}
