@@ -2504,8 +2504,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				roomControlsFrame.setContentPane(contentPanel);
 				roomControlsFrame.setLayout(new BoxLayout(roomControlsFrame.getContentPane(),
 						BoxLayout.Y_AXIS));
-				roomControlsFrame.setResizable(false);
-				roomControlsFrame.setLocationRelativeTo(null);
 
 				// Add the labels
 				roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON"))); //$NON-NLS-1$
@@ -2525,14 +2523,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 							}
 					});
 				roomControlsFrame.pack();
-				roomControlsFrame.setVisible(true);
+				roomControlsFrame.setResizable(false);
 				}
-			else
-				{
-				// Make sure the window is visible and not minimized
-				roomControlsFrame.setVisible(true);
-				}
-
+			roomControlsFrame.setLocationRelativeTo(LGM.frame);
+			roomControlsFrame.setVisible(true);
 			}
 
 		// If the user has pressed the shift instances button
