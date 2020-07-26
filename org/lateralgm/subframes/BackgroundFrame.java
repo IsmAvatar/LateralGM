@@ -18,7 +18,6 @@ import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -99,48 +98,6 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 
 	private final BackgroundPropertyListener bpl = new BackgroundPropertyListener();
 
-	/** Zoom in, centering around a specific point, usually the mouse. */
-	public void zoomIn(Point point)
-		{
-		if (this.getZoom() >= 32) return;
-		this.setZoom(this.getZoom() * 2);
-		Dimension size = previewScroll.getViewport().getSize();
-
-		int newX = (int) (point.x * 2) - size.width / 2;
-		int newY = (int) (point.y * 2) - size.height / 2;
-		previewScroll.getViewport().setViewPosition(new Point(newX,newY));
-
-		previewScroll.revalidate();
-		previewScroll.repaint();
-		}
-
-	/** Zoom out, centering around a specific point, usually the mouse. */
-	public void zoomOut(Point point)
-		{
-		if (this.getZoom() <= 0.04) return;
-		this.setZoom(this.getZoom() / 2);
-		Dimension size = previewScroll.getViewport().getSize();
-
-		int newX = (int) (point.x / 2) - size.width / 2;
-		int newY = (int) (point.y / 2) - size.height / 2;
-		previewScroll.getViewport().setViewPosition(new Point(newX,newY));
-
-		previewScroll.revalidate();
-		previewScroll.repaint();
-		}
-
-	public void zoomIn()
-		{
-		Dimension size = previewScroll.getViewport().getViewSize();
-		zoomIn(new Point(size.width/2,size.height/2));
-		}
-
-	public void zoomOut()
-		{
-		Dimension size = previewScroll.getViewport().getViewSize();
-		zoomOut(new Point(size.width/2,size.height/2));
-		}
-
 	public BackgroundFrame(Background res, ResNode node)
 		{
 		super(res,node);
@@ -174,11 +131,11 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 					{
 					if (ev.getButton() == MouseEvent.BUTTON1)
 						{
-						zoomIn(ev.getPoint());
+						preview.zoomIn(ev.getPoint(),previewScroll);
 						}
 					if (ev.getButton() == MouseEvent.BUTTON3)
 						{
-						zoomOut(ev.getPoint());
+						preview.zoomOut(ev.getPoint(),previewScroll);
 						}
 					preview.setCursor(LGM.zoomCursor);
 					}
@@ -526,12 +483,12 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 			}
 		else if (cmd.endsWith(".ZOOM_IN")) //$NON-NLS-1$
 			{
-			zoomIn();
+			preview.zoomIn(previewScroll);
 			return;
 			}
 		else if (cmd.endsWith(".ZOOM_OUT")) //$NON-NLS-1$
 			{
-			zoomOut();
+			preview.zoomOut(previewScroll);
 			return;
 			}
 		}

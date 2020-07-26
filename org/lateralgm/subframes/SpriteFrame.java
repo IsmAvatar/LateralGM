@@ -24,7 +24,6 @@ import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
-import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
@@ -168,48 +167,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	private Map<BufferedImage,ImageEditor> editors;
 	private MouseAdapter previewMouseAdapter;
 
-	/** Zoom in, centering around a specific point, usually the mouse. */
-	public void zoomIn(Point point)
-		{
-		if (this.getZoom() >= 32) return;
-		this.setZoom(this.getZoom() * 2);
-		Dimension size = previewScroll.getViewport().getSize();
-
-		int newX = (int) (point.x * 2) - size.width / 2;
-		int newY = (int) (point.y * 2) - size.height / 2;
-		previewScroll.getViewport().setViewPosition(new Point(newX,newY));
-
-		previewScroll.revalidate();
-		previewScroll.repaint();
-		}
-
-	/** Zoom out, centering around a specific point, usually the mouse. */
-	public void zoomOut(Point point)
-		{
-		if (this.getZoom() <= 0.04) return;
-		this.setZoom(this.getZoom() / 2);
-		Dimension size = previewScroll.getViewport().getSize();
-
-		int newX = (int) (point.x / 2) - size.width / 2;
-		int newY = (int) (point.y / 2) - size.height / 2;
-		previewScroll.getViewport().setViewPosition(new Point(newX,newY));
-
-		previewScroll.revalidate();
-		previewScroll.repaint();
-		}
-
-	public void zoomIn()
-		{
-		Dimension size = previewScroll.getViewport().getViewSize();
-		zoomIn(new Point(size.width/2,size.height/2));
-		}
-
-	public void zoomOut()
-		{
-		Dimension size = previewScroll.getViewport().getViewSize();
-		zoomOut(new Point(size.width/2,size.height/2));
-		}
-
 	public SpriteFrame(Sprite res, ResNode node)
 		{
 		super(res,node);
@@ -248,11 +205,11 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 					{
 					if (ev.getButton() == MouseEvent.BUTTON1)
 						{
-						zoomIn(ev.getPoint());
+						preview.zoomIn(ev.getPoint(),previewScroll);
 						}
 					if (ev.getButton() == MouseEvent.BUTTON3)
 						{
-						zoomOut(ev.getPoint());
+						preview.zoomOut(ev.getPoint(),previewScroll);
 						}
 					preview.setCursor(LGM.zoomCursor);
 					}
@@ -1400,12 +1357,12 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			}
 		else if (e.getSource() == zoomIn)
 			{
-			zoomIn();
+			preview.zoomIn(previewScroll);
 			return;
 			}
 		else if (e.getSource() == zoomOut)
 			{
-			zoomOut();
+			preview.zoomOut(previewScroll);
 			return;
 			}
 		else if (e.getSource() == play)

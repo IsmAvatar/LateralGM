@@ -11,12 +11,14 @@ package org.lateralgm.components.visual;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.image.BufferedImage;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 
 public abstract class AbstractImagePreview extends JLabel
 	{
@@ -58,6 +60,44 @@ public abstract class AbstractImagePreview extends JLabel
 		{
 		zoom = nzoom;
 		this.resizeAndRepaint();
+		}
+
+	/** Zoom in, centering around a specific point, usually the mouse. */
+	public void zoomIn(Point point, JScrollPane scroll)
+		{
+		if (this.getZoom() >= 32) return;
+		this.setZoom(this.getZoom() * 2);
+		scroll.validate();
+		Dimension size = scroll.getViewport().getSize();
+
+		int newX = (int) (point.x * 2) - size.width / 2;
+		int newY = (int) (point.y * 2) - size.height / 2;
+		setLocation(new Point(-newX,-newY));
+		}
+
+	/** Zoom out, centering around a specific point, usually the mouse. */
+	public void zoomOut(Point point, JScrollPane scroll)
+		{
+		if (this.getZoom() <= 0.04) return;
+		this.setZoom(this.getZoom() / 2);
+		scroll.validate();
+		Dimension size = scroll.getViewport().getSize();
+
+		int newX = (int) (point.x / 2) - size.width / 2;
+		int newY = (int) (point.y / 2) - size.height / 2;
+		setLocation(new Point(-newX,-newY));
+		}
+
+	public void zoomIn(JScrollPane scroll)
+		{
+		Dimension size = this.getPreferredSize();
+		zoomIn(new Point(size.width/2,size.height/2),scroll);
+		}
+
+	public void zoomOut(JScrollPane scroll)
+		{
+		Dimension size = this.getPreferredSize();
+		zoomOut(new Point(size.width/2,size.height/2),scroll);
 		}
 
 	/**
