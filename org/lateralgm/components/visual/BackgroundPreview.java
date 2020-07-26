@@ -34,7 +34,6 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 	private final Background background;
 	private final BackgroundPropertyListener bpl = new BackgroundPropertyListener();
 
-	private double zoom = 1.0;
 	private BufferedImage transparentBackground = null;
 
 	private Object transparentImage;
@@ -141,25 +140,6 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 			}
 
 		g.setClip(oldClip); // restore the old clip
-		}
-
-	@Override
-	public Dimension getPreferredSize()
-		{
-		BufferedImage img = getImage();
-		if (img == null) return super.getPreferredSize();
-		return new Dimension((int) (img.getWidth() * zoom),(int) (img.getHeight() * zoom));
-		}
-
-	public double getZoom()
-		{
-		return zoom;
-		}
-
-	public void setZoom(double nzoom)
-		{
-		zoom = nzoom;
-		this.resizeAndRepaint();
 		}
 
 	protected BufferedImage getImage()

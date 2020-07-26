@@ -22,6 +22,8 @@ public abstract class AbstractImagePreview extends JLabel
 	{
 	private static final long serialVersionUID = 1L;
 
+	protected double zoom = 1.0;
+
 	public AbstractImagePreview()
 		{
 		setOpaque(true);
@@ -44,7 +46,18 @@ public abstract class AbstractImagePreview extends JLabel
 		{
 		BufferedImage bi = getImage();
 		if (bi == null) return super.getPreferredSize();
-		return new Dimension(bi.getWidth(),bi.getHeight());
+		return new Dimension((int)(bi.getWidth() * zoom),(int)(bi.getHeight() * zoom));
+		}
+
+	public double getZoom()
+		{
+		return zoom;
+		}
+
+	public void setZoom(double nzoom)
+		{
+		zoom = nzoom;
+		this.resizeAndRepaint();
 		}
 
 	/**

@@ -40,8 +40,6 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 
 	private static final int ORIGIN_SIZE = 20;
 
-	private double zoom = 1;
-
 	private BufferedImage transparentBackground;
 	private BufferedImage transparentImage;
 	private BufferedImage image;
@@ -59,15 +57,6 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 
 		enableEvents(MouseEvent.MOUSE_PRESSED);
 		enableEvents(MouseEvent.MOUSE_DRAGGED);
-		}
-
-	@Override
-	public Dimension getPreferredSize()
-		{
-		BufferedImage img = getImage();
-		if (img == null) return super.getPreferredSize();
-		return new Dimension((int) Math.ceil(img.getWidth() * zoom),(int) Math.ceil(img.getHeight()
-				* zoom));
 		}
 
 	public Point getTopLeftCentered()
@@ -171,17 +160,6 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 		y = (int) Math.max(0,Math.min(h,y));
 		sprite.put(PSprite.ORIGIN_X,x);
 		sprite.put(PSprite.ORIGIN_Y,y);
-		}
-
-	public double getZoom()
-		{
-		return zoom;
-		}
-
-	public void setZoom(double nzoom)
-		{
-		zoom = nzoom;
-		this.resizeAndRepaint();
 		}
 
 	public void setIndex(int i)
