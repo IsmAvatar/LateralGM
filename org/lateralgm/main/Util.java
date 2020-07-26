@@ -179,6 +179,7 @@ public final class Util
 					}
 				}
 			}
+		g.dispose();
 		return dest;
 		}
 

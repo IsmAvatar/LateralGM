@@ -623,6 +623,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 			AffineTransform at = AffineTransform.getScaleInstance(destSize/((float)src.getWidth()), destSize/((float)src.getHeight()));
 			g.drawRenderedImage(src, at);
+			g.dispose();
 
 			return dest;
 	}

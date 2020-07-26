@@ -684,6 +684,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			Graphics2D g = cimg.createGraphics();
 			g.drawImage(transparencyBackground,0,0,bwidth*10,bheight*10,null);
 			g.drawImage(img,0,0,width,height,null);
+			g.dispose();
 
 			l.img = cimg;
 

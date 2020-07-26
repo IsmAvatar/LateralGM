@@ -133,7 +133,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.168"; //$NON-NLS-1$
+	public static final String version = "1.8.169"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -286,18 +286,21 @@ public final class LGM
 		BufferedImage img = new BufferedImage(32,32,BufferedImage.TYPE_INT_ARGB);
 		Graphics g = img.createGraphics();
 		g.drawImage(cimg,0,0,null);
+		g.dispose();
 		zoomCursor = toolkit.createCustomCursor(img,new Point(0,0),"Zoom");
 
 		cimg = LGM.getIconForKey("CursorDisplay.ZOOM_IN").getImage(); //$NON-NLS-1$
 		img = new BufferedImage(32,32,BufferedImage.TYPE_INT_ARGB);
 		g = img.createGraphics();
 		g.drawImage(cimg,0,0,null);
+		g.dispose();
 		zoomInCursor = toolkit.createCustomCursor(img,new Point(0,0),"ZoomIn");
 
 		cimg = LGM.getIconForKey("CursorDisplay.ZOOM_OUT").getImage(); //$NON-NLS-1$
 		img = new BufferedImage(32,32,BufferedImage.TYPE_INT_ARGB);
 		g = img.createGraphics();
 		g.drawImage(cimg,0,0,null);
+		g.dispose();
 		zoomOutCursor = toolkit.createCustomCursor(img,new Point(0,0),"ZoomOut");
 		}
 
