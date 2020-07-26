@@ -47,10 +47,6 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 		b.reference.updateSource.addListener(this);
 		}
 
-	@Override public void setSize(Dimension d) {
-		super.setSize(d);
-	}
-
 	protected BufferedImage getTransparentImage()
 		{
 		if (background == null) return null;
@@ -163,10 +159,7 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 	public void setZoom(double nzoom)
 		{
 		zoom = nzoom;
-		// size change automatically revalidates
-		this.setSize(this.getPreferredSize());
-		// paint it again too
-		repaint();
+		this.resizeAndRepaint();
 		}
 
 	protected BufferedImage getImage()
@@ -177,10 +170,7 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 	public void updated(UpdateEvent e)
 		{
 		// new image may be new size
-		// therefore, do layout again
-		revalidate();
-		// paint it again too
-		repaint();
+		this.resizeAndRepaint();
 		}
 
 	private class BackgroundPropertyListener extends PropertyUpdateListener<PBackground>

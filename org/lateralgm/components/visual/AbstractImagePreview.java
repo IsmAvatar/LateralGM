@@ -47,6 +47,21 @@ public abstract class AbstractImagePreview extends JLabel
 		return new Dimension(bi.getWidth(),bi.getHeight());
 		}
 
+	/**
+	 * Refreshes the image preview by laying it out to its
+	 * preferred dimensions and then repainting it. Follows the
+	 * same conventions that {@code JTable.resizeAndRepaint} and
+	 * other Swing components do internally. It is not to be
+	 * used when the size hasn't actually changed, e.g
+	 * transparency pixel removed. In that case, only a simple
+	 * repaint is all that is needed.
+	 */
+	protected void resizeAndRepaint()
+		{
+		revalidate(); // size change, do layout
+		repaint(); // repaint it with new size
+		}
+
 	@Deprecated
 	public void setIcon(Icon ico)
 		{

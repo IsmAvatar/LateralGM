@@ -181,19 +181,14 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 	public void setZoom(double nzoom)
 		{
 		zoom = nzoom;
-		// size change automatically revalidates
-		this.setSize(this.getPreferredSize());
-		// paint it again too
-		repaint();
+		this.resizeAndRepaint();
 		}
 
 	public void setIndex(int i)
 		{
 		subIndex = i;
-		// size change automatically revalidates
-		this.setSize(this.getPreferredSize());
-		// paint it again too
-		repaint();
+		// we allow varying subimage size
+		this.resizeAndRepaint();
 		}
 
 	public int getIndex()
@@ -203,14 +198,14 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 
 	public void setShowBbox(boolean show)
 		{
-		if (show != showBbox) repaint();
-		showBbox = show;
+		if (show != showBbox) repaint(); // << posts event
+		showBbox = show; // << repaint event happens later
 		}
 
 	public void setShowOrigin(boolean show)
 		{
-		if (show != showOrigin) repaint();
-		showOrigin = show;
+		if (show != showOrigin) repaint(); // << posts event
+		showOrigin = show; // << repaint event happens later
 		}
 
 	protected void processMouseEvent(MouseEvent e)
@@ -263,10 +258,7 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 	public void updated(UpdateEvent e)
 		{
 		// new image may be new size
-		// therefore, do layout again
-		revalidate();
-		// paint it again too
-		repaint();
+		this.resizeAndRepaint();
 		}
 
 	private class SpritePropertyListener extends PropertyUpdateListener<PSprite>
