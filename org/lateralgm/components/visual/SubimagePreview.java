@@ -156,7 +156,6 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 			}
 
 		g.setClip(oldClip); //restore the clip
-		g.dispose();
 		}
 
 	private void setBoundedOrigin(int x, int y)
@@ -182,15 +181,19 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 	public void setZoom(double nzoom)
 		{
 		zoom = nzoom;
+		// size change automatically revalidates
 		this.setSize(this.getPreferredSize());
-		updateUI();
+		// paint it again too
+		repaint();
 		}
 
 	public void setIndex(int i)
 		{
 		subIndex = i;
-		updateUI();
-		this.repaint();
+		// size change automatically revalidates
+		this.setSize(this.getPreferredSize());
+		// paint it again too
+		repaint();
 		}
 
 	public int getIndex()
@@ -257,7 +260,11 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 
 	public void updated(UpdateEvent e)
 		{
-		updateUI();
+		// new image may be new size
+		// therefore, do layout again
+		revalidate();
+		// paint it again too
+		repaint();
 		}
 
 	private class SpritePropertyListener extends PropertyUpdateListener<PSprite>
@@ -268,7 +275,7 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 				{
 				case PRELOAD:
 				case SMOOTH_EDGES:
-				case TRANSPARENT:
+				case TRANSPARENT: // << handled by UpdateEvent ^^
 				case SHAPE:
 					return;
 				default:

@@ -87,6 +87,6 @@ public class SpriteStripPreview extends AbstractImagePreview implements ValueCha
 
 	public void valueChange(ValueChangeEvent evt)
 		{
-		updateUI();
+		repaint();
 		}
 	}

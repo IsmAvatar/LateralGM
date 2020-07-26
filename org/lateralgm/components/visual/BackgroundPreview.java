@@ -163,8 +163,10 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 	public void setZoom(double nzoom)
 		{
 		zoom = nzoom;
+		// size change automatically revalidates
 		this.setSize(this.getPreferredSize());
-		updateUI();
+		// paint it again too
+		repaint();
 		}
 
 	protected BufferedImage getImage()
@@ -174,7 +176,11 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 
 	public void updated(UpdateEvent e)
 		{
-		updateUI();
+		// new image may be new size
+		// therefore, do layout again
+		revalidate();
+		// paint it again too
+		repaint();
 		}
 
 	private class BackgroundPropertyListener extends PropertyUpdateListener<PBackground>
@@ -185,7 +191,7 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 				{
 				case PRELOAD:
 				case SMOOTH_EDGES:
-				case TRANSPARENT:
+				case TRANSPARENT: // << handled by UpdateEvent ^^
 					return;
 				default:
 					repaint();
