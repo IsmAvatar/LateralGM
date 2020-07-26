@@ -1306,13 +1306,11 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		else if (e.getSource() == showBbox)
 			{
 			preview.setShowBbox(showBbox.isSelected());
-			preview.updateUI();
 			return;
 			}
 		else if (e.getSource() == showOrigin)
 			{
 			preview.setShowOrigin(showOrigin.isSelected());
-			preview.updateUI();
 			return;
 			}
 		else if (e.getSource() == subLeft)

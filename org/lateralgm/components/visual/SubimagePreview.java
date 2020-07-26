@@ -203,11 +203,13 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 
 	public void setShowBbox(boolean show)
 		{
+		if (show != showBbox) repaint();
 		showBbox = show;
 		}
 
 	public void setShowOrigin(boolean show)
 		{
+		if (show != showOrigin) repaint();
 		showOrigin = show;
 		}
 

@@ -423,7 +423,6 @@ public class ConstantsFrame extends ResourceFrame<Constants,PConstants>
 		//Constants
 		cModel = new ConstantsTableModel(c.constants);
 		constants.setModel(cModel);
-		constants.updateUI();
 		}
 
 	@Override
