@@ -1164,7 +1164,8 @@ public final class GMXFileReader
 		obj.put(
 				PGmObject.PHYSICS_DAMPING_ANGULAR,
 				Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectAngularDamping").item(0).getTextContent())); //$NON-NLS-1$
-		// TODO: Some versions of the format did not have all of the physics properties.
+		// NOTE: Some versions of the format did not have all of the physics properties.
+		// It is the same for GMK 820/821 as well.
 		Node fNode = objdoc.getElementsByTagName("PhysicsObjectFriction").item(0); //$NON-NLS-1$
 		if (fNode != null)
 			{

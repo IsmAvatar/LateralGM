@@ -201,7 +201,6 @@ public class ResNode extends DefaultNode implements Transferable,UpdateListener
 		return this;
 		}
 
-	@Override
 	public void openFrame()
 		{
 		openFrame(false);

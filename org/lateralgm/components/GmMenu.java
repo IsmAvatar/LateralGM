@@ -33,7 +33,7 @@ public class GmMenu extends JMenu
 
 	public GmMenu()
 		{
-		// TODO Auto-generated constructor stub
+		super();
 		}
 
 	public JMenuItem addItem(String key)
