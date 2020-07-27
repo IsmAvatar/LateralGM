@@ -117,7 +117,6 @@ import org.lateralgm.resources.Constants;
 import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Resource;
-import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.library.LibManager;
 import org.lateralgm.subframes.ConfigurationManager;
 import org.lateralgm.subframes.ConstantsFrame;
@@ -133,7 +132,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.177"; //$NON-NLS-1$
+	public static final String version = "1.8.178"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -1247,68 +1246,36 @@ public final class LGM
 			tabs.setSelectedIndex(index);
 		}
 
-	/*
-	 * TODO: This checks for changes by iterating the tree, but there is one small caveat
-	 * because of the todo comment above this will not work because the top level nodes
-	 * for non-instantiable resources also have a null reference. The solution for now
-	 * to also make ENIGMA settings work was to iterate the resmap instead.
-	 */
-	public static boolean checkForChangesInTree(DefaultMutableTreeNode node) {
-		Enumeration<?> e = node.children();
-		while (e.hasMoreElements()){
-			ResNode rnode = (ResNode) e.nextElement();
-			if (rnode.status != ResNode.STATUS_SECONDARY) {
-				if (checkForChangesInTree(rnode))
-					return true;
-			}
-			if (rnode.newRes) {
-				return true;
-			}
-			ResourceReference<?> ref = rnode.getRes();
-			if (ref != null) {
-				Resource<?,?> res = ref.get();
-				if (res != null && res.changed) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	public static boolean checkForChanges() {
-		for (JInternalFrame f : mdi.getAllFrames())
+	public static boolean checkForChanges()
 		{
-			if (f instanceof ResourceFrame) {
-				if (((ResourceFrame<?,?>) f).resourceChanged() && f.isVisible()) {
+		for (JInternalFrame f : mdi.getAllFrames())
+			if (f instanceof ResourceFrame && f.isVisible())
+				if (((ResourceFrame<?,?>) f).resourceChanged())
 					return true;
-				}
-			}
-		}
-
-		//TODO: See comment above.
-		//return checkForChangesInTree(LGM.root);
 
 		Iterator<?> it = currentFile.resMap.entrySet().iterator();
-		while (it.hasNext()) {
+		while (it.hasNext())
+			{
 			Entry<?,?> pairs = (Map.Entry<?,?>)it.next();
-			if (pairs.getValue() instanceof ResourceList) {
+			if (pairs.getValue() instanceof ResourceList)
+				{
 				ResourceList<?> list = (ResourceList<?>) pairs.getValue();
-				for (Resource<?,?> res : list) {
+				for (Resource<?,?> res : list)
 					if (res.changed)
 						return true;
 				}
-			} else if (pairs.getValue() instanceof SingletonResourceHolder) {
+			else if (pairs.getValue() instanceof SingletonResourceHolder)
+				{
 				SingletonResourceHolder<?> rh = (SingletonResourceHolder<?>) pairs.getValue();
 				Resource<?,?> res = rh.getResource();
-				if (res.changed) {
+				if (res.changed)
 					return true;
 				}
 			}
-		}
 		return false;
-	}
+		}
 
-	/*
+	/**
 	 * When the user saves, reset all the resources to their unsaved state. We do not check the frames
 	 * because they commit their changes allowing them to be written, while still allowing the user to
 	 * revert the frame if they so choose.
@@ -1317,22 +1284,26 @@ public final class LGM
 	 * they revert the changes to the frame they will exit right out. This is the expected behavior of
 	 * these functions.
 	 */
-	public static void resetChanges() {
+	public static void resetChanges()
+		{
 		Iterator<?> it = currentFile.resMap.entrySet().iterator();
-		while (it.hasNext()) {
+		while (it.hasNext())
+			{
 			Entry<?,?> pairs = (Map.Entry<?,?>)it.next();
-			if (pairs.getValue() instanceof ResourceList) {
+			if (pairs.getValue() instanceof ResourceList)
+				{
 				ResourceList<?> list = (ResourceList<?>) pairs.getValue();
-				for (Resource<?,?> res : list) {
+				for (Resource<?,?> res : list)
 					res.changed = false;
 				}
-			} else if (pairs.getValue() instanceof SingletonResourceHolder) {
+			else if (pairs.getValue() instanceof SingletonResourceHolder)
+				{
 				SingletonResourceHolder<?> rh = (SingletonResourceHolder<?>) pairs.getValue();
 				Resource<?,?> res = rh.getResource();
 				res.changed = false;
+				}
 			}
 		}
-	}
 
 	public static void onMainFrameClosed()
 		{
