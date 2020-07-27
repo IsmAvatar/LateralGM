@@ -1260,12 +1260,10 @@ public final class GmFileReader
 				type = Include.class;
 			int ind = in.read4();
 			String name = in.readStr();
-			boolean hasRef;
+			boolean hasRef = false;
 			if (status == ResNode.STATUS_SECONDARY)
 				hasRef = type == Font.class ? ver != 500 : (type == null ? false
 						: InstantiableResource.class.isAssignableFrom(type));
-			else
-				hasRef = false;
 			ResourceList<?> rl = hasRef ? (ResourceList<?>) f.resMap.get(type) : null;
 			ResNode node = new ResNode(name,status,type,hasRef ? rl.getUnsafe(ind).reference : null);
 			if (ver == 500 && type == Include.class)
@@ -1276,15 +1274,15 @@ public final class GmFileReader
 
 				// GameMaker 5 did not have a dedicated primary fonts group, let's add one.
 				if (status == ResNode.STATUS_PRIMARY)
-					path.peek().addChild(ProjectFile.interfaceProvider.translate("LGM.FNT"),
-							status,Font.class); //$NON-NLS-1$
+					path.peek().addChild(ProjectFile.interfaceProvider.translate("LGM.FNT"), //$NON-NLS-1$
+							status,Font.class);
 				}
 
 			path.peek().add(node);
 			int contents = in.read4();
 			if (contents > 0)
 				{
-				left.push(new Integer(rootnodes));
+				left.push(Integer.valueOf(rootnodes));
 				rootnodes = contents;
 				path.push(node);
 				}
