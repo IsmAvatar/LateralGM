@@ -132,7 +132,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.178"; //$NON-NLS-1$
+	public static final String version = "1.8.179"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -1248,6 +1248,10 @@ public final class LGM
 
 	public static boolean checkForChanges()
 		{
+		//TODO: Detect tree model changes, e.g, sort by name.
+		//GM8.1 did this as well, perhaps use listener on the
+		//model when reload is handled.
+
 		for (JInternalFrame f : mdi.getAllFrames())
 			if (f instanceof ResourceFrame && f.isVisible())
 				if (((ResourceFrame<?,?>) f).resourceChanged())

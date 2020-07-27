@@ -876,7 +876,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		oList.setSelectedIndex(0);
 		oList.addListSelectionListener(this);
 		oList.addMouseListener(mouseListenerForInstances);
-		//TODO: Finish
+		//TODO: Add instance creation ordering.
 		//oList.setDragEnabled(true);
 		//oList.setDropMode(DropMode.ON_OR_INSERT);
 		//oList.setTransferHandler(new ObjectListTransferHandler(res.instances));

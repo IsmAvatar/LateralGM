@@ -159,19 +159,18 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		// This is why I am changing the behavior of this function, another possible solution
 		// is to add a selection change listener to the tree to ensure that it is never negative.
 		// - Robert B. Colton
-		if (parent != null)
+		if (parent == null)
 			{
-			putNode(tree,parent,parent,r,parent.getChildCount(),res);
-			return;
+			for (ResNode rn : LGM.root.getChildren())
+				if (rn.status == ResNode.STATUS_PRIMARY && r == rn.kind)
+					{
+					parent = rn;
+					break;
+					}
+			if (parent == null) return;
 			}
-		for (ResNode rn : LGM.root.getChildren())
-			{
-			if (rn.status == ResNode.STATUS_PRIMARY && r == rn.kind)
-				{
-				putNode(tree,rn,rn,r,rn.getChildCount(),res);
-				return;
-				}
-			}
+
+		putNode(tree,parent,parent,r,parent.getChildCount(),res);
 		}
 
 	public static void insertResource(JTree tree, Class<?> r)
@@ -499,7 +498,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			fc.save(LGM.currentFile.uri,LGM.currentFile.format);
 			return;
 			}
-		else if (com.endsWith(".EXPLORELATERALGM"))
+		else if (com.endsWith(".EXPLORELATERALGM")) //$NON-NLS-1$
 			{
 			String userDir = System.getProperty("user.dir");
 			if (userDir == null)
@@ -516,7 +515,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				LGM.showDefaultExceptionHandler(e1);
 				}
 			}
-		else if (com.endsWith(".EXPLOREPROJECT"))
+		else if (com.endsWith(".EXPLOREPROJECT")) //$NON-NLS-1$
 			{
 			String userDir = LGM.currentFile.getDirectory();
 			if (userDir == null)
@@ -684,11 +683,11 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			if (node.status == ResNode.STATUS_SECONDARY) node.openFrame();
 			return;
 			}
-		else if (com.endsWith(".FIND"))
+		else if (com.endsWith(".FIND")) //$NON-NLS-1$
 			{
 			String name = JOptionPane.showInputDialog(LGM.frame,
-				Messages.getString("FindResourceDialog.MESSAGE"),
-				Messages.getString("FindResourceDialog.TITLE"),
+				Messages.getString("FindResourceDialog.MESSAGE"), //$NON-NLS-1$
+				Messages.getString("FindResourceDialog.TITLE"), //$NON-NLS-1$
 				JOptionPane.PLAIN_MESSAGE);
 			if (name != null)
 				{
