@@ -15,12 +15,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.DataBufferDouble;
-import java.awt.image.DataBufferFloat;
-import java.awt.image.DataBufferInt;
-import java.awt.image.DataBufferShort;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
@@ -293,52 +287,12 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 			{
 			}
 
-		/** Returns the byte length of a DataBuffer **/
-		//TODO: This function reports astronomical values for some reason.
-		public long getDataBytes(DataBuffer buffer)
-			{
-			int dataType = buffer.getDataType();
-			long length = 0;
-			short bytes = 0;
-			switch (dataType)
-				{
-				case DataBuffer.TYPE_BYTE:
-					length = ((DataBufferByte) buffer).getData().length;
-					bytes = 1;
-					break;
-				case DataBuffer.TYPE_USHORT:
-					length = ((DataBufferShort) buffer).getData().length;
-					bytes = 2;
-					break;
-				case DataBuffer.TYPE_INT:
-					length = ((DataBufferInt) buffer).getData().length;
-					bytes = 4;
-					break;
-				case DataBuffer.TYPE_FLOAT:
-					length = ((DataBufferFloat) buffer).getData().length;
-					bytes = 4;
-					break;
-				case DataBuffer.TYPE_DOUBLE:
-					length = ((DataBufferDouble) buffer).getData().length;
-					bytes = 8;
-					break;
-				default:
-					throw new IllegalArgumentException("Unknown data buffer type: " + dataType);
-				}
-			//JOptionPane.showMessageDialog(null,bytes);
-			return length * bytes;
-			}
-
 		/** Returns the size of the image list in bytes */
 		public long getSize()
 			{
 			long count = 0;
-
 			for (int i = 0; i < this.size(); i++)
-				{
-				count += this.getSize(i);//getDataBytes(this.get(i).getData().getDataBuffer());
-				}
-
+				count += this.getSize(i);
 			return count;
 			}
 
@@ -346,10 +300,6 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 		public long getSize(int index)
 			{
 			return this.get(index).getWidth() * this.get(index).getHeight() * 4;
-			//if (this.size() > index) {
-			//return getDataBytes(this.get(index).getRaster().getDataBuffer());
-			//}
-			//return 0;
 			}
 
 		public int getWidth()

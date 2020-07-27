@@ -11,12 +11,6 @@
 package org.lateralgm.resources;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.DataBufferDouble;
-import java.awt.image.DataBufferFloat;
-import java.awt.image.DataBufferInt;
-import java.awt.image.DataBufferShort;
 import java.lang.ref.SoftReference;
 import java.util.EnumMap;
 
@@ -100,40 +94,11 @@ public class Background extends InstantiableResource<Background,Background.PBack
 		fireUpdate();
 		}
 
-	/** Returns the byte length of a DataBuffer **/
-	//TODO: This function reports astronomical values for some reason.
-	public long getDataBytes(DataBuffer data)
-		{
-		int dataType = data.getDataType();
-		switch (dataType)
-			{
-			case DataBuffer.TYPE_BYTE:
-				byte[] bytes = ((DataBufferByte) data).getData();
-				return bytes.length;
-			case DataBuffer.TYPE_USHORT:
-				short[] shorts = ((DataBufferShort) data).getData();
-				return shorts.length * 2;
-			case DataBuffer.TYPE_INT:
-				int[] ints = ((DataBufferInt) data).getData();
-				return ints.length * 4;
-			case DataBuffer.TYPE_FLOAT:
-				float[] floats = ((DataBufferFloat) data).getData();
-				return floats.length * 4;
-			case DataBuffer.TYPE_DOUBLE:
-				double[] doubles = ((DataBufferDouble) data).getData();
-				return doubles.length * 8;
-			default:
-				throw new IllegalArgumentException("Unknown data buffer type: " + dataType);
-			}
-		}
-
 	/** Returns the size of the background image in bytes */
 	public long getSize()
 		{
 		if (backgroundImage != null)
-			{
-			return this.getWidth() * this.getHeight() * 4;//getDataBytes(backgroundImage.getRaster().getDataBuffer());
-			}
+			return this.getWidth() * this.getHeight() * 4;
 		return 0;
 		}
 
