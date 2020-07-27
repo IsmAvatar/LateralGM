@@ -14,9 +14,7 @@ package org.lateralgm.components.visual;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.Shape;
 import java.awt.image.BufferedImage;
 
 import org.lateralgm.main.Util;
@@ -34,10 +32,6 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 	private final Background background;
 	private final BackgroundPropertyListener bpl = new BackgroundPropertyListener();
 
-	private BufferedImage transparentBackground = null;
-
-	private Object transparentImage;
-
 	public BackgroundPreview(Background b)
 		{
 		super();
@@ -46,105 +40,56 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 		b.reference.updateSource.addListener(this);
 		}
 
-	protected BufferedImage getTransparentImage()
-		{
-		if (background == null) return null;
-		if (!(Boolean) background.get(PBackground.TRANSPARENT)) return background.getBackgroundImage();
-		return Util.getTransparentImage(background.getBackgroundImage());
-		}
-
 	public void paintComponent(Graphics g)
 		{
-		//super.paintComponent(g);
-		g.setColor(this.getBackground());
-		g.fillRect(0,0,this.getWidth(),this.getHeight());
+		super.paintComponent(g);
 
-		BufferedImage image = getImage();
+		if (getImage() == null) return; // << super paint already sized to 0x0
+		if (!(Boolean)background.get(PBackground.USE_AS_TILESET)) return;
+		int twidth = background.get(PBackground.TILE_WIDTH);
+		int theight = background.get(PBackground.TILE_HEIGHT);
+		if (twidth <= 2 || theight <= 2) return;
+		g = g.create(); // << clone for safety
+		reclipAndTranslate(g); // << intersection clip & center
 
-		if ((Boolean) background.get(PBackground.TRANSPARENT))
-			{
-			if (transparentImage == null)
-				{
-				image = getTransparentImage();
-				}
-			}
-		else
-			{
-			image = getImage();
-			transparentImage = null;
-			}
+		int hoffset = background.get(PBackground.H_OFFSET);
+		int voffset = background.get(PBackground.V_OFFSET);
+		int hsep = background.get(PBackground.H_SEP);
+		int vsep = background.get(PBackground.V_SEP);
 
-		if (image == null)
-			{
-			setPreferredSize(new Dimension(0,0));
-			return;
-			}
+		twidth *= zoom;
+		theight *= zoom;
+		hoffset *= zoom;
+		voffset *= zoom;
+		hsep *= zoom;
+		vsep *= zoom;
 
 		Dimension prefSize = getPreferredSize();
+		Rectangle r = g.getClipBounds().intersection(
+				new Rectangle(hoffset,voffset,prefSize.width - hoffset,prefSize.height - voffset));
 
-		Graphics2D g2d = (Graphics2D) g;
-		g2d.translate(this.getWidth() / 2 - prefSize.width / 2,this.getHeight() / 2 - prefSize.height / 2);
+		int newx = ((r.x - hoffset) / (twidth + hsep)) * (twidth + hsep) + hoffset;
+		r.width += r.x - newx;
+		r.x = newx;
 
-		Shape oldClip = g.getClip();
-		g.clipRect(0,0,prefSize.width,prefSize.height);
+		int newy = ((r.y - voffset) / (theight + vsep)) * (theight + vsep) + voffset;
+		r.height += r.y - newy;
+		r.y = newy;
 
-		int width = (int)Math.ceil(prefSize.getWidth() / 10f);
-		int height = (int)Math.ceil(prefSize.getHeight() / 10f);
-		width = width < 1 ? 1 : width;
-		height = height < 1 ? 1 : height;
-		if (transparentBackground == null || width != transparentBackground.getWidth() ||
-			height != transparentBackground.getHeight())
-			transparentBackground = Util.paintBackground(width, height);
+		g.setXORMode(Color.BLACK);
+		g.setColor(Color.WHITE);
+		for (int i = r.x; i < r.x + r.width; i += twidth + hsep)
+			for (int j = r.y; j < r.y + r.height; j += theight + vsep)
+				g.drawRect(i,j,twidth - 1,theight - 1);
 
-		g.drawImage(transparentBackground, 0, 0, transparentBackground.getWidth() * 10,
-			transparentBackground.getHeight() * 10, null);
-
-		g.drawImage(image,0,0,prefSize.width,prefSize.height,null);
-
-		if (background.get(PBackground.USE_AS_TILESET))
-			{
-			int twidth = background.get(PBackground.TILE_WIDTH);
-			int theight = background.get(PBackground.TILE_HEIGHT);
-			if (twidth > 2 && theight > 2)
-				{
-				int hoffset = background.get(PBackground.H_OFFSET);
-				int voffset = background.get(PBackground.V_OFFSET);
-				int hsep = background.get(PBackground.H_SEP);
-				int vsep = background.get(PBackground.V_SEP);
-
-				twidth *= zoom;
-				theight *= zoom;
-				hoffset *= zoom;
-				voffset *= zoom;
-				hsep *= zoom;
-				vsep *= zoom;
-
-				Rectangle r = g.getClipBounds().intersection(
-						new Rectangle(hoffset,voffset,prefSize.width - hoffset,prefSize.height - voffset));
-
-				int newx = ((r.x - hoffset) / (twidth + hsep)) * (twidth + hsep) + hoffset;
-				r.width += r.x - newx;
-				r.x = newx;
-
-				int newy = ((r.y - voffset) / (theight + vsep)) * (theight + vsep) + voffset;
-				r.height += r.y - newy;
-				r.y = newy;
-
-				g.setXORMode(Color.BLACK);
-				g.setColor(Color.WHITE);
-				for (int i = r.x; i < r.x + r.width; i += twidth + hsep)
-					for (int j = r.y; j < r.y + r.height; j += theight + vsep)
-						g.drawRect(i,j,twidth - 1,theight - 1);
-				g.setPaintMode(); //just in case
-				}
-			}
-
-		g.setClip(oldClip); // restore the old clip
+		g.dispose(); // cleanup
 		}
 
 	protected BufferedImage getImage()
 		{
-		return background == null ? null : background.getBackgroundImage();
+		if (background == null) return null;
+		if (!(Boolean) background.get(PBackground.TRANSPARENT)) return background.getBackgroundImage();
+		return Util.getTransparentImage(background.getBackgroundImage());
 		}
 
 	public void updated(UpdateEvent e)
