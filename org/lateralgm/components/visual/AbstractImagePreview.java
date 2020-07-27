@@ -92,7 +92,7 @@ public abstract class AbstractImagePreview extends JLabel
 
 		int newX = (int) (point.x * 2) - size.width / 2;
 		int newY = (int) (point.y * 2) - size.height / 2;
-		setLocation(new Point(-newX,-newY));
+		scroll.getViewport().setViewPosition(new Point(newX,newY));
 		}
 
 	/** Zoom out, centering around a specific point, usually the mouse. */
@@ -105,7 +105,7 @@ public abstract class AbstractImagePreview extends JLabel
 
 		int newX = (int) (point.x / 2) - size.width / 2;
 		int newY = (int) (point.y / 2) - size.height / 2;
-		setLocation(new Point(-newX,-newY));
+		scroll.getViewport().setViewPosition(new Point(newX,newY));
 		}
 
 	public void zoomIn(JScrollPane scroll)
