@@ -578,7 +578,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 				g.setColor(list.getSelectionBackground());
 				g.drawRect(0,0,this.getWidth() - 1,this.getHeight() - 1);
 				}
-			g.dispose();
 			}
 		}
 
