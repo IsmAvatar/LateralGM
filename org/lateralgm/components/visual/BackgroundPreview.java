@@ -48,7 +48,9 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 		if (!(Boolean)background.get(PBackground.USE_AS_TILESET)) return;
 		int twidth = background.get(PBackground.TILE_WIDTH);
 		int theight = background.get(PBackground.TILE_HEIGHT);
-		if (twidth <= 2 || theight <= 2) return;
+		twidth *= zoom;
+		theight *= zoom;
+		if (twidth <= 2 || theight <= 2) return; // no division by zero!
 		g = g.create(); // << clone for safety
 		reclipAndTranslate(g); // << intersection clip & center
 
@@ -57,8 +59,6 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 		int hsep = background.get(PBackground.H_SEP);
 		int vsep = background.get(PBackground.V_SEP);
 
-		twidth *= zoom;
-		theight *= zoom;
 		hoffset *= zoom;
 		voffset *= zoom;
 		hsep *= zoom;
