@@ -54,6 +54,7 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		{
 		room = r.reference;
 		properties = new PropertyMap<PInstance>(PInstance.class,this,DEFS);
+		properties.put(PInstance.NAME, "inst_" + String.format("%08X", new Random().nextInt()));
 		properties.getUpdateSource(PInstance.OBJECT).addListener(ipl);
 		properties.getUpdateSource(PInstance.NAME).addListener(ipl);
 		properties.getUpdateSource(PInstance.SELECTED).addListener(ipl);
@@ -62,7 +63,6 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		properties.getUpdateSource(PInstance.ROTATION).addListener(ipl);
 		properties.getUpdateSource(PInstance.COLOR).addListener(ipl);
 		properties.getUpdateSource(PInstance.ALPHA).addListener(ipl);
-		properties.put(PInstance.NAME, "inst_" + String.format("%08X", new Random().nextInt()));
 		}
 
 	protected void fireUpdate(UpdateEvent e)
