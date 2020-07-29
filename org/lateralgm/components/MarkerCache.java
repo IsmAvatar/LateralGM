@@ -47,7 +47,7 @@ public final class MarkerCache
 	 * Get one of the cached markers or cache it if it doesn't exist.
 	 *
 	 * @param language
-	 *            One of available token markers, eg. "glsles", "glsl", "gml", "hlsl"
+	 *            One of available token markers, eg. "glsles", "glsl", "gml", "hlsl9", "hlsl11"
 	 **/
 	public static DefaultTokenMarker getMarker(String language)
 		{
@@ -59,7 +59,8 @@ public final class MarkerCache
 				{
 				case "glsles": marker = new GLESTokenMarker(); break;
 				case "glsl": marker = new GLSLTokenMarker(); break;
-				case "hlsl": marker = new HLSLTokenMarker(); break;
+				case "hlsl9": marker = new HLSLTokenMarker(); break;
+				case "hlsl11": marker = new HLSLTokenMarker(); break;
 				case "gml": marker = new GMLTokenMarker(); break;
 				}
 			markers.put(language,marker);
