@@ -34,10 +34,14 @@ public abstract class PropertyLink<K extends Enum<K>, V> extends PropertyUpdateL
 
 	public void setMap(PropertyMap<K> m)
 		{
-		this.remove();
-		map = m;
+		// does not call this.remove() because some subclasses
+		// override it and remove the action listener and etc
+		// which we do not want when only swapping maps
+		map.getUpdateSource(key).removeListener(this);
+		map = m; // << change the map now
+		reset(); // << synchronize component to map value
+		// finally, start listening for map changes again
 		map.getUpdateSource(key).addListener(this);
-		reset();
 		}
 
 	protected abstract void setComponent(V v);
