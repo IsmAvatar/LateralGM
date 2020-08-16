@@ -21,8 +21,6 @@
 
 package org.lateralgm.subframes;
 
-import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.ExceptionListener;
@@ -30,8 +28,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.JButton;
-import javax.swing.JLabel;
-
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.mdi.RevertableMDIFrame;
 import org.lateralgm.main.LGM;
@@ -222,13 +218,6 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		}
 
 	public abstract void commitChanges();
-
-	public static void addGap(Container c, int w, int h)
-		{
-		JLabel l = new JLabel();
-		l.setPreferredSize(new Dimension(w,h));
-		c.add(l);
-		}
 
 	public void doDefaultSaveAction() {
 		if (resourceChanged()) {
