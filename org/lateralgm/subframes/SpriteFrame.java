@@ -1370,8 +1370,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			if (timer != null)
 				{
 				play.setIcon(PLAY_ICON);
-				timer.stop();
-				timer = null; //used to indicate that this is not animating, and frees memory
+				stopAnimation();
 				updateImageControls();
 				}
 			else if (res.subImages.size() > 1)
@@ -1450,6 +1449,13 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		BufferedImage[] img = d.getStrip();
 		if (img == null) return; //cancelled/closed
 		addSubimages(img,clear);
+		}
+
+	private void stopAnimation()
+		{
+		if (timer == null) return;
+		timer.stop();
+		timer = null; //used to indicate that this is not animating, and frees memory
 		}
 
 	private void updateImageControls()
@@ -1660,6 +1666,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	public void dispose()
 		{
 		super.dispose();
+		stopAnimation();
 		cleanup();
 		}
 
