@@ -45,6 +45,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -1666,8 +1667,15 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	protected void cleanup()
 		{
 		if (editors != null)
-			for (ImageEditor ie : editors.values())
-				ie.stop();
+			// because stopping an editor removes it from the collection we must iterate
+			// here in a way that prevents concurrent modification exceptions by first 
+			// removing the editor through the iterator so that stop's remove is a noop
+			for (final Iterator<ImageEditor> it = editors.values().iterator(); it.hasNext();)
+				{
+				ImageEditor ie = it.next(); // << grab it first
+				it.remove(); // << remove it the safe way before stop does
+				ie.stop(); // << safe from concurrent modification now
+				}
 		}
 
 	public void lostOwnership(Clipboard arg0, Transferable arg1)
