@@ -247,7 +247,7 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		if (node != null) node.frame = null; // allows a new frame to open
 		save.removeActionListener(this);
 		removeAll();
-		plf.removeAllLinks();
+		PropertyLinkFactory.removeAllLinks(this);
 		}
 
 	@Override

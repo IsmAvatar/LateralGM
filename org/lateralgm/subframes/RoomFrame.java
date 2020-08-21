@@ -1903,7 +1903,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		{
 		super(res,node);
 		editor = new RoomEditor(res,this);
-		prelf = new PropertyLinkFactory<PRoomEditor>(editor.properties,null);
+		prelf = new PropertyLinkFactory<PRoomEditor>(editor.properties,this);
 
 		GroupLayout layout = new GroupLayout(getContentPane())
 			{

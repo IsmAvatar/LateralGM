@@ -322,7 +322,7 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 					if (pp != null)
 						{
 						PropertyLinkFactory<PPathPoint> ppplf = new PropertyLinkFactory<PPathPoint>(
-								pp.properties,null);
+								pp.properties,PathFrame.this);
 						ltx = ppplf.make(tx,PPathPoint.X);
 						lty = ppplf.make(ty,PPathPoint.Y);
 						ltsp = ppplf.make(tsp,PPathPoint.SPEED);
