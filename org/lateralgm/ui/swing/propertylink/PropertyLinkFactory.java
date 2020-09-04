@@ -12,9 +12,6 @@ package org.lateralgm.ui.swing.propertylink;
 import java.beans.ExceptionListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
-
 import javax.swing.AbstractButton;
 import javax.swing.BoundedRangeModel;
 import javax.swing.ButtonGroup;
@@ -39,23 +36,11 @@ public class PropertyLinkFactory<K extends Enum<K>>
 	/* Necessary for mass disposing links created by the factory */
 	private List<PropertyLink<K,?>> mapLinks = new ArrayList<PropertyLink<K,?>>();
 
-	/* Necessary for mass disposing factories belonging to an owner. */
-	private static final Map<Object,List<PropertyLinkFactory<?>>> owned = new WeakHashMap<>();
-
 	public void removeAllLinks()
 		{
 		for (PropertyLink<K,?> link : mapLinks)
 			link.remove();
 		mapLinks.clear();
-		}
-
-	public static void removeAllLinks(Object owner)
-		{
-		// get the list of factories belonging to the owner
-		List<PropertyLinkFactory<?>> factories = owned.get(owner);
-		// remove all the property links created by the owner's factories
-		for (PropertyLinkFactory<?> factory : factories)
-			factory.removeAllLinks();
 		}
 
 	public void setMap(PropertyMap<K> m)
@@ -65,17 +50,10 @@ public class PropertyLinkFactory<K extends Enum<K>>
 			link.setMap(map);
 		}
 
-	public PropertyLinkFactory(PropertyMap<K> m, ExceptionListener owner)
+	public PropertyLinkFactory(PropertyMap<K> m, ExceptionListener el)
 		{
 		map = m;
-		exceptionListener = owner;
-		// get a list of this owner's factories or create a new one
-		List<PropertyLinkFactory<?>> factories = owned.get(owner);
-		if (factories == null) factories = new ArrayList<>();
-		// add this factory to its owner's factory list
-		factories.add(this);
-		// associate the owner to its created factories
-		owned.put(owner,factories);
+		exceptionListener = el;
 		}
 
 	public <L extends PropertyLink<K,?>>L init(L l)

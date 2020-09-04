@@ -1903,7 +1903,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		{
 		super(res,node);
 		editor = new RoomEditor(res,this);
-		prelf = new PropertyLinkFactory<PRoomEditor>(editor.properties,this);
+		prelf = new PropertyLinkFactory<PRoomEditor>(editor.properties,null);
+		this.addSecondaryPropertyLinkFactory(prelf);
 
 		GroupLayout layout = new GroupLayout(getContentPane())
 			{
@@ -2737,6 +2738,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			{
 			PropertyLinkFactory<PInstance> iplf = new PropertyLinkFactory<PInstance>(
 					selectedInstance.properties,this);
+			this.addSecondaryPropertyLinkFactory(iplf);
 			loLocked = iplf.make(oLocked,PInstance.LOCKED);
 			loSource = iplf.make(oSource,PInstance.OBJECT);
 			loName = iplf.make(objectName.getDocument(), PInstance.NAME);
@@ -2771,6 +2773,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		if (selectedTile != null)
 			{
 			PropertyLinkFactory<PTile> tplf = new PropertyLinkFactory<PTile>(selectedTile.properties,this);
+			this.addSecondaryPropertyLinkFactory(tplf);
 			ltDepth = tplf.make(teDepth,PTile.DEPTH);
 			ltLocked = tplf.make(tLocked,PTile.LOCKED);
 			ltSource = tplf.make(teSource,PTile.BACKGROUND);
@@ -2796,6 +2799,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		BackgroundDef b = res.backgroundDefs.get(i);
 		PropertyLinkFactory<PBackgroundDef> bdplf = new PropertyLinkFactory<PBackgroundDef>(
 				b.properties,this);
+		this.addSecondaryPropertyLinkFactory(bdplf);
 		lbVisible = bdplf.make(bVisible,PBackgroundDef.VISIBLE);
 		lbForeground = bdplf.make(bForeground,PBackgroundDef.FOREGROUND);
 		lbSource = bdplf.make(bSource,PBackgroundDef.BACKGROUND);
@@ -2822,6 +2826,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				lvOHSp,lvOVSp);
 		View view = res.views.get(i);
 		PropertyLinkFactory<PView> vplf = new PropertyLinkFactory<PView>(view.properties,this);
+		this.addSecondaryPropertyLinkFactory(vplf);
 		lvVisible = vplf.make(vVisible,PView.VISIBLE);
 		lvRX = vplf.make(vRX,PView.VIEW_X);
 		lvRY = vplf.make(vRY,PView.VIEW_Y);

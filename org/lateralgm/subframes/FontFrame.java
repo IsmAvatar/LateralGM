@@ -596,6 +596,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 			{
 			PropertyLinkFactory<PCharacterRange> rplf = new PropertyLinkFactory<PCharacterRange>(
 					cr.properties,this);
+			this.addSecondaryPropertyLinkFactory(rplf);
 			minLink = rplf.make(charMin,PCharacterRange.RANGE_MIN);
 			maxLink = rplf.make(charMax,PCharacterRange.RANGE_MAX);
 			}
