@@ -72,7 +72,7 @@ public class ActiveArrayList<E> extends ArrayList<E>
 		{
 		int s = size();
 		super.clear();
-		trigger.fire(new ListUpdateEvent(updateSource,Type.REMOVED,0,s - 1));
+		if (s > 0) trigger.fire(new ListUpdateEvent(updateSource,Type.REMOVED,0,s - 1));
 		}
 
 	@Override
