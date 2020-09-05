@@ -111,7 +111,6 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 
 	public class SettingsFrame extends JDialog
 		{
-
 		/**
 		 * NOTE: Default UID generated, change if necessary.
 		 */
@@ -125,10 +124,10 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			setTitle(Messages.getString("GameInformationFrame.SETTINGS")); //$NON-NLS-1$
 			setIconImage(LGM.getIconForKey("GameInformationFrame.SETTINGS").getImage()); //$NON-NLS-1$
 			this.add(makeSettings());
+			this.getRootPane().setDefaultButton(sCloseButton);
 			pack();
 			setResizable(false);
 			}
-
 		}
 
 	private JMenuBar makeMenuBar()
@@ -357,6 +356,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 	public JCheckBox sAlwaysOnTop;
 	public JCheckBox sPauseGame;
 	public JCheckBox sEmbed;
+	public JButton sCloseButton;
 
 	private JPanel makeSettings()
 		{
@@ -430,10 +430,9 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		/*				*/.addComponent(lHeight)
 		/*				*/.addComponent(sHeight,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)));
 
-		JButton closeButton = new JButton(Messages.getString("GameInformationFrame.CLOSE")); //$NON-NLS-1$
-		closeButton.setActionCommand("GameInformationFrame.CLOSE"); //$NON-NLS-1$
-		closeButton.addActionListener(this);
-		this.getRootPane().setDefaultButton(closeButton);
+		sCloseButton = new JButton(Messages.getString("GameInformationFrame.CLOSE")); //$NON-NLS-1$
+		sCloseButton.setActionCommand("GameInformationFrame.CLOSE"); //$NON-NLS-1$
+		sCloseButton.addActionListener(this);
 
 		gl.setHorizontalGroup(gl.createParallelGroup()
 		/**/.addGroup(gl.createSequentialGroup()
@@ -445,7 +444,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		/**/.addComponent(sAlwaysOnTop)
 		/**/.addComponent(sPauseGame)
 		/**/.addComponent(sEmbed)
-		/**/.addComponent(closeButton,Alignment.CENTER));
+		/**/.addComponent(sCloseButton,Alignment.CENTER));
 
 		gl.setVerticalGroup(gl.createSequentialGroup()
 		/**/.addGroup(gl.createParallelGroup()
@@ -457,7 +456,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		/**/.addComponent(sAlwaysOnTop)
 		/**/.addComponent(sPauseGame)
 		/**/.addComponent(sEmbed)
-		/**/.addComponent(closeButton));
+		/**/.addComponent(sCloseButton));
 
 		return p;
 		}
