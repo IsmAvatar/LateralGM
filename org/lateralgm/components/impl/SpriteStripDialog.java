@@ -111,6 +111,7 @@ public class SpriteStripDialog extends JDialog implements Iterable<Rectangle>,Ac
 		JButton ok = new JButton(Messages.getString(str));
 		ok.setActionCommand(str);
 		ok.addActionListener(this);
+		this.getRootPane().setDefaultButton(ok);
 		str = "SpriteStripDialog.CANCEL";
 		JButton cancel = new JButton(Messages.getString(str));
 		cancel.setActionCommand(str);

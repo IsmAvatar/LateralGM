@@ -322,6 +322,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 		s = Messages.getString("ActionFrame.SAVE"); //$NON-NLS-1$
 		save = new JButton(s,LGM.getIconForKey("ActionFrame.SAVE")); //$NON-NLS-1$
 		save.addActionListener(this);
+		this.getRootPane().setDefaultButton(save);
 		pane.add(save);
 		s = Messages.getString("ActionFrame.DISCARD"); //$NON-NLS-1$
 		discard = new JButton(s,LGM.getIconForKey("ActionFrame.DISCARD")); //$NON-NLS-1$

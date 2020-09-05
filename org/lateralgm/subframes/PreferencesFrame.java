@@ -206,6 +206,7 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		JButton closeBut = new JButton(Messages.getString(key));
 		closeBut.addActionListener(this);
 		closeBut.setActionCommand(key);
+		this.getRootPane().setDefaultButton(closeBut);
 
 		applyChangesLabel = new JLabel(Messages.getString(
 			"PreferencesFrame.APPLY_NOTICE")); //$NON-NLS-1$

@@ -268,6 +268,7 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 					d.setVisible(false);
 					}
 			});
+		d.getRootPane().setDefaultButton(b);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()

@@ -433,6 +433,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		JButton closeButton = new JButton(Messages.getString("GameInformationFrame.CLOSE")); //$NON-NLS-1$
 		closeButton.setActionCommand("GameInformationFrame.CLOSE"); //$NON-NLS-1$
 		closeButton.addActionListener(this);
+		this.getRootPane().setDefaultButton(closeButton);
 
 		gl.setHorizontalGroup(gl.createParallelGroup()
 		/**/.addGroup(gl.createSequentialGroup()

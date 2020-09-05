@@ -36,7 +36,6 @@ import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.GroupLayout;
@@ -65,8 +64,8 @@ public class EffectsFrame extends JFrame implements ActionListener, EffectOption
 	private static ImageEffect[] effects = null;
 	private JComboBox<ImageEffect> effectsCombo = null;
 	private List<BufferedImage> images = null;
-	private AbstractButton applyButton;
-	private AbstractButton closeButton;
+	private JButton applyButton;
+	private JButton closeButton;
 
 	private EffectsFrameListener listener = null;
 	private ImageEffectPreview beforePreview;
@@ -240,6 +239,7 @@ public class EffectsFrame extends JFrame implements ActionListener, EffectOption
 		applyButton.addActionListener(this);
 		closeButton = new JButton(Messages.getString("EffectsFrame.CLOSE")); //$NON-NLS-1$
 		closeButton.addActionListener(this);
+		this.getRootPane().setDefaultButton(closeButton);
 
 		GroupLayout gl = new GroupLayout(this.getContentPane());
 		gl.setAutoCreateContainerGaps(true);

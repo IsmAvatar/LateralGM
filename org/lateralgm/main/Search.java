@@ -1263,6 +1263,7 @@ public class Search
 				filterSettings.setVisible(false);
 				}
 			});
+		filterSettings.getRootPane().setDefaultButton(closeButton);
 
 		JPanel panel = new JPanel();
 		GroupLayout gl = new GroupLayout(panel);

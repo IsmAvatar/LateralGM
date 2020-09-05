@@ -779,6 +779,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 		String t = Messages.getString("GameSettingFrame.BUTTON_SAVE"); //$NON-NLS-1$
 		save.setText(t);
+		getRootPane().setDefaultButton(save);
 		t = Messages.getString("GameSettingFrame.BUTTON_DISCARD"); //$NON-NLS-1$
 		discardButton = new JButton(t);
 		discardButton.addActionListener(this);
