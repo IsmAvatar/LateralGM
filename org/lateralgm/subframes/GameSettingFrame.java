@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
@@ -830,18 +831,23 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 				new JScrollPane(tree),cardPane);
 		split.setDividerLocation(200);
 
+		Component horizontalSpacer = Box.createHorizontalGlue();
+		layout.linkSize(save,discardButton);
+
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addComponent(split)
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addContainerGap()
-		/*		*/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/*		*/.addComponent(discardButton,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/*		*/.addComponent(save)
+		/*		*/.addComponent(horizontalSpacer)
+		/*		*/.addComponent(discardButton)
 		/*		*/.addContainerGap()));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(split)
 		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addGroup(layout.createParallelGroup()
 		/*		*/.addComponent(save)
+		/*		*/.addComponent(horizontalSpacer)
 		/*		*/.addComponent(discardButton))
 		/**/.addContainerGap());
 		pack();
