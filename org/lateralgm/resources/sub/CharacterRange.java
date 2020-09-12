@@ -98,30 +98,24 @@ public class CharacterRange implements UpdateListener,
 		{
 		switch (k)
 			{
+			//TODO: Actually validate the ranges against Unicode standard?
+			//GMSv1.4 claims to be UTF-8 but the editor only supports the
+			//Basic Multilingual Plane of 65536 code points.
 			case RANGE_MIN:
 				int min = (Integer) v;
 				if (min < 0) min = 0;
-				//TODO: No limit since Unicode supported
 				//else if (min > 65536) min = 65536;
-				if (min > (Integer) v)
-					{
-					properties.put(PCharacterRange.RANGE_MIN,min);
-					}
+				if (min > (Integer) properties.get(PCharacterRange.RANGE_MAX))
+					properties.put(PCharacterRange.RANGE_MAX,min);
 				if (min != (Integer) v) return min;
 				break;
 			case RANGE_MAX:
 				int max = (Integer) v;
 				if (max < 0) max = 0;
-				//TODO: No limit since Unicode supported
 				//else if (max > 65536) max = 65536;
-				if (max < (Integer) v)
-					{
-					properties.put(PCharacterRange.RANGE_MAX,max);
-					}
+				if (max < (Integer) properties.get(PCharacterRange.RANGE_MIN))
+					properties.put(PCharacterRange.RANGE_MIN,max);
 				if (max != (Integer) v) return max;
-				break;
-			default:
-				//TODO: maybe put a failsafe here?
 				break;
 			}
 		return v;

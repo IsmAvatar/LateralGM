@@ -74,6 +74,7 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 		pathEditor = new PathEditor(res);
 		pathEditor.properties.updateSource.addListener(pepl);
 		peplf = new PropertyLinkFactory<PPathEditor>(pathEditor.properties,this);
+		this.addSecondaryPropertyLinkFactory(peplf);
 
 		GroupLayout layout = new GroupLayout(getContentPane())
 			{
@@ -323,6 +324,7 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 						{
 						PropertyLinkFactory<PPathPoint> ppplf = new PropertyLinkFactory<PPathPoint>(
 								pp.properties,null);
+						PathFrame.this.addSecondaryPropertyLinkFactory(ppplf);
 						ltx = ppplf.make(tx,PPathPoint.X);
 						lty = ppplf.make(ty,PPathPoint.Y);
 						ltsp = ppplf.make(tsp,PPathPoint.SPEED);

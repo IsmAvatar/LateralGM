@@ -27,6 +27,7 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
+import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -85,8 +86,8 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 
 		JPanel momentsSide = new JPanel(new BorderLayout());
 		//side2.setMaximumSize(new Dimension(90,Integer.MAX_VALUE));
-		JLabel lab = new JLabel(Messages.getString("TimelineFrame.MOMENTS")); //$NON-NLS-1$
-		momentsSide.add(lab,BorderLayout.NORTH);
+		JPanel labPane = Util.makeLabelPane(Messages.getString("TimelineFrame.MOMENTS")); //$NON-NLS-1$
+		momentsSide.add(labPane,BorderLayout.NORTH);
 		moments = new JList<Moment>(res.moments.toArray(new Moment[res.moments.size()]));
 		moments.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		moments.addListSelectionListener(this);
@@ -189,7 +190,7 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 
 		showInfo = new JButton(Messages.getString("TimelineFrame.SHOWINFORMATION")); //$NON-NLS-1$
 		showInfo.addActionListener(this);
-		showInfo.setIcon(LGM.getIconForKey("TimelineFrame.SHOWINFORMATION"));
+		showInfo.setIcon(LGM.getIconForKey("TimelineFrame.SHOWINFORMATION")); //$NON-NLS-1$
 
 		save.setText(Messages.getString("TimelineFrame.SAVE")); //$NON-NLS-1$
 
@@ -229,9 +230,9 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		/*		*/.addComponent(shift)
 		/*		*/.addComponent(merge))
 		/**/.addComponent(clear)
-		/**/.addGap(8,8,MAX_VALUE)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED,0,MAX_VALUE)
 		/**/.addComponent(showInfo)
-		/**/.addGap(32,32,MAX_VALUE)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addComponent(save));
 		}
 
@@ -297,7 +298,10 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 			{
 			infoFrame.dispose();
 			}
-		((ActionListEditor) editor).dispose();
+		if (editor != null)
+			{
+			((ActionListEditor) editor).dispose();
+			}
 		}
 
 	public void actionPerformed(ActionEvent e)
@@ -486,7 +490,7 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 			actions.setSelectedValue(a,true);
 			}
 
-		MDIFrame af = ActionList.openActionFrame(actions.parent.get(),a);
+		MDIFrame af = actions.openActionFrame(actions.parent.get(),a);
 		Object momentitem = moments.getSelectedValue();
 		af.setTitle(this.name.getText() + " : " + momentitem.toString());
 		af.setFrameIcon(LGM.getIconForKey("MomentNode.STEP"));

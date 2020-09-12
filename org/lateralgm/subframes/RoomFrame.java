@@ -22,7 +22,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Point;
@@ -54,6 +53,7 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.GroupLayout.SequentialGroup;
@@ -64,7 +64,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -78,7 +78,6 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JViewport;
 import javax.swing.KeyStroke;
-import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.TransferHandler;
@@ -140,6 +139,7 @@ import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 import org.lateralgm.util.RemovePieceInstance;
 import org.lateralgm.util.ShiftPieceInstances;
+import org.lateralgm.util.ModifyPieceInstance.Type;
 
 public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		ListSelectionListener,CommandHandler,UpdateListener,FocusListener,ChangeListener
@@ -281,12 +281,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					}
 			};
 
-		cut = new JButton(LGM.getIconForKey("RoomFrame.CUT"));
-		cut.setToolTipText(Messages.getString("RoomFrame.CUT"));
+		cut = new JButton(LGM.getIconForKey("RoomFrame.CUT")); //$NON-NLS-1$
+		cut.setToolTipText(Messages.getString("RoomFrame.CUT")); //$NON-NLS-1$
 		// Bind the ctrl X keystroke with the cut button
-		KeyStroke ctrlXKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.CUT"));
-		cut.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlXKey,"cut");
-		cut.getActionMap().put("cut",cutAction);
+		KeyStroke ctrlXKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.CUT")); //$NON-NLS-1$
+		cut.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlXKey,"cut"); //$NON-NLS-1$
+		cut.getActionMap().put("cut",cutAction); //$NON-NLS-1$
 		cut.addActionListener(cutAction);
 		tool.add(cut);
 
@@ -304,12 +304,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					}
 			};
 
-		copy = new JButton(LGM.getIconForKey("RoomFrame.COPY"));
-		copy.setToolTipText(Messages.getString("RoomFrame.COPY"));
+		copy = new JButton(LGM.getIconForKey("RoomFrame.COPY")); //$NON-NLS-1$
+		copy.setToolTipText(Messages.getString("RoomFrame.COPY")); //$NON-NLS-1$
 		// Bind the ctrl C keystroke with the copy button
-		KeyStroke ctrlCKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.COPY"));
-		copy.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlCKey,"copy");
-		copy.getActionMap().put("copy",copyAction);
+		KeyStroke ctrlCKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.COPY")); //$NON-NLS-1$
+		copy.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlCKey,"copy"); //$NON-NLS-1$
+		copy.getActionMap().put("copy",copyAction); //$NON-NLS-1$
 		copy.addActionListener(copyAction);
 		tool.add(copy);
 
@@ -324,12 +324,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					}
 			};
 
-		paste = new JButton(LGM.getIconForKey("RoomFrame.PASTE"));
-		paste.setToolTipText(Messages.getString("RoomFrame.PASTE"));
+		paste = new JButton(LGM.getIconForKey("RoomFrame.PASTE")); //$NON-NLS-1$
+		paste.setToolTipText(Messages.getString("RoomFrame.PASTE")); //$NON-NLS-1$
 		// Bind the ctrl V keystroke with the paste button
-		KeyStroke ctrlVKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.PASTE"));
-		paste.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlVKey,"paste");
-		paste.getActionMap().put("paste",pasteAction);
+		KeyStroke ctrlVKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.PASTE")); //$NON-NLS-1$
+		paste.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlVKey,"paste"); //$NON-NLS-1$
+		paste.getActionMap().put("paste",pasteAction); //$NON-NLS-1$
 		paste.addActionListener(pasteAction);
 		tool.add(paste);
 		tool.addSeparator();
@@ -351,12 +351,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					}
 			};
 
-		undo = new JButton(LGM.getIconForKey("RoomFrame.UNDO"));
-		undo.setToolTipText(Messages.getString("RoomFrame.UNDO"));
+		undo = new JButton(LGM.getIconForKey("RoomFrame.UNDO")); //$NON-NLS-1$
+		undo.setToolTipText(Messages.getString("RoomFrame.UNDO")); //$NON-NLS-1$
 		// Bind the undo keystroke with the undo button
-		KeyStroke undoKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.UNDO"));
-		undo.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(undoKey,"ctrlZ");
-		undo.getActionMap().put("ctrlZ",undoAction);
+		KeyStroke undoKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.UNDO")); //$NON-NLS-1$
+		undo.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(undoKey,"ctrlZ"); //$NON-NLS-1$
+		undo.getActionMap().put("ctrlZ",undoAction); //$NON-NLS-1$
 		undo.addActionListener(undoAction);
 		tool.add(undo);
 
@@ -372,12 +372,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					}
 			};
 
-		redo = new JButton(LGM.getIconForKey("RoomFrame.REDO"));
-		redo.setToolTipText(Messages.getString("RoomFrame.REDO"));
+		redo = new JButton(LGM.getIconForKey("RoomFrame.REDO")); //$NON-NLS-1$
+		redo.setToolTipText(Messages.getString("RoomFrame.REDO")); //$NON-NLS-1$
 		// Bind the redo keystroke with the undo button
-		KeyStroke redoKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.REDO"));
-		redo.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(redoKey,"ctrlY");
-		redo.getActionMap().put("ctrlY",redoAction);
+		KeyStroke redoKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.REDO")); //$NON-NLS-1$
+		redo.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(redoKey,"ctrlY"); //$NON-NLS-1$
+		redo.getActionMap().put("ctrlY",redoAction); //$NON-NLS-1$
 		redo.addActionListener(redoAction);
 		tool.add(redo);
 		tool.addSeparator();
@@ -398,8 +398,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					}
 			};
 
-		selectObject = new JToggleButton(LGM.getIconForKey("RoomFrame.SELECT_OBJECT"));
-		selectObject.setToolTipText(Messages.getString("RoomFrame.SELECT_OBJECT"));
+		selectObject = new JToggleButton(LGM.getIconForKey("RoomFrame.SELECT_OBJECT")); //$NON-NLS-1$
+		selectObject.setToolTipText(Messages.getString("RoomFrame.SELECT_OBJECT")); //$NON-NLS-1$
 		selectObject.addActionListener(selectObjectAction);
 		prelf.make(selectObject,PRoomEditor.SINGLE_SELECTION);
 		tool.add(selectObject);
@@ -420,29 +420,29 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					}
 			};
 
-		selectRegion = new JToggleButton(LGM.getIconForKey("RoomFrame.SELECT_REGION"));
-		selectRegion.setToolTipText(Messages.getString("RoomFrame.SELECT_REGION"));
+		selectRegion = new JToggleButton(LGM.getIconForKey("RoomFrame.SELECT_REGION")); //$NON-NLS-1$
+		selectRegion.setToolTipText(Messages.getString("RoomFrame.SELECT_REGION")); //$NON-NLS-1$
 		selectRegion.addActionListener(selectRegionAction);
 		prelf.make(selectRegion,PRoomEditor.MULTI_SELECTION);
 		tool.add(selectRegion);
 
-		fill = new JButton(LGM.getIconForKey("RoomFrame.FILL"));
-		fill.setToolTipText(Messages.getString("RoomFrame.FILL"));
+		fill = new JButton(LGM.getIconForKey("RoomFrame.FILL")); //$NON-NLS-1$
+		fill.setToolTipText(Messages.getString("RoomFrame.FILL")); //$NON-NLS-1$
 		fill.addActionListener(this);
 		tool.add(fill);
 		tool.addSeparator();
 
-		deleteInstances = new JButton(LGM.getIconForKey("RoomFrame.DELETE"));
-		deleteInstances.setToolTipText(Messages.getString("RoomFrame.DELETE"));
+		deleteInstances = new JButton(LGM.getIconForKey("RoomFrame.DELETE")); //$NON-NLS-1$
+		deleteInstances.setToolTipText(Messages.getString("RoomFrame.DELETE")); //$NON-NLS-1$
 		// Bind the delete keystroke with the delete button
-		KeyStroke deleteKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.DELETE"));
-		deleteInstances.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(deleteKey,"delete");
-		deleteInstances.getActionMap().put("delete",deleteAction);
+		KeyStroke deleteKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.DELETE")); //$NON-NLS-1$
+		deleteInstances.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(deleteKey,"delete"); //$NON-NLS-1$
+		deleteInstances.getActionMap().put("delete",deleteAction); //$NON-NLS-1$
 		deleteInstances.addActionListener(deleteAction);
 		tool.add(deleteInstances);
 
-		shiftInstances = new JButton(LGM.getIconForKey("RoomFrame.SHIFT"));
-		shiftInstances.setToolTipText(Messages.getString("RoomFrame.SHIFT"));
+		shiftInstances = new JButton(LGM.getIconForKey("RoomFrame.SHIFT")); //$NON-NLS-1$
+		shiftInstances.setToolTipText(Messages.getString("RoomFrame.SHIFT")); //$NON-NLS-1$
 		shiftInstances.addActionListener(this);
 		tool.add(shiftInstances);
 		tool.addSeparator();
@@ -473,18 +473,18 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					}
 			};
 
-		snapToGrid = new JToggleButton(LGM.getIconForKey("RoomFrame.SNAP_TO_GRID"));
-		snapToGrid.setToolTipText(Messages.getString("RoomFrame.SNAP_TO_GRID"));
-		snapToGrid.setActionCommand("snapToGrid");
+		snapToGrid = new JToggleButton(LGM.getIconForKey("RoomFrame.SNAP_TO_GRID")); //$NON-NLS-1$
+		snapToGrid.setToolTipText(Messages.getString("RoomFrame.SNAP_TO_GRID")); //$NON-NLS-1$
+		snapToGrid.setActionCommand("snapToGrid"); //$NON-NLS-1$
 		// Link the alt key 'pressed'
 		KeyStroke altKeyPressed = KeyStroke.getKeyStroke(KeyEvent.VK_ALT,InputEvent.ALT_DOWN_MASK,false);
-		snapToGrid.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(altKeyPressed,"altKeyPressed");
-		snapToGrid.getActionMap().put("altKeyPressed",altKeyPressedAction);
+		snapToGrid.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(altKeyPressed,"altKeyPressed"); //$NON-NLS-1$
+		snapToGrid.getActionMap().put("altKeyPressed",altKeyPressedAction); //$NON-NLS-1$
 		snapToGrid.addActionListener(altKeyPressedAction);
 		// Link the alt key 'released'
 		KeyStroke altKeyReleased = KeyStroke.getKeyStroke(KeyEvent.VK_ALT,0,true);
-		snapToGrid.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(altKeyReleased,"altKeyReleased");
-		snapToGrid.getActionMap().put("altKeyReleased",altKeyReleasedAction);
+		snapToGrid.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(altKeyReleased,"altKeyReleased"); //$NON-NLS-1$
+		snapToGrid.getActionMap().put("altKeyReleased",altKeyReleasedAction); //$NON-NLS-1$
 		snapToGrid.addActionListener(altKeyReleasedAction);
 		prelf.make(snapToGrid,PRoomEditor.SNAP_TO_GRID);
 		tool.add(snapToGrid);
@@ -515,19 +515,19 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					}
 			};
 
-		addOnTop = new JToggleButton(LGM.getIconForKey("RoomFrame.ADD_ON_TOP"));
-		addOnTop.setToolTipText(Messages.getString("RoomFrame.ADD_ON_TOP"));
-		addOnTop.setActionCommand("addOnTop");
+		addOnTop = new JToggleButton(LGM.getIconForKey("RoomFrame.ADD_ON_TOP")); //$NON-NLS-1$
+		addOnTop.setToolTipText(Messages.getString("RoomFrame.ADD_ON_TOP")); //$NON-NLS-1$
+		addOnTop.setActionCommand("addOnTop"); //$NON-NLS-1$
 		// Link the ctrl key 'pressed'
 		KeyStroke ctrlKeyPressed = KeyStroke.getKeyStroke(KeyEvent.VK_CONTROL,
 				InputEvent.CTRL_DOWN_MASK,false);
-		addOnTop.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlKeyPressed,"ctrlKeyPressed");
-		addOnTop.getActionMap().put("ctrlKeyPressed",ctrlKeyPressedAction);
+		addOnTop.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlKeyPressed,"ctrlKeyPressed"); //$NON-NLS-1$
+		addOnTop.getActionMap().put("ctrlKeyPressed",ctrlKeyPressedAction); //$NON-NLS-1$
 		addOnTop.addActionListener(ctrlKeyPressedAction);
 		// Link the ctrl key 'released'
 		KeyStroke ctrlKeyReleased = KeyStroke.getKeyStroke(KeyEvent.VK_CONTROL,0,true);
-		addOnTop.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlKeyReleased,"ctrlKeyReleased");
-		addOnTop.getActionMap().put("ctrlKeyReleased",ctrlKeyReleasedAction);
+		addOnTop.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlKeyReleased,"ctrlKeyReleased"); //$NON-NLS-1$
+		addOnTop.getActionMap().put("ctrlKeyReleased",ctrlKeyReleasedAction); //$NON-NLS-1$
 		addOnTop.addActionListener(ctrlKeyReleasedAction);
 		prelf.make(addOnTop,PRoomEditor.ADD_ON_TOP);
 		tool.add(addOnTop);
@@ -558,40 +558,40 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					}
 			};
 
-		addMultiple = new JToggleButton(LGM.getIconForKey("RoomFrame.ADD_MULTIPLE"));
-		addMultiple.setToolTipText(Messages.getString("RoomFrame.ADD_MULTIPLE"));
-		addMultiple.setActionCommand("addMultiple");
+		addMultiple = new JToggleButton(LGM.getIconForKey("RoomFrame.ADD_MULTIPLE")); //$NON-NLS-1$
+		addMultiple.setToolTipText(Messages.getString("RoomFrame.ADD_MULTIPLE")); //$NON-NLS-1$
+		addMultiple.setActionCommand("addMultiple"); //$NON-NLS-1$
 		// Link the shift key 'pressed'
 		KeyStroke shiftKeyPressed = KeyStroke.getKeyStroke(KeyEvent.VK_SHIFT,
 				InputEvent.SHIFT_DOWN_MASK,false);
-		addMultiple.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(shiftKeyPressed,"shiftKeyPressed");
-		addMultiple.getActionMap().put("shiftKeyPressed",shiftKeyPressedAction);
+		addMultiple.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(shiftKeyPressed,"shiftKeyPressed"); //$NON-NLS-1$
+		addMultiple.getActionMap().put("shiftKeyPressed",shiftKeyPressedAction); //$NON-NLS-1$
 		addMultiple.addActionListener(shiftKeyPressedAction);
 		// Link the shift key 'released'
 		KeyStroke shiftKeyReleased = KeyStroke.getKeyStroke(KeyEvent.VK_SHIFT,0,true);
-		addMultiple.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(shiftKeyReleased,"shiftKeyReleased");
-		addMultiple.getActionMap().put("shiftKeyReleased",shiftKeyReleasedAction);
+		addMultiple.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(shiftKeyReleased,"shiftKeyReleased"); //$NON-NLS-1$
+		addMultiple.getActionMap().put("shiftKeyReleased",shiftKeyReleasedAction); //$NON-NLS-1$
 		addMultiple.addActionListener(shiftKeyReleasedAction);
 		prelf.make(addMultiple,PRoomEditor.ADD_MULTIPLE);
 		tool.add(addMultiple);
 		tool.addSeparator();
 
 		zoomIn = new JButton(LGM.getIconForKey("RoomFrame.ZOOM_IN")); //$NON-NLS-1$
-		zoomIn.setToolTipText(Messages.getString("RoomFrame.ZOOM_IN"));
+		zoomIn.setToolTipText(Messages.getString("RoomFrame.ZOOM_IN")); //$NON-NLS-1$
 		prelf.make(zoomIn,PRoomEditor.ZOOM,1,RoomEditor.ZOOM_MAX);
 		tool.add(zoomIn);
 		zoomOut = new JButton(LGM.getIconForKey("RoomFrame.ZOOM_OUT")); //$NON-NLS-1$
-		zoomOut.setToolTipText(Messages.getString("RoomFrame.ZOOM_OUT"));
+		zoomOut.setToolTipText(Messages.getString("RoomFrame.ZOOM_OUT")); //$NON-NLS-1$
 		prelf.make(zoomOut,PRoomEditor.ZOOM,-1,RoomEditor.ZOOM_MIN);
 		tool.add(zoomOut);
 		tool.addSeparator();
 
-		gridVis = new JToggleButton(LGM.getIconForKey("RoomFrame.GRID_VISIBLE"));
-		gridVis.setToolTipText(Messages.getString("RoomFrame.GRID_VISIBLE"));
+		gridVis = new JToggleButton(LGM.getIconForKey("RoomFrame.GRID_VISIBLE")); //$NON-NLS-1$
+		gridVis.setToolTipText(Messages.getString("RoomFrame.GRID_VISIBLE")); //$NON-NLS-1$
 		prelf.make(gridVis,PRoomEditor.SHOW_GRID);
 		tool.add(gridVis);
-		gridIso = new JToggleButton(LGM.getIconForKey("RoomFrame.GRID_ISOMETRIC"));
-		gridIso.setToolTipText(Messages.getString("RoomFrame.GRID_ISOMETRIC"));
+		gridIso = new JToggleButton(LGM.getIconForKey("RoomFrame.GRID_ISOMETRIC")); //$NON-NLS-1$
+		gridIso.setToolTipText(Messages.getString("RoomFrame.GRID_ISOMETRIC")); //$NON-NLS-1$
 		plf.make(gridIso,PRoom.ISOMETRIC);
 		tool.add(gridIso);
 		//tool.addSeparator();
@@ -632,65 +632,61 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tool.add(showButton);
 		tool.addSeparator();
 
-		roomControls = new JButton(LGM.getIconForKey("RoomFrame.ROOM_CONTROLS"));
-		roomControls.setToolTipText(Messages.getString("RoomFrame.ROOM_CONTROLS"));
+		roomControls = new JButton(LGM.getIconForKey("RoomFrame.ROOM_CONTROLS")); //$NON-NLS-1$
+		roomControls.setToolTipText(Messages.getString("RoomFrame.ROOM_CONTROLS")); //$NON-NLS-1$
 		roomControls.addActionListener(this);
 		tool.add(roomControls);
 
 		return tool;
 		}
 
-	private static class ObjectListComponentRenderer implements ListCellRenderer<Instance>
+	private static class ObjectListComponentRenderer extends DefaultListCellRenderer
 		{
-		private final JLabel lab = new JLabel();
-		private final ListComponentRenderer lcr = new ListComponentRenderer();
+		/**
+		 * Default UID generated, change if necessary.
+		 */
+		private static final long serialVersionUID = -5630452177056734243L;
 
-		public ObjectListComponentRenderer()
-			{
-			lab.setOpaque(true);
-			}
-
-		public Component getListCellRendererComponent(JList<? extends Instance> list, Instance val,
+		public Component getListCellRendererComponent(JList<?> list, Object val,
 				int ind, boolean selected, boolean focus)
 			{
-			Instance i = val;
+			super.getListCellRendererComponent(list,val,ind,selected,focus);
+			if (!(val instanceof Instance)) return this;
+			Instance i = (Instance)val;
 			ResourceReference<GmObject> ro = i.properties.get(PInstance.OBJECT);
 			GmObject o = deRef(ro);
-			String name = o == null ? Messages.getString("RoomFrame.NO_OBJECT") : o.getName();
-			lcr.getListCellRendererComponent(list,lab,ind,selected,focus);
-			lab.setText(name + "  " + i.properties.get(PInstance.ID) + "  " +
+			String name = o == null ? Messages.getString("RoomFrame.NO_OBJECT") : o.getName(); //$NON-NLS-1$
+			this.setText(name + "  " + i.properties.get(PInstance.ID) + "  " +
 				i.properties.get(PInstance.NAME));
-			lab.setText(String.format("%10s %6s %s", name, i.properties.get(PInstance.ID),
+			this.setText(String.format("%10s %6s %s", name, i.properties.get(PInstance.ID),
 				i.properties.get(PInstance.NAME)));
 			ResNode rn = o == null ? null : o.getNode();
-			lab.setIcon(rn == null ? null : rn.getIcon());
-			return lab;
+			this.setIcon(rn == null ? null : rn.getIcon());
+			return this;
 			}
 		}
 
-	private static class TileListComponentRenderer implements ListCellRenderer<Tile>
+	private static class TileListComponentRenderer extends DefaultListCellRenderer
 		{
-		private final JLabel lab = new JLabel();
+		/**
+		 * Default UID generated, change if necessary.
+		 */
+		private static final long serialVersionUID = -3949686932502303475L;
 		private final TileIcon ti = new TileIcon();
-		private final ListComponentRenderer lcr = new ListComponentRenderer();
 
-		public TileListComponentRenderer()
-			{
-			lab.setOpaque(true);
-			lab.setIcon(ti);
-			}
-
-		public Component getListCellRendererComponent(JList<? extends Tile> list, Tile val, int ind,
+		public Component getListCellRendererComponent(JList<?> list, Object val, int ind,
 				boolean selected, boolean focus)
 			{
-			Tile t = val;
+			super.getListCellRendererComponent(list,val,ind,selected,focus);
+			if (!(val instanceof Tile)) return this;
+			Tile t = (Tile)val;
 			ResourceReference<Background> rb = t.properties.get(PTile.BACKGROUND);
 			Background bg = deRef(rb);
-			String name = bg == null ? Messages.getString("RoomFrame.NO_BACKGROUND") : bg.getName();
-			lab.setText(name + " " + t.properties.get(PTile.ID) + " " + t.properties.get(PTile.NAME));
+			String name = bg == null ? Messages.getString("RoomFrame.NO_BACKGROUND") : bg.getName(); //$NON-NLS-1$
+			this.setText(name + " " + t.properties.get(PTile.ID) + " " + t.properties.get(PTile.NAME));
 			ti.tile = t;
-			lcr.getListCellRendererComponent(list,lab,ind,selected,focus);
-			return lab;
+			this.setIcon(ti);
+			return this;
 			}
 
 		static class TileIcon implements Icon
@@ -716,7 +712,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					{
 					Point p = tile.getBackgroundPosition();
 					Dimension d = tile.getSize();
-					g.drawImage(bi,0,0,d.width,d.height,p.x,p.y,p.x + d.width,p.y + d.height,c);
+					g.drawImage(bi,x,y,x+d.width,y+d.height,p.x,p.y,p.x + d.width,p.y + d.height,c);
 					}
 				}
 			}
@@ -880,7 +876,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		oList.setSelectedIndex(0);
 		oList.addListSelectionListener(this);
 		oList.addMouseListener(mouseListenerForInstances);
-		//TODO: Finish
+		//TODO: Add instance creation ordering.
 		//oList.setDragEnabled(true);
 		//oList.setDropMode(DropMode.ON_OR_INSERT);
 		//oList.setTransferHandler(new ObjectListTransferHandler(res.instances));
@@ -914,10 +910,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		objectVerticalPosition.setColumns(4);
 		objectVerticalPosition.addFocusListener(this);
 		JLabel lObjScaleX = new JLabel(Messages.getString("RoomFrame.SCALE_X")); //$NON-NLS-1$
-		objectScaleX = new NumberField(0.1,9999.0,1.0,2);
+		objectScaleX = new NumberField(-9999.0,9999.0,1.0,2);
 		objectScaleX.addFocusListener(this);
 		JLabel lObjScaleY = new JLabel(Messages.getString("RoomFrame.SCALE_Y")); //$NON-NLS-1$
-		objectScaleY = new NumberField(0.1,9999.0,1.0,2);
+		objectScaleY = new NumberField(-9999.0,9999.0,1.0,2);
 		objectScaleY.addFocusListener(this);
 		JLabel lObjRotation = new JLabel(Messages.getString("RoomFrame.ROTATION")); //$NON-NLS-1$
 		objectRotation = new NumberField(0.0,360.0,0.0,2);
@@ -929,10 +925,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		@Override
 		public void itemStateChanged(ItemEvent e)
 		{
-			// If no object is selected, return
-			int selectedIndex = oList.getSelectedIndex();
-			if (selectedIndex == -1) return;
-
 			// Save the selected instance
 			selectedPiece = oList.getSelectedValue();
 			if (selectedPiece == null) return;
@@ -943,7 +935,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (!originalColor.equals(newColour))
 				{
 				// Record the effect of modifying the color of an object for the undo
-				UndoableEdit edit = new ModifyPieceInstance(RoomFrame.this,selectedPiece,originalColor,
+				UndoableEdit edit = new ModifyPieceInstance(RoomFrame.this,selectedPiece,Type.COLOR,originalColor,
 						newColour);
 				// notify the listeners
 				undoSupport.postEdit(edit);
@@ -1195,7 +1187,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		JLabel layer = new JLabel(Messages.getString("RoomFrame.CURRENT_TILE_LAYER"));
+		JLabel layer = new JLabel(Messages.getString("RoomFrame.CURRENT_TILE_LAYER")); //$NON-NLS-1$
 
 		Room currentRoom = editor.getRoom();
 
@@ -1223,22 +1215,22 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tileLayer = new JComboBox<Integer>(layers);
 		tileLayer.setMaximumSize(new Dimension(Integer.MAX_VALUE,tileLayer.getHeight()));
 
-		addLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_ADD"));
+		addLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_ADD")); //$NON-NLS-1$
 		addLayer.addActionListener(this);
-		deleteLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_DELETE"));
+		deleteLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_DELETE")); //$NON-NLS-1$
 		deleteLayer.addActionListener(this);
-		changeLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_CHANGE"));
+		changeLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_CHANGE")); //$NON-NLS-1$
 		changeLayer.addActionListener(this);
 
-		tHideOtherLayers = new JCheckBox(Messages.getString("RoomFrame.TILE_HIDE_OTHER_LAYERS"));
+		tHideOtherLayers = new JCheckBox(Messages.getString("RoomFrame.TILE_HIDE_OTHER_LAYERS")); //$NON-NLS-1$
 		tHideOtherLayers.addActionListener(this);
 
-		tEditOtherLayers = new JCheckBox(Messages.getString("RoomFrame.TILE_EDIT_OTHER_LAYERS"));
+		tEditOtherLayers = new JCheckBox(Messages.getString("RoomFrame.TILE_EDIT_OTHER_LAYERS")); //$NON-NLS-1$
 		tEditOtherLayers.addActionListener(this);
 
 		JTabbedPane tab = new JTabbedPane();
-		tab.addTab(Messages.getString("RoomFrame.TILE_ADD"),makeTilesAddPane());
-		tab.addTab(Messages.getString("RoomFrame.TILE_EDIT"),makeTilesEditPane());
+		tab.addTab(Messages.getString("RoomFrame.TILE_ADD"),makeTilesAddPane()); //$NON-NLS-1$
+		tab.addTab(Messages.getString("RoomFrame.TILE_EDIT"),makeTilesEditPane()); //$NON-NLS-1$
 		tab.setSelectedIndex(0);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
@@ -1282,7 +1274,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		panel.setLayout(layout);
 
 		taSource = new ResourceMenu<Background>(Background.class,
-				Messages.getString("RoomFrame.NO_BACKGROUND"),true,110);
+				Messages.getString("RoomFrame.NO_BACKGROUND"),true,110); //$NON-NLS-1$
 		taSource.addActionListener(this);
 		tSelect = new TileSelector();
 		tScroll = new JScrollPane(tSelect);
@@ -1512,22 +1504,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		return panel;
 		}
 
-	//TODO 1.7?: Batch tile operations
-	public static JPanel makeTilesBatchPane()
-		{
-		JPanel panel = new JPanel();
-		//		GroupLayout layout = new GroupLayout(panel);
-		//		layout.setAutoCreateGaps(true);
-		//		layout.setAutoCreateContainerGaps(true);
-		//		panel.setLayout(layout);
-		//TODO: Translate
-		panel.add(new JLabel("<html>This tab will offer ways to<br />"
-				+ "perform batch operations on several<br />"
-				+ "tiles at once, or regions of tiles.</html>"));
-
-		return panel;
-		}
-
 	public JPanel makeBackgroundsPane()
 		{
 		JPanel panel = new JPanel();
@@ -1640,20 +1616,20 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		{
 		JPanel panel = new JPanel();
 
-		JCheckBox phyWorldCB = new JCheckBox(Messages.getString("RoomFrame.PHY_WORLD_ENABLED"));
+		JCheckBox phyWorldCB = new JCheckBox(Messages.getString("RoomFrame.PHY_WORLD_ENABLED")); //$NON-NLS-1$
 		plf.make(phyWorldCB,PRoom.PHYSICS_WORLD);
 
-		JLabel pixMetersLabel = new JLabel(Messages.getString("RoomFrame.PHY_PIXELSPERMETER"));
+		JLabel pixMetersLabel = new JLabel(Messages.getString("RoomFrame.PHY_PIXELSPERMETER")); //$NON-NLS-1$
 		NumberField pixMetersField = new NumberField(0.1000);
 		plf.make(pixMetersField,PRoom.PHYSICS_PIXTOMETERS);
 		pixMetersField.setColumns(16);
 
-		JLabel gravityXLabel = new JLabel(Messages.getString("RoomFrame.PHY_GRAVITY_X"));
+		JLabel gravityXLabel = new JLabel(Messages.getString("RoomFrame.PHY_GRAVITY_X")); //$NON-NLS-1$
 		NumberField gravityXField = new NumberField(0.0);
 		plf.make(gravityXField,PRoom.PHYSICS_GRAVITY_X);
 		gravityXField.setColumns(16);
 
-		JLabel gravityYLabel = new JLabel(Messages.getString("RoomFrame.PHY_GRAVITY_Y"));
+		JLabel gravityYLabel = new JLabel(Messages.getString("RoomFrame.PHY_GRAVITY_Y")); //$NON-NLS-1$
 		NumberField gravityYField = new NumberField(10.0);
 		plf.make(gravityYField,PRoom.PHYSICS_GRAVITY_Y);
 		gravityYField.setColumns(16);
@@ -1846,10 +1822,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		vObj = new ResourceMenu<GmObject>(GmObject.class,
 				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
 
-		JLabel lH = new JLabel(Messages.getString("RoomFrame.VIEW_HORIZONTAL"));
-		JLabel lV = new JLabel(Messages.getString("RoomFrame.VIEW_VERTICAL"));
-		JLabel lBorder = new JLabel(Messages.getString("RoomFrame.VIEW_BORDER"));
-		JLabel lSpeed = new JLabel(Messages.getString("RoomFrame.VIEW_SPEED"));
+		JLabel lH = new JLabel(Messages.getString("RoomFrame.VIEW_HORIZONTAL")); //$NON-NLS-1$
+		JLabel lV = new JLabel(Messages.getString("RoomFrame.VIEW_VERTICAL")); //$NON-NLS-1$
+		JLabel lBorder = new JLabel(Messages.getString("RoomFrame.VIEW_BORDER")); //$NON-NLS-1$
+		JLabel lSpeed = new JLabel(Messages.getString("RoomFrame.VIEW_SPEED")); //$NON-NLS-1$
 		vOHBor = new NumberField(0,32000);
 		vOHSp = new NumberField(-1,32000);
 		vOVBor = new NumberField(0,32000);
@@ -1928,6 +1904,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		super(res,node);
 		editor = new RoomEditor(res,this);
 		prelf = new PropertyLinkFactory<PRoomEditor>(editor.properties,null);
+		this.addSecondaryPropertyLinkFactory(prelf);
 
 		GroupLayout layout = new GroupLayout(getContentPane())
 			{
@@ -2042,23 +2019,19 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			}
 		}
 
-	public static class ListComponentRenderer implements ListCellRenderer<Object>
+	private static class ListComponentRenderer extends DefaultListCellRenderer
 		{
-		public Component getListCellRendererComponent(JList<? extends Object> list, Object val,
+		public Component getListCellRendererComponent(JList<?> list, Object val,
 				int ind, boolean selected, boolean focus)
 			{
-			Component lab = (Component) val;
-			if (selected)
-				{
-				lab.setBackground(list.getSelectionBackground());
-				lab.setForeground(list.getSelectionForeground());
-				}
-			else
-				{
-				lab.setBackground(list.getBackground());
-				lab.setForeground(list.getForeground());
-				}
-			return lab;
+			super.getListCellRendererComponent(list,val,ind,selected,focus);
+			JLabel lab = (JLabel) val;
+			this.setText(lab.getText());
+			Font font = this.getFont();
+			if (lab.getFont().isBold())
+				font = font.deriveFont(Font.BOLD);
+			this.setFont(font);
+			return this;
 			}
 		}
 
@@ -2087,7 +2060,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		}
 
 	// Window which displays the room controls
-	public static JFrame roomControlsFrame;
+	private static JDialog roomControlsFrame;
 
 	private void deleteAction()
 		{
@@ -2105,13 +2078,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			{
 			// Set message
 			if (tilesTabIsSelected)
-				message = Messages.getString("RoomFrame.DELETE_TILES");
+				message = Messages.getString("RoomFrame.DELETE_TILES"); //$NON-NLS-1$
 			else
-				message = Messages.getString("RoomFrame.DELETE_OBJECTS");
+				message = Messages.getString("RoomFrame.DELETE_OBJECTS"); //$NON-NLS-1$
 
 			// Get a confirmation from the user
 			result = JOptionPane.showConfirmDialog(this,message,
-					Messages.getString("RoomFrame.DELETE_TITLE"),JOptionPane.YES_NO_OPTION);
+					Messages.getString("RoomFrame.DELETE_TITLE"),JOptionPane.YES_NO_OPTION); //$NON-NLS-1$
 			}
 
 		if (result == JOptionPane.YES_OPTION || askConfirmation == false)
@@ -2305,7 +2278,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					// If there is no image for this instance, use the default sprite image
 					if (image == null)
 						{
-						ImageIcon emptySprite = LGM.getIconForKey("Resource.EMPTY_OBJ");
+						ImageIcon emptySprite = LGM.getIconForKey("Resource.EMPTY_OBJ"); //$NON-NLS-1$
 						cellDimension = new Dimension(emptySprite.getIconWidth(),emptySprite.getIconHeight());
 						}
 					else
@@ -2381,19 +2354,19 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			{
 			// Create the panel with the depth property
 			JPanel myPanel = new JPanel();
-			myPanel.add(new JLabel(Messages.getString("RoomFrame.TILE_DEPTH")));
+			myPanel.add(new JLabel(Messages.getString("RoomFrame.TILE_DEPTH"))); //$NON-NLS-1$
 			NumberField depth = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
 			myPanel.add(depth);
 
 			int result = JOptionPane.showConfirmDialog(this,myPanel,
-					Messages.getString("RoomFrame.ADD_NEW_TILE"),JOptionPane.OK_CANCEL_OPTION,
+					Messages.getString("RoomFrame.ADD_NEW_TILE"),JOptionPane.OK_CANCEL_OPTION, //$NON-NLS-1$
 					JOptionPane.PLAIN_MESSAGE);
 
 			// If the user has pressed the OK button
 			if (result == JOptionPane.OK_OPTION)
 				{
 				// Get the new layer's depth
-				Integer newDepth = new Integer(depth.getIntValue());
+				Integer newDepth = depth.getIntValue();
 
 				// If the layer is new, add it
 				if (!layers.contains(newDepth))
@@ -2413,8 +2386,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			{
 			// Get a confirmation from the user
 			int result = JOptionPane.showConfirmDialog(this,
-					Messages.getString("RoomFrame.DELETE_TILE_LAYER"),
-					Messages.getString("RoomFrame.DELETE_TITLE"),JOptionPane.YES_NO_OPTION);
+					Messages.getString("RoomFrame.DELETE_TILE_LAYER"), //$NON-NLS-1$
+					Messages.getString("RoomFrame.DELETE_TITLE"),JOptionPane.YES_NO_OPTION); //$NON-NLS-1$
 
 			if (result == JOptionPane.YES_OPTION)
 				{
@@ -2455,18 +2428,18 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		if (eventSource == changeLayer)
 			{
 			JPanel myPanel = new JPanel();
-			myPanel.add(new JLabel(Messages.getString("RoomFrame.TILE_DEPTH")));
+			myPanel.add(new JLabel(Messages.getString("RoomFrame.TILE_DEPTH"))); //$NON-NLS-1$
 			// Get the selected layer
 			final Integer depth = (Integer) tileLayer.getSelectedItem();
 			NumberField depthField = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,depth);
 			myPanel.add(depthField);
 
 			int result = JOptionPane.showConfirmDialog(this,myPanel,
-					Messages.getString("RoomFrame.CHANGE_TILE_LAYER"),JOptionPane.OK_CANCEL_OPTION,
+					Messages.getString("RoomFrame.CHANGE_TILE_LAYER"),JOptionPane.OK_CANCEL_OPTION, //$NON-NLS-1$
 					JOptionPane.PLAIN_MESSAGE);
 
 			// Get the new layer's depth
-			final Integer newDepth = new Integer(depthField.getIntValue());
+			final Integer newDepth = depthField.getIntValue();
 
 			if (result == JOptionPane.OK_OPTION && newDepth != depth)
 				{
@@ -2524,24 +2497,22 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (roomControlsFrame == null)
 				{
 				// Create a window and set the properties
-				roomControlsFrame = new JFrame(Messages.getString("RoomControls.TITLE"));
-				roomControlsFrame.setIconImage(LGM.getIconForKey("RoomFrame.ROOM_CONTROLS").getImage());
+				roomControlsFrame = new JDialog(LGM.frame,Messages.getString("RoomControls.TITLE")); //$NON-NLS-1$
+				roomControlsFrame.setIconImage(LGM.getIconForKey("RoomFrame.ROOM_CONTROLS").getImage()); //$NON-NLS-1$
 				Border padding = BorderFactory.createEmptyBorder(15,15,15,15);
 				JPanel contentPanel = new JPanel();
 				contentPanel.setBorder(padding);
 				roomControlsFrame.setContentPane(contentPanel);
 				roomControlsFrame.setLayout(new BoxLayout(roomControlsFrame.getContentPane(),
 						BoxLayout.Y_AXIS));
-				roomControlsFrame.setResizable(false);
-				roomControlsFrame.setLocationRelativeTo(null);
 
 				// Add the labels
-				roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON")));
-				roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON_CTRl")));
-				roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON_ALT")));
-				roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON_SHIFT")));
+				roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON"))); //$NON-NLS-1$
+				roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON_CTRl"))); //$NON-NLS-1$
+				roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON_ALT"))); //$NON-NLS-1$
+				roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON_SHIFT"))); //$NON-NLS-1$
 				roomControlsFrame.add(Box.createRigidArea(new Dimension(0,5)));
-				roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.RIGHT_BUTTON")));
+				roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.RIGHT_BUTTON"))); //$NON-NLS-1$
 
 				// When closing the window, set the window to null
 				roomControlsFrame.addWindowListener(new java.awt.event.WindowAdapter()
@@ -2553,15 +2524,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 							}
 					});
 				roomControlsFrame.pack();
-				roomControlsFrame.setVisible(true);
+				roomControlsFrame.setResizable(false);
 				}
-			else
-				{
-				// Make sure the window is visible and not minimized
-				roomControlsFrame.setState(Frame.NORMAL);
-				roomControlsFrame.setVisible(true);
-				}
-
+			roomControlsFrame.setLocationRelativeTo(LGM.frame);
+			roomControlsFrame.setVisible(true);
 			}
 
 		// If the user has pressed the shift instances button
@@ -2579,10 +2545,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 			// Create the panel with the shift properties
 			JPanel myPanel = new JPanel();
-			myPanel.add(new JLabel(Messages.getString("RoomFrame.HORIZONTAL_SHIFT")));
+			myPanel.add(new JLabel(Messages.getString("RoomFrame.HORIZONTAL_SHIFT"))); //$NON-NLS-1$
 			myPanel.add(txtHorizontalShift);
 			myPanel.add(Box.createHorizontalStrut(7));
-			myPanel.add(new JLabel(Messages.getString("RoomFrame.VERTICAL_SHIFT")));
+			myPanel.add(new JLabel(Messages.getString("RoomFrame.VERTICAL_SHIFT"))); //$NON-NLS-1$
 			myPanel.add(txtVerticalShift);
 
 			// If the tiles tab is selected, shift the tiles
@@ -2592,9 +2558,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 			// Set the panel title
 			if (tilesTabIsSelected)
-				panelTitle = Messages.getString("RoomFrame.SHIFT_TILES_TITLE");
+				panelTitle = Messages.getString("RoomFrame.SHIFT_TILES_TITLE"); //$NON-NLS-1$
 			else
-				panelTitle = Messages.getString("RoomFrame.SHIFT_OBJECTS_TITLE");
+				panelTitle = Messages.getString("RoomFrame.SHIFT_OBJECTS_TITLE"); //$NON-NLS-1$
 
 			int result = JOptionPane.showConfirmDialog(this,myPanel,panelTitle,
 					JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
@@ -2729,7 +2695,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		if (eventSource == deleteTileButton)
 			{
 			int selectedIndex = tList.getSelectedIndex();
-			if (selectedIndex >= res.tiles.size() || selectedIndex < 0) return;
+			if (selectedIndex == -1) return;
 
 			Piece selectedPiece = editor.getSelectedPiece();
 
@@ -2772,6 +2738,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			{
 			PropertyLinkFactory<PInstance> iplf = new PropertyLinkFactory<PInstance>(
 					selectedInstance.properties,this);
+			this.addSecondaryPropertyLinkFactory(iplf);
 			loLocked = iplf.make(oLocked,PInstance.LOCKED);
 			loSource = iplf.make(oSource,PInstance.OBJECT);
 			loName = iplf.make(objectName.getDocument(), PInstance.NAME);
@@ -2806,6 +2773,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		if (selectedTile != null)
 			{
 			PropertyLinkFactory<PTile> tplf = new PropertyLinkFactory<PTile>(selectedTile.properties,this);
+			this.addSecondaryPropertyLinkFactory(tplf);
 			ltDepth = tplf.make(teDepth,PTile.DEPTH);
 			ltLocked = tplf.make(tLocked,PTile.LOCKED);
 			ltSource = tplf.make(teSource,PTile.BACKGROUND);
@@ -2831,6 +2799,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		BackgroundDef b = res.backgroundDefs.get(i);
 		PropertyLinkFactory<PBackgroundDef> bdplf = new PropertyLinkFactory<PBackgroundDef>(
 				b.properties,this);
+		this.addSecondaryPropertyLinkFactory(bdplf);
 		lbVisible = bdplf.make(bVisible,PBackgroundDef.VISIBLE);
 		lbForeground = bdplf.make(bForeground,PBackgroundDef.FOREGROUND);
 		lbSource = bdplf.make(bSource,PBackgroundDef.BACKGROUND);
@@ -2857,6 +2826,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				lvOHSp,lvOVSp);
 		View view = res.views.get(i);
 		PropertyLinkFactory<PView> vplf = new PropertyLinkFactory<PView>(view.properties,this);
+		this.addSecondaryPropertyLinkFactory(vplf);
 		lvVisible = vplf.make(vVisible,PView.VISIBLE);
 		lvRX = vplf.make(vRX,PView.VIEW_X);
 		lvRY = vplf.make(vRY,PView.VIEW_Y);
@@ -2927,7 +2897,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 		if (instanceImage == null)
 			{
-			ImageIcon emptySprite = LGM.getIconForKey("Resource.EMPTY_OBJ");
+			ImageIcon emptySprite = LGM.getIconForKey("Resource.EMPTY_OBJ"); //$NON-NLS-1$
 			centerObjectInViewport(instancePosition, emptySprite.getIconWidth(),
 				emptySprite.getIconHeight(), null);
 			}
@@ -3109,8 +3079,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 	public CodeFrame openInstanceCodeFrame(Instance inst)
 		{
-		return openCodeFrame(inst,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),
-				Messages.format("RoomFrame.INSTANCE",inst.properties.get(PInstance.ID)));
+		return openCodeFrame(inst,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"), //$NON-NLS-1$
+				Messages.format("RoomFrame.INSTANCE",inst.properties.get(PInstance.ID))); //$NON-NLS-1$
 		}
 
 	public CodeFrame openInstanceCodeFrame(int id, boolean select)
@@ -3118,8 +3088,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		Instance inst = findInstance(id,select);
 		if (inst != null)
 			{
-			return openCodeFrame(inst,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),
-					Messages.format("RoomFrame.INSTANCE",inst.properties.get(PInstance.ID)));
+			return openCodeFrame(inst,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"), //$NON-NLS-1$
+					Messages.format("RoomFrame.INSTANCE",inst.properties.get(PInstance.ID))); //$NON-NLS-1$
 			}
 		return null;
 		}
@@ -3288,6 +3258,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	// When a text field related to a piece property gains the focus
 	public void focusGained(FocusEvent event)
 		{
+		pieceOriginalName = null;
 		pieceOriginalPosition = null;
 		pieceOriginalScale = null;
 		pieceOriginalRotation = null;
@@ -3300,12 +3271,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				|| event.getSource() == objectScaleY || event.getSource() == objectRotation
 				|| event.getSource() == objectAlpha)
 			{
-			// If no object is selected, return
-			int selectedIndex = oList.getSelectedIndex();
-			if (selectedIndex == -1) return;
-
 			// Save the selected instance
 			selectedPiece = oList.getSelectedValue();
+			// If no object is selected, return
+			if (selectedPiece == null) return;
 
 			// If we are modifying the name, save it for the undo
 			if (event.getSource() == objectName)
@@ -3333,14 +3302,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			// If we are modifying the rotation, save it for the undo
 			if (event.getSource() == objectRotation)
 				{
-				pieceOriginalRotation = new Double(selectedPiece.getRotation());
+				pieceOriginalRotation = selectedPiece.getRotation();
 				return;
 				}
 
 			// If we are modifying the alpha, save it for the undo
 			if (event.getSource() == objectAlpha)
 				{
-				pieceOriginalAlpha = new Integer(selectedPiece.getAlpha());
+				pieceOriginalAlpha = selectedPiece.getAlpha();
 				return;
 				}
 
@@ -3348,12 +3317,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		// We are modifying tiles
 		else
 			{
-			// If no tile is selected, return
-			int selectedIndex = tList.getSelectedIndex();
-			if (selectedIndex == -1) return;
-
 			// Save the selected tile
 			selectedPiece = tList.getSelectedValue();
+			// If no tile is selected, return
+			if (selectedPiece == null) return;
 
 			// Save the position of the tile for the undo
 			pieceOriginalPosition = new Point(selectedPiece.getPosition());
@@ -3382,13 +3349,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (pieceOriginalName != null)
 				{
 				// Get the new name of the object
-				String objectNewName = new String(selectedPiece.getName());
+				String objectNewName = selectedPiece.getName();
 
-				// If the rotation of the object has been changed
-				if (objectNewName != pieceOriginalName)
+				// If the name of the object has been changed
+				if (!pieceOriginalName.equals(objectNewName))
 					{
-					// Record the effect of rotating an object for the undo
-					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,pieceOriginalName,
+					// Record the effect of renaming an object for the undo
+					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,Type.NAME,pieceOriginalName,
 							objectNewName);
 					// notify the listeners
 					undoSupport.postEdit(edit);
@@ -3402,10 +3369,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				Point objectNewPosition = new Point(selectedPiece.getPosition());
 
 				// If the position of the object has been changed
-				if (!objectNewPosition.equals(pieceOriginalPosition))
+				if (!pieceOriginalPosition.equals(objectNewPosition))
 					{
 					// Record the effect of moving an object for the undo
-					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,pieceOriginalPosition,
+					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,Type.POSITION,pieceOriginalPosition,
 							objectNewPosition);
 					// notify the listeners
 					undoSupport.postEdit(edit);
@@ -3416,14 +3383,15 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (pieceOriginalScale != null)
 				{
 				// Get the new scale of the object
-				Point2D objectNewScale = selectedPiece.getScale();
+				Point2D objectNewScale = new Point2D.Double(selectedPiece.getScale().getX(),
+						selectedPiece.getScale().getY());
 
 				// If the scale of the object has been modified
-				if (!objectNewScale.equals(pieceOriginalScale))
+				if (!pieceOriginalScale.equals(objectNewScale))
 					{
 					// Record the effect of modifying the scale an object for the undo
-					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,pieceOriginalScale,
-							new Point2D.Double(objectNewScale.getX(),objectNewScale.getY()));
+					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,Type.SCALE,pieceOriginalScale,
+							objectNewScale);
 					// notify the listeners
 					undoSupport.postEdit(edit);
 					}
@@ -3433,13 +3401,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (pieceOriginalRotation != null)
 				{
 				// Get the new rotation of the object
-				Double objectNewRotation = new Double(selectedPiece.getRotation());
+				Double objectNewRotation = selectedPiece.getRotation();
 
 				// If the rotation of the object has been changed
-				if (objectNewRotation != pieceOriginalRotation)
+				if (!pieceOriginalRotation.equals(objectNewRotation))
 					{
 					// Record the effect of rotating an object for the undo
-					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,pieceOriginalRotation,
+					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,Type.ROTATION,pieceOriginalRotation,
 							objectNewRotation);
 					// notify the listeners
 					undoSupport.postEdit(edit);
@@ -3450,13 +3418,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (pieceOriginalAlpha != null)
 				{
 				// Get the new alpha of the object
-				Integer objectNewAlpha = new Integer(selectedPiece.getAlpha());
+				Integer objectNewAlpha = selectedPiece.getAlpha();
 
 				// If the alpha value of the object has been changed
-				if (objectNewAlpha != pieceOriginalAlpha)
+				if (!pieceOriginalAlpha.equals(objectNewAlpha))
 					{
 					// Record the effect of modifying the alpha value of an object for the undo
-					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,pieceOriginalAlpha,
+					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,Type.ALPHA,pieceOriginalAlpha,
 							objectNewAlpha);
 					// notify the listeners
 					undoSupport.postEdit(edit);
@@ -3470,19 +3438,22 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			int selectedIndex = tList.getSelectedIndex();
 			if (selectedIndex == -1) return;
 
-			// Get the new position of the tile
-			Point tileNewPosition = new Point(selectedPiece.getPosition());
-
-			// If the position of the tile has been changed
-			if (!tileNewPosition.equals(pieceOriginalPosition))
+			// If we have changed the position
+			if (pieceOriginalPosition != null)
 				{
-				// Record the effect of moving an tile for the undo
-				UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,pieceOriginalPosition,
-						tileNewPosition);
-				// notify the listeners
-				undoSupport.postEdit(edit);
+				// Get the new position of the tile
+				Point tileNewPosition = new Point(selectedPiece.getPosition());
+	
+				// If the position of the tile has been changed
+				if (!pieceOriginalPosition.equals(tileNewPosition))
+					{
+					// Record the effect of moving a tile for the undo
+					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,Type.POSITION,pieceOriginalPosition,
+							tileNewPosition);
+					// notify the listeners
+					undoSupport.postEdit(edit);
+					}
 				}
-
 			}
 
 		selectedPiece = null;

@@ -60,7 +60,7 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 		}
 
 	private static final EnumMap<PRoom,Object> DEFS = PropertyMap.makeDefaultMap(PRoom.class,"",640,
-			480,16,16,false,30,false,new Color(102,204,255),true,"",true,1024,640,true,true,true,true,true,
+			480,16,16,false,30,false,Color.LIGHT_GRAY,true,"",true,1024,640,true,true,true,true,true,
 			false,false,false,TAB_OBJECTS,0,0,false,true,false,0,0,640,480,0.0,10.0,0.1);
 
 	public Room()
@@ -87,6 +87,13 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 		return new Room(r);
 		}
 
+	/**
+	 * Allocates a new instance in this room and assigns it a valid id.
+	 * Callers are responsible for finishing initialization of the instance
+	 * so that when the instance visual is later validated on the event
+	 * dispatch thread, the instance will paint correctly.
+	 * @return A new instance allocated in this room.
+	 */
 	public Instance addInstance()
 		{
 		Instance inst = new Instance(this);

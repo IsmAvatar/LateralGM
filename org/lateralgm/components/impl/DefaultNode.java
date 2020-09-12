@@ -126,11 +126,6 @@ public class DefaultNode extends DefaultMutableTreeNode
 		return true;
 		}
 
-	public void openFrame()
-		{
-		// TODO Auto-generated method stub
-		}
-
 	public class EventNode extends DefaultNode {
 	/**
 	 * NOTE: Default UID generated, change if necessary.

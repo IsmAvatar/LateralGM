@@ -8,9 +8,11 @@
 
 package org.lateralgm.components.impl;
 
+import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -109,6 +111,7 @@ public class SpriteStripDialog extends JDialog implements Iterable<Rectangle>,Ac
 		JButton ok = new JButton(Messages.getString(str));
 		ok.setActionCommand(str);
 		ok.addActionListener(this);
+		this.getRootPane().setDefaultButton(ok);
 		str = "SpriteStripDialog.CANCEL";
 		JButton cancel = new JButton(Messages.getString(str));
 		cancel.setActionCommand(str);
@@ -159,7 +162,17 @@ public class SpriteStripDialog extends JDialog implements Iterable<Rectangle>,Ac
 
 		int i = 0;
 		for (Rectangle r : this)
-			ret[i++] = img.getSubimage(r.x,r.y,r.width,r.height);
+			{
+			// deep copy the subimage so the original (likely much larger) spritesheet
+			// isn't retained and can be eligible for garbage collection
+			BufferedImage subimage = new BufferedImage(r.width,r.height,img.getType());
+			Graphics2D g2d = (Graphics2D)subimage.createGraphics();
+			// Src is fastest copy method, essentially a bitblt
+			g2d.setComposite(AlphaComposite.Src);
+			g2d.drawImage(img,-r.x,-r.y,null);
+			g2d.dispose(); // << cleanup
+			ret[i++] = subimage;
+			}
 
 		return ret;
 		}

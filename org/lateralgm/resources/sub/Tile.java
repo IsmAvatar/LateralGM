@@ -59,9 +59,9 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 		{
 		room = r.reference;
 		properties = new PropertyMap<PTile>(PTile.class,this,DEFS);
+		properties.put(PTile.NAME, "tile_" + String.format("%08X", new Random().nextInt()));
 		properties.getUpdateSource(PTile.BACKGROUND).addListener(tpl);
 		properties.getUpdateSource(PTile.SELECTED).addListener(tpl);
-		properties.put(PTile.NAME, "tile_" + String.format("%08X", new Random().nextInt()));
 		}
 
 	public Tile(Room r, int id)

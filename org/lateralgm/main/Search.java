@@ -49,7 +49,6 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.lateralgm.components.ActionList;
 import org.lateralgm.components.CodeTextArea;
 import org.lateralgm.components.CustomJToolBar;
 import org.lateralgm.components.impl.ResNode;
@@ -450,6 +449,48 @@ public class Search
 			}
 		}
 
+	public static ArrayList<SearchResultNode> searchInAction(org.lateralgm.resources.sub.Action act,Pattern pattern)
+		{
+		ArrayList<SearchResultNode> resultNodes = new ArrayList<>();
+		List<Argument> args = act.getArguments();
+		for (int i = 0; i < args.size(); i++)
+			{
+			Argument arg = args.get(i);
+			Resource<?,?> ares = Util.deRef((ResourceReference<?>) arg.getRes());
+			String code = (ares == null) ? arg.getVal() : ares.getName();
+
+			List<LineMatch> matches = getMatchingLines(code,pattern);
+			for (LineMatch match : matches)
+				{
+				if (match.matchedText.size() > 0)
+					{
+					String text = match.toHighlightableString();
+
+					SearchResultNode resultNode = null;
+					if (act.getLibAction().actionKind != org.lateralgm.resources.sub.Action.ACT_CODE)
+						{
+						boolean enablehtml = Prefs.highlightResultMatchBackground
+								|| Prefs.highlightResultMatchForeground;
+						text = ((enablehtml ? "<html>" : "") + Integer.toString(i)
+								+ text.substring(text.indexOf(":"),text.length()));
+						resultNode = new SearchResultNode(text);
+						resultNode.data = new Object[] { i };
+						}
+					else
+						{
+						resultNode = new SearchResultNode(text);
+						resultNode.data = new Object[] { match.lineNum };
+						}
+
+					resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
+					resultNode.status = SearchResultNode.STATUS_RESULT;
+					resultNodes.add(resultNode);
+					}
+				}
+			}
+		return resultNodes;
+		}
+
 	public static void searchInResourcesRecursion(DefaultMutableTreeNode node, Pattern pattern)
 		{
 		int numChildren = node.getChildCount();
@@ -576,55 +617,15 @@ public class Search
 									for (int ii = 0; ii < actions.size(); ii++)
 										{
 										org.lateralgm.resources.sub.Action act = actions.get(ii);
-										ArrayList<SearchResultNode> resultNodes = new ArrayList<>();
-										int actMatches = 0;
-										List<Argument> args = act.getArguments();
-										for (int iii = 0; iii < args.size(); iii++)
-											{
-											Argument arg = args.get(iii);
-											String code = arg.getVal();
-											ResourceReference<? extends Resource<?,?>> aref = arg.getRes();
-											if (aref != null)
-												{
-												Resource<?,?> ares = aref.get();
-												code = ares.getName();
-												}
-											List<LineMatch> matches = getMatchingLines(code,pattern);
-											actMatches += matches.size();
-											for (LineMatch match : matches)
-												{
-												if (match.matchedText.size() > 0)
-													{
-													String text = match.toHighlightableString();
+										ArrayList<SearchResultNode> resultNodes =
+												Search.searchInAction(act,pattern);
 
-													SearchResultNode resultNode = null;
-													if (act.getLibAction().actionKind != org.lateralgm.resources.sub.Action.ACT_CODE)
-														{
-														boolean enablehtml = Prefs.highlightResultMatchBackground
-																|| Prefs.highlightResultMatchForeground;
-														text = ((enablehtml ? "<html>" : "") + Integer.toString(iii)
-																+ text.substring(text.indexOf(":"),text.length()));
-														resultNode = new SearchResultNode(text);
-														resultNode.data = new Object[] { iii };
-														}
-													else
-														{
-														resultNode = new SearchResultNode(text);
-														resultNode.data = new Object[] { match.lineNum };
-														}
-
-													resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
-													resultNode.status = SearchResultNode.STATUS_RESULT;
-													resultNodes.add(resultNode);
-													}
-												}
-											}
-										evMatches += actMatches;
+										evMatches += resultNodes.size();
 										if (resultNodes.size() > 0)
 											{
 											// Uses the same method of getting the Action name as ActionFrame
 											SearchResultNode actRoot = new SearchResultNode(formatMatchCountText(
-													act.getLibAction().name.replace("_"," "),actMatches));
+													act.getLibAction().name.replace("_"," "),resultNodes.size()));
 											actRoot.status = SearchResultNode.STATUS_ACTION;
 											actRoot.data = new Object[] { ii };
 											actRoot.setIcon(
@@ -697,56 +698,15 @@ public class Search
 								for (int ii = 0; ii < actions.size(); ii++)
 									{
 									org.lateralgm.resources.sub.Action act = actions.get(ii);
-									ArrayList<SearchResultNode> resultNodes = new ArrayList<>();
-									int actMatches = 0;
-									List<Argument> args = act.getArguments();
-									for (int iii = 0; iii < args.size(); iii++)
-										{
-										Argument arg = args.get(iii);
-										String code = arg.getVal();
-										ResourceReference<? extends Resource<?,?>> aref = arg.getRes();
-										if (aref != null)
-											{
-											Resource<?,?> ares = aref.get();
-											code = ares.getName();
-											}
-										List<LineMatch> matches = getMatchingLines(code,pattern);
-										actMatches += matches.size();
-										for (LineMatch match : matches)
-											{
-											if (match.matchedText.size() > 0)
-												{
-												String text = match.toHighlightableString();
+									ArrayList<SearchResultNode> resultNodes =
+											Search.searchInAction(act,pattern);
 
-												SearchResultNode resultNode = null;
-												if (act.getLibAction().actionKind != org.lateralgm.resources.sub.Action.ACT_CODE)
-													{
-													boolean enablehtml = Prefs.highlightResultMatchBackground
-															|| Prefs.highlightResultMatchForeground;
-													text = ((enablehtml ? "<html>" : "") + Integer.toString(iii)
-															+ text.substring(text.indexOf(":"),text.length()));
-													resultNode = new SearchResultNode(text);
-													resultNode.data = new Object[] { iii };
-													}
-												else
-													{
-													resultNode = new SearchResultNode(text);
-													resultNode.data = new Object[] { match.lineNum };
-													}
-
-												resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
-												resultNode.status = SearchResultNode.STATUS_RESULT;
-												resultNodes.add(resultNode);
-												}
-											}
-										}
-
-									momentMatches += actMatches;
+									momentMatches += resultNodes.size();
 									if (resultNodes.size() > 0)
 										{
 										// Uses the same method of getting the Action name as ActionFrame
 										SearchResultNode actRoot = new SearchResultNode(
-												formatMatchCountText(act.getLibAction().name.replace("_"," "),actMatches));
+												formatMatchCountText(act.getLibAction().name.replace("_"," "),resultNodes.size()));
 										actRoot.status = SearchResultNode.STATUS_ACTION;
 										actRoot.data = new Object[] { ii };
 										actRoot.setIcon(
@@ -1026,7 +986,7 @@ public class Search
 											org.lateralgm.resources.sub.Action act = objframe.actions.getSelectedValue();
 											if (act != null)
 												{
-												ActionFrame af = (ActionFrame) ActionList.openActionFrame(objframe,act);
+												ActionFrame af = (ActionFrame) objframe.actions.openActionFrame(objframe,act);
 												parentdata = new Object[] { af };
 												}
 											}
@@ -1058,7 +1018,7 @@ public class Search
 											org.lateralgm.resources.sub.Action act = tmlframe.actions.getSelectedValue();
 											if (act != null)
 												{
-												ActionFrame af = (ActionFrame) ActionList.openActionFrame(tmlframe,act);
+												ActionFrame af = (ActionFrame) tmlframe.actions.openActionFrame(tmlframe,act);
 												parentdata = new Object[] { af };
 												}
 											}
@@ -1303,6 +1263,7 @@ public class Search
 				filterSettings.setVisible(false);
 				}
 			});
+		filterSettings.getRootPane().setDefaultButton(closeButton);
 
 		JPanel panel = new JPanel();
 		GroupLayout gl = new GroupLayout(panel);
@@ -1471,24 +1432,10 @@ public class Search
 				KeyStroke.getKeyStroke(Messages.getKeyboardString("TreeFilter.EXPANDALL")));
 		expandAllItem.addActionListener(new ActionListener()
 			{
-			public void expandChildren(JTree tree, DefaultMutableTreeNode node)
-				{
-				Enumeration<?> children = node.children();
-				DefaultMutableTreeNode it = null;
-				while (children.hasMoreElements())
-					{
-					it = (DefaultMutableTreeNode) children.nextElement();
-					tree.expandPath(new TreePath(it.getPath()));
-					if (it.getChildCount() > 0)
-						{
-						expandChildren(tree,it);
-						}
-					}
-				}
-
 			public void actionPerformed(ActionEvent ev)
 				{
-				expandChildren(tree,(DefaultMutableTreeNode) tree.getModel().getRoot());
+				for (int i = 0; i < tree.getRowCount(); ++i)
+					tree.expandRow(i);
 				}
 			});
 		searchMenu.add(expandAllItem);

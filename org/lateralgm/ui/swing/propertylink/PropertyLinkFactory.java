@@ -12,7 +12,6 @@ package org.lateralgm.ui.swing.propertylink;
 import java.beans.ExceptionListener;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.AbstractButton;
 import javax.swing.BoundedRangeModel;
 import javax.swing.ButtonGroup;
@@ -33,41 +32,23 @@ public class PropertyLinkFactory<K extends Enum<K>>
 	{
 	private PropertyMap<K> map;
 	private final ExceptionListener exceptionListener;
-	/* This is a map used to inform all property links that the factory that created them has changed maps
-	 * and they should thus update their controls.
-	 */
-	private List<PropertyLinkMapListener<K>> mapListeners = new ArrayList<PropertyLinkMapListener<K>>();
 
 	/* Necessary for mass disposing links created by the factory */
 	private List<PropertyLink<K,?>> mapLinks = new ArrayList<PropertyLink<K,?>>();
 
-	public void addLinkMapListener(PropertyLinkMapListener<K> plml) {
-		mapListeners.add(plml);
-	}
-
-	public void removeLinkMapListener(PropertyLinkMapListener<K> plml) {
-		mapListeners.remove(plml);
-	}
-
 	public void removeAllLinks()
-	{
-		for (PropertyLink<?,?> link : mapLinks) {
+		{
+		for (PropertyLink<K,?> link : mapLinks)
 			link.remove();
-		}
 		mapLinks.clear();
-		mapListeners.clear();
-	}
-
-	public void setMap(PropertyMap<K> m) {
-		map = m;
-		for (PropertyLinkMapListener<K> listener : mapListeners) {
-			listener.mapChanged(map);
 		}
-	}
 
-	public abstract interface PropertyLinkMapListener<K extends Enum<K>> {
-		public abstract void mapChanged(PropertyMap<K> m);
-	}
+	public void setMap(PropertyMap<K> m)
+		{
+		map = m;
+		for (PropertyLink<K,?> link : mapLinks)
+			link.setMap(map);
+		}
 
 	public PropertyLinkFactory(PropertyMap<K> m, ExceptionListener el)
 		{
@@ -77,12 +58,6 @@ public class PropertyLinkFactory<K extends Enum<K>>
 
 	public <L extends PropertyLink<K,?>>L init(L l)
 		{
-		/* This should probably be moved into PropertyLink itself, but either way the PropertyLink needs
-		 * to know the plf that created it so it knows when to add and remove itself as a listener to
-		 * revert when the PLF decides to changes its map.
-		 */
-		l.factory = this;
-		addLinkMapListener(l);
 		mapLinks.add(l);
 		l.setExceptionListener(exceptionListener);
 		return l;

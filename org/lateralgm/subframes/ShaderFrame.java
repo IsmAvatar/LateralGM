@@ -24,7 +24,6 @@
 package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -39,7 +38,6 @@ import java.io.IOException;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -61,11 +59,9 @@ import org.lateralgm.file.FileChangeMonitor.FileUpdateEvent;
 import org.lateralgm.joshedit.Code;
 import org.lateralgm.joshedit.DefaultTokenMarker;
 import org.lateralgm.joshedit.JoshText.LineChangeListener;
-import org.lateralgm.joshedit.lexers.GLESTokenMarker;
-import org.lateralgm.joshedit.lexers.GLSLTokenMarker;
-import org.lateralgm.joshedit.lexers.HLSLTokenMarker;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.main.Util;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
@@ -82,9 +78,8 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 	public CodeTextArea fcode;
 	public JButton edit;
 	public JPanel status;
-	public JCheckBox precompileCB;
 	public JComboBox<String> typeCombo;
-	public String currentLang = "";
+	public String currentLang = ""; //$NON-NLS-1$
 
 	private ShaderEditor fragmentEditor;
 	private ShaderEditor vertexEditor;
@@ -95,8 +90,8 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		setSize(700,430);
 		setLayout(new BorderLayout());
 
-		vcode = new CodeTextArea((String) res.get(PShader.VERTEX),MarkerCache.getMarker("glsles"));
-		fcode = new CodeTextArea((String) res.get(PShader.FRAGMENT),MarkerCache.getMarker("glsles"));
+		vcode = new CodeTextArea((String) res.get(PShader.VERTEX),MarkerCache.getMarker("glsles")); //$NON-NLS-1$
+		fcode = new CodeTextArea((String) res.get(PShader.FRAGMENT),MarkerCache.getMarker("glsles")); //$NON-NLS-1$
 
 		editors = new JTabbedPane();
 		editors.addTab("Vertex",vcode);
@@ -115,7 +110,7 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		if (Prefs.useExternalScriptEditor) {
 			vcode.setEnabled(false);
 			edit = new JButton(LGM.getIconForKey("ShaderFrame.EDIT")); //$NON-NLS-1$
-			edit.setToolTipText(Messages.getString("ShaderFrame.EDIT"));
+			edit.setToolTipText(Messages.getString("ShaderFrame.EDIT")); //$NON-NLS-1$
 			edit.addActionListener(this);
 			tool.add(edit);
 
@@ -125,8 +120,14 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		this.addEditorButtons(tool);
 
 		tool.addSeparator();
-		tool.add(new JLabel(Messages.getString("ShaderFrame.TYPE")));
-		String[] typeOptions = { "GLSLES","GLSL","HLSL9","HLSL11" };
+		name.setColumns(13);
+		name.setMaximumSize(name.getPreferredSize());
+		tool.add(new JLabel(Messages.getString("ShaderFrame.NAME"))); //$NON-NLS-1$
+		tool.add(name);
+
+		tool.addSeparator();
+		tool.add(new JLabel(Messages.getString("ShaderFrame.TYPE"))); //$NON-NLS-1$
+		String[] typeOptions = { "GLSLES","GLSL","HLSL9","HLSL11" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		typeCombo = new JComboBox<String>(typeOptions);
 		typeCombo.setMaximumSize(typeCombo.getPreferredSize());
 		typeCombo.addItemListener(new ItemListener()
@@ -138,16 +139,6 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 			});
 		typeCombo.setSelectedItem(res.getType());
 		tool.add(typeCombo);
-		precompileCB = new JCheckBox(Messages.getString("ShaderFrame.PRECOMPILE"));
-		precompileCB.setSelected(res.getPrecompile());
-		precompileCB.setOpaque(false);
-		tool.addSeparator();
-		tool.add(precompileCB);
-		tool.addSeparator();
-		name.setColumns(13);
-		name.setMaximumSize(name.getPreferredSize());
-		tool.add(new JLabel(Messages.getString("ShaderFrame.NAME"))); //$NON-NLS-1$
-		tool.add(name);
 
 		status = new JPanel(new FlowLayout());
 		BoxLayout layout = new BoxLayout(status,BoxLayout.X_AXIS);
@@ -182,31 +173,8 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		{
 		//TODO: This should be moved into the base CodeTextArea, as a feature of JoshEdit
 		String val = typeCombo.getSelectedItem().toString();
-		if (val.equals(currentLang))
-			{
-			return;
-			}
-		DefaultTokenMarker marker = null;
-		if (val.equals("GLSLES"))
-			{
-			marker = new GLESTokenMarker();
-			}
-		else if (val.equals("GLSL"))
-			{
-			marker = new GLSLTokenMarker();
-			}
-		else if (val.equals("HLSL9"))
-			{
-			marker = new HLSLTokenMarker();
-			}
-		else if (val.equals("HLSL11"))
-			{
-			marker = new HLSLTokenMarker();
-			}
-		else
-			{
-
-			}
+		if (val.equals(currentLang)) return;
+		DefaultTokenMarker marker = MarkerCache.getMarker(val);
 		//TODO: Both of these calls will utilize the same lexer, but they both
 		//will recompose the list of completions. Should possibly add an abstract
 		//GetCompletions() to the DefaultTokenMarker class, so that all code editors
@@ -223,7 +191,6 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		res.put(PShader.FRAGMENT,fcode.getTextCompat());
 		res.setName(name.getText());
 		res.put(PShader.TYPE,typeCombo.getSelectedItem());
-		res.put(PShader.PRECOMPILE,precompileCB.isSelected());
 		}
 
 	public void fireInternalFrameEvent(int id)
@@ -277,14 +244,7 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 			monitor.updateSource.addListener(this,true);
 
 			if (!Prefs.useExternalScriptEditor || Prefs.externalScriptEditorCommand == null)
-				try
-					{
-					Desktop.getDesktop().edit(monitor.file);
-					}
-				catch (UnsupportedOperationException e)
-					{
-					LGM.showDefaultExceptionHandler(e);
-					}
+				Util.OpenDesktopEditor(monitor.file);
 			else
 				Runtime.getRuntime().exec(
 						String.format(Prefs.externalScriptEditorCommand,monitor.file.getAbsolutePath()));
@@ -364,19 +324,19 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 
 	public void addEditorButtons(JToolBar tb)
 		{
-		tb.add(makeToolbarButton("LOAD"));
-		tb.add(makeToolbarButton("SAVE"));
-		tb.add(makeToolbarButton("PRINT"));
+		tb.add(makeToolbarButton("LOAD")); //$NON-NLS-1$
+		tb.add(makeToolbarButton("SAVE")); //$NON-NLS-1$
+		tb.add(makeToolbarButton("PRINT")); //$NON-NLS-1$
 		tb.addSeparator();
 
-		tb.add(makeToolbarButton("CUT"));
-		tb.add(makeToolbarButton("COPY"));
-		tb.add(makeToolbarButton("PASTE"));
+		tb.add(makeToolbarButton("CUT")); //$NON-NLS-1$
+		tb.add(makeToolbarButton("COPY")); //$NON-NLS-1$
+		tb.add(makeToolbarButton("PASTE")); //$NON-NLS-1$
 		tb.addSeparator();
 
-		final JButton undoButton = makeToolbarButton("UNDO");
+		final JButton undoButton = makeToolbarButton("UNDO"); //$NON-NLS-1$
 		tb.add(undoButton);
-		final JButton redoButton = makeToolbarButton("REDO");
+		final JButton redoButton = makeToolbarButton("REDO"); //$NON-NLS-1$
 		tb.add(redoButton);
 		// need to set the default state unlike the component popup
 		undoButton.setEnabled(vcode.text.canUndo());
@@ -409,8 +369,8 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		fcode.text.addLineChangeListener(linelistener);
 		vcode.text.addLineChangeListener(linelistener);
 		tb.addSeparator();
-		tb.add(makeToolbarButton("FIND"));
-		tb.add(makeToolbarButton("GOTO"));
+		tb.add(makeToolbarButton("FIND")); //$NON-NLS-1$
+		tb.add(makeToolbarButton("GOTO")); //$NON-NLS-1$
 		}
 
 	public CodeTextArea getSelectedCode() {
@@ -463,15 +423,15 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 
 			CodeTextArea selectedCode = getSelectedCode();
 
-			if (com.equals("JoshText.LOAD"))
+			if (com.equals("JoshText.LOAD")) //$NON-NLS-1$
 				{
 				selectedCode.text.Load();
 				}
-			else if (com.equals("JoshText.SAVE"))
+			else if (com.equals("JoshText.SAVE")) //$NON-NLS-1$
 				{
 				selectedCode.text.Save();
 				}
-			else if (com.equals("JoshText.PRINT"))
+			else if (com.equals("JoshText.PRINT")) //$NON-NLS-1$
 				{
 				try
 					{
@@ -482,35 +442,35 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 					LGM.showDefaultExceptionHandler(e);
 					}
 				}
-			else if (com.equals("JoshText.UNDO"))
+			else if (com.equals("JoshText.UNDO")) //$NON-NLS-1$
 				{
 				selectedCode.text.Undo();
 				}
-			else if (com.equals("JoshText.REDO"))
+			else if (com.equals("JoshText.REDO")) //$NON-NLS-1$
 				{
 				selectedCode.text.Redo();
 				}
-			else if (com.equals("JoshText.CUT"))
+			else if (com.equals("JoshText.CUT")) //$NON-NLS-1$
 				{
 				selectedCode.text.Cut();
 				}
-			else if (com.equals("JoshText.COPY"))
+			else if (com.equals("JoshText.COPY")) //$NON-NLS-1$
 				{
 				selectedCode.text.Copy();
 				}
-			else if (com.equals("JoshText.PASTE"))
+			else if (com.equals("JoshText.PASTE")) //$NON-NLS-1$
 				{
 				selectedCode.text.Paste();
 				}
-			else if (com.equals("JoshText.FIND"))
+			else if (com.equals("JoshText.FIND")) //$NON-NLS-1$
 				{
 				selectedCode.text.ShowFind();
 				}
-			else if (com.equals("JoshText.GOTO"))
+			else if (com.equals("JoshText.GOTO")) //$NON-NLS-1$
 				{
 				selectedCode.aGoto();
 				}
-			else if (com.equals("JoshText.SELALL"))
+			else if (com.equals("JoshText.SELALL")) //$NON-NLS-1$
 				{
 				selectedCode.text.SelectAll();
 				}

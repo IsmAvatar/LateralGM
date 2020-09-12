@@ -21,17 +21,15 @@
 
 package org.lateralgm.subframes;
 
-import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.ExceptionListener;
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JButton;
-import javax.swing.JLabel;
-
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.mdi.RevertableMDIFrame;
 import org.lateralgm.main.LGM;
@@ -54,6 +52,7 @@ import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Timeline;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
+import org.lateralgm.util.WeakArrayList;
 
 /** Provides common functionality and structure to Resource editing frames */
 public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> extends
@@ -73,7 +72,10 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 
 	protected ResourceFrameListener frameListener;
 
+	/** The primary property link factory for creating links to the resource of this frame. */
 	protected final PropertyLinkFactory<P> plf;
+	/** The secondary property link factories for creating links to subresources of this frame. */
+	private final List<WeakReference<PropertyLinkFactory<?>>> plfSecondaries = new WeakArrayList<>();
 
 	// Static Factory methods //
 	public static Map<Class<?>,ResourceFrameFactory> factories = new HashMap<Class<?>,ResourceFrameFactory>();
@@ -167,7 +169,7 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		resOriginal = res.clone();
 		setFrameIcon(ResNode.ICON.get(res.getClass()));
 
-		save.setToolTipText(Messages.getString("ResourceFrame.SAVE")); //$NON-NLS-1$
+		save.setToolTipText(Messages.getString("ResourceFrame.SAVE_TOOLTIP")); //$NON-NLS-1$
 		save.setIcon(LGM.getIconForKey("ResourceFrame.SAVE")); //$NON-NLS-1$
 		save.addActionListener(this);
 		}
@@ -223,13 +225,6 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 
 	public abstract void commitChanges();
 
-	public static void addGap(Container c, int w, int h)
-		{
-		JLabel l = new JLabel();
-		l.setPreferredSize(new Dimension(w,h));
-		c.add(l);
-		}
-
 	public void doDefaultSaveAction() {
 		if (resourceChanged()) {
 			setResourceChanged();
@@ -251,6 +246,19 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		e.printStackTrace();
 		}
 
+	/**
+	 * Registers a secondary property link factory for a subresource of this frame.
+	 * The factory will automatically have all links cleared when this frame is
+	 * disposed to prevent lapsed listeners even though the links are weak listeners.
+	 * This is necessary because garbage collection is unpredictable and may never
+	 * run during the lifetime of an application.
+	 * @param secondaryFactory The subresource property link factory to register.
+	 */
+	public void addSecondaryPropertyLinkFactory(PropertyLinkFactory<?> secondaryFactory)
+		{
+		plfSecondaries.add(new WeakReference<PropertyLinkFactory<?>>(secondaryFactory));
+		}
+
 	public void dispose()
 		{
 		if (frameListener != null) frameListener.dispose();
@@ -258,7 +266,15 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		if (node != null) node.frame = null; // allows a new frame to open
 		save.removeActionListener(this);
 		removeAll();
-		plf.removeAllLinks();
+		plf.removeAllLinks(); // << remove primary property links
+		// remove secondary subresource based property links
+		for (WeakReference<PropertyLinkFactory<?>> wrs : plfSecondaries)
+			{
+			PropertyLinkFactory<?> plfSecondary = wrs.get();
+			if (plfSecondary == null) continue;
+			plfSecondary.removeAllLinks();
+			}
+		plfSecondaries.clear();
 		}
 
 	@Override

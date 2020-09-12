@@ -59,6 +59,7 @@ import org.lateralgm.resources.GameSettings.ProgressBar;
 import org.lateralgm.resources.GameSettings.Resolution;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.GmObject.PhysicsShape;
+import org.lateralgm.resources.Include.ExportAction;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Resource;
@@ -85,119 +86,59 @@ public class ProjectFile implements UpdateListener
 	//Game Settings Enums
 	public static final ColorDepth[] GS_DEPTHS = { ColorDepth.NO_CHANGE,ColorDepth.BIT_16,
 			ColorDepth.BIT_32 };
-	public static final Map<ColorDepth,Integer> GS_DEPTH_CODE;
+	public static final Map<ColorDepth,Integer> GS_DEPTH_CODE = enumCodeMap(GS_DEPTHS,ColorDepth.class);
 	public static final Resolution[] GS5_RESOLS = { Resolution.RES_640X480,Resolution.RES_800X600,
 			Resolution.RES_1024X768,Resolution.RES_1280X1024,Resolution.NO_CHANGE,Resolution.RES_320X240,
 			Resolution.RES_1600X1200 };
 	public static final Resolution[] GS_RESOLS = { Resolution.NO_CHANGE,Resolution.RES_320X240,
 			Resolution.RES_640X480,Resolution.RES_800X600,Resolution.RES_1024X768,
 			Resolution.RES_1280X1024,Resolution.RES_1600X1200 };
-	public static final Map<Resolution,Integer> GS_RESOL_CODE;
+	public static final Map<Resolution,Integer> GS_RESOL_CODE = enumCodeMap(GS_RESOLS,Resolution.class);
 	public static final Frequency[] GS_FREQS = { Frequency.NO_CHANGE,Frequency.FREQ_60,
 			Frequency.FREQ_70,Frequency.FREQ_85,Frequency.FREQ_100,Frequency.FREQ_120 };
-	public static final Map<Frequency,Integer> GS_FREQ_CODE;
+	public static final Map<Frequency,Integer> GS_FREQ_CODE = enumCodeMap(GS_FREQS,Frequency.class);
 	public static final Priority[] GS_PRIORITIES = { Priority.NORMAL,Priority.HIGH,Priority.HIGHEST };
-	public static final Map<Priority,Integer> GS_PRIORITY_CODE;
+	public static final Map<Priority,Integer> GS_PRIORITY_CODE = enumCodeMap(GS_PRIORITIES,Priority.class);
 	public static final ProgressBar[] GS_PROGBARS = { ProgressBar.NONE,ProgressBar.DEFAULT,
 			ProgressBar.CUSTOM };
-	public static final Map<ProgressBar,Integer> GS_PROGBAR_CODE;
+	public static final Map<ProgressBar,Integer> GS_PROGBAR_CODE = enumCodeMap(GS_PROGBARS,ProgressBar.class);
 	public static final IncludeFolder[] GS_INCFOLDERS = { IncludeFolder.MAIN,IncludeFolder.TEMP };
-	public static final Map<IncludeFolder,Integer> GS_INCFOLDER_CODE;
-	static
-		{
-		EnumMap<ColorDepth,Integer> m = new EnumMap<ColorDepth,Integer>(ColorDepth.class);
-		for (int i = 0; i < GS_DEPTHS.length; i++)
-			m.put(GS_DEPTHS[i],i);
-		GS_DEPTH_CODE = Collections.unmodifiableMap(m);
-
-		EnumMap<Resolution,Integer> m2 = new EnumMap<Resolution,Integer>(Resolution.class);
-		for (int i = 0; i < GS_RESOLS.length; i++)
-			m2.put(GS_RESOLS[i],i);
-		GS_RESOL_CODE = Collections.unmodifiableMap(m2);
-
-		EnumMap<Frequency,Integer> m3 = new EnumMap<Frequency,Integer>(Frequency.class);
-		for (int i = 0; i < GS_FREQS.length; i++)
-			m3.put(GS_FREQS[i],i);
-		GS_FREQ_CODE = Collections.unmodifiableMap(m3);
-
-		EnumMap<Priority,Integer> m4 = new EnumMap<Priority,Integer>(Priority.class);
-		for (int i = 0; i < GS_PRIORITIES.length; i++)
-			m4.put(GS_PRIORITIES[i],i);
-		GS_PRIORITY_CODE = Collections.unmodifiableMap(m4);
-
-		EnumMap<ProgressBar,Integer> m5 = new EnumMap<ProgressBar,Integer>(ProgressBar.class);
-		for (int i = 0; i < GS_PROGBARS.length; i++)
-			m5.put(GS_PROGBARS[i],i);
-		GS_PROGBAR_CODE = Collections.unmodifiableMap(m5);
-
-		EnumMap<IncludeFolder,Integer> m6 = new EnumMap<IncludeFolder,Integer>(IncludeFolder.class);
-		for (int i = 0; i < GS_INCFOLDERS.length; i++)
-			m6.put(GS_INCFOLDERS[i],i);
-		GS_INCFOLDER_CODE = Collections.unmodifiableMap(m6);
-		}
+	public static final Map<IncludeFolder,Integer> GS_INCFOLDER_CODE = enumCodeMap(GS_INCFOLDERS,IncludeFolder.class);
 
 	public static final Class<?>[] RESOURCE_KIND = { null,GmObject.class,Sprite.class,Sound.class,
 			Room.class,null,Background.class,Script.class,Path.class,Font.class,GameInformation.class,
 			GameSettings.class,Timeline.class,ExtensionPackages.class,Shader.class };
-	public static final Map<Class<?>,Integer> RESOURCE_CODE;
-	static
-		{
-		Map<Class<?>,Integer> m = new HashMap<Class<?>,Integer>();
-		for (int i = 0; i < RESOURCE_KIND.length; i++)
-			if (RESOURCE_KIND[i] != null) m.put(RESOURCE_KIND[i],i);
-		RESOURCE_CODE = Collections.unmodifiableMap(m);
-		}
+	public static final Map<Class<?>,Integer> RESOURCE_CODE = codeMap(RESOURCE_KIND, new HashMap<Class<?>,Integer>());
 	public static final PSound[] SOUND_FX_FLAGS = { PSound.CHORUS,PSound.ECHO,PSound.FLANGER,
 			PSound.GARGLE,PSound.REVERB };
 	public static final SoundKind[] SOUND_KIND = { SoundKind.NORMAL,SoundKind.BACKGROUND,
 			SoundKind.SPATIAL,SoundKind.MULTIMEDIA };
+	public static final Map<SoundKind,Integer> SOUND_KIND_CODE = enumCodeMap(SOUND_KIND,SoundKind.class);
 	public static final SoundType[] SOUND_TYPE = { SoundType.MONO, SoundType.STEREO,
 			SoundType.THREED };
-	public static final Map<SoundKind,Integer> SOUND_KIND_CODE;
-	static
-		{
-		EnumMap<SoundKind,Integer> m = new EnumMap<SoundKind,Integer>(SoundKind.class);
-		for (int i = 0; i < SOUND_KIND.length; i++)
-			m.put(SOUND_KIND[i],i);
-		SOUND_KIND_CODE = Collections.unmodifiableMap(m);
-		}
-	public static final Map<SoundType,Integer> SOUND_TYPE_CODE;
-	static
-		{
-		EnumMap<SoundType,Integer> m = new EnumMap<SoundType,Integer>(SoundType.class);
-		for (int i = 0; i < SOUND_TYPE.length; i++)
-			m.put(SOUND_TYPE[i],i);
-		SOUND_TYPE_CODE = Collections.unmodifiableMap(m);
-		}
+	public static final Map<SoundType,Integer> SOUND_TYPE_CODE = enumCodeMap(SOUND_TYPE,SoundType.class);
 	public static final PhysicsShape[] PHYSICS_SHAPE = { PhysicsShape.CIRCLE,PhysicsShape.BOX,
 			PhysicsShape.SHAPE };
-	public static final Map<PhysicsShape,Integer> SHAPE_CODE;
-	static
-		{
-		EnumMap<PhysicsShape,Integer> m = new EnumMap<PhysicsShape,Integer>(PhysicsShape.class);
-		for (int i = 0; i < PHYSICS_SHAPE.length; i++)
-			m.put(PHYSICS_SHAPE[i],i);
-		SHAPE_CODE = Collections.unmodifiableMap(m);
-		}
+	public static final Map<PhysicsShape,Integer> SHAPE_CODE = enumCodeMap(PHYSICS_SHAPE,PhysicsShape.class);
 	public static final BBMode[] SPRITE_BB_MODE = { BBMode.AUTO,BBMode.FULL,BBMode.MANUAL };
-	public static final Map<BBMode,Integer> SPRITE_BB_CODE;
-	static
-		{
-		EnumMap<BBMode,Integer> m = new EnumMap<BBMode,Integer>(BBMode.class);
-		for (int i = 0; i < SPRITE_BB_MODE.length; i++)
-			m.put(SPRITE_BB_MODE[i],i);
-		SPRITE_BB_CODE = Collections.unmodifiableMap(m);
-		}
+	public static final Map<BBMode,Integer> SPRITE_BB_CODE = enumCodeMap(SPRITE_BB_MODE,BBMode.class);
 	public static final MaskShape[] SPRITE_MASK_SHAPE = { MaskShape.PRECISE,MaskShape.RECTANGLE,
-			MaskShape.DISK,MaskShape.DIAMOND };
-	public static final Map<MaskShape,Integer> SPRITE_MASK_CODE;
-	static
+			MaskShape.DISK,MaskShape.DIAMOND,MaskShape.POLYGON };
+	public static final Map<MaskShape,Integer> SPRITE_MASK_CODE = enumCodeMap(SPRITE_MASK_SHAPE,MaskShape.class);
+	public static final ExportAction[] INCLUDE_EXPORT_ACTION = { ExportAction.DONT_EXPORT, ExportAction.TEMP_DIRECTORY,
+			ExportAction.SAME_FOLDER, ExportAction.CUSTOM_FOLDER };
+	public static final Map<ExportAction,Integer> INCLUDE_EXPORT_CODE = enumCodeMap(INCLUDE_EXPORT_ACTION,ExportAction.class);
+
+	private static final <T> Map<T,Integer> codeMap(T[] keys, Map<T,Integer> m)
 		{
-		EnumMap<MaskShape,Integer> m = new EnumMap<MaskShape,Integer>(MaskShape.class);
-		for (int i = 0; i < SPRITE_MASK_SHAPE.length; i++)
-			m.put(SPRITE_MASK_SHAPE[i],i);
-		m.put(MaskShape.POLYGON,m.get(MaskShape.RECTANGLE));
-		SPRITE_MASK_CODE = Collections.unmodifiableMap(m);
+		for (int i = 0; i < keys.length; i++)
+			if (keys[i] != null) m.put(keys[i],i);
+		return Collections.unmodifiableMap(m);
+		}
+
+	private static final <T extends Enum<T>> Map<T,Integer> enumCodeMap(T[] keys, Class<T> enumClass)
+		{
+		return codeMap(keys, new EnumMap<T,Integer>(enumClass));
 		}
 
 	public String getPath()
@@ -289,8 +230,8 @@ public class ProjectFile implements UpdateListener
 
 	public static class FormatFlavor
 		{
-		public static final String GM_OWNER = "GM";
-		public static final String GMX_OWNER = "GMX";
+		public static final String GM_OWNER = "GM"; //$NON-NLS-1$
+		public static final String GMX_OWNER = "GMX"; //$NON-NLS-1$
 		public static final FormatFlavor GM_530 = new FormatFlavor(GM_OWNER,530);
 		public static final FormatFlavor GM_600 = new FormatFlavor(GM_OWNER,600);
 		public static final FormatFlavor GM_701 = new FormatFlavor(GM_OWNER,701);
@@ -337,12 +278,173 @@ public class ProjectFile implements UpdateListener
 			}
 		}
 
+	/**
+	 * Class {@code InterfaceProvider} is used by the file readers
+	 * to report progress changes to the UI or to ask the frontend
+	 * to translate a message. The remaining documentation shall
+	 * refer to both project readers and writers synonymously in
+	 * this context.
+	 *
+	 * Any of the methods in this class which are called by the
+	 * reader could potentially be running on a background thread
+	 * and may therefore not be safe to perform UI work directly.
+	 *
+	 * @see javax.swing.SwingUtilities#invokeLater()
+	 * @since 1.8.111
+	 */
+	public static interface InterfaceProvider
+		{
+		/**
+		 * Called by the frontend when project reading begins.
+		 * This is where any desired modal blocking, such
+		 * as a progress dialog, should begin. As a result of
+		 * this usually starting the modal blocking, it is
+		 * usually called by the frontend on the EDT.
+		 *
+		 * @since 1.8.113
+		 */
+		public void start();
+		/**
+		 * Called by the frontend when project reading is done.
+		 * This is where any modal blocking should be finished
+		 * by hiding any shown progress dialogs. As a result of
+		 * this usually ending the modal blocking, it is usually
+		 * called by the frontend on the EDT, such as in
+		 * the done method of {@code SwingWorker}.
+		 *
+		 * @see   javax.swing.SwingWorker
+		 * @since 1.8.113
+		 */
+		public void done();
+		/**
+		 * Called by the reader when it has determined the size
+		 * of its workload and can provide a primary caption.
+		 *
+		 * @param max The maximum progress value.
+		 * @param titleKey A translatable key of the primary caption.
+		 */
+		public void init(int max, String titleKey);
+		/**
+		 * Called by the reader when progress has been made and
+		 * a secondary caption is available.
+		 *
+		 * @param percent The current progress value.
+		 * @param messageKey A translatable key of the secondary caption.
+		 */
+		public void setProgress(int percent, String messageKey);
+		/**
+		 * Called by the reader when it needs a message translated.
+		 * Usually required for translating exception messages.
+		 * Although the frontend is free to use it for translation
+		 * of progress message keys as well.
+		 *
+		 * @param  key A translatable key of the message.
+		 * @return The translation of the key.
+		 */
+		public String translate(String key);
+		/**
+		 * Called by the reader when it needs a message translated
+		 * and formated. Usually required for translating exception
+		 * messages. Although the frontend is free to use it for
+		 * translation of progress message keys as well.
+		 *
+		 * @param  key A translatable key of the message to format.
+		 * @param  arguments Variadic number of arguments to format.
+		 * @return The translation of the key formatted with arguments.
+		 */
+		public String format(String key, Object...arguments);
+		/**
+		 * Called by the reader whenever a recoverable exception
+		 * is encountered, allowing the frontend to decide how to
+		 * proceed.
+		 *
+		 * @param e The recoverable exception that should be handled.
+		 * @since 1.8.112
+		 */
+		public void handleException(Exception e);
+		}
+
+	/**
+	 * Class {@code DefaultInterfaceProvider} provides a default
+	 * implementation of InterfaceProvider. This makes it easy to
+	 * subclass and is equivalent to MouseAdapter in that you do
+	 * not need to override every interface method. Most of the
+	 * methods simply sink the progress output of the readers.
+	 *
+	 * @see   java.awt.event.MouseAdapter
+	 * @since 1.8.112
+	 */
+	public static class DefaultInterfaceProvider implements InterfaceProvider
+		{
+		/**
+		 * Does nothing.
+		 *
+		 * @since 1.8.113
+		 */
+		@Override
+		public void start() {}
+		/**
+		 * Does nothing.
+		 *
+		 * @since 1.8.113
+		 */
+		@Override
+		public void done() {}
+		/**
+		 * Does nothing.
+		 *
+		 * @param max Unused
+		 * @param titleKey Unused
+		 */
+		@Override
+		public void init(int max, String titleKey) {}
+		/**
+		 * Does nothing.
+		 *
+		 * @param percent Unused
+		 * @param messageKey Unused
+		 */
+		@Override
+		public void setProgress(int percent, String messageKey) {}
+		/**
+		 * Returns the unused key.
+		 *
+		 * @param  key Unused
+		 * @return The unused key.
+		 */
+		@Override
+		public String translate(String key) { return key; }
+		/**
+		 * Returns the unused key.
+		 *
+		 * @param  key Unused
+		 * @param  arguments Unused
+		 * @return The unused key.
+		 */
+		@Override
+		public String format(String key, Object...arguments) { return key; }
+		/**
+		 * Forwards the recoverable exception to the current thread's
+		 * default uncaught exception handler.
+		 *
+		 * @param e The recoverable exception that should be handled.
+		 */
+		@Override
+		public void handleException(Exception e)
+			{
+			Thread t = Thread.currentThread();
+			t.getUncaughtExceptionHandler().uncaughtException(t,e);
+			}
+		};
+
+	// This is the one that the project readers will actually use and depend upon.
+	public static InterfaceProvider interfaceProvider = new DefaultInterfaceProvider();
+
 	public ProjectFile()
 		{
 		resMap = new ResourceMap();
 		for (Class<?> kind : Resource.kinds)
 			if (InstantiableResource.class.isAssignableFrom(kind)) resMap.addList(kind);
-
 
 		// Default initial configuration
 		GameSettings gs = createDefaultConfig();

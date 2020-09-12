@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2019 Robert B. Colton
  *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -11,39 +12,31 @@ package org.lateralgm.subframes;
 
 import static org.lateralgm.main.Util.deRef;
 
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.ref.WeakReference;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.GroupLayout;
-import javax.swing.Icon;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTree;
-import javax.swing.TransferHandler;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.plaf.basic.BasicToolBarUI;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreePath;
+import javax.swing.JToolBar;
 
-import org.lateralgm.components.CustomJToolBar;
 import org.lateralgm.components.ResourceMenu;
-import org.lateralgm.components.impl.EventNode;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.mdi.MDIPane;
@@ -51,18 +44,19 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
-import org.lateralgm.subframes.GmObjectFrame.EventGroupNode;
-import org.lateralgm.subframes.GmObjectFrame.EventInstanceNode;
 
-public class EventPanel extends CustomJToolBar implements ActionListener,TreeSelectionListener,
-		PropertyChangeListener, UpdateListener
+public class EventPanel extends JPanel implements ActionListener,PropertyChangeListener,UpdateListener
 	{
-	private static final long serialVersionUID = 1L;
+	/**
+	 * NOTE: Default UID generated, change if necessary.
+	 */
+	private static final long serialVersionUID = 4801776050696461727L;
 
 	public static final int FUNCTION_ADD = 0;
 	public static final int FUNCTION_REPLACE = 1;
@@ -71,20 +65,84 @@ public class EventPanel extends CustomJToolBar implements ActionListener,TreeSel
 	public IndexButtonGroup function;
 	public ResourceMenu<GmObject> linkSelect;
 	public WeakReference<GmObjectFrame> linkedFrame;
-	private MListener mListener = new MListener();
-	public EventNode root;
-	public JTree events;
-	public EventNode selectedNode;
-	public EventNode collision;
 	public JCheckBox stayOpen;
+	private EventAction collisionBt;
+	private JMenu collisionMenu;
+
+	private class EventAction extends AbstractAction
+		{
+		/**
+		 * NOTE: Default UID generated, change if necessary.
+		 */
+		private static final long serialVersionUID = -3612891952734251981L;
+
+		private int mid = 0, sid = 0;
+		private ResourceReference<GmObject> other;
+
+		private JMenu subevtMenu = null;
+
+		public EventAction(int id, int sid, ResourceReference<GmObject> other)
+			{
+			super();
+			this.mid = id;
+			this.sid = sid;
+			this.other = other;
+			this.putValue(Action.SMALL_ICON,LGM.getIconForKey("EventNode.EVENT" + mid)); //$NON-NLS-1$
+			this.putValue(Action.LARGE_ICON_KEY,LGM.getIconForKey("EventNode.EVENT" + mid + "_32px")); //$NON-NLS-1$ //$NON-NLS-2$
+			this.putValue(Action.NAME,(other == null)?Event.eventName(mid,sid) : other.get().getName());
+			}
+
+		public EventAction(int id)
+			{
+			this(id, 0, null);
+			this.putValue(Action.SHORT_DESCRIPTION,Messages.getString("MainEvent.EVENT" + mid)); //$NON-NLS-1$
+			}
+
+		public EventAction(int id, int sid)
+			{
+			this(id, sid, null);
+			}
+
+		public EventAction(ResourceReference<GmObject> other)
+			{
+			this(MainEvent.EV_COLLISION, 0, other);
+			}
+
+		public void setEventMenu(JMenu subevtMenu)
+			{
+			this.subevtMenu = subevtMenu;
+			}
+
+		@Override
+		public void actionPerformed(ActionEvent e)
+			{
+			if (subevtMenu != null)
+				{
+				if (!(e.getSource() instanceof JComponent)) return;
+				JComponent src = (JComponent)e.getSource();
+				JPopupMenu popup = subevtMenu.getPopupMenu();
+				popup.show(src,src.getWidth(),0);
+				}
+			else
+				{
+				GmObjectFrame f = linkedFrame == null ? null : linkedFrame.get();
+				if (f != null)
+					{
+					f.functionEvent(function.getValue(),mid,sid,other,null);
+					f.toTop();
+					boolean ctrlDown = (e.getModifiers() & InputEvent.CTRL_MASK) != 0;
+					if (!stayOpen.isSelected() ^ ctrlDown) LGM.hideEventPanel();
+					}
+				}
+			}
+		}
 
 	public EventPanel()
 		{
-		super(VERTICAL);
+		super();
 		GroupLayout layout = new GroupLayout(this);
-		// This will ensure it gets the proper Window title when floating
-		setName(Messages.getString("Toolbar.EVENT_BUTTON"));
 
+		JPanel settingsLabelPane = Util.makeLabelPane(Messages.getString("EventPanel.SETTINGS")); //$NON-NLS-1$
 		function = new IndexButtonGroup(3,true,false);
 		JRadioButton ra = new JRadioButton(Messages.getString("EventPanel.ADD")); //$NON-NLS-1$
 		JRadioButton rr = new JRadioButton(Messages.getString("EventPanel.REPLACE")); //$NON-NLS-1$
@@ -94,438 +152,342 @@ public class EventPanel extends CustomJToolBar implements ActionListener,TreeSel
 		function.add(rd);
 		function.setValue(FUNCTION_ADD);
 
-		JLabel windowLabel = new JLabel(Messages.getString("EventPanel.OBJECT_WINDOW"));
+		JLabel contextLabel = new JLabel(Messages.getString("EventPanel.CONTEXT")); //$NON-NLS-1$
 		linkSelect = new ResourceMenu<GmObject>(GmObject.class,
 				Messages.getString("EventPanel.NO_LINK"),false,120,true,true); //$NON-NLS-1$
 		linkSelect.addActionListener(this);
 
 		stayOpen = new JCheckBox(Messages.getString("EventPanel.STAY_OPEN")); //$NON-NLS-1$
 
-		JScrollPane treeScroll = new JScrollPane(makeTree());
+		JPanel basicLabelPane = Util.makeLabelPane(Messages.getString("EventPanel.BASIC")); //$NON-NLS-1$
+		JToolBar basicTB = makeBasicToolBar();
 
-		layout.setVerticalGroup(layout.createSequentialGroup().addGap(10)
+		JPanel specialLabelPane = Util.makeLabelPane(Messages.getString("EventPanel.SPECIAL")); //$NON-NLS-1$
+		JToolBar specialTB = makeSpecialToolBar();
+
+		JPanel inputLabelPane = Util.makeLabelPane(Messages.getString("EventPanel.INPUT")); //$NON-NLS-1$
+		JToolBar inputTB = makeInputToolBar();
+
+		layout.setVerticalGroup(layout.createSequentialGroup().addGap(4)
+		/**/.addComponent(basicLabelPane)
+		/**/.addComponent(basicTB)
+		/**/.addComponent(specialLabelPane)
+		/**/.addComponent(specialTB)
+		/**/.addComponent(inputLabelPane)
+		/**/.addComponent(inputTB)
+		/**/.addComponent(settingsLabelPane)
 		/**/.addGroup(layout.createParallelGroup()
 		/*	*/.addComponent(ra).addComponent(rr).addComponent(rd))
-		/**/.addGroup(layout.createParallelGroup()
-		/*	*/.addComponent(windowLabel).addComponent(linkSelect))
-		/**/.addComponent(stayOpen).addComponent(treeScroll));
+		/**/.addComponent(stayOpen)
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(contextLabel).addComponent(linkSelect)).addGap(4));
 
-		layout.setHorizontalGroup(layout.createParallelGroup()
+		layout.setHorizontalGroup(layout.createSequentialGroup().addGap(4)
+		/**/.addGroup(layout.createParallelGroup()
+		/**/.addComponent(basicLabelPane)
+		/**/.addComponent(basicTB)
+		/**/.addComponent(specialLabelPane)
+		/**/.addComponent(specialTB)
+		/**/.addComponent(inputLabelPane)
+		/**/.addComponent(inputTB)
+		/**/.addComponent(settingsLabelPane)
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(ra).addComponent(rr).addComponent(rd))
+		/**/.addComponent(stayOpen)
 		/**/.addGroup(layout.createSequentialGroup()
-		/*	*/.addComponent(windowLabel).addComponent(linkSelect))
-		/**/.addComponent(stayOpen).addComponent(treeScroll));
+		/*	*/.addComponent(contextLabel).addComponent(linkSelect))).addGap(4));
 
 		// set the layout after you actually create the layout, otherwise it won't work for certain look and feels
 		setLayout(layout);
 		reload();
-		setPreferredSize(new Dimension(250,300));
 		}
 
-	private JTree makeTree()
+	private JToolBar makeBasicToolBar()
 		{
-		root = new EventNode("Root"); //$NON-NLS-1$
+		JToolBar tb = new JToolBar();
+		tb.setFloatable(false);
 
 		//CREATE
-		root.add(MainEvent.EV_CREATE);
-
-		//DESTROY
-		root.add(MainEvent.EV_DESTROY);
-
-		//ALARM
-		EventNode alarm = new EventNode(MainEvent.EV_ALARM);
-		root.add(alarm);
-		for (int i = 0; i <= 11; i++)
-			alarm.add(new EventNode(
-					Messages.format("Event.EVENT2_X",i),MainEvent.EV_ALARM,Event.EV_ALARM0 + i)); //$NON-NLS-1$
+		EventAction createBt = new EventAction(MainEvent.EV_CREATE);
 
 		//STEP
-		EventNode step = new EventNode(MainEvent.EV_STEP);
-		root.add(step);
+		EventAction stepBt = new EventAction(MainEvent.EV_STEP);
+		JMenu stepMenu = new JMenu();
 		for (int i = Event.EV_STEP_NORMAL; i <= Event.EV_STEP_END; i++)
-			step.add(MainEvent.EV_STEP,i);
-
-		//COLLISION
-		collision = new EventNode(MainEvent.EV_COLLISION);
-		root.add(collision);
-
-		//KEYBOARD
-		EventNode keyboard = new EventNode(MainEvent.EV_KEYBOARD);
-		root.add(keyboard);
-		keyboard.add(MainEvent.EV_KEYBOARD,Event.EV_NO_KEY);
-		keyboard.add(MainEvent.EV_KEYBOARD,Event.EV_ANY_KEY);
-		keyboard.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_LEFT);
-		keyboard.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_RIGHT);
-		keyboard.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_UP);
-		keyboard.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_DOWN);
-		keyboard.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_CONTROL);
-		keyboard.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_ALT);
-		keyboard.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_SHIFT);
-		keyboard.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_SPACE);
-		keyboard.add(MainEvent.EV_KEYBOARD,Event.EV_ENTER_KEY);
-
-		EventNode subkey;
-		subkey = new EventNode(Messages.getString("EventPanel.KEYPAD"),MainEvent.EV_KEYBOARD,0); //$NON-NLS-1$
-		keyboard.add(subkey);
-		for (int i = KeyEvent.VK_NUMPAD0; i <= KeyEvent.VK_NUMPAD9; i++)
-			subkey.add(MainEvent.EV_KEYBOARD,i);
-
-		subkey.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_DIVIDE);
-		subkey.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_MULTIPLY);
-		subkey.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_SUBTRACT);
-		subkey.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_ADD);
-		subkey.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_DECIMAL);
-
-		subkey = new EventNode(Messages.getString("EventPanel.DIGITS"),MainEvent.EV_KEYBOARD,0); //$NON-NLS-1$
-		keyboard.add(subkey);
-		for (int i = KeyEvent.VK_0; i <= KeyEvent.VK_9; i++)
-			subkey.add(MainEvent.EV_KEYBOARD,i);
-
-		subkey = new EventNode(Messages.getString("EventPanel.LETTERS"),MainEvent.EV_KEYBOARD,0); //$NON-NLS-1$
-		keyboard.add(subkey);
-		for (int i = KeyEvent.VK_A; i <= KeyEvent.VK_Z; i++)
-			subkey.add(MainEvent.EV_KEYBOARD,i);
-
-		subkey = new EventNode(Messages.getString("EventPanel.FUNCTION_KEYS"),MainEvent.EV_KEYBOARD,0); //$NON-NLS-1$
-		keyboard.add(subkey);
-		for (int i = KeyEvent.VK_F1; i <= KeyEvent.VK_F12; i++)
-			subkey.add(MainEvent.EV_KEYBOARD,i);
-
-		subkey = new EventNode(Messages.getString("EventPanel.OTHERS"),MainEvent.EV_KEYBOARD,0); //$NON-NLS-1$
-		keyboard.add(subkey);
-		subkey.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_BACK_SPACE);
-		subkey.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_ESCAPE);
-		subkey.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_HOME);
-		subkey.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_END);
-		subkey.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_PAGE_UP);
-		subkey.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_PAGE_DOWN);
-		subkey.add(MainEvent.EV_KEYBOARD,Event.EV_DELETE_KEY);
-		subkey.add(MainEvent.EV_KEYBOARD,Event.EV_INSERT_KEY);
-
-		//MOUSE
-		EventNode mouse = new EventNode(MainEvent.EV_MOUSE);
-		root.add(mouse);
-		for (int i = Event.EV_LEFT_BUTTON; i <= Event.EV_MOUSE_LEAVE; i++)
-			mouse.add(MainEvent.EV_MOUSE,i);
-
-		for (int i = Event.EV_MOUSE_WHEEL_UP; i <= Event.EV_MOUSE_WHEEL_DOWN; i++)
-			mouse.add(MainEvent.EV_MOUSE,i);
-
-		EventNode submouse;
-		submouse = new EventNode(Messages.getString("EventPanel.GLOBAL_MOUSE"),MainEvent.EV_MOUSE,0); //$NON-NLS-1$
-		mouse.add(submouse);
-		for (int i = Event.EV_GLOBAL_LEFT_BUTTON; i <= Event.EV_GLOBAL_MIDDLE_RELEASE; i++)
-			submouse.add(MainEvent.EV_MOUSE,i);
-
-		submouse = new EventNode(Messages.getString("EventPanel.JOYSTICK_1"),MainEvent.EV_MOUSE,0); //$NON-NLS-1$
-		mouse.add(submouse);
-		for (int i = Event.EV_JOYSTICK1_LEFT; i <= Event.EV_JOYSTICK1_BUTTON8; i++)
-			if (i != 20) submouse.add(MainEvent.EV_MOUSE,i);
-
-		submouse = new EventNode(Messages.getString("EventPanel.JOYSTICK_2"),MainEvent.EV_MOUSE,0); //$NON-NLS-1$
-		mouse.add(submouse);
-		for (int i = Event.EV_JOYSTICK2_LEFT; i <= Event.EV_JOYSTICK2_BUTTON8; i++)
-			if (i != 35) submouse.add(MainEvent.EV_MOUSE,i);
-
-		//OTHER
-		EventNode other = new EventNode(MainEvent.EV_OTHER);
-		root.add(other);
-		for (int i = Event.EV_OUTSIDE; i <= Event.EV_NO_MORE_HEALTH; i++)
-			other.add(MainEvent.EV_OTHER,i);
-
-		other.add(MainEvent.EV_OTHER,Event.EV_CLOSEWINDOW);
-
-		EventNode user = new EventNode(
-				Messages.getString("EventPanel.USER_DEFINED"),MainEvent.EV_OTHER,0); //$NON-NLS-1$
-		other.add(user);
-		for (int i = 0; i <= 15; i++)
-			{
-			user.add(new EventNode(
-					Messages.format("Event.EVENT7_X",i),MainEvent.EV_OTHER,Event.EV_USER0 + i)); //$NON-NLS-1$
-			}
-
-		EventNode outside = new EventNode(
-				Messages.getString("EventPanel.OUTSIDE_VIEW"),MainEvent.EV_OTHER,0); //$NON-NLS-1$
-		other.add(outside);
-		for (int i = 0; i <= 7; i++)
-			{
-			outside.add(new EventNode(
-					Messages.format("Event.EVENT7_40X",i),MainEvent.EV_OTHER,Event.EV_OUTSIDEVIEW0 + i)); //$NON-NLS-1$
-			}
-
-		EventNode boundary = new EventNode(
-				Messages.getString("EventPanel.BOUNDARY_VIEW"),MainEvent.EV_OTHER,0); //$NON-NLS-1$
-		other.add(boundary);
-		for (int i = 0; i <= 7; i++)
-			{
-			boundary.add(new EventNode(
-					Messages.format("Event.EVENT7_50X",i),MainEvent.EV_OTHER,Event.EV_BOUNDARYVIEW0 + i)); //$NON-NLS-1$
-			}
-
-		EventNode asynchronous = new EventNode(
-				Messages.getString("EventPanel.ASYNCHRONOUS"),MainEvent.EV_OTHER,0); //$NON-NLS-1$
-		other.add(asynchronous);
-		asynchronous.add(MainEvent.EV_OTHER,Event.EV_IMAGELOADED);
-		asynchronous.add(MainEvent.EV_OTHER,Event.EV_SOUNDLOADED);
-		asynchronous.add(MainEvent.EV_OTHER,Event.EV_HTTP);
-		asynchronous.add(MainEvent.EV_OTHER,Event.EV_DIALOG);
-		asynchronous.add(MainEvent.EV_OTHER,Event.EV_IAP);
-		asynchronous.add(MainEvent.EV_OTHER,Event.EV_CLOUD);
-		asynchronous.add(MainEvent.EV_OTHER,Event.EV_NETWORKING);
-		asynchronous.add(MainEvent.EV_OTHER,Event.EV_STEAM);
-		asynchronous.add(MainEvent.EV_OTHER,Event.EV_SOCIAL);
+			stepMenu.add(new EventAction(MainEvent.EV_STEP,i));
+		stepBt.setEventMenu(stepMenu);
 
 		//DRAW
-		EventNode drawev = new EventNode(MainEvent.EV_DRAW);
-		root.add(drawev);
-		drawev.add(MainEvent.EV_DRAW,Event.EV_DRAW_NORMAL);
-		drawev.add(MainEvent.EV_DRAW,Event.EV_DRAW_GUI);
-		drawev.add(MainEvent.EV_DRAW,Event.EV_DRAW_RESIZE);
+		EventAction drawBt = new EventAction(MainEvent.EV_DRAW);
+		JMenu drawMenu = new JMenu();
+		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_NORMAL));
+		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_GUI));
+		drawMenu.addSeparator();
 
-		//KEYPRESS
-		EventNode keypress = new EventNode(MainEvent.EV_KEYPRESS);
-		root.add(keypress);
-		keypress.add(MainEvent.EV_KEYPRESS,Event.EV_NO_KEY);
-		keypress.add(MainEvent.EV_KEYPRESS,Event.EV_ANY_KEY);
-		keypress.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_LEFT);
-		keypress.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_RIGHT);
-		keypress.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_UP);
-		keypress.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_DOWN);
-		keypress.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_CONTROL);
-		keypress.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_ALT);
-		keypress.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_SHIFT);
-		keypress.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_SPACE);
-		keypress.add(MainEvent.EV_KEYPRESS,Event.EV_ENTER_KEY);
+		for (int i = Event.EV_DRAW_BEGIN; i <= Event.EV_DRAW_POST; i++)
+			drawMenu.add(new EventAction(MainEvent.EV_DRAW,i));
+		drawMenu.insertSeparator(5); // after "Draw Begin"/"Draw End"
+		drawMenu.insertSeparator(8); // after "Draw GUI Begin"/"Draw GUI End"
+		drawMenu.addSeparator(); // after "Pre Draw"/"Post Draw"
 
-		subkey = new EventNode(Messages.getString("EventPanel.KEYPAD"),MainEvent.EV_KEYPRESS,0); //$NON-NLS-1$
-		keypress.add(subkey);
-		for (int i = KeyEvent.VK_NUMPAD0; i <= KeyEvent.VK_NUMPAD9; i++)
-			subkey.add(MainEvent.EV_KEYPRESS,i);
+		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_RESIZE));
+		drawBt.setEventMenu(drawMenu);
 
-		subkey.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_DIVIDE);
-		subkey.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_MULTIPLY);
-		subkey.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_SUBTRACT);
-		subkey.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_ADD);
-		subkey.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_DECIMAL);
+		//DESTROY
+		EventAction destroyBt = new EventAction(MainEvent.EV_DESTROY);
 
-		subkey = new EventNode(Messages.getString("EventPanel.DIGITS"),MainEvent.EV_KEYPRESS,0); //$NON-NLS-1$
-		keypress.add(subkey);
-		for (int i = KeyEvent.VK_0; i <= KeyEvent.VK_9; i++)
-			subkey.add(MainEvent.EV_KEYPRESS,i);
-
-		subkey = new EventNode(Messages.getString("EventPanel.LETTERS"),MainEvent.EV_KEYPRESS,0); //$NON-NLS-1$
-		keypress.add(subkey);
-		for (int i = KeyEvent.VK_A; i <= KeyEvent.VK_Z; i++)
-			subkey.add(MainEvent.EV_KEYPRESS,i);
-
-		subkey = new EventNode(Messages.getString("EventPanel.FUNCTION_KEYS"),MainEvent.EV_KEYPRESS,0); //$NON-NLS-1$
-		keypress.add(subkey);
-		for (int i = KeyEvent.VK_F1; i <= KeyEvent.VK_F12; i++)
-			subkey.add(MainEvent.EV_KEYPRESS,i);
-
-		subkey = new EventNode(Messages.getString("EventPanel.OTHERS"),MainEvent.EV_KEYPRESS,0); //$NON-NLS-1$
-		keypress.add(subkey);
-		subkey.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_BACK_SPACE);
-		subkey.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_ESCAPE);
-		subkey.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_HOME);
-		subkey.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_END);
-		subkey.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_PAGE_UP);
-		subkey.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_PAGE_DOWN);
-		subkey.add(MainEvent.EV_KEYPRESS,Event.EV_DELETE_KEY);
-		subkey.add(MainEvent.EV_KEYPRESS,Event.EV_INSERT_KEY);
-
-		//KEYRELEASE
-		EventNode keyrelase = new EventNode(MainEvent.EV_KEYRELEASE);
-		root.add(keyrelase);
-		keyrelase.add(MainEvent.EV_KEYRELEASE,Event.EV_NO_KEY);
-		keyrelase.add(MainEvent.EV_KEYRELEASE,Event.EV_ANY_KEY);
-		keyrelase.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_LEFT);
-		keyrelase.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_RIGHT);
-		keyrelase.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_UP);
-		keyrelase.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_DOWN);
-		keyrelase.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_CONTROL);
-		keyrelase.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_ALT);
-		keyrelase.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_SHIFT);
-		keyrelase.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_SPACE);
-		keyrelase.add(MainEvent.EV_KEYRELEASE,Event.EV_ENTER_KEY);
-
-		subkey = new EventNode(Messages.getString("EventPanel.KEYPAD"),MainEvent.EV_KEYRELEASE,0); //$NON-NLS-1$
-		keyrelase.add(subkey);
-		for (int i = KeyEvent.VK_NUMPAD0; i <= KeyEvent.VK_NUMPAD9; i++)
-			subkey.add(MainEvent.EV_KEYRELEASE,i);
-
-		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_DIVIDE);
-		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_MULTIPLY);
-		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_SUBTRACT);
-		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_ADD);
-		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_DECIMAL);
-
-		subkey = new EventNode(Messages.getString("EventPanel.DIGITS"),MainEvent.EV_KEYRELEASE,0); //$NON-NLS-1$
-		keyrelase.add(subkey);
-		for (int i = KeyEvent.VK_0; i <= KeyEvent.VK_9; i++)
-			subkey.add(MainEvent.EV_KEYRELEASE,i);
-
-		subkey = new EventNode(Messages.getString("EventPanel.LETTERS"),MainEvent.EV_KEYRELEASE,0); //$NON-NLS-1$
-		keyrelase.add(subkey);
-		for (int i = KeyEvent.VK_A; i <= KeyEvent.VK_Z; i++)
-			subkey.add(MainEvent.EV_KEYRELEASE,i);
-
-		subkey = new EventNode(Messages.getString("EventPanel.FUNCTION_KEYS"),MainEvent.EV_KEYRELEASE,0); //$NON-NLS-1$
-		keyrelase.add(subkey);
-		for (int i = KeyEvent.VK_F1; i <= KeyEvent.VK_F12; i++)
-			subkey.add(MainEvent.EV_KEYRELEASE,i);
-
-		subkey = new EventNode(Messages.getString("EventPanel.OTHERS"),MainEvent.EV_KEYRELEASE,0); //$NON-NLS-1$
-		keyrelase.add(subkey);
-		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_BACK_SPACE);
-		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_ESCAPE);
-		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_HOME);
-		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_END);
-		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_PAGE_UP);
-		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_PAGE_DOWN);
-		subkey.add(MainEvent.EV_KEYRELEASE,Event.EV_DELETE_KEY);
-		subkey.add(MainEvent.EV_KEYRELEASE,Event.EV_INSERT_KEY);
-
-		events = new JTree(root);
-		events.setCellRenderer(new EventNodeRenderer());
-		events.setRootVisible(false);
-		events.setShowsRootHandles(true);
-		events.setDragEnabled(true);
-		events.setTransferHandler(new EventNodeTransferHandler());
-		events.addTreeSelectionListener(this);
-		events.setScrollsOnExpand(true);
-		events.addMouseListener(mListener);
-
-		return events;
+		tb.add(createBt);
+		tb.add(stepBt);
+		tb.add(drawBt);
+		tb.add(destroyBt);
+		return tb;
 		}
 
-	public void populate_collision_node()
+	private JToolBar makeSpecialToolBar()
 		{
-		collision.removeAllChildren();
+		JToolBar tb = new JToolBar();
+		tb.setFloatable(false);
+
+		//COLLISION
+		collisionBt = new EventAction(MainEvent.EV_COLLISION);
+		collisionMenu = new JMenu();
+		collisionBt.setEventMenu(collisionMenu);
+
+		//ALARM
+		EventAction alarmBt = new EventAction(MainEvent.EV_ALARM);
+		JMenu alarmMenu = new JMenu();
+		for (int i = 0; i <= 11; i++)
+			alarmMenu.add(new EventAction(MainEvent.EV_ALARM,i));
+		alarmBt.setEventMenu(alarmMenu);
+
+		//OTHER
+		ImageIcon otherGroupIcon = LGM.getIconForKey("EventNode.GROUP" + MainEvent.EV_OTHER); //$NON-NLS-1$
+		EventAction otherBt = new EventAction(MainEvent.EV_OTHER);
+		JMenu otherMenu = new JMenu();
+		for (int i = Event.EV_OUTSIDE; i <= Event.EV_ROOM_END; i++)
+			otherMenu.add(new EventAction(MainEvent.EV_OTHER,i));
+		otherMenu.insertSeparator(2); // after "Outside Room"/"Intersect Boundary"
+
+		JMenu viewsMenu = new JMenu(Messages.getString("EventPanel.VIEWS")); //$NON-NLS-1$
+		viewsMenu.setIcon(otherGroupIcon);
+		for (int i = 0; i <= 7; i++)
+			viewsMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_OUTSIDEVIEW0 + i));
+		viewsMenu.addSeparator();
+		for (int i = 0; i <= 7; i++)
+			viewsMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_BOUNDARYVIEW0 + i));
+		otherMenu.insert(viewsMenu,3);
+
+		otherMenu.insertSeparator(4); // after "Views" menu
+		otherMenu.insertSeparator(7); // after "Game Start"/"Game End"
+		otherMenu.insertSeparator(10); // after "Room Start"/"Room End"
+		otherMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_NO_MORE_LIVES));
+		otherMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_NO_MORE_HEALTH));
+		otherMenu.addSeparator();
+		otherMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_ANIMATION_END));
+		otherMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_END_OF_PATH));
+		otherMenu.addSeparator();
+		otherMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_CLOSEWINDOW));
+		otherMenu.addSeparator();
+
+		JMenu userMenu = new JMenu(Messages.getString("EventPanel.USER_DEFINED")); //$NON-NLS-1$
+		userMenu.setIcon(otherGroupIcon);
+		for (int i = 0; i <= 15; i++)
+			userMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_USER0 + i));
+		otherMenu.add(userMenu);
+		otherMenu.addSeparator();
+
+		JMenu asynchronousMenu = new JMenu(Messages.getString("EventPanel.ASYNCHRONOUS")); //$NON-NLS-1$
+		asynchronousMenu.setIcon(otherGroupIcon);
+		asynchronousMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_IMAGELOADED));
+		asynchronousMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_SOUNDLOADED));
+		asynchronousMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_HTTP));
+		asynchronousMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_DIALOG));
+		asynchronousMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_IAP));
+		asynchronousMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_CLOUD));
+		asynchronousMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_NETWORKING));
+		asynchronousMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_STEAM));
+		asynchronousMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_SOCIAL));
+		otherMenu.add(asynchronousMenu);
+
+		otherBt.setEventMenu(otherMenu);
+
+		tb.add(collisionBt);
+		tb.add(alarmBt);
+		tb.add(otherBt);
+		return tb;
+		}
+
+	private EventAction makeKeyboardAction(int mid)
+		{
+		EventAction keyBt = new EventAction(mid);
+		JMenu keyMenu = new JMenu();
+		ImageIcon keyGroupIcon = LGM.getIconForKey("EventNode.GROUP" + mid); //$NON-NLS-1$
+
+		keyMenu.add(new EventAction(mid,Event.EV_NO_KEY));
+		keyMenu.add(new EventAction(mid,Event.EV_ANY_KEY));
+		keyMenu.addSeparator();
+		keyMenu.add(new EventAction(mid,KeyEvent.VK_LEFT));
+		keyMenu.add(new EventAction(mid,KeyEvent.VK_RIGHT));
+		keyMenu.add(new EventAction(mid,KeyEvent.VK_UP));
+		keyMenu.add(new EventAction(mid,KeyEvent.VK_DOWN));
+		keyMenu.addSeparator();
+		keyMenu.add(new EventAction(mid,KeyEvent.VK_CONTROL));
+		keyMenu.add(new EventAction(mid,KeyEvent.VK_ALT));
+		keyMenu.add(new EventAction(mid,KeyEvent.VK_SHIFT));
+		keyMenu.add(new EventAction(mid,KeyEvent.VK_SPACE));
+		keyMenu.add(new EventAction(mid,Event.EV_ENTER_KEY));
+		keyMenu.addSeparator();
+
+		JMenu keypadMenu = new JMenu(Messages.getString("EventPanel.KEYPAD")); //$NON-NLS-1$
+		keypadMenu.setIcon(keyGroupIcon);
+		for (int i = KeyEvent.VK_NUMPAD0; i <= KeyEvent.VK_NUMPAD9; i++)
+			keypadMenu.add(new EventAction(mid,i));
+
+		keypadMenu.add(new EventAction(mid,KeyEvent.VK_DIVIDE));
+		keypadMenu.add(new EventAction(mid,KeyEvent.VK_MULTIPLY));
+		keypadMenu.add(new EventAction(mid,KeyEvent.VK_SUBTRACT));
+		keypadMenu.add(new EventAction(mid,KeyEvent.VK_ADD));
+		keypadMenu.add(new EventAction(mid,KeyEvent.VK_DECIMAL));
+		keyMenu.add(keypadMenu);
+
+		JMenu digitsMenu = new JMenu(Messages.getString("EventPanel.DIGITS")); //$NON-NLS-1$
+		digitsMenu.setIcon(keyGroupIcon);
+		for (int i = KeyEvent.VK_0; i <= KeyEvent.VK_9; i++)
+			digitsMenu.add(new EventAction(mid,i));
+		keyMenu.add(digitsMenu);
+
+		JMenu lettersMenu = new JMenu(Messages.getString("EventPanel.LETTERS")); //$NON-NLS-1$
+		lettersMenu.setIcon(keyGroupIcon);
+		for (int i = KeyEvent.VK_A; i <= KeyEvent.VK_Z; i++)
+			lettersMenu.add(new EventAction(mid,i));
+		keyMenu.add(lettersMenu);
+
+		JMenu funcMenu = new JMenu(Messages.getString("EventPanel.FUNCTION_KEYS")); //$NON-NLS-1$
+		funcMenu.setIcon(keyGroupIcon);
+		for (int i = KeyEvent.VK_F1; i <= KeyEvent.VK_F12; i++)
+			funcMenu.add(new EventAction(mid,i));
+		keyMenu.add(funcMenu);
+
+		JMenu othersMenu = new JMenu(Messages.getString("EventPanel.OTHERS")); //$NON-NLS-1$
+		othersMenu.setIcon(keyGroupIcon);
+		othersMenu.add(new EventAction(mid,KeyEvent.VK_BACK_SPACE));
+		othersMenu.add(new EventAction(mid,KeyEvent.VK_ESCAPE));
+		othersMenu.add(new EventAction(mid,KeyEvent.VK_HOME));
+		othersMenu.add(new EventAction(mid,KeyEvent.VK_END));
+		othersMenu.add(new EventAction(mid,KeyEvent.VK_PAGE_UP));
+		othersMenu.add(new EventAction(mid,KeyEvent.VK_PAGE_DOWN));
+		othersMenu.add(new EventAction(mid,Event.EV_DELETE_KEY));
+		othersMenu.add(new EventAction(mid,Event.EV_INSERT_KEY));
+		keyMenu.add(othersMenu);
+
+		keyBt.setEventMenu(keyMenu);
+		return keyBt;
+		}
+
+	private JToolBar makeInputToolBar()
+		{
+		JToolBar tb = new JToolBar();
+		tb.setFloatable(false);
+
+		//KEYBOARD
+		EventAction keyBt = makeKeyboardAction(MainEvent.EV_KEYBOARD);
+
+		//KEYPRESS
+		EventAction keyPressBt = makeKeyboardAction(MainEvent.EV_KEYPRESS);
+
+		//KEYRELEASE
+		EventAction keyUpBt = makeKeyboardAction(MainEvent.EV_KEYRELEASE);
+
+		//MOUSE
+		EventAction mouseBt = new EventAction(MainEvent.EV_MOUSE);
+		JMenu mouseMenu = new JMenu();
+		ImageIcon mouseGroupIcon = LGM.getIconForKey("EventNode.GROUP" + MainEvent.EV_MOUSE); //$NON-NLS-1$
+		for (int i = Event.EV_LEFT_BUTTON; i <= Event.EV_MOUSE_LEAVE; i++)
+			mouseMenu.add(new EventAction(MainEvent.EV_MOUSE,i));
+		mouseMenu.insertSeparator(3); // after "Left Button"/"Right Button"/"Middle Button"
+		mouseMenu.insertSeparator(5); // after "No Button"
+		mouseMenu.insertSeparator(9); // after "Left Pressed"/"Right Pressed"/"Middle Pressed"
+		mouseMenu.insertSeparator(13); // after "Left Released"/"Right Released"/"Middle Released"
+		mouseMenu.addSeparator(); // after "Mouse Enter"/"Mouse Leave"
+		for (int i = Event.EV_MOUSE_WHEEL_UP; i <= Event.EV_MOUSE_WHEEL_DOWN; i++)
+			mouseMenu.add(new EventAction(MainEvent.EV_MOUSE,i));
+		mouseMenu.addSeparator();
+
+		JMenu globalMenu = new JMenu(Messages.getString("EventPanel.GLOBAL_MOUSE")); //$NON-NLS-1$
+		globalMenu.setIcon(mouseGroupIcon);
+		for (int i = Event.EV_GLOBAL_LEFT_BUTTON; i <= Event.EV_GLOBAL_MIDDLE_RELEASE; i++)
+			globalMenu.add(new EventAction(MainEvent.EV_MOUSE,i));
+		globalMenu.insertSeparator(3); // after "Global Left Button"/"Global Right Button"/"Global Middle Button"
+		globalMenu.insertSeparator(7); // after "Global Left Pressed"/"Global Right Pressed"/"Global Middle Pressed"
+		mouseMenu.add(globalMenu);
+		mouseMenu.addSeparator();
+
+		JMenu joy1Menu = new JMenu(Messages.getString("EventPanel.JOYSTICK_1")); //$NON-NLS-1$
+		joy1Menu.setIcon(mouseGroupIcon);
+		for (int i = Event.EV_JOYSTICK1_LEFT; i <= Event.EV_JOYSTICK1_BUTTON8; i++)
+			if (i != 20) joy1Menu.add(new EventAction(MainEvent.EV_MOUSE,i));
+		joy1Menu.insertSeparator(4); // after Joystick 1 "Left"/"Right"/"Up"/"Down"
+		mouseMenu.add(joy1Menu);
+
+		JMenu joy2Menu = new JMenu(Messages.getString("EventPanel.JOYSTICK_2")); //$NON-NLS-1$
+		joy2Menu.setIcon(mouseGroupIcon);
+		for (int i = Event.EV_JOYSTICK2_LEFT; i <= Event.EV_JOYSTICK2_BUTTON8; i++)
+			if (i != 35) joy2Menu.add(new EventAction(MainEvent.EV_MOUSE,i));
+		joy2Menu.insertSeparator(4); // after Joystick 2 "Left"/"Right"/"Up"/"Down"
+		mouseMenu.add(joy2Menu);
+
+		mouseBt.setEventMenu(mouseMenu);
+
+		tb.add(keyBt);
+		tb.add(keyPressBt);
+		tb.add(keyUpBt);
+		tb.add(mouseBt);
+		return tb;
+		}
+
+	public void populate_collision_menu()
+		{
+		collisionMenu.removeAll();
+		collisionBt.setEnabled(false);
 		if (Prefs.groupKind)
 			{
 			for (int i = 0; i < LGM.root.getChildCount(); i++)
 				{
 				ResNode group = (ResNode) LGM.root.getChildAt(i);
 				if (group.kind != GmObject.class) continue;
-				populate_object_nodes(collision,group);
-				return;
+				populate_object_nodes(collisionMenu,group);
 				}
 			}
-		populate_object_nodes(collision,LGM.root);
-		return;
+		else
+			populate_object_nodes(collisionMenu,LGM.root);
 		}
 
 	@SuppressWarnings("unchecked")
-	protected void populate_object_nodes(EventNode parent, ResNode group)
+	protected void populate_object_nodes(JMenu parent, ResNode group)
 		{
 		for (int i = 0; i < group.getChildCount(); i++)
 			{
 			ResNode child = (ResNode) group.getChildAt(i);
 			if (child.kind != GmObject.class) continue;
 			if (child.status == ResNode.STATUS_SECONDARY)
-				parent.add(MainEvent.EV_COLLISION,(ResourceReference<GmObject>) child.getRes());
+				{
+				parent.add(new EventAction((ResourceReference<GmObject>) child.getRes()));
+				collisionBt.setEnabled(true);
+				}
 			else if (child.status == ResNode.STATUS_GROUP)
 				{
-				EventNode subnode = new EventNode(child.getUserObject().toString(),MainEvent.EV_COLLISION,0);
-				parent.add(subnode);
-				if (child.getChildCount() > 0) populate_object_nodes(subnode,child);
-				}
-			}
-		}
-
-	public static class EventNodeRenderer extends DefaultTreeCellRenderer
-		{
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel,
-				boolean expanded, boolean leaf, int row, boolean hasFocus)
-			{
-			super.getTreeCellRendererComponent(tree,value,sel,expanded,leaf,row,hasFocus);
-			int mid = -1;
-			if (value instanceof EventNode)
-				{
-				EventNode en = (EventNode) value;
-				mid = en.mainId;
-				if (mid == MainEvent.EV_COLLISION && ((DefaultMutableTreeNode) en.getParent()).isRoot())
-					leaf = false;
-				}
-			if (value instanceof EventInstanceNode)
-				mid = ((EventInstanceNode) value).getUserObject().mainId;
-			if (value instanceof EventGroupNode) mid = ((EventGroupNode) value).mainId;
-			Icon i = LGM.getIconForKey("EventNode." + (leaf ? "EVENT" : "GROUP") + mid);
-			if (i != null && i.getIconWidth() != -1) setIcon(i);
-			return this;
-			}
-		}
-
-	private class EventNodeTransferHandler extends TransferHandler
-		{
-		private static final long serialVersionUID = 1L;
-
-		public EventNodeTransferHandler()
-			{
-			super();
-			}
-
-		@Override
-		protected Transferable createTransferable(JComponent c)
-			{
-			EventNode n = (EventNode) ((JTree) c).getLastSelectedPathComponent();
-			if (!n.isLeaf()) return null;
-			return n;
-			}
-
-		@Override
-		public int getSourceActions(JComponent c)
-			{
-			return COPY;
-			}
-
-		@Override
-		public boolean canImport(TransferHandler.TransferSupport support)
-			{
-			return false;
-			}
-		}
-
-	private class MListener extends MouseAdapter
-		{
-		@Override
-		public void mouseReleased(MouseEvent e)
-			{
-			if (e.getSource() != events) return;
-			int button = e.getButton();
-			int clicks = e.getClickCount();
-			if (button == MouseEvent.BUTTON1 || button == MouseEvent.BUTTON3)
-				{
-				TreePath path = events.getPathForLocation(e.getX(),e.getY());
-				if (path == null) return;
-				events.setSelectionPath(path);
-				if (events.isExpanded(path))
-					events.collapsePath(path);
-				else
-					events.expandPath(path);
-
-				EventNode n = (EventNode) path.getLastPathComponent();
-				if (n == null) return;
-
-				boolean added = (button == MouseEvent.BUTTON1 && clicks == 2)
-						|| (button == MouseEvent.BUTTON3 && clicks == 1);
-				GmObjectFrame f = linkedFrame == null ? null : linkedFrame.get();
-				if (added && n.isLeaf() && f != null && n.isValid())
-					{
-					f.functionEvent(n.mainId,n.eventId,n.other,null);
-					f.toTop();
-					if (!stayOpen.isSelected() ^ e.isControlDown()) LGM.hideEventPanel();
-					}
+				JMenu groupMenu = new JMenu(child.getUserObject().toString());
+				ImageIcon groupIcon = LGM.getIconForKey("EventNode.GROUP" + MainEvent.EV_COLLISION); //$NON-NLS-1$
+				groupMenu.setIcon(groupIcon);
+				if (child.getChildCount() > 0) populate_object_nodes(groupMenu,child);
+				else groupMenu.add(new JMenuItem(Messages.getString("EventPanel.EMPTY_GROUP"))); //$NON-NLS-1$
+				parent.add(groupMenu);
 				}
 			}
 		}
 
 	@SuppressWarnings("unchecked")
+	@Override
 	public void actionPerformed(ActionEvent e)
 		{
 		if (e.getSource() == linkSelect)
@@ -544,31 +506,8 @@ public class EventPanel extends CustomJToolBar implements ActionListener,TreeSel
 			}
 		}
 
-	@Override
-	public void setVisible(boolean b)
-		{
-		if (b == isVisible()) return;
-		//workaround for java bug 4782243
-		if (((BasicToolBarUI) getUI()).isFloating()) {
-			Container c = this, p = c.getParent();
-			while (p != null && p != LGM.frame && p != LGM.contents)
-				{
-				c = p;
-				p = c.getParent();
-				}
-			if (c != this) c.setVisible(b);
-		}
-		super.setVisible(b);
-		LGM.eventButton.setSelected(b);
-		}
-
-	public void valueChanged(TreeSelectionEvent e)
-		{
-		selectedNode = (EventNode) e.getPath().getLastPathComponent();
-		//populate_collision_node();
-		}
-
 	@SuppressWarnings("unchecked")
+	@Override
 	public void propertyChange(PropertyChangeEvent evt)
 		{
 		if (evt.getPropertyName().equals(MDIPane.SELECTED_FRAME_PROPERTY))
@@ -588,17 +527,16 @@ public class EventPanel extends CustomJToolBar implements ActionListener,TreeSel
 			}
 		}
 
+	@Override
 	public void updated(UpdateEvent e)
 		{
-		populate_collision_node();
-		events.updateUI();
+		populate_collision_menu();
 		}
 
 	public void reload()
 		{
 		LGM.mdi.addPropertyChangeListener(MDIPane.SELECTED_FRAME_PROPERTY,this);
 		LGM.root.updateSource.addListener(this);
-		populate_collision_node();
-		events.updateUI();
+		populate_collision_menu();
 		}
 	}

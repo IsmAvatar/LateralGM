@@ -14,9 +14,11 @@ package org.lateralgm.main;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -36,7 +38,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.DecimalFormat;
@@ -58,10 +63,13 @@ import javax.imageio.stream.ImageInputStream;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 
 import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.impl.CustomFileFilter;
@@ -95,6 +103,27 @@ public final class Util
 	public static DataFlavor createJVMLocalDataFlavor(String className) throws ClassNotFoundException
 		{
 		return new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=" + className); //$NON-NLS-1$
+		}
+
+	public static void setComponentTreeEnabled(JComponent comp, boolean enabled)
+		{
+		comp.setIgnoreRepaint(true);
+		comp.setEnabled(enabled);
+		for (Component child: comp.getComponents())
+			{
+			child.setEnabled(enabled);
+			}
+		comp.setIgnoreRepaint(false);
+		comp.repaint();
+		}
+
+	public static JPanel makeLabelPane(String name)
+		{
+		JPanel lp = new JPanel(new GridLayout(0,3,0,0));
+		Border mb = BorderFactory.createMatteBorder(1,0,0,0,new Color(184,184,184));
+		Border tb = BorderFactory.createTitledBorder(mb,name);
+		lp.setBorder(tb);
+		return lp;
 		}
 
 	public static BufferedImage paintBackground(int width, int height, Color background,
@@ -150,6 +179,7 @@ public final class Util
 					}
 				}
 			}
+		g.dispose();
 		return dest;
 		}
 
@@ -157,6 +187,32 @@ public final class Util
 		{
 		return paintBackgroundScaled(width,height,TILE,new Color(Prefs.imagePreviewBackgroundColor),
 				new Color(Prefs.imagePreviewForegroundColor));
+		}
+
+	/**
+	 * Converts a URI to an open OutputStream regardless of whether the URI refers to a local file
+	 * or a remote URL on a network.
+	 *
+	 * @return An OutputStream opened from the URI.
+	 * @param uri The URI to convert to an OutputStream.
+	 * @throws NullPointerException If {@code uri} is {@code null}
+	 * @throws IOException If the URI was malformed, or the connection otherwise failed.
+	 */
+	public static OutputStream openURIOutputStream(URI uri) throws NullPointerException,IOException
+		{
+		if (uri == null) throw new NullPointerException();
+		File file = null;
+		try
+			{
+			file = new File(uri);
+			}
+		catch (IllegalArgumentException e) // not a local file, try URL
+			{
+			URLConnection uc = uri.toURL().openConnection();
+			uc.setDoOutput(true);
+			return uc.getOutputStream();
+			}
+		return new FileOutputStream(file);
 		}
 
 	public static String urlEncode(String s)
@@ -214,7 +270,7 @@ public final class Util
 			return Util.readFully(new File(path));
 		}
 
-	public static void writeFully(File file, byte[] data) throws FileNotFoundException, IOException 
+	public static void writeFully(File file, byte[] data) throws FileNotFoundException, IOException
 		{
 		try (FileOutputStream fos = new FileOutputStream(file);
 				BufferedOutputStream bos = new BufferedOutputStream(fos))
@@ -451,6 +507,14 @@ public final class Util
 			return ""; // empty extension
 			}
 		return name.substring(lastIndexOf + 1);
+		}
+
+	public static String fileNameWithoutExtension(String fileName)
+		{
+		int indexOf = fileName.indexOf('.');
+		if (indexOf > 0)
+			return fileName.substring(0,indexOf);
+		return fileName;
 		}
 
 	//TODO: JPEG Writing is bugged in some newer JVM versions causing the RGB color channels to be mixed up.
@@ -1199,5 +1263,53 @@ public final class Util
 			ico.getDescriptors().clear();
 			ico.getDescriptors().add(bmd);
 			}
+		}
+
+	public static void OpenDesktopEditor(File file)
+		{
+		try
+			{
+			Desktop.getDesktop().edit(file);
+			}
+		catch (UnsupportedOperationException e)
+			{
+			JOptionPane.showMessageDialog(LGM.frame,
+					Messages.getString("ExternalEditorDialog.NOT_SUPPORTED_MESSAGE"), //$NON-NLS-1$
+					Messages.getString("ExternalEditorDialog.NOT_SUPPORTED_TITLE"), //$NON-NLS-1$
+					JOptionPane.ERROR_MESSAGE);
+			}
+		catch (IOException e)
+			{
+			JOptionPane.showMessageDialog(LGM.frame,
+					Messages.getString("ExternalEditorDialog.FAILED_MESSAGE"), //$NON-NLS-1$
+					Messages.getString("ExternalEditorDialog.FAILED_TITLE"), //$NON-NLS-1$
+					JOptionPane.ERROR_MESSAGE);
+			}
+		}
+
+	// Guaranteed contract to not throw an NPE and return false if str or suffix is null.
+	public static boolean stringEndsWith(String str, String suffix)
+		{
+		if (suffix == null || str == null) return false;
+		return str.endsWith(suffix);
+		}
+
+	// Reverses the left and right sides of a split and recalculates weight.
+	public static void orientSplit(JSplitPane orientationSplit,boolean reverse,Component left,Component right)
+		{
+		orientationSplit.setLeftComponent(reverse ? right : left);
+		orientationSplit.setRightComponent(reverse ? left : right);
+		if (reverse) orientationSplit.setResizeWeight(1.0d - orientationSplit.getResizeWeight());
+		}
+
+	// Recursively deletes a directory and all files and subdirectories.
+	// Use with caution! It's important this isn't abused anywhere.
+	// Consider asking the user for confirmation in most cases.
+	public static boolean directoryDelete(File f)
+		{
+		if (f.isDirectory())
+			for (File c : f.listFiles())
+				if (!directoryDelete(c)) return false;
+		return f.delete();
 		}
 	}

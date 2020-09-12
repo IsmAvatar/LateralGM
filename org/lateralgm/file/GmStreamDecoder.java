@@ -151,25 +151,29 @@ public class GmStreamDecoder extends StreamDecoder
 		return val == 0 ? false : true;
 		}
 
-	public <P extends Enum<P>>void read4(PropertyMap<P> map, P...keys) throws IOException
+	@SafeVarargs
+	public final <P extends Enum<P>>void read4(PropertyMap<P> map, P...keys) throws IOException
 		{
 		for (P key : keys)
 			map.put(key,read4());
 		}
 
-	public <P extends Enum<P>>void readStr(PropertyMap<P> map, P...keys) throws IOException
+	@SafeVarargs
+	public final <P extends Enum<P>>void readStr(PropertyMap<P> map, P...keys) throws IOException
 		{
 		for (P key : keys)
 			map.put(key,readStr());
 		}
 
-	public <P extends Enum<P>>void readBool(PropertyMap<P> map, P...keys) throws IOException
+	@SafeVarargs
+	public final <P extends Enum<P>>void readBool(PropertyMap<P> map, P...keys) throws IOException
 		{
 		for (P key : keys)
 			map.put(key,readBool());
 		}
 
-	public <P extends Enum<P>>void readD(PropertyMap<P> map, P...keys) throws IOException
+	@SafeVarargs
+	public final <P extends Enum<P>>void readD(PropertyMap<P> map, P...keys) throws IOException
 		{
 		for (P key : keys)
 			map.put(key,readD());

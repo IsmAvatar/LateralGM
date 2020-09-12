@@ -21,8 +21,8 @@ import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.JScrollPane;
 
-import org.lateralgm.main.WeakArrayList;
 import org.lateralgm.subframes.InstantiableResourceFrame;
+import org.lateralgm.util.WeakArrayList;
 
 public class MDIPane extends JDesktopPane
 	{

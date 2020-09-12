@@ -15,14 +15,11 @@
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.file.iconio"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main{Prefs.java"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.file"/>
-        <javaElement handleIdentifier="=LateralGM/modules\/joshedit&lt;org.lateralgm.joshedit.swing"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components.mdi"/>
-        <javaElement handleIdentifier="=LateralGM/modules\/joshedit&lt;org.lateralgm.joshedit.lexers"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.Calico.actions"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.Calico.restree"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main{Search.java"/>
         <file path="/LateralGM/org/lateralgm/main/icons.properties"/>
-        <javaElement handleIdentifier="=LateralGM/modules\/joshedit&lt;org.lateralgm.joshedit"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components.impl"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main{Util.java"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.resources.sub"/>
@@ -30,17 +27,15 @@
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main{Listener.java"/>
         <file path="/LateralGM/org/lateralgm/main/lgm-splash.png"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.Contrast.actions"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main{WeakArrayList.java"/>
+        <javaElement handleIdentifier="=LateralGM/modules\/joshedit\/src\/main\/java"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.ui.swing.visuals"/>
         <folder path="/LateralGM/META-INF"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components.visual"/>
         <file path="/LateralGM/COPYING"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main{LGM.java"/>
-        <javaElement handleIdentifier="=LateralGM/modules\/joshedit&lt;org.lateralgm.joshedit.preferences"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.subframes"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.ui.swing.propertylink"/>
         <javaElement handleIdentifier="=LateralGM/&lt;javax.swing.text.rtf"/>
-        <javaElement handleIdentifier="=LateralGM/modules\/joshedit&lt;org.lateralgm.joshedit.icons"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.resources.library"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main{PrefsStore.java"/>
         <file path="/LateralGM/org/lateralgm/main/preferences.properties"/>
@@ -55,6 +50,7 @@
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.Contrast.restree"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main{UpdateSource.java"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons"/>
+        <javaElement handleIdentifier="=LateralGM/modules\/joshedit\/src\/main\/resources"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main{OutputManager.java"/>
     </selectedElements>

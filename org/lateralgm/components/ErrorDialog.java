@@ -62,6 +62,7 @@ public class ErrorDialog extends JDialog implements ActionListener
 	public static String generateAgnosticInformation()
 		{
 		String ret = "LateralGM Version: " + LGM.version;
+		ret += "\nWorking Directory: " + LGM.workDir;
 
 		ret += "\n\nOperating System: " + System.getProperty("os.name");
 		ret += "\nVersion: " + System.getProperty("os.version");
@@ -71,7 +72,8 @@ public class ErrorDialog extends JDialog implements ActionListener
 		ret += "\nJava Vendor: " + System.getProperty("java.vendor");
 		ret += "\nVersion: " + System.getProperty("java.version");
 
-		ret += "\n\nAvailable processors (cores): " + Runtime.getRuntime().availableProcessors();
+		ret += "\n\nCurrent Thread: " + Thread.currentThread().getName();
+		ret += "\nAvailable processors (cores): " + Runtime.getRuntime().availableProcessors();
 		ret += "\nFree memory (bytes): " + Runtime.getRuntime().freeMemory();
 		long maxMemory = Runtime.getRuntime().maxMemory();
 		ret += "\nMaximum memory (bytes): " + (maxMemory == Long.MAX_VALUE ? "no limit" : maxMemory);
@@ -178,6 +180,7 @@ public class ErrorDialog extends JDialog implements ActionListener
 		copy = makeButton("ErrorDialog.COPY",this); //$NON-NLS-1$
 		submit = makeButton("ErrorDialog.SUBMIT",this); //$NON-NLS-1$
 		cancel = makeButton("ErrorDialog.CANCEL",this); //$NON-NLS-1$
+		this.getRootPane().setDefaultButton(cancel);
 
 		dim = new Dimension(Math.max(copy.getPreferredSize().width, cancel.getPreferredSize().width),
 			copy.getPreferredSize().height);

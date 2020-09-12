@@ -13,12 +13,9 @@ package org.lateralgm.components;
 import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.event.MouseEvent;
 
-import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -29,13 +26,12 @@ import javax.swing.JTabbedPane;
 import javax.swing.TransferHandler;
 import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
-import javax.swing.border.Border;
-
 import org.lateralgm.components.ActionList.ActionListModel;
 import org.lateralgm.components.ActionList.LibActionTransferHandler;
 import org.lateralgm.components.visual.VTextIcon;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibManager;
@@ -46,12 +42,16 @@ public class ActionListEditor extends JPanel
 	{
 	private static final long serialVersionUID = 1L;
 
+	private final ActionList list;
+
 	public ActionListEditor(ActionList list)
 		{
+		this.list = list;
 		GroupLayout layout = new GroupLayout(this);
 		setLayout(layout);
 
-		JLabel lab = new JLabel(Messages.getString("GmObjectFrame.ACTIONS")); //$NON-NLS-1$
+		JPanel labPane = Util.makeLabelPane(Messages.getString("GmObjectFrame.ACTIONS"));
+
 		JScrollPane scroll = new JScrollPane(list);
 		JTabbedPane actionTabs = makeLibraryTabs(list);
 
@@ -62,7 +62,7 @@ public class ActionListEditor extends JPanel
 		}
 
 		orientationGroup.addGroup(layout.createParallelGroup()
-		/*		*/.addComponent(lab)
+		/*		*/.addComponent(labPane,DEFAULT_SIZE,PREFERRED_SIZE,Short.MAX_VALUE)
 		/*		*/.addComponent(scroll,DEFAULT_SIZE,240,DEFAULT_SIZE));
 
 		if (!Prefs.rightOrientation) {
@@ -72,18 +72,14 @@ public class ActionListEditor extends JPanel
 		layout.setHorizontalGroup(orientationGroup);
 		layout.setVerticalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(lab)
+		/*		*/.addComponent(labPane,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
 		/*		*/.addComponent(scroll))
 		/**/.addComponent(actionTabs));
 		}
 
 	private static JPanel makeLabelPane(String name)
 		{
-		JPanel lp = new JPanel(new GridLayout(0,3,0,0));
-		Border mb = BorderFactory.createMatteBorder(1,0,0,0,new Color(184,184,184));
-		Border tb = BorderFactory.createTitledBorder(mb,name);
-		lp.setBorder(tb);
-		return lp;
+		return Util.makeLabelPane(name);
 		}
 
 	public static JTabbedPane makeLibraryTabs(ActionList actions)
@@ -166,7 +162,7 @@ public class ActionListEditor extends JPanel
 				Action act = new Action(libAction);
 				((ActionListModel) list.getModel()).add(act);
 				list.setSelectedValue(act,true);
-				ActionList.openActionFrame(list.parent.get(),act);
+				list.openActionFrame(list.parent.get(),act);
 				}
 			super.processMouseEvent(e);
 			}
@@ -179,7 +175,7 @@ public class ActionListEditor extends JPanel
 
 	public void dispose()
 		{
-		ActionList.closeFrames();
+		list.dispose();
 		}
 
 	}

@@ -26,75 +26,27 @@ import org.lateralgm.subframes.RoomFrame;
 
 public class ModifyPieceInstance extends AbstractUndoableEdit
 	{
+	public enum Type
+		{
+		NAME, POSITION, SCALE, ROTATION, ALPHA, COLOR
+		};
+
 	private static final long serialVersionUID = 1L;
 
 	private final Piece piece;
 	private RoomFrame roomFrame;
-	private String oldName = null;
-	private String newName = null;
-	private Point oldPosition = null;
-	private Point newPosition = null;
-	private Point2D oldScale = null;
-	private Point2D newScale = null;
-	private Double oldRotation = null;
-	private Double newRotation = null;
-	private Integer oldAlpha = null;
-	private Integer newAlpha = null;
-	private Color oldColor = null;
-	private Color newColor = null;
+	private Type type;
+	
+	private Object oldVal = null;
+	private Object newVal = null;
 
-	// Record the effect of renaming a piece
-	public ModifyPieceInstance(RoomFrame roomFrame, Piece piece, String oldName, String newName)
+	public ModifyPieceInstance(RoomFrame roomFrame, Piece piece, Type type, Object oldVal, Object newVal)
 		{
 		this.roomFrame = roomFrame;
 		this.piece = piece;
-		this.oldName = oldName;
-		this.newName = newName;
-		}
-
-	// Record the effect of moving a piece
-	public ModifyPieceInstance(RoomFrame roomFrame, Piece piece, Point oldPosition, Point newPosition)
-		{
-		this.roomFrame = roomFrame;
-		this.piece = piece;
-		this.oldPosition = oldPosition;
-		this.newPosition = newPosition;
-		}
-
-	// Record the effect of modifying the scale of a piece
-	public ModifyPieceInstance(RoomFrame roomFrame, Piece piece, Point2D oldScale, Point2D newScale)
-		{
-		this.roomFrame = roomFrame;
-		this.piece = piece;
-		this.oldScale = oldScale;
-		this.newScale = newScale;
-		}
-
-	// Record the effect of modifying the rotation of a piece
-	public ModifyPieceInstance(RoomFrame roomFrame, Piece piece, Double oldRotation, Double newRotation)
-		{
-		this.roomFrame = roomFrame;
-		this.piece = piece;
-		this.oldRotation = oldRotation;
-		this.newRotation = newRotation;
-		}
-
-	// Record the effect of modifying the alpha of a piece
-	public ModifyPieceInstance(RoomFrame roomFrame, Piece piece, Integer oldAlpha, Integer newAlpha)
-		{
-		this.roomFrame = roomFrame;
-		this.piece = piece;
-		this.oldAlpha = oldAlpha;
-		this.newAlpha = newAlpha;
-		}
-
-	// Record the effect of modifying the color of a piece
-	public ModifyPieceInstance(RoomFrame roomFrame, Piece piece, Color oldColor, Color newColor)
-		{
-		this.roomFrame = roomFrame;
-		this.piece = piece;
-		this.oldColor = oldColor;
-		this.newColor = newColor;
+		this.type = type;
+		this.oldVal = oldVal;
+		this.newVal = newVal;
 		}
 
 	private void selectPiece()
@@ -116,24 +68,30 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 	public void undo() throws CannotUndoException
 		{
 		selectPiece();
-		if (oldName != null) piece.setName(oldName);
-		if (oldPosition != null) piece.setPosition(oldPosition);
-		if (oldScale != null) piece.setScale(oldScale);
-		if (oldRotation != null) piece.setRotation(oldRotation);
-		if (oldAlpha != null) piece.setAlpha(oldAlpha);
-		if (oldColor != null) piece.setColor(oldColor);
+		switch (type)
+			{
+			case NAME: piece.setName((String) oldVal); break;
+			case POSITION: piece.setPosition((Point) oldVal); break;
+			case SCALE: piece.setScale((Point2D) oldVal); break;
+			case ROTATION: piece.setRotation((double) oldVal); break;
+			case ALPHA: piece.setAlpha((int) oldVal); break;
+			case COLOR: piece.setColor((Color) oldVal); break;
+			}
 		}
 
 	@Override
 	public void redo() throws CannotRedoException
 		{
 		selectPiece();
-		if (newName != null) piece.setName(newName);
-		if (newPosition != null) piece.setPosition(newPosition);
-		if (newScale != null) piece.setScale(newScale);
-		if (newRotation != null) piece.setRotation(newRotation);
-		if (newAlpha != null) piece.setAlpha(newAlpha);
-		if (newColor != null) piece.setColor(newColor);
+		switch (type)
+			{
+			case NAME: piece.setName((String) newVal); break;
+			case POSITION: piece.setPosition((Point) newVal); break;
+			case SCALE: piece.setScale((Point2D) newVal); break;
+			case ROTATION: piece.setRotation((double) newVal); break;
+			case ALPHA: piece.setAlpha((int) newVal); break;
+			case COLOR: piece.setColor((Color) newVal); break;
+			}
 		}
 
 	@Override

@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -97,8 +98,8 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 
 	protected static Timer timer;
 	protected Integer lastUpdateTaskID = 0;
-	private Set<SortedSet<String>> resourceKeywords = new HashSet<SortedSet<String>>();
-	protected Completion[] completions;
+	private static Set<SortedSet<String>> resourceKeywords = new HashSet<SortedSet<String>>();
+	protected static Completion[] completions;
 	protected DefaultTokenMarker tokenMarker;
 
 	private static final Color PURPLE = new Color(138,54,186);
@@ -120,7 +121,7 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 
 	public CodeTextArea(String code, DefaultTokenMarker marker)
 		{
-		super(code);
+		super(code, Prefs.codeFont);
 
 		tokenMarker = marker;
 
@@ -129,7 +130,6 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 		setupKeywords();
 		updateKeywords();
 		updateResourceKeywords();
-		text.setFont(Prefs.codeFont);
 		//painter.setStyles(PrefsStore.getSyntaxStyles());
 		text.getActionMap().put("COMPLETIONS",completionAction);
 		LGM.currentFile.updateSource.addListener(this);
@@ -268,6 +268,7 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 					d.setVisible(false);
 					}
 			});
+		d.getRootPane().setDefaultButton(b);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
@@ -325,14 +326,27 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 		{
 		resNames.words.clear();
 		scrNames.words.clear();
+		resourceKeywords.clear();
 		for (Entry<Class<?>,ResourceHolder<?>> e : LGM.currentFile.resMap.entrySet())
 			{
 			if (!(e.getValue() instanceof ResourceList<?>)) continue;
 			ResourceList<?> rl = (ResourceList<?>) e.getValue();
+			if (rl.isEmpty()) continue;
+			
 			KeywordSet ks = e.getKey() == Script.class ? scrNames : resNames;
+
+			// create a set used for the completion window
+			SortedSet<String> resSet = new TreeSet<String>();
+
 			for (Resource<?,?> r : rl)
+				{
 				ks.words.add(r.getName());
+				resSet.add(r.getName());
+				}
+
+			resourceKeywords.add(resSet);
 			}
+		if (!resourceKeywords.isEmpty()) completions = null;
 		}
 
 	protected void updateCompletions(DefaultTokenMarker tokenMarker2)

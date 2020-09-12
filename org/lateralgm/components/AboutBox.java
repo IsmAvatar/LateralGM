@@ -56,7 +56,7 @@ public class AboutBox extends JDialog implements PropertyChangeListener
 		setLinkHandler(ep);
 		lockWidth(ep,Math.max(ep.getMinimumSize().width,400));
 		JOptionPane op = new JOptionPane(ep,JOptionPane.PLAIN_MESSAGE,JOptionPane.DEFAULT_OPTION,null,
-				Option.values());
+				Option.values(),Option.CLOSE);
 		op.addPropertyChangeListener(JOptionPane.VALUE_PROPERTY,this);
 		add(op);
 		pack();

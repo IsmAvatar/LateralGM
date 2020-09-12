@@ -98,20 +98,21 @@ public final class Prefs
 		String d = "OBJ>obj_	SPR>spr_	SND>snd_	RMM>rm_	 BKG>bkg_  PTH>path_	SCR>scr_"
 				+ "  SHR>shr_	 FNT>font_	TML>time_";
 		createPrefixes(getString("prefixes",d));
-		locale = Locale.forLanguageTag(getString("localeTag","und"));
+		String localeTag = getString("localeTag",Locale.getDefault().toLanguageTag());
+		locale = Locale.forLanguageTag(localeTag);
 		documentationURI = getString("documentationURI","http://enigma-dev.org/docs/Wiki/Main_Page");
 		websiteURI = getString("websiteURI","http://github.com/IsmAvatar/LateralGM");
 		communityURI = getString("communityURI","http://enigma-dev.org/forums");
 		issueURI = getString("issueURI","http://github.com/IsmAvatar/LateralGM/issues");
 		enableDragAndDrop = getBoolean("enableDragAndDrop",true);
-		dockEventPanel = getBoolean("dockEventPanel",false);
+		expandEventTree = getBoolean("expandEventTree",true);
 		rightOrientation = getBoolean("rightOrientation",false);
 		boldPrimaryNodes = getBoolean("boldPrimaryNodes",true);
 		actionLibraryPath = getString("actionLibraryPath","org/lateralgm/resources/library/default");
 		userLibraryPath = getString("userLibraryPath","./lib");
 
 		imagePreviewBackgroundColor = getInt("imagePreviewBackgroundColor",
-			new Color(204,204,204).getRGB());
+			new Color(224,224,224).getRGB());
 		imagePreviewForegroundColor = getInt("imagePreviewForegroundColor",
 			new Color(172,172,172).getRGB());
 		highlightMatchCountBackground = getBoolean("highlightMatchCountBackground",false);
@@ -133,9 +134,8 @@ public final class Prefs
 
 		backupSave = getBoolean("backupSave",true);
 		backupExit = getBoolean("backupExit",true);
-		backupInterval = getBoolean("backupInterval",false);
-		backupCopies = getInt("backupCopies",3);
-		backupHours = getInt("backupHours",0);
+		backupAuto = getBoolean("backupAuto",false);
+		backupCopies = getInt("backupCopies",5);
 		backupMinutes = getInt("backupMinutes",5);
 
 		externalSpriteExtension = getString("externalSpriteExtension","png");
@@ -211,20 +211,19 @@ public final class Prefs
 	public static int eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
 
 	public static boolean boldPrimaryNodes;
-	public static boolean dockEventPanel;
 	public static boolean rightOrientation;
 	public static boolean enableDragAndDrop;
+	public static boolean expandEventTree;
 	public static String actionLibraryPath;
 	public static String userLibraryPath;
 	public static int actionToolTipColumns;
 	public static int actionToolTipLines;
 
 	public static int backupCopies;
-	public static int backupHours;
 	public static int backupMinutes;
 	public static boolean backupSave;
+	public static boolean backupAuto;
 	public static boolean backupExit;
-	public static boolean backupInterval;
 
 	public static boolean useExternalBackgroundEditor;
 	public static String externalBackgroundEditorCommand;
