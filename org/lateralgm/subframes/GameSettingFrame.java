@@ -337,7 +337,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		return panel;
 		}
 
-	private JPanel makeTextureAtlasesPane()
+	private JPanel makeTextureGroupsPane()
 		{
 		JPanel panel = new JPanel();
 		GroupLayout layout = new GroupLayout(panel);
@@ -875,7 +875,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		buildTab(root, "GameSettingFrame.TAB_INCLUDE", makeIncludePane());
 		buildTab(root, "GameSettingFrame.TAB_ERRORS", makeErrorPane());
 		buildTab(root, "GameSettingFrame.TAB_INFO", makeInfoPane());
-		buildTab(root, "GameSettingFrame.TAB_TEXTUREATLASES", makeTextureAtlasesPane());
+		buildTab(root, "GameSettingFrame.TAB_TEXTUREGROUPS", makeTextureGroupsPane());
 
 		DefaultMutableTreeNode pnode = buildTab(root, "GameSettingFrame.TAB_PLATFORMS", null);
 
