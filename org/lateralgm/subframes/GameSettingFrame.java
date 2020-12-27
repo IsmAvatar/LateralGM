@@ -38,6 +38,7 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -344,6 +345,72 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
+
+		JList groupList = new JList();
+		JScrollPane scroll = new JScrollPane(groupList);
+		JButton addBt = new JButton("Add");
+		JButton delBt = new JButton("Delete");
+
+		JCheckBox scaled = new JCheckBox("Scaled");
+		JCheckBox cropped = new JCheckBox("Cropped");
+		JLabel nameLabel = new JLabel("Name");
+		JTextField nameField = new JTextField();
+		JLabel parentLabel = new JLabel("Parent");
+		JComboBox parentCombo = new JComboBox();
+		JLabel borderLabel = new JLabel("Border");
+		NumberField borderField = new NumberField(0, 16);
+
+		JPanel detailPanel = new JPanel();
+		GroupLayout dl = new GroupLayout(detailPanel);
+		dl.setAutoCreateGaps(true);
+		dl.setAutoCreateContainerGaps(true);
+		detailPanel.setLayout(dl);
+		detailPanel.setBorder(BorderFactory.createTitledBorder("Edit Group Settings"));
+
+		dl.setHorizontalGroup(dl.createSequentialGroup()
+		/*	*/.addGroup(dl.createParallelGroup(Alignment.TRAILING)
+		/*		*/.addComponent(nameLabel)
+		/*		*/.addComponent(borderLabel)
+		/*		*/.addComponent(parentLabel))
+		/*	*/.addGroup(dl.createParallelGroup()
+		/*		*/.addComponent(nameField)
+		/*		*/.addComponent(borderField)
+		/*		*/.addComponent(parentCombo))
+		/*	*/.addGroup(dl.createParallelGroup()
+		/*		*/.addComponent(scaled)
+		/*		*/.addComponent(cropped)));
+		dl.setVerticalGroup(dl.createParallelGroup()
+		/**/.addGroup(dl.createSequentialGroup()
+		/*	*/.addGroup(dl.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(nameLabel)
+		/*		*/.addComponent(nameField))
+		/*	*/.addGroup(dl.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(borderLabel)
+		/*		*/.addComponent(borderField))
+		/*	*/.addGroup(dl.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(parentLabel)
+		/*		*/.addComponent(parentCombo)))
+		/**/.addGroup(dl.createSequentialGroup()
+		/*	*/.addComponent(scaled)
+		/*	*/.addComponent(cropped)));
+
+		layout.setHorizontalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup()
+		/*	*/.addComponent(scroll,DEFAULT_SIZE,DEFAULT_SIZE,DEFAULT_SIZE)
+		/*	*/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(addBt,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/*		*/.addComponent(delBt,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
+		/**/.addComponent(detailPanel)));
+
+		layout.setVerticalGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
+		/*	*/.addComponent(scroll)
+		/*	*/.addGroup(layout.createParallelGroup()
+		/*		*/.addComponent(addBt)
+		/*		*/.addComponent(delBt))
+		/**/.addComponent(detailPanel))
+);
+
 		return panel;
 		}
 
