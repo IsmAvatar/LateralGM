@@ -84,7 +84,6 @@ import org.lateralgm.resources.GameSettings.ProgressBar;
 import org.lateralgm.resources.GameSettings.Resolution;
 import org.lateralgm.resources.sub.TextureGroup;
 import org.lateralgm.resources.sub.TextureGroup.PTextureGroup;
-import org.lateralgm.resources.sub.CharacterRange.PCharacterRange;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 import org.lateralgm.ui.swing.util.ArrayListModel;
 import org.lateralgm.resources.Include;
