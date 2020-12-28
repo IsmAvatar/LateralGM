@@ -101,10 +101,12 @@ import org.lateralgm.resources.sub.GlyphMetric;
 import org.lateralgm.resources.sub.GlyphMetric.PGlyphMetric;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Instance.PInstance;
+import org.lateralgm.resources.sub.TextureGroup.PTextureGroup;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.resources.sub.ShapePoint;
+import org.lateralgm.resources.sub.TextureGroup;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.resources.sub.View;
@@ -520,6 +522,23 @@ public final class GMXFileWriter
 					gs.get(PGameSettings.VERSION_MINOR).toString()));
 			optNode.appendChild(createElement(doc,"option_version_release", //$NON-NLS-1$
 					gs.get(PGameSettings.VERSION_RELEASE).toString()));
+
+			optNode.appendChild(createElement(doc,"option_textureGroup_count", //$NON-NLS-1$
+					Integer.toString(gs.textureGroups.size())));
+			for (int i = 0; i < gs.textureGroups.size(); ++i) 
+				{
+				TextureGroup tg = gs.textureGroups.get(i);
+				optNode.appendChild(createElement(doc,"option_textureGroups" + i, //$NON-NLS-1$
+						(String) tg.properties.get(PTextureGroup.NAME)));
+				optNode.appendChild(createElement(doc,"option_textureGroup" + i + "_border", //$NON-NLS-1$ //$NON-NLS-2$
+						tg.properties.get(PTextureGroup.BORDER_WIDTH).toString()));
+				optNode.appendChild(createElement(doc,"option_textureGroup" + i + "_parent", //$NON-NLS-1$ //$NON-NLS-2$
+						"<none>")); //$NON-NLS-1$
+				optNode.appendChild(createElement(doc,"option_textureGroup" + i + "_nocropping", //$NON-NLS-1$ //$NON-NLS-2$
+						boolToString((Boolean)tg.properties.get(PTextureGroup.CROPPED))));
+				optNode.appendChild(createElement(doc,"option_textureGroup" + i + "_scaled", //$NON-NLS-1$ //$NON-NLS-2$
+						boolToString((Boolean)tg.properties.get(PTextureGroup.SCALED))));
+				}
 
 			Element cce = doc.createElement("ConfigConstants"); //$NON-NLS-1$
 			writeConstants(gs.constants, doc, cce);
