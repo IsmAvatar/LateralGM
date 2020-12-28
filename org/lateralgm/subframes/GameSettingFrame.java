@@ -80,6 +80,9 @@ import org.lateralgm.resources.GameSettings.PGameSettings;
 import org.lateralgm.resources.GameSettings.Priority;
 import org.lateralgm.resources.GameSettings.ProgressBar;
 import org.lateralgm.resources.GameSettings.Resolution;
+import org.lateralgm.resources.sub.CharacterRange;
+import org.lateralgm.resources.sub.TextureGroup;
+import org.lateralgm.ui.swing.util.ArrayListModel;
 import org.lateralgm.resources.Include;
 
 public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
@@ -338,6 +341,9 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		return panel;
 		}
 
+	private JButton addTexGroupBt, delTexGroupBt;
+	private JList<TextureGroup> texGroupList;
+
 	private JPanel makeTextureGroupsPane()
 		{
 		JPanel panel = new JPanel();
@@ -346,17 +352,20 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		JList groupList = new JList();
-		JScrollPane scroll = new JScrollPane(groupList);
-		JButton addBt = new JButton("Add");
-		JButton delBt = new JButton("Delete");
+		texGroupList = new JList<>();
+		texGroupList.setModel(new ArrayListModel<TextureGroup>(res.textureGroups));
+		JScrollPane scroll = new JScrollPane(texGroupList);
+		addTexGroupBt = new JButton("Add");
+		addTexGroupBt.addActionListener(this);
+		delTexGroupBt = new JButton("Delete");
+		delTexGroupBt.addActionListener(this);
 
 		JCheckBox scaled = new JCheckBox("Scaled");
 		JCheckBox cropped = new JCheckBox("Cropped");
 		JLabel nameLabel = new JLabel("Name");
 		JTextField nameField = new JTextField();
 		JLabel parentLabel = new JLabel("Parent");
-		JComboBox parentCombo = new JComboBox();
+		JComboBox<TextureGroup> parentCombo = new JComboBox<>();
 		JLabel borderLabel = new JLabel("Border");
 		NumberField borderField = new NumberField(0, 16);
 
@@ -398,16 +407,16 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		/**/.addGroup(layout.createParallelGroup()
 		/*	*/.addComponent(scroll,DEFAULT_SIZE,DEFAULT_SIZE,DEFAULT_SIZE)
 		/*	*/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(addBt,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/*		*/.addComponent(delBt,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
+		/*		*/.addComponent(addTexGroupBt,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/*		*/.addComponent(delTexGroupBt,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
 		/**/.addComponent(detailPanel)));
 
 		layout.setVerticalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(scroll)
 		/*	*/.addGroup(layout.createParallelGroup()
-		/*		*/.addComponent(addBt)
-		/*		*/.addComponent(delBt))
+		/*		*/.addComponent(addTexGroupBt)
+		/*		*/.addComponent(delTexGroupBt))
 		/**/.addComponent(detailPanel))
 );
 
@@ -978,6 +987,8 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 			loadActionPerformed(e);
 		} else if (name.endsWith(".TAB_WINDOWS")) {
 			windowsActionPerformed(e);
+		} else if (name.endsWith(".TAB_TEXTUREGROUPS")) {
+			texturesActionPerformed(e);
 		}
 
 		}
@@ -1055,6 +1066,22 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 			{
 			gameId.setValue(new Random().nextInt(100000001));
 			}
+		}
+
+	private void texturesActionPerformed(ActionEvent e)
+		{
+			if (e.getSource() == addTexGroupBt)
+				{
+				res.textureGroups.add(new TextureGroup());
+				}
+			else if (e.getSource() == delTexGroupBt)
+				{
+				int ind = texGroupList.getSelectedIndex();
+				// strictly larger than zero so we don't delete "Default" group
+				// in addition to handling the -1 no selection edge case
+				if (ind > 0)
+					res.textureGroups.remove(ind);
+				}
 		}
 
 	public void commitChanges()
