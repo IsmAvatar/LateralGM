@@ -80,7 +80,6 @@ import org.lateralgm.resources.GameSettings.PGameSettings;
 import org.lateralgm.resources.GameSettings.Priority;
 import org.lateralgm.resources.GameSettings.ProgressBar;
 import org.lateralgm.resources.GameSettings.Resolution;
-import org.lateralgm.resources.sub.CharacterRange;
 import org.lateralgm.resources.sub.TextureGroup;
 import org.lateralgm.ui.swing.util.ArrayListModel;
 import org.lateralgm.resources.Include;

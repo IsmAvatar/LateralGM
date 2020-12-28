@@ -19,7 +19,6 @@ import org.lateralgm.file.ProjectFile;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
-import org.lateralgm.resources.sub.CharacterRange;
 import org.lateralgm.resources.sub.TextureGroup;
 import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.PropertyMap;
