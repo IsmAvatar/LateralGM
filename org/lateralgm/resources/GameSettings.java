@@ -48,7 +48,12 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 		}
 
 	public Constants constants = new Constants();
-	public final ActiveArrayList<TextureGroup> textureGroups = new ActiveArrayList<TextureGroup>();
+	public final ActiveArrayList<TextureGroup> textureGroups = new ActiveArrayList<>();
+
+	public GameSettings()
+		{
+		textureGroups.add(new TextureGroup());
+		}
 
 	public enum ColorDepth
 		{

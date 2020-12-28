@@ -36,7 +36,7 @@ public class TextureGroup implements PropertyValidator<TextureGroup.PTextureGrou
 		}
 
 	private static final EnumMap<PTextureGroup,Object> DEFS = PropertyMap.makeDefaultMap(
-			PTextureGroup.class,"",false,false,2,null);
+			PTextureGroup.class,"Default",false,false,2,null);
 
 	public final PropertyMap<PTextureGroup> properties;
 
