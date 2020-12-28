@@ -1098,20 +1098,20 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 	private void texturesActionPerformed(ActionEvent e)
 		{
-			if (e.getSource() == addTexGroupBt)
-				{
-				TextureGroup tg = new TextureGroup();
-				tg.properties.put(PTextureGroup.NAME,"TexPage"+res.textureGroups.size());
-				res.textureGroups.add(tg);
-				}
-			else if (e.getSource() == delTexGroupBt)
-				{
-				int ind = texGroupList.getSelectedIndex();
-				// strictly larger than zero so we don't delete "Default" group
-				// in addition to handling the -1 no selection edge case
-				if (ind > 0)
-					res.textureGroups.remove(ind);
-				}
+		if (e.getSource() == addTexGroupBt)
+			{
+			TextureGroup tg = new TextureGroup();
+			tg.properties.put(PTextureGroup.NAME,"TexPage"+res.textureGroups.size());
+			res.textureGroups.add(tg);
+			}
+		else if (e.getSource() == delTexGroupBt)
+			{
+			int ind = texGroupList.getSelectedIndex();
+			// strictly larger than zero so we don't delete "Default" group
+			// in addition to handling the -1 no selection edge case
+			if (ind > 0)
+				res.textureGroups.remove(ind);
+			}
 		}
 
 	public void commitChanges()
