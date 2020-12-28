@@ -373,7 +373,8 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 		texGroupList = new JList<>();
 		texGroupList.setModel(new ArrayListModel<TextureGroup>(res.textureGroups));
-		texGroupList.addListSelectionListener(new ListSelectionListener() {
+		texGroupList.addListSelectionListener(new ListSelectionListener()
+			{
 			private PropertyLinkFactory<PTextureGroup> tglf;
 
 			@Override
@@ -396,7 +397,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 				delTexGroupBt.setEnabled(texGroupList.getSelectedIndex() > 0); // << don't delete "Default" group
 				Util.setComponentTreeEnabled(detailPanel,!texGroupList.isSelectionEmpty());
 				}
-		});
+			});
 		JScrollPane scroll = new JScrollPane(texGroupList);
 		addTexGroupBt = new JButton("Add");
 		addTexGroupBt.addActionListener(this);
@@ -915,8 +916,10 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		// reload after adding all root children to make sure its children are visible
 		((DefaultTreeModel)tree.getModel()).reload();
 
-		tree.addTreeSelectionListener(new TreeSelectionListener() {
-		public void valueChanged(TreeSelectionEvent e) {
+		tree.addTreeSelectionListener(new TreeSelectionListener()
+			{
+			public void valueChanged(TreeSelectionEvent e)
+				{
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode)
 													 tree.getLastSelectedPathComponent();
 
@@ -928,8 +931,8 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 				CardLayout cl = (CardLayout)(cardPane.getLayout());
 				cl.show(cardPane, nodeInfo);
-			}
-		});
+				}
+			});
 
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,
 				new JScrollPane(tree),cardPane);
@@ -1098,20 +1101,20 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 	private void texturesActionPerformed(ActionEvent e)
 		{
-			if (e.getSource() == addTexGroupBt)
-				{
-				TextureGroup tg = new TextureGroup();
-				tg.properties.put(PTextureGroup.NAME,"TexPage"+res.textureGroups.size());
-				res.textureGroups.add(tg);
-				}
-			else if (e.getSource() == delTexGroupBt)
-				{
-				int ind = texGroupList.getSelectedIndex();
-				// strictly larger than zero so we don't delete "Default" group
-				// in addition to handling the -1 no selection edge case
-				if (ind > 0)
-					res.textureGroups.remove(ind);
-				}
+		if (e.getSource() == addTexGroupBt)
+			{
+			TextureGroup tg = new TextureGroup();
+			tg.properties.put(PTextureGroup.NAME,"TexPage"+res.textureGroups.size());
+			res.textureGroups.add(tg);
+			}
+		else if (e.getSource() == delTexGroupBt)
+			{
+			int ind = texGroupList.getSelectedIndex();
+			// strictly larger than zero so we don't delete "Default" group
+			// in addition to handling the -1 no selection edge case
+			if (ind > 0)
+				res.textureGroups.remove(ind);
+			}
 		}
 
 	public void commitChanges()
