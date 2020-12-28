@@ -101,6 +101,8 @@ import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.resources.sub.ShapePoint;
+import org.lateralgm.resources.sub.TextureGroup;
+import org.lateralgm.resources.sub.TextureGroup.PTextureGroup;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.resources.sub.View;
@@ -564,6 +566,27 @@ public final class GMXFileReader
 				pSet.put(
 						PGameSettings.VERSION_RELEASE,
 						Integer.parseInt(setdoc.getElementsByTagName("option_version_release").item(0).getTextContent())); //$NON-NLS-1$
+
+				int texGroupCount = Integer.parseInt(setdoc.getElementsByTagName("option_textureGroup_count").item(0).getTextContent()); //$NON-NLS-1$
+				for (int j = 0; j < texGroupCount; ++j)
+					{
+					TextureGroup tg = null;
+					if (j < gSet.textureGroups.size()) tg = gSet.textureGroups.get(j);
+					else
+						{
+						tg = new TextureGroup();
+						gSet.textureGroups.add(tg);
+						}
+					PropertyMap<PTextureGroup> tSet = tg.properties;
+					tSet.put(PTextureGroup.NAME,
+							setdoc.getElementsByTagName("option_textureGroups" + j).item(0).getTextContent()); //$NON-NLS-1$
+					tSet.put(PTextureGroup.BORDER_WIDTH,
+							Integer.parseInt(setdoc.getElementsByTagName("option_textureGroup" + j + "_border").item(0).getTextContent())); //$NON-NLS-1$ //$NON-NLS-2$
+					tSet.put(PTextureGroup.SCALED,
+							Integer.parseInt(setdoc.getElementsByTagName("option_textureGroup" + j + "_scaled").item(0).getTextContent()) != 0); //$NON-NLS-1$ //$NON-NLS-2$
+					tSet.put(PTextureGroup.CROPPED,
+							Integer.parseInt(setdoc.getElementsByTagName("option_textureGroup" + j + "_nocropping").item(0).getTextContent()) != 0); //$NON-NLS-1$ //$NON-NLS-2$
+					}
 
 				Node cnstNode = setdoc.getElementsByTagName("ConfigConstants").item(0); //$NON-NLS-1$
 
