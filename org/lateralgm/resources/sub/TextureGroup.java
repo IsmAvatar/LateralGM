@@ -50,4 +50,10 @@ public class TextureGroup implements PropertyValidator<TextureGroup.PTextureGrou
 		{
 		return v;
 		}
+
+	@Override
+	public String toString()
+		{
+		return properties.get(PTextureGroup.NAME);
+		}
 	}

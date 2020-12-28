@@ -53,6 +53,8 @@ import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -81,6 +83,9 @@ import org.lateralgm.resources.GameSettings.Priority;
 import org.lateralgm.resources.GameSettings.ProgressBar;
 import org.lateralgm.resources.GameSettings.Resolution;
 import org.lateralgm.resources.sub.TextureGroup;
+import org.lateralgm.resources.sub.TextureGroup.PTextureGroup;
+import org.lateralgm.resources.sub.CharacterRange.PCharacterRange;
+import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 import org.lateralgm.ui.swing.util.ArrayListModel;
 import org.lateralgm.resources.Include;
 
@@ -351,29 +356,54 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		texGroupList = new JList<>();
-		texGroupList.setModel(new ArrayListModel<TextureGroup>(res.textureGroups));
-		JScrollPane scroll = new JScrollPane(texGroupList);
-		addTexGroupBt = new JButton("Add");
-		addTexGroupBt.addActionListener(this);
-		delTexGroupBt = new JButton("Delete");
-		delTexGroupBt.addActionListener(this);
-
-		JCheckBox scaled = new JCheckBox("Scaled");
-		JCheckBox cropped = new JCheckBox("Cropped");
-		JLabel nameLabel = new JLabel("Name");
-		JTextField nameField = new JTextField();
-		JLabel parentLabel = new JLabel("Parent");
-		JComboBox<TextureGroup> parentCombo = new JComboBox<>();
-		JLabel borderLabel = new JLabel("Border");
-		NumberField borderField = new NumberField(0, 16);
-
-		JPanel detailPanel = new JPanel();
+		final JPanel detailPanel = new JPanel();
 		GroupLayout dl = new GroupLayout(detailPanel);
 		dl.setAutoCreateGaps(true);
 		dl.setAutoCreateContainerGaps(true);
 		detailPanel.setLayout(dl);
 		detailPanel.setBorder(BorderFactory.createTitledBorder("Edit Group Settings"));
+
+		final JCheckBox scaled = new JCheckBox("Scaled");
+		final JCheckBox cropped = new JCheckBox("Cropped");
+		JLabel nameLabel = new JLabel("Name");
+		final JTextField nameField = new JTextField();
+		JLabel parentLabel = new JLabel("Parent");
+		JComboBox<TextureGroup> parentCombo = new JComboBox<>();
+		JLabel borderLabel = new JLabel("Border");
+		final NumberField borderField = new NumberField(0, 16);
+
+		texGroupList = new JList<>();
+		texGroupList.setModel(new ArrayListModel<TextureGroup>(res.textureGroups));
+		texGroupList.addListSelectionListener(new ListSelectionListener() {
+			private PropertyLinkFactory<PTextureGroup> tglf;
+
+			@Override
+			public void valueChanged(ListSelectionEvent e)
+				{
+				if (e.getValueIsAdjusting()) return;
+
+				TextureGroup tg = texGroupList.getSelectedValue();
+				if (tg != null)
+					{
+					if (tglf != null) tglf.removeAllLinks();
+					tglf = new PropertyLinkFactory<PTextureGroup>(
+							tg.properties,GameSettingFrame.this);
+					GameSettingFrame.this.addSecondaryPropertyLinkFactory(tglf);
+					tglf.make(scaled,PTextureGroup.SCALED);
+					tglf.make(cropped,PTextureGroup.CROPPED);
+					tglf.make(borderField,PTextureGroup.BORDER_WIDTH);
+					tglf.make(nameField.getDocument(),PTextureGroup.NAME);
+					}
+				delTexGroupBt.setEnabled(texGroupList.getSelectedIndex() > 0); // << don't delete "Default" group
+				Util.setComponentTreeEnabled(detailPanel,!texGroupList.isSelectionEmpty());
+				}
+		});
+		JScrollPane scroll = new JScrollPane(texGroupList);
+		addTexGroupBt = new JButton("Add");
+		addTexGroupBt.addActionListener(this);
+		delTexGroupBt = new JButton("Delete");
+		delTexGroupBt.addActionListener(this);
+		delTexGroupBt.setEnabled(false);
 
 		dl.setHorizontalGroup(dl.createSequentialGroup()
 		/*	*/.addGroup(dl.createParallelGroup(Alignment.TRAILING)
@@ -416,9 +446,9 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		/*	*/.addGroup(layout.createParallelGroup()
 		/*		*/.addComponent(addTexGroupBt)
 		/*		*/.addComponent(delTexGroupBt))
-		/**/.addComponent(detailPanel))
-);
+		/**/.addComponent(detailPanel)));
 
+		Util.setComponentTreeEnabled(detailPanel,false);
 		return panel;
 		}
 
@@ -1071,7 +1101,9 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		{
 			if (e.getSource() == addTexGroupBt)
 				{
-				res.textureGroups.add(new TextureGroup());
+				TextureGroup tg = new TextureGroup();
+				tg.properties.put(PTextureGroup.NAME,"TexPage"+res.textureGroups.size());
+				res.textureGroups.add(tg);
 				}
 			else if (e.getSource() == delTexGroupBt)
 				{
