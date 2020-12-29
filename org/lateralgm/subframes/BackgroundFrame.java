@@ -92,6 +92,8 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 	public NumberField vOffset;
 	public NumberField hSep;
 	public NumberField vSep;
+	public JPanel texturePanel;
+	public JCheckBox usedFor3D;
 	public JScrollPane previewScroll;
 	public BackgroundPreview preview;
 	public boolean imageChanged = false;
@@ -104,6 +106,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		super(res,node);
 		this.getRootPane().setDefaultButton(save);
 		res.properties.getUpdateSource(PBackground.USE_AS_TILESET).addListener(bpl);
+		res.properties.getUpdateSource(PBackground.FOR3D).addListener(bpl);
 		res.reference.updateSource.addListener(this);
 
 		this.setLayout(new BorderLayout());
@@ -311,12 +314,12 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		/*		*/.addComponent(vsLabel)
 		/*		*/.addComponent(vSep)));
 
-		JPanel texturePanel = new JPanel();
+		texturePanel = new JPanel();
 		GroupLayout tLayout = new GroupLayout(texturePanel);
 		tLayout.setAutoCreateContainerGaps(true);
 		texturePanel.setLayout(tLayout);
 
-		JCheckBox usedFor3D = new JCheckBox("Used for 3D");
+		usedFor3D = new JCheckBox("Used for 3D");
 		plf.make(usedFor3D,PBackground.FOR3D);
 		JCheckBox tileH = new JCheckBox("Tile Horizontal");
 		plf.make(tileH,PBackground.TILE_HORIZONTALLY);
@@ -366,11 +369,13 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		/**/.addComponent(transparent)
 		/**/.addComponent(tileset)
 		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
-		/**/.addComponent(tabPane)
+		/**/.addComponent(tabPane,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
 		/**/.addPreferredGap(ComponentPlacement.UNRELATED,0,MAX_VALUE)
 		/**/.addComponent(save));
 
 		Util.setComponentTreeEnabled(tilesetPanel,tileset.isSelected());
+		Util.setComponentTreeEnabled(texturePanel,!usedFor3D.isSelected());
+		usedFor3D.setEnabled(true);
 
 		return panel;
 		}
@@ -670,6 +675,9 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 			{
 			//USE_AS_TILESET
 			Util.setComponentTreeEnabled(tilesetPanel,(Boolean)res.get(PBackground.USE_AS_TILESET));
+			//FOR3D
+			Util.setComponentTreeEnabled(texturePanel,!(Boolean)res.get(PBackground.FOR3D));
+			usedFor3D.setEnabled(true);
 			}
 		}
 
