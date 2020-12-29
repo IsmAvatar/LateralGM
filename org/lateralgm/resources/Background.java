@@ -34,7 +34,7 @@ public class Background extends InstantiableResource<Background,Background.PBack
 		}
 
 	private static final EnumMap<PBackground,Object> DEFS = PropertyMap.makeDefaultMap(
-			PBackground.class,false,false,false,false,16,16,0,0,0,0,false,false,false);
+			PBackground.class,false,false,false,false,16,16,0,0,0,0,true,true,false);
 
 	public Background()
 		{

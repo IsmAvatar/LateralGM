@@ -31,13 +31,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -45,6 +45,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
@@ -84,7 +85,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 
 	public MouseAdapter mouseAdapter = null;
 
-	public JPanel groupPanel;
+	public JPanel tilesetPanel;
 	public NumberField tWidth;
 	public NumberField tHeight;
 	public NumberField hOffset;
@@ -228,12 +229,10 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		tileset = new JCheckBox(Messages.getString("BackgroundFrame.USE_AS_TILESET")); //$NON-NLS-1$
 		plf.make(tileset,PBackground.USE_AS_TILESET);
 
-		groupPanel = new JPanel();
-		GroupLayout pLayout = new GroupLayout(groupPanel);
+		tilesetPanel = new JPanel();
+		GroupLayout pLayout = new GroupLayout(tilesetPanel);
 		pLayout.setAutoCreateContainerGaps(true);
-		groupPanel.setLayout(pLayout);
-		String tileProps = Messages.getString("BackgroundFrame.TILE_PROPERTIES"); //$NON-NLS-1$
-		groupPanel.setBorder(BorderFactory.createTitledBorder(tileProps));
+		tilesetPanel.setLayout(pLayout);
 
 		JLabel twLabel = new JLabel(Messages.getString("BackgroundFrame.TILE_WIDTH")); //$NON-NLS-1$
 		twLabel.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -312,8 +311,40 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		/*		*/.addComponent(vsLabel)
 		/*		*/.addComponent(vSep)));
 
+		JPanel texturePanel = new JPanel();
+		GroupLayout tLayout = new GroupLayout(texturePanel);
+		tLayout.setAutoCreateContainerGaps(true);
+		texturePanel.setLayout(tLayout);
+
+		JCheckBox usedFor3D = new JCheckBox("Used for 3D");
+		plf.make(usedFor3D,PBackground.FOR3D);
+		JCheckBox tileH = new JCheckBox("Tile Horizontal");
+		plf.make(tileH,PBackground.TILE_HORIZONTALLY);
+		JCheckBox tileV = new JCheckBox("Tile Vertical");
+		plf.make(tileV,PBackground.TILE_VERTICALLY);
+		JLabel groupLabel = new JLabel("Group:");
+		JComboBox<String> groupCombo = new JComboBox<String>();
+
+		tLayout.setHorizontalGroup(tLayout.createParallelGroup()
+		/**/.addComponent(usedFor3D)
+		/**/.addComponent(tileH)
+		/**/.addComponent(tileV)
+		/**/.addComponent(groupLabel)
+		/**/.addComponent(groupCombo));
+		tLayout.setVerticalGroup(tLayout.createSequentialGroup()
+		/**/.addComponent(usedFor3D)
+		/**/.addComponent(tileH)
+		/**/.addComponent(tileV)
+		/**/.addComponent(groupLabel)
+		/**/.addComponent(groupCombo,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE));
+
 		JLabel nameLabel = new JLabel(Messages.getString("SpriteFrame.NAME")); //$NON-NLS-1$
 		save.setText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
+
+		JTabbedPane tabPane = new JTabbedPane();
+		String tileProps = Messages.getString("BackgroundFrame.TILE_PROPERTIES"); //$NON-NLS-1$
+		tabPane.addTab("Tileset",tilesetPanel);
+		tabPane.addTab("Texture",texturePanel);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
@@ -323,7 +354,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		/**/.addComponent(preload)
 		/**/.addComponent(transparent)
 		/**/.addComponent(tileset)
-		/**/.addComponent(groupPanel)
+		/**/.addComponent(tabPane)
 		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
@@ -335,16 +366,11 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		/**/.addComponent(transparent)
 		/**/.addComponent(tileset)
 		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
-		/**/.addComponent(groupPanel)
+		/**/.addComponent(tabPane)
 		/**/.addPreferredGap(ComponentPlacement.UNRELATED,0,MAX_VALUE)
 		/**/.addComponent(save));
 
-		// pretend like the group panel is always there
-		// so toggling tileset doesn't resize everything
-		// like the name field and save button
-		layout.setHonorsVisibility(groupPanel,false);
-		// set the tile group visible if we're a tile
-		groupPanel.setVisible(tileset.isSelected());
+		Util.setComponentTreeEnabled(tilesetPanel,tileset.isSelected());
 
 		return panel;
 		}
@@ -643,7 +669,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		public void updated(PropertyUpdateEvent<PBackground> e)
 			{
 			//USE_AS_TILESET
-			groupPanel.setVisible((Boolean)res.get(PBackground.USE_AS_TILESET));
+			Util.setComponentTreeEnabled(tilesetPanel,(Boolean)res.get(PBackground.USE_AS_TILESET));
 			}
 		}
 
