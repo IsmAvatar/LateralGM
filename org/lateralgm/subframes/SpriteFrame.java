@@ -92,7 +92,6 @@ import org.lateralgm.components.EffectsFrame.EffectsFrameListener;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.NumberField.ValueChangeEvent;
 import org.lateralgm.components.NumberField.ValueChangeListener;
-import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.impl.SpriteStripDialog;
 import org.lateralgm.components.visual.SubimagePreview;
@@ -131,13 +130,11 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	public JButton centre;
 
 	//bbox
-	public IndexButtonGroup bboxGroup;
 	public NumberField bboxLeft, bboxRight;
 	public NumberField bboxTop, bboxBottom;
 	public JRadioButton auto, full, manual;
 
 	//properties
-	public JRadioButton rect, prec, disk, diam, poly;
 	public JCheckBox smooth, preload, transparent, separateMasks;
 	public JLabel statusLabel;
 
@@ -381,40 +378,11 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		{
 		JPanel pane = new JPanel();
 		GroupLayout bLayout = new GroupLayout(pane);
-		bLayout.setAutoCreateContainerGaps(true);
-
-		pane.setLayout(bLayout);
-		pane.setBorder(BorderFactory.createTitledBorder(Messages.getString("SpriteFrame.COLLISION"))); //$NON-NLS-1$
-
-		// The options must be added in the order corresponding to Sprite.MaskShape
-		final String kindOptions[] = { "SpriteFrame.PRECISE", //$NON-NLS-1$
-				"SpriteFrame.RECTANGLE","SpriteFrame.DISK", //$NON-NLS-1$ //$NON-NLS-2$
-				"SpriteFrame.DIAMOND" }; //$NON-NLS-1$ //$NON-NLS-2$
-		//TODO: what the fuck "SpriteFrame.POLYGON"
-		Messages.translate(kindOptions);
-
-		JComboBox<String> shapeCombo = new JComboBox<String>(kindOptions);
-		plf.make(shapeCombo,PSprite.SHAPE,new KeyComboBoxConversion<MaskShape>(ProjectFile.SPRITE_MASK_SHAPE,
-			ProjectFile.SPRITE_MASK_CODE));
-
-		bLayout.setHorizontalGroup(bLayout.createSequentialGroup()
-		/**/.addComponent(shapeCombo));
-
-		bLayout.setVerticalGroup(bLayout.createSequentialGroup()
-		/**/.addComponent(shapeCombo,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE));
-
-		return pane;
-		}
-
-	private JPanel makeBBoxPane()
-		{
-		JPanel pane = new JPanel();
-		GroupLayout bLayout = new GroupLayout(pane);
 		bLayout.setAutoCreateGaps(true);
 		bLayout.setAutoCreateContainerGaps(true);
 		pane.setLayout(bLayout);
 		pane.setBorder(BorderFactory.createTitledBorder(
-				Messages.getString("SpriteFrame.BBOX"))); //$NON-NLS-1$
+				Messages.getString("SpriteFrame.COLLISION"))); //$NON-NLS-1$
 
 		JLabel toleranceLabel = new JLabel(
 				Messages.getString("SpriteFrame.ALPHA_TOLERANCE")); //$NON-NLS-1$
@@ -428,9 +396,22 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 				"SpriteFrame.FULL","SpriteFrame.MANUAL" }; //$NON-NLS-1$ //$NON-NLS-2$
 		Messages.translate(kindOptions);
 
+		JLabel bboxLabel = new JLabel("Mode");
 		JComboBox<String> bboxCombo = new JComboBox<String>(kindOptions);
 		plf.make(bboxCombo,PSprite.BB_MODE,new KeyComboBoxConversion<BBMode>(ProjectFile.SPRITE_BB_MODE,
 			ProjectFile.SPRITE_BB_CODE));
+
+		// The options must be added in the order corresponding to Sprite.MaskShape
+		final String typeOptions[] = { "SpriteFrame.PRECISE", //$NON-NLS-1$
+				"SpriteFrame.RECTANGLE","SpriteFrame.DISK", //$NON-NLS-1$ //$NON-NLS-2$
+				"SpriteFrame.DIAMOND" }; //$NON-NLS-1$ //$NON-NLS-2$
+		//TODO: what the fuck "SpriteFrame.POLYGON"
+		Messages.translate(typeOptions);
+
+		JLabel shapeLabel = new JLabel("Type");
+		JComboBox<String> shapeCombo = new JComboBox<String>(typeOptions);
+		plf.make(shapeCombo,PSprite.SHAPE,new KeyComboBoxConversion<MaskShape>(ProjectFile.SPRITE_MASK_SHAPE,
+			ProjectFile.SPRITE_MASK_CODE));
 
 		JLabel lLab = new JLabel(Messages.getString("SpriteFrame.LEFT")); //$NON-NLS-1$
 		lLab.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -459,7 +440,13 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		updateBoundingBoxEditors();
 
 		bLayout.setHorizontalGroup(bLayout.createParallelGroup()
-		/**/.addComponent(bboxCombo)
+		/**/.addGroup(bLayout.createSequentialGroup()
+		/*	*/.addGroup(bLayout.createParallelGroup()
+		/*		*/.addComponent(bboxLabel)
+		/*		*/.addComponent(shapeLabel))
+		/*	*/.addGroup(bLayout.createParallelGroup()
+		/*		*/.addComponent(bboxCombo)
+		/*		*/.addComponent(shapeCombo)))
 		/**/.addGroup(bLayout.createSequentialGroup()
 		/*	*/.addGroup(bLayout.createParallelGroup()
 		/*		*/.addGroup(bLayout.createSequentialGroup()
@@ -482,11 +469,16 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		/*			*/.addComponent(tolerance, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)))));
 		bLayout.setVerticalGroup(bLayout.createSequentialGroup()
 		/**/.addGroup(bLayout.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(bboxLabel)
+		/*	*/.addComponent(bboxCombo,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE))
+		/**/.addGroup(bLayout.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(shapeLabel)
+		/*	*/.addComponent(shapeCombo,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE))
+		/**/.addGroup(bLayout.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(toleranceLabel))
 		/**/.addGroup(bLayout.createParallelGroup(Alignment.CENTER)
 		/*	*/.addComponent(toleranceSlider)
 		/*	*/.addComponent(tolerance, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
-		/**/.addComponent(bboxCombo,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
 		/**/.addGroup(bLayout.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(lLab)
 		/*	*/.addComponent(bboxLeft)
@@ -523,7 +515,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		JPanel origin = makeOriginPane();
 		JPanel coll = makeCollisionPane();
-		JPanel bbox = makeBBoxPane();
 
 		JLabel nameLabel = new JLabel(Messages.getString("SpriteFrame.NAME")); //$NON-NLS-1$
 		save.setText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
@@ -538,7 +529,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		/**/.addComponent(separateMasks)
 		/**/.addComponent(origin)
 		/**/.addComponent(coll)
-		/**/.addComponent(bbox)
 		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
@@ -553,8 +543,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		/**/.addComponent(origin)
 		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addComponent(coll)
-		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
-		/**/.addComponent(bbox)
 		/**/.addPreferredGap(ComponentPlacement.UNRELATED,0,MAX_VALUE)
 		/**/.addComponent(save));
 
