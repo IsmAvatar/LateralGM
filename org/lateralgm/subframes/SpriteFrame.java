@@ -69,7 +69,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -92,7 +91,6 @@ import org.lateralgm.components.EffectsFrame.EffectsFrameListener;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.NumberField.ValueChangeEvent;
 import org.lateralgm.components.NumberField.ValueChangeListener;
-import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.impl.SpriteStripDialog;
 import org.lateralgm.components.visual.SubimagePreview;
@@ -131,13 +129,10 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	public JButton centre;
 
 	//bbox
-	public IndexButtonGroup bboxGroup;
 	public NumberField bboxLeft, bboxRight;
 	public NumberField bboxTop, bboxBottom;
-	public JRadioButton auto, full, manual;
 
 	//properties
-	public JRadioButton rect, prec, disk, diam, poly;
 	public JCheckBox smooth, preload, transparent, separateMasks;
 	public JLabel statusLabel;
 
