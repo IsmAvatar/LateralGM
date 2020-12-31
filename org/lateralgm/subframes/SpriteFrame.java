@@ -512,7 +512,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		plf.make(separateMasks,PSprite.SEPARATE_MASK);
 
 		JPanel origin = makeOriginPane();
-		JPanel bbox = makeCollisionPane();
+		JPanel mask = makeCollisionPane();
 
 		JLabel nameLabel = new JLabel(Messages.getString("SpriteFrame.NAME")); //$NON-NLS-1$
 		save.setText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
@@ -526,7 +526,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		/**/.addComponent(transparent)
 		/**/.addComponent(separateMasks)
 		/**/.addComponent(origin)
-		/**/.addComponent(bbox)
+		/**/.addComponent(mask)
 		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
@@ -540,7 +540,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addComponent(origin)
 		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
-		/**/.addComponent(bbox)
+		/**/.addComponent(mask)
 		/**/.addPreferredGap(ComponentPlacement.UNRELATED,0,MAX_VALUE)
 		/**/.addComponent(save));
 
