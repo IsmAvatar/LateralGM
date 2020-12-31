@@ -375,10 +375,10 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	private JPanel makeCollisionPane()
 		{
 		JPanel pane = new JPanel();
-		GroupLayout bLayout = new GroupLayout(pane);
-		bLayout.setAutoCreateGaps(true);
-		bLayout.setAutoCreateContainerGaps(true);
-		pane.setLayout(bLayout);
+		GroupLayout cLayout = new GroupLayout(pane);
+		cLayout.setAutoCreateGaps(true);
+		cLayout.setAutoCreateContainerGaps(true);
+		pane.setLayout(cLayout);
 		pane.setBorder(BorderFactory.createTitledBorder(
 				Messages.getString("SpriteFrame.MASK"))); //$NON-NLS-1$
 
@@ -437,52 +437,50 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		updateBoundingBoxEditors();
 
-		bLayout.setHorizontalGroup(bLayout.createParallelGroup()
-		/**/.addGroup(bLayout.createSequentialGroup()
-		/*	*/.addGroup(bLayout.createParallelGroup()
+		cLayout.setHorizontalGroup(cLayout.createParallelGroup()
+		/**/.addGroup(cLayout.createSequentialGroup()
+		/*	*/.addGroup(cLayout.createParallelGroup()
 		/*		*/.addComponent(bboxLabel)
 		/*		*/.addComponent(shapeLabel))
-		/*	*/.addGroup(bLayout.createParallelGroup()
+		/*	*/.addGroup(cLayout.createParallelGroup()
 		/*		*/.addComponent(bboxCombo)
 		/*		*/.addComponent(shapeCombo)))
-		/**/.addGroup(bLayout.createSequentialGroup()
-		/*	*/.addGroup(bLayout.createParallelGroup()
-		/*		*/.addGroup(bLayout.createSequentialGroup()
-		/*			*/.addGroup(bLayout.createParallelGroup(Alignment.TRAILING)
-		/*				*/.addComponent(lLab)
-		/*				*/.addComponent(tLab))
-		/*			*/.addGroup(bLayout.createParallelGroup()
-		/*				*/.addComponent(bboxLeft, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE)
-		/*				*/.addComponent(bboxTop, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE))
-		/*			*/.addGroup(bLayout.createParallelGroup(Alignment.TRAILING)
-		/*				*/.addComponent(rLab)
-		/*				*/.addComponent(bLab))
-		/*			*/.addGroup(bLayout.createParallelGroup()
-		/*				*/.addComponent(bboxRight, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE)
-		/*				*/.addComponent(bboxBottom, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE)))
-		/*		*/.addGroup(bLayout.createSequentialGroup()
-		/*			*/.addComponent(toleranceLabel))
-		/*		*/.addGroup(bLayout.createSequentialGroup()
-		/*			*/.addComponent(toleranceSlider, 0, 0, Short.MAX_VALUE)
-		/*			*/.addComponent(tolerance, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)))));
-		bLayout.setVerticalGroup(bLayout.createSequentialGroup()
-		/**/.addGroup(bLayout.createParallelGroup(Alignment.BASELINE)
+		/**/.addGroup(cLayout.createSequentialGroup()
+		/*	*/.addComponent(toleranceLabel))
+		/**/.addGroup(cLayout.createSequentialGroup()
+		/*	*/.addComponent(toleranceSlider, 0, 0, Short.MAX_VALUE)
+		/*	*/.addComponent(tolerance, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
+		/**/.addGroup(cLayout.createSequentialGroup()
+		/*	*/.addGroup(cLayout.createParallelGroup(Alignment.TRAILING)
+		/*		*/.addComponent(lLab)
+		/*		*/.addComponent(tLab))
+		/*	*/.addGroup(cLayout.createParallelGroup()
+		/*		*/.addComponent(bboxLeft, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE)
+		/*		*/.addComponent(bboxTop, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE))
+		/*	*/.addGroup(cLayout.createParallelGroup(Alignment.TRAILING)
+		/*		*/.addComponent(rLab)
+		/*		*/.addComponent(bLab))
+		/*	*/.addGroup(cLayout.createParallelGroup()
+		/*		*/.addComponent(bboxRight, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE)
+		/*		*/.addComponent(bboxBottom, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE))));
+		cLayout.setVerticalGroup(cLayout.createSequentialGroup()
+		/**/.addGroup(cLayout.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(bboxLabel)
 		/*	*/.addComponent(bboxCombo,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE))
-		/**/.addGroup(bLayout.createParallelGroup(Alignment.BASELINE)
+		/**/.addGroup(cLayout.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(shapeLabel)
 		/*	*/.addComponent(shapeCombo,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE))
-		/**/.addGroup(bLayout.createParallelGroup(Alignment.BASELINE)
+		/**/.addGroup(cLayout.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(toleranceLabel))
-		/**/.addGroup(bLayout.createParallelGroup(Alignment.CENTER)
+		/**/.addGroup(cLayout.createParallelGroup(Alignment.CENTER)
 		/*	*/.addComponent(toleranceSlider)
 		/*	*/.addComponent(tolerance, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
-		/**/.addGroup(bLayout.createParallelGroup(Alignment.BASELINE)
+		/**/.addGroup(cLayout.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(lLab)
 		/*	*/.addComponent(bboxLeft)
 		/*	*/.addComponent(rLab)
 		/*	*/.addComponent(bboxRight))
-		/**/.addGroup(bLayout.createParallelGroup(Alignment.BASELINE)
+		/**/.addGroup(cLayout.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(tLab)
 		/*	*/.addComponent(bboxTop)
 		/*	*/.addComponent(bLab)
