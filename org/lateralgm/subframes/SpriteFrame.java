@@ -106,7 +106,6 @@ import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Sprite;
-import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.Sprite.BBMode;
 import org.lateralgm.resources.Sprite.MaskShape;
 import org.lateralgm.resources.Sprite.PSprite;
