@@ -69,7 +69,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -92,7 +91,6 @@ import org.lateralgm.components.EffectsFrame.EffectsFrameListener;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.NumberField.ValueChangeEvent;
 import org.lateralgm.components.NumberField.ValueChangeListener;
-import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.impl.SpriteStripDialog;
 import org.lateralgm.components.visual.SubimagePreview;
@@ -131,13 +129,10 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	public JButton centre;
 
 	//bbox
-	public IndexButtonGroup bboxGroup;
 	public NumberField bboxLeft, bboxRight;
 	public NumberField bboxTop, bboxBottom;
-	public JRadioButton auto, full, manual;
 
 	//properties
-	public JRadioButton rect, prec, disk, diam, poly;
 	public JCheckBox smooth, preload, transparent, separateMasks;
 	public JLabel statusLabel;
 
@@ -380,41 +375,12 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	private JPanel makeCollisionPane()
 		{
 		JPanel pane = new JPanel();
-		GroupLayout bLayout = new GroupLayout(pane);
-		bLayout.setAutoCreateContainerGaps(true);
-
-		pane.setLayout(bLayout);
-		pane.setBorder(BorderFactory.createTitledBorder(Messages.getString("SpriteFrame.COLLISION"))); //$NON-NLS-1$
-
-		// The options must be added in the order corresponding to Sprite.MaskShape
-		final String kindOptions[] = { "SpriteFrame.PRECISE", //$NON-NLS-1$
-				"SpriteFrame.RECTANGLE","SpriteFrame.DISK", //$NON-NLS-1$ //$NON-NLS-2$
-				"SpriteFrame.DIAMOND" }; //$NON-NLS-1$ //$NON-NLS-2$
-		//TODO: what the fuck "SpriteFrame.POLYGON"
-		Messages.translate(kindOptions);
-
-		JComboBox<String> shapeCombo = new JComboBox<String>(kindOptions);
-		plf.make(shapeCombo,PSprite.SHAPE,new KeyComboBoxConversion<MaskShape>(ProjectFile.SPRITE_MASK_SHAPE,
-			ProjectFile.SPRITE_MASK_CODE));
-
-		bLayout.setHorizontalGroup(bLayout.createSequentialGroup()
-		/**/.addComponent(shapeCombo));
-
-		bLayout.setVerticalGroup(bLayout.createSequentialGroup()
-		/**/.addComponent(shapeCombo,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE));
-
-		return pane;
-		}
-
-	private JPanel makeBBoxPane()
-		{
-		JPanel pane = new JPanel();
-		GroupLayout bLayout = new GroupLayout(pane);
-		bLayout.setAutoCreateGaps(true);
-		bLayout.setAutoCreateContainerGaps(true);
-		pane.setLayout(bLayout);
+		GroupLayout cLayout = new GroupLayout(pane);
+		cLayout.setAutoCreateGaps(true);
+		cLayout.setAutoCreateContainerGaps(true);
+		pane.setLayout(cLayout);
 		pane.setBorder(BorderFactory.createTitledBorder(
-				Messages.getString("SpriteFrame.BBOX"))); //$NON-NLS-1$
+				Messages.getString("SpriteFrame.MASK"))); //$NON-NLS-1$
 
 		JLabel toleranceLabel = new JLabel(
 				Messages.getString("SpriteFrame.ALPHA_TOLERANCE")); //$NON-NLS-1$
@@ -424,13 +390,26 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		plf.make(toleranceSlider.getModel(),PSprite.ALPHA_TOLERANCE);
 
 		// The options must be added in the order corresponding to Sprite.BBMode
-		final String kindOptions[] = { "SpriteFrame.AUTO", //$NON-NLS-1$
+		final String bboxOptions[] = { "SpriteFrame.AUTO", //$NON-NLS-1$
 				"SpriteFrame.FULL","SpriteFrame.MANUAL" }; //$NON-NLS-1$ //$NON-NLS-2$
-		Messages.translate(kindOptions);
+		Messages.translate(bboxOptions);
 
-		JComboBox<String> bboxCombo = new JComboBox<String>(kindOptions);
+		JLabel bboxLabel = new JLabel(Messages.getString("SpriteFrame.MASK_MODE")); //$NON-NLS-1$
+		JComboBox<String> bboxCombo = new JComboBox<String>(bboxOptions);
 		plf.make(bboxCombo,PSprite.BB_MODE,new KeyComboBoxConversion<BBMode>(ProjectFile.SPRITE_BB_MODE,
 			ProjectFile.SPRITE_BB_CODE));
+
+		// The options must be added in the order corresponding to Sprite.MaskShape
+		final String shapeOptions[] = { "SpriteFrame.PRECISE", //$NON-NLS-1$
+				"SpriteFrame.RECTANGLE","SpriteFrame.DISK", //$NON-NLS-1$ //$NON-NLS-2$
+				"SpriteFrame.DIAMOND" }; //$NON-NLS-1$ //$NON-NLS-2$
+		//TODO: what the fuck "SpriteFrame.POLYGON"
+		Messages.translate(shapeOptions);
+
+		JLabel shapeLabel = new JLabel(Messages.getString("SpriteFrame.MASK_TYPE")); //$NON-NLS-1$
+		JComboBox<String> shapeCombo = new JComboBox<String>(shapeOptions);
+		plf.make(shapeCombo,PSprite.SHAPE,new KeyComboBoxConversion<MaskShape>(ProjectFile.SPRITE_MASK_SHAPE,
+			ProjectFile.SPRITE_MASK_CODE));
 
 		JLabel lLab = new JLabel(Messages.getString("SpriteFrame.LEFT")); //$NON-NLS-1$
 		lLab.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -458,41 +437,50 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		updateBoundingBoxEditors();
 
-		bLayout.setHorizontalGroup(bLayout.createParallelGroup()
-		/**/.addComponent(bboxCombo)
-		/**/.addGroup(bLayout.createSequentialGroup()
-		/*	*/.addGroup(bLayout.createParallelGroup()
-		/*		*/.addGroup(bLayout.createSequentialGroup()
-		/*			*/.addGroup(bLayout.createParallelGroup(Alignment.TRAILING)
-		/*				*/.addComponent(lLab)
-		/*				*/.addComponent(tLab))
-		/*			*/.addGroup(bLayout.createParallelGroup()
-		/*				*/.addComponent(bboxLeft, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE)
-		/*				*/.addComponent(bboxTop, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE))
-		/*			*/.addGroup(bLayout.createParallelGroup(Alignment.TRAILING)
-		/*				*/.addComponent(rLab)
-		/*				*/.addComponent(bLab))
-		/*			*/.addGroup(bLayout.createParallelGroup()
-		/*				*/.addComponent(bboxRight, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE)
-		/*				*/.addComponent(bboxBottom, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE)))
-		/*		*/.addGroup(bLayout.createSequentialGroup()
-		/*			*/.addComponent(toleranceLabel))
-		/*		*/.addGroup(bLayout.createSequentialGroup()
-		/*			*/.addComponent(toleranceSlider, 0, 0, Short.MAX_VALUE)
-		/*			*/.addComponent(tolerance, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)))));
-		bLayout.setVerticalGroup(bLayout.createSequentialGroup()
-		/**/.addGroup(bLayout.createParallelGroup(Alignment.BASELINE)
+		cLayout.setHorizontalGroup(cLayout.createParallelGroup()
+		/**/.addGroup(cLayout.createSequentialGroup()
+		/*	*/.addGroup(cLayout.createParallelGroup()
+		/*		*/.addComponent(bboxLabel)
+		/*		*/.addComponent(shapeLabel))
+		/*	*/.addGroup(cLayout.createParallelGroup()
+		/*		*/.addComponent(bboxCombo)
+		/*		*/.addComponent(shapeCombo)))
+		/**/.addGroup(cLayout.createSequentialGroup()
 		/*	*/.addComponent(toleranceLabel))
-		/**/.addGroup(bLayout.createParallelGroup(Alignment.CENTER)
+		/**/.addGroup(cLayout.createSequentialGroup()
+		/*	*/.addComponent(toleranceSlider, 0, 0, Short.MAX_VALUE)
+		/*	*/.addComponent(tolerance, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
+		/**/.addGroup(cLayout.createSequentialGroup()
+		/*	*/.addGroup(cLayout.createParallelGroup(Alignment.TRAILING)
+		/*		*/.addComponent(lLab)
+		/*		*/.addComponent(tLab))
+		/*	*/.addGroup(cLayout.createParallelGroup()
+		/*		*/.addComponent(bboxLeft, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE)
+		/*		*/.addComponent(bboxTop, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE))
+		/*	*/.addGroup(cLayout.createParallelGroup(Alignment.TRAILING)
+		/*		*/.addComponent(rLab)
+		/*		*/.addComponent(bLab))
+		/*	*/.addGroup(cLayout.createParallelGroup()
+		/*		*/.addComponent(bboxRight, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE)
+		/*		*/.addComponent(bboxBottom, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE))));
+		cLayout.setVerticalGroup(cLayout.createSequentialGroup()
+		/**/.addGroup(cLayout.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(bboxLabel)
+		/*	*/.addComponent(bboxCombo,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE))
+		/**/.addGroup(cLayout.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(shapeLabel)
+		/*	*/.addComponent(shapeCombo,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE))
+		/**/.addGroup(cLayout.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(toleranceLabel))
+		/**/.addGroup(cLayout.createParallelGroup(Alignment.CENTER)
 		/*	*/.addComponent(toleranceSlider)
 		/*	*/.addComponent(tolerance, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
-		/**/.addComponent(bboxCombo,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
-		/**/.addGroup(bLayout.createParallelGroup(Alignment.BASELINE)
+		/**/.addGroup(cLayout.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(lLab)
 		/*	*/.addComponent(bboxLeft)
 		/*	*/.addComponent(rLab)
 		/*	*/.addComponent(bboxRight))
-		/**/.addGroup(bLayout.createParallelGroup(Alignment.BASELINE)
+		/**/.addGroup(cLayout.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(tLab)
 		/*	*/.addComponent(bboxTop)
 		/*	*/.addComponent(bLab)
@@ -522,8 +510,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		plf.make(separateMasks,PSprite.SEPARATE_MASK);
 
 		JPanel origin = makeOriginPane();
-		JPanel coll = makeCollisionPane();
-		JPanel bbox = makeBBoxPane();
+		JPanel mask = makeCollisionPane();
 
 		JLabel nameLabel = new JLabel(Messages.getString("SpriteFrame.NAME")); //$NON-NLS-1$
 		save.setText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
@@ -537,8 +524,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		/**/.addComponent(transparent)
 		/**/.addComponent(separateMasks)
 		/**/.addComponent(origin)
-		/**/.addComponent(coll)
-		/**/.addComponent(bbox)
+		/**/.addComponent(mask)
 		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
@@ -552,9 +538,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addComponent(origin)
 		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
-		/**/.addComponent(coll)
-		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
-		/**/.addComponent(bbox)
+		/**/.addComponent(mask)
 		/**/.addPreferredGap(ComponentPlacement.UNRELATED,0,MAX_VALUE)
 		/**/.addComponent(save));
 
