@@ -429,8 +429,9 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 		fireActionPerformed();
 		}
 
-	//TODO: Possibly replace with addComponentPopupListener?
-	//Though maybe not since this is used on a label.
+	// GM shows the popup menu on left click of the label, but not right click.
+	// LGM uses a mouse listener, rather than setComponentPopupMenu, so we can
+	// show the popup menu on left or right click.
 	private class MListener extends MouseAdapter
 		{
 		public MListener()

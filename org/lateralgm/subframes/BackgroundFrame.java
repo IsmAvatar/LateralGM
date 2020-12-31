@@ -10,6 +10,7 @@
 
 package org.lateralgm.subframes;
 
+import static java.lang.Integer.MAX_VALUE;
 import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
@@ -17,7 +18,6 @@ import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -35,6 +35,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFormattedTextField;
@@ -83,6 +84,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 
 	public MouseAdapter mouseAdapter = null;
 
+	public JPanel groupPanel;
 	public NumberField tWidth;
 	public NumberField tHeight;
 	public NumberField hOffset;
@@ -96,56 +98,16 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 
 	private final BackgroundPropertyListener bpl = new BackgroundPropertyListener();
 
-	/** Zoom in, centering around a specific point, usually the mouse. */
-	public void zoomIn(Point point)
-		{
-		if (this.getZoom() >= 32) return;
-		this.setZoom(this.getZoom() * 2);
-		Dimension size = previewScroll.getViewport().getSize();
-
-		int newX = (int) (point.x * 2) - size.width / 2;
-		int newY = (int) (point.y * 2) - size.height / 2;
-		previewScroll.getViewport().setViewPosition(new Point(newX,newY));
-
-		previewScroll.revalidate();
-		previewScroll.repaint();
-		}
-
-	/** Zoom out, centering around a specific point, usually the mouse. */
-	public void zoomOut(Point point)
-		{
-		if (this.getZoom() <= 0.04) return;
-		this.setZoom(this.getZoom() / 2);
-		Dimension size = previewScroll.getViewport().getSize();
-
-		int newX = (int) (point.x / 2) - size.width / 2;
-		int newY = (int) (point.y / 2) - size.height / 2;
-		previewScroll.getViewport().setViewPosition(new Point(newX,newY));
-
-		previewScroll.revalidate();
-		previewScroll.repaint();
-		}
-
-	public void zoomIn()
-		{
-		Dimension size = previewScroll.getViewport().getViewSize();
-		zoomIn(new Point(size.width/2,size.height/2));
-		}
-
-	public void zoomOut()
-		{
-		Dimension size = previewScroll.getViewport().getViewSize();
-		zoomOut(new Point(size.width/2,size.height/2));
-		}
-
 	public BackgroundFrame(Background res, ResNode node)
 		{
 		super(res,node);
+		this.getRootPane().setDefaultButton(save);
 		res.properties.getUpdateSource(PBackground.USE_AS_TILESET).addListener(bpl);
 		res.reference.updateSource.addListener(this);
 
 		this.setLayout(new BorderLayout());
 
+		JPanel previewPanel = new JPanel(new BorderLayout());
 		preview = new BackgroundPreview(res);
 		preview.setVerticalAlignment(SwingConstants.TOP);
 
@@ -169,36 +131,29 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 					{
 					if (ev.getButton() == MouseEvent.BUTTON1)
 						{
-						zoomIn(ev.getPoint());
+						preview.zoomIn(ev.getPoint(),previewScroll);
 						}
 					if (ev.getButton() == MouseEvent.BUTTON3)
 						{
-						zoomOut(ev.getPoint());
+						preview.zoomOut(ev.getPoint(),previewScroll);
 						}
 					preview.setCursor(LGM.zoomCursor);
 					}
 			};
-
 		previewScroll = new JScrollPane(preview);
+		previewPanel.add(previewScroll,BorderLayout.CENTER);
+		previewPanel.add(makeToolBar(),BorderLayout.NORTH);
+		previewPanel.add(makeStatusBar(),BorderLayout.SOUTH);
 
-		this.add(makeToolBar(),BorderLayout.NORTH);
-		JSplitPane orientationSplit = new JSplitPane();
-		if (Prefs.rightOrientation) {
-			orientationSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-					previewScroll,makeOptionsPanel());
-			orientationSplit.setResizeWeight(1d);
-		} else {
-			orientationSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-					makeOptionsPanel(),previewScroll);
-		}
+		JSplitPane orientationSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true);
+		Util.orientSplit(orientationSplit,Prefs.rightOrientation,makeOptionsPanel(),previewPanel);
 		this.add(orientationSplit, BorderLayout.CENTER);
-		this.add(makeStatusBar(),BorderLayout.SOUTH);
 
 		updateStatusBar();
 		updateScrollBars();
 
 		pack();
-		this.setSize(640,400);
+		this.setSize(640,462);
 		}
 
 	private JButton makeJButton(String key)
@@ -216,37 +171,27 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		tool.setFloatable(false);
 		tool.setAlignmentX(0);
 
-		tool.add(save);
-		tool.addSeparator();
-
-		tool.add(makeJButton("BackgroundFrame.CREATE"));
-		tool.add(makeJButton("BackgroundFrame.LOAD"));
-		tool.add(makeJButton("BackgroundFrame.SAVE"));
-		tool.add(makeJButton("BackgroundFrame.EDIT"));
-		tool.add(makeJButton("BackgroundFrame.EFFECT"));
+		tool.add(makeJButton("BackgroundFrame.CREATE")); //$NON-NLS-1$
+		tool.add(makeJButton("BackgroundFrame.LOAD")); //$NON-NLS-1$
+		tool.add(makeJButton("BackgroundFrame.SAVE")); //$NON-NLS-1$
+		tool.add(makeJButton("BackgroundFrame.EDIT")); //$NON-NLS-1$
+		tool.add(makeJButton("BackgroundFrame.EFFECT")); //$NON-NLS-1$
 
 		tool.addSeparator();
 
 		// TODO: Implement undo/redo
-		//tool.add(makeJButton("BackgroundFrame.UNDO"));
-		//tool.add(makeJButton("BackgroundFrame.REDO"));
+		//tool.add(makeJButton("BackgroundFrame.UNDO")); //$NON-NLS-1$
+		//tool.add(makeJButton("BackgroundFrame.REDO")); //$NON-NLS-1$
 
 		//tool.addSeparator();
 
-		zoomButton = new JToggleButton(LGM.getIconForKey("BackgroundFrame.ZOOM"));
-		zoomButton.setToolTipText(Messages.getString("BackgroundFrame.ZOOM"));
+		zoomButton = new JToggleButton(LGM.getIconForKey("BackgroundFrame.ZOOM")); //$NON-NLS-1$
+		zoomButton.setToolTipText(Messages.getString("BackgroundFrame.ZOOM")); //$NON-NLS-1$
 		zoomButton.addActionListener(this);
-		zoomButton.setActionCommand("BackgroundFrame.ZOOM");
+		zoomButton.setActionCommand("BackgroundFrame.ZOOM"); //$NON-NLS-1$
 		tool.add(zoomButton);
-		tool.add(makeJButton("BackgroundFrame.ZOOM_IN"));
-		tool.add(makeJButton("BackgroundFrame.ZOOM_OUT"));
-
-		tool.addSeparator();
-
-		name.setColumns(13);
-		name.setMaximumSize(name.getPreferredSize());
-		tool.add(new JLabel(Messages.getString("BackgroundFrame.NAME"))); //$NON-NLS-1$
-		tool.add(name);
+		tool.add(makeJButton("BackgroundFrame.ZOOM_IN")); //$NON-NLS-1$
+		tool.add(makeJButton("BackgroundFrame.ZOOM_OUT")); //$NON-NLS-1$
 
 		return tool;
 		}
@@ -269,6 +214,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		{
 		JPanel panel = new JPanel(new BorderLayout());
 		GroupLayout layout = new GroupLayout(panel);
+		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
 
 		panel.setLayout(layout);
@@ -282,13 +228,9 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		tileset = new JCheckBox(Messages.getString("BackgroundFrame.USE_AS_TILESET")); //$NON-NLS-1$
 		plf.make(tileset,PBackground.USE_AS_TILESET);
 
-		panel.add(transparent);
-		panel.add(smooth);
-		panel.add(preload);
-		panel.add(tileset);
-
-		JPanel groupPanel = new JPanel();
+		groupPanel = new JPanel();
 		GroupLayout pLayout = new GroupLayout(groupPanel);
+		pLayout.setAutoCreateContainerGaps(true);
 		groupPanel.setLayout(pLayout);
 		String tileProps = Messages.getString("BackgroundFrame.TILE_PROPERTIES"); //$NON-NLS-1$
 		groupPanel.setBorder(BorderFactory.createTitledBorder(tileProps));
@@ -330,7 +272,6 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		vSep.setColumns(3);
 
 		pLayout.setHorizontalGroup(pLayout.createSequentialGroup()
-		/**/.addContainerGap(4,4)
 		/**/.addGroup(pLayout.createParallelGroup(Alignment.TRAILING)
 		/*		*/.addComponent(twLabel)
 		/*		*/.addComponent(thLabel)
@@ -338,57 +279,72 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		/*		*/.addComponent(voLabel)
 		/*		*/.addComponent(hsLabel)
 		/*		*/.addComponent(vsLabel))
-		/**/.addGap(4)
+		/**/.addPreferredGap(ComponentPlacement.RELATED)
 		/**/.addGroup(pLayout.createParallelGroup()
 		/*		*/.addComponent(tWidth,PREFERRED_SIZE,DEFAULT_SIZE,DEFAULT_SIZE)
 		/*		*/.addComponent(tHeight,PREFERRED_SIZE,DEFAULT_SIZE,DEFAULT_SIZE)
 		/*		*/.addComponent(hOffset,PREFERRED_SIZE,DEFAULT_SIZE,DEFAULT_SIZE)
 		/*		*/.addComponent(vOffset,PREFERRED_SIZE,DEFAULT_SIZE,DEFAULT_SIZE)
 		/*		*/.addComponent(hSep,PREFERRED_SIZE,DEFAULT_SIZE,DEFAULT_SIZE)
-		/*		*/.addComponent(vSep,PREFERRED_SIZE,DEFAULT_SIZE,DEFAULT_SIZE))
-		/**/.addContainerGap(4,4));
+		/*		*/.addComponent(vSep,PREFERRED_SIZE,DEFAULT_SIZE,DEFAULT_SIZE)));
 		pLayout.setVerticalGroup(pLayout.createSequentialGroup()
-		/**/.addGap(2)
 		/**/.addGroup(pLayout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(twLabel)
 		/*		*/.addComponent(tWidth))
-		/**/.addGap(2)
+		/**/.addPreferredGap(ComponentPlacement.RELATED)
 		/**/.addGroup(pLayout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(thLabel)
 		/*		*/.addComponent(tHeight))
-		/**/.addGap(8)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addGroup(pLayout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(hoLabel)
 		/*		*/.addComponent(hOffset))
-		/**/.addGap(2)
+		/**/.addPreferredGap(ComponentPlacement.RELATED)
 		/**/.addGroup(pLayout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(voLabel)
 		/*		*/.addComponent(vOffset))
-		/**/.addGap(8)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addGroup(pLayout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(hsLabel)
 		/*		*/.addComponent(hSep))
-		/**/.addGap(2)
+		/**/.addPreferredGap(ComponentPlacement.RELATED)
 		/**/.addGroup(pLayout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(vsLabel)
-		/*		*/.addComponent(vSep))
-		/**/.addContainerGap(8,8));
+		/*		*/.addComponent(vSep)));
 
-		//groupPanel.setVisible(tileset.isSelected());
-		panel.add(groupPanel);
+		JLabel nameLabel = new JLabel(Messages.getString("SpriteFrame.NAME")); //$NON-NLS-1$
+		save.setText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
+
 		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
+		/*	*/.addComponent(nameLabel)
+		/*	*/.addComponent(name,DEFAULT_SIZE,120,MAX_VALUE))
 		/**/.addComponent(smooth)
 		/**/.addComponent(preload)
 		/**/.addComponent(transparent)
 		/**/.addComponent(tileset)
-		/**/.addComponent(groupPanel));
+		/**/.addComponent(groupPanel)
+		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
 		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(nameLabel)
+		/*	*/.addComponent(name))
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addComponent(smooth)
 		/**/.addComponent(preload)
 		/**/.addComponent(transparent)
 		/**/.addComponent(tileset)
-		/**/.addGap(8)
-		/**/.addComponent(groupPanel));
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
+		/**/.addComponent(groupPanel)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED,0,MAX_VALUE)
+		/**/.addComponent(save));
+
+		// pretend like the group panel is always there
+		// so toggling tileset doesn't resize everything
+		// like the name field and save button
+		layout.setHonorsVisibility(groupPanel,false);
+		// set the tile group visible if we're a tile
+		groupPanel.setVisible(tileset.isSelected());
 
 		return panel;
 		}
@@ -465,7 +421,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 
 	public void handleToolBar(String cmd)
 		{
-		if (cmd.endsWith(".LOAD"))
+		if (cmd.endsWith(".LOAD")) //$NON-NLS-1$
 			{
 			BufferedImage img = Util.getValidImage();
 			if (img != null)
@@ -476,7 +432,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 				}
 			return;
 			}
-		else if (cmd.endsWith(".SAVE"))
+		else if (cmd.endsWith(".SAVE")) //$NON-NLS-1$
 			{
 			BufferedImage img = res.getBackgroundImage();
 			// utility function will check if the image is null and display an appropriate warning
@@ -484,11 +440,11 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 			Util.saveImage(img);
 			return;
 			}
-		else if (cmd.endsWith(".CREATE"))
+		else if (cmd.endsWith(".CREATE")) //$NON-NLS-1$
 			{
 			createNewImage(true);
 			}
-		else if (cmd.endsWith(".EDIT"))
+		else if (cmd.endsWith(".EDIT")) //$NON-NLS-1$
 			{
 			try
 				{
@@ -503,15 +459,16 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 				}
 			return;
 			}
-		else if (cmd.endsWith(".EFFECT")) {
+		else if (cmd.endsWith(".EFFECT")) //$NON-NLS-1$
+			{
 			List<BufferedImage> imgs = new ArrayList<BufferedImage>(1);
 			imgs.add(res.getBackgroundImage());
 
 			EffectsFrame ef = EffectsFrame.getInstance();
 			ef.setEffectsListener(this, imgs);
 			ef.setVisible(true);
-		}
-		else if (cmd.endsWith(".ZOOM"))
+			}
+		else if (cmd.endsWith(".ZOOM")) //$NON-NLS-1$
 			{
 			if (zoomButton.isSelected())
 				{
@@ -524,14 +481,14 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 				preview.setCursor(Cursor.getDefaultCursor());
 				}
 			}
-		else if (cmd.endsWith(".ZOOM_IN"))
+		else if (cmd.endsWith(".ZOOM_IN")) //$NON-NLS-1$
 			{
-			zoomIn();
+			preview.zoomIn(previewScroll);
 			return;
 			}
-		else if (cmd.endsWith(".ZOOM_OUT"))
+		else if (cmd.endsWith(".ZOOM_OUT")) //$NON-NLS-1$
 			{
-			zoomOut();
+			preview.zoomOut(previewScroll);
 			return;
 			}
 		}
@@ -560,21 +517,22 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		if (askforsize)
 			{
 			NumberFormatter nf = new NumberFormatter();
-			nf.setMinimum(new Integer(1));
+			nf.setMinimum(1);
 			JFormattedTextField wField = new JFormattedTextField(nf);
-			wField.setValue(new Integer(width));
+			wField.setValue(width);
 			JFormattedTextField hField = new JFormattedTextField(nf);
-			hField.setValue(new Integer(height));
+			hField.setValue(height);
 
 			JPanel myPanel = new JPanel();
 			GridLayout layout = new GridLayout(0,2,0,3);
 			myPanel.setLayout(layout);
-			myPanel.add(new JLabel(Messages.getString("BackgroundFrame.NEW_WIDTH")));
+			myPanel.add(new JLabel(Messages.getString("BackgroundFrame.NEW_WIDTH"))); //$NON-NLS-1$
 			myPanel.add(wField);
-			myPanel.add(new JLabel(Messages.getString("BackgroundFrame.NEW_HEIGHT")));
+			myPanel.add(new JLabel(Messages.getString("BackgroundFrame.NEW_HEIGHT"))); //$NON-NLS-1$
 			myPanel.add(hField);
 
-			int result = JOptionPane.showConfirmDialog(LGM.frame,myPanel,Messages.getString("BackgroundFrame.NEW_TITLE"),
+			int result = JOptionPane.showConfirmDialog(
+					LGM.frame,myPanel,Messages.getString("BackgroundFrame.NEW_TITLE"), //$NON-NLS-1$
 					JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
 			if (result == JOptionPane.CANCEL_OPTION)
 				{
@@ -684,10 +642,8 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		{
 		public void updated(PropertyUpdateEvent<PBackground> e)
 			{
-			//TODO: Maybe remove this
 			//USE_AS_TILESET
-			//side2.setVisible((Boolean)
-			//res.get(PBackground.USE_AS_TILESET));
+			groupPanel.setVisible((Boolean)res.get(PBackground.USE_AS_TILESET));
 			}
 		}
 

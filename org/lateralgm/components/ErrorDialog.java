@@ -180,6 +180,7 @@ public class ErrorDialog extends JDialog implements ActionListener
 		copy = makeButton("ErrorDialog.COPY",this); //$NON-NLS-1$
 		submit = makeButton("ErrorDialog.SUBMIT",this); //$NON-NLS-1$
 		cancel = makeButton("ErrorDialog.CANCEL",this); //$NON-NLS-1$
+		this.getRootPane().setDefaultButton(cancel);
 
 		dim = new Dimension(Math.max(copy.getPreferredSize().width, cancel.getPreferredSize().width),
 			copy.getPreferredSize().height);

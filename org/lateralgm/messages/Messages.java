@@ -63,6 +63,12 @@ public final class Messages
 			}
 		}
 
+	public static void translate(String[] keys)
+		{
+		for (int i = 0; i < keys.length; i++)
+			keys[i] = getString(keys[i]);
+		}
+
 	public static String getKeyboardString(String key)
 		{
 		try

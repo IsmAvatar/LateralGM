@@ -201,7 +201,6 @@ public class ResNode extends DefaultNode implements Transferable,UpdateListener
 		return this;
 		}
 
-	@Override
 	public void openFrame()
 		{
 		openFrame(false);
@@ -429,15 +428,9 @@ public class ResNode extends DefaultNode implements Transferable,UpdateListener
 					}
 				}
 
-			if (LGM.tree != null)
-				{
-				//FIXME: Update the tree by having it listen to its root node instead of here
-				LGM.tree.updateUI();
-
-				// Never update the entire tree UI for a single node, just reload the node.
-				DefaultTreeModel model = ((DefaultTreeModel) LGM.tree.getModel());
-				model.reload(node);
-				}
+			if (LGM.tree == null) return;
+			DefaultTreeModel model = ((DefaultTreeModel) LGM.tree.getModel());
+			model.nodeChanged(node);
 			}
 		}
 

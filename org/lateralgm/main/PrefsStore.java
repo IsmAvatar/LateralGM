@@ -23,16 +23,19 @@ public final class PrefsStore
 
 	private static final Preferences PREFS = Preferences.userRoot().node("/org/lateralgm");
 
-	public static void resetToDefaults() {
+	public static void resetToDefaults()
+		{
 		try
-		{
-			PREFS.clear();
-		}
+			{
+			for (String key : PREFS.keys())
+				if (key != null && !key.equals("FILE_RECENT"))
+					PREFS.remove(key);
+			}
 		catch (BackingStoreException e)
-		{
+			{
 			LGM.showDefaultExceptionHandler(e);
+			}
 		}
-	}
 
 	public static void clearRecentFiles()
 		{
@@ -384,8 +387,33 @@ public final class PrefsStore
 		Prefs.multipleSelectionOutsideColor = selectionOutsideColor;
 		}
 
-	public static int getNumberOfBackups()
+	public static void setBackupCopies(int backupCopies)
 		{
-		return PREFS.getInt("FILE_BACKUP_COUNT",1);
+		PREFS.putInt("backupCopies",backupCopies);
+		Prefs.backupCopies = backupCopies;
+		}
+
+	public static void setBackupMinutes(int backupMinutes)
+		{
+		PREFS.putInt("backupMinutes",backupMinutes);
+		Prefs.backupMinutes = backupMinutes;
+		}
+
+	public static void setBackupSave(boolean backupSave)
+		{
+		PREFS.putBoolean("backupSave",backupSave);
+		Prefs.backupSave = backupSave;
+		}
+
+	public static void setBackupAuto(boolean backupAuto)
+		{
+		PREFS.putBoolean("backupAuto",backupAuto);
+		Prefs.backupAuto = backupAuto;
+		}
+
+	public static void setBackupExit(boolean backupExit)
+		{
+		PREFS.putBoolean("backupExit",backupExit);
+		Prefs.backupExit = backupExit;
 		}
 	}

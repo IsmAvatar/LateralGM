@@ -107,7 +107,7 @@ public class GmMenuBar extends JMenuBar
 				}
 			}
 		recentMenu.addSeparator();
-		recentMenu.addItem("GmMenuBar.CLEARRECENT");
+		recentMenu.addItem("GmMenuBar.CLEARRECENT"); //$NON-NLS-1$
 		}
 
 	protected static final Map<Class<? extends Resource<?,?>>,Character> MNEMONICS;
@@ -126,7 +126,7 @@ public class GmMenuBar extends JMenuBar
 
 		menu.addItem("GmMenuBar.NEW"); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.OPEN"); //$NON-NLS-1$
-		recentMenu = (GmMenu) menu.addMenu("GmMenuBar.RECENTFILES");
+		recentMenu = (GmMenu) menu.addMenu("GmMenuBar.RECENTFILES"); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.SAVE"); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.SAVEAS"); //$NON-NLS-1$
 		menu.addSeparator();

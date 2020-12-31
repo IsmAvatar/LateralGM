@@ -374,14 +374,10 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		panel.setLayout(layout);
 
 		charMin = new NumberField(0,Integer.MAX_VALUE);
-		charMin.setCommitsOnValidEdit(true);
-		//charMin.addValueChangeListener(this);
-		//plf.make(charMin,PFont.RANGE_MIN);
+		charMin.setCommitsOnValidEdit(false);
 		JLabel lTo = new JLabel(Messages.getString("FontFrame.TO")); //$NON-NLS-1$
 		charMax = new NumberField(0,Integer.MAX_VALUE);
-		charMax.setCommitsOnValidEdit(true);
-		//charMin.addValueChangeListener(this);
-		//plf.make(charMax,PFont.RANGE_MAX);
+		charMax.setCommitsOnValidEdit(false);
 
 		JButton crNormal = new JButton(Messages.getString("FontFrame.NORMAL")); //$NON-NLS-1$
 		crNormal.setActionCommand("Normal"); //$NON-NLS-1$
@@ -600,6 +596,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 			{
 			PropertyLinkFactory<PCharacterRange> rplf = new PropertyLinkFactory<PCharacterRange>(
 					cr.properties,this);
+			this.addSecondaryPropertyLinkFactory(rplf);
 			minLink = rplf.make(charMin,PCharacterRange.RANGE_MIN);
 			maxLink = rplf.make(charMax,PCharacterRange.RANGE_MAX);
 			}
@@ -620,7 +617,6 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 			fireRangeUpdate();
 			Util.setComponentTreeEnabled(crPane,!rangeList.isSelectionEmpty());
 			}
-
 		}
 
 	public void contentsChanged(ListDataEvent arg0)

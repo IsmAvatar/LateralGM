@@ -25,12 +25,10 @@ package org.lateralgm.resources.sub;
 
 import java.util.EnumMap;
 
-import org.lateralgm.main.UpdateSource.UpdateEvent;
-import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.PropertyMap.PropertyValidator;
 
-public class GlyphMetric implements UpdateListener,PropertyValidator<GlyphMetric.PGlyphMetric>
+public class GlyphMetric implements PropertyValidator<GlyphMetric.PGlyphMetric>
 	{
 	public enum PGlyphMetric
 		{
@@ -48,15 +46,8 @@ public class GlyphMetric implements UpdateListener,PropertyValidator<GlyphMetric
 		properties = new PropertyMap<PGlyphMetric>(PGlyphMetric.class,this,DEFS);
 		}
 
-	public void updated(UpdateEvent e)
-		{
-		// TODO Auto-generated method stub
-
-		}
-
 	public Object validate(PGlyphMetric k, Object v)
 		{
-		// TODO Auto-generated method stub
 		return v;
 		}
 	}

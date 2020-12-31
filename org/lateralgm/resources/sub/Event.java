@@ -135,6 +135,11 @@ public class Event extends ActionContainer implements Comparable<Event>,Inherent
 	public static final byte EV_NETWORKING = 68;
 	public static final byte EV_STEAM = 69;
 	public static final byte EV_SOCIAL = 70;
+	public static final byte EV_PUSHNOTIFICATION = 71;
+	public static final byte EV_SAVELOAD = 72;
+	public static final byte EV_AUDIORECORDING = 73;
+	public static final byte EV_AUDIOPLAYBACK = 74;
+	public static final byte EV_SYSTEM = 75;
 
 	// step event types
 	public static final byte EV_STEP_NORMAL = 0;

@@ -17,7 +17,6 @@ import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dialog.ModalExclusionType;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -36,9 +35,9 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -110,9 +109,8 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 	protected boolean fFamilyChange = false;
 	protected boolean fSizeChange = false;
 
-	public class SettingsFrame extends JFrame
+	public class SettingsFrame extends JDialog
 		{
-
 		/**
 		 * NOTE: Default UID generated, change if necessary.
 		 */
@@ -120,19 +118,16 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 
 		public SettingsFrame()
 			{
-			super();
-			setAlwaysOnTop(true);
+			super(LGM.frame,true);
 			setDefaultCloseOperation(HIDE_ON_CLOSE);
-			setLocationRelativeTo(LGM.getGameInfo());
 
-			setTitle(Messages.getString("GameInformationFrame.SETTINGS"));
-			setIconImage(LGM.getIconForKey("GameInformationFrame.SETTINGS").getImage());
-			setResizable(false);
-			this.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
+			setTitle(Messages.getString("GameInformationFrame.SETTINGS")); //$NON-NLS-1$
+			setIconImage(LGM.getIconForKey("GameInformationFrame.SETTINGS").getImage()); //$NON-NLS-1$
 			this.add(makeSettings());
+			this.getRootPane().setDefaultButton(sCloseButton);
 			pack();
+			setResizable(false);
 			}
-
 		}
 
 	private JMenuBar makeMenuBar()
@@ -361,6 +356,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 	public JCheckBox sAlwaysOnTop;
 	public JCheckBox sPauseGame;
 	public JCheckBox sEmbed;
+	public JButton sCloseButton;
 
 	private JPanel makeSettings()
 		{
@@ -434,9 +430,9 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		/*				*/.addComponent(lHeight)
 		/*				*/.addComponent(sHeight,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)));
 
-		JButton closeButton = new JButton(Messages.getString("GameInformationFrame.CLOSE"));
-		closeButton.setActionCommand("GameInformationFrame.CLOSE");
-		closeButton.addActionListener(this);
+		sCloseButton = new JButton(Messages.getString("GameInformationFrame.CLOSE")); //$NON-NLS-1$
+		sCloseButton.setActionCommand("GameInformationFrame.CLOSE"); //$NON-NLS-1$
+		sCloseButton.addActionListener(this);
 
 		gl.setHorizontalGroup(gl.createParallelGroup()
 		/**/.addGroup(gl.createSequentialGroup()
@@ -448,7 +444,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		/**/.addComponent(sAlwaysOnTop)
 		/**/.addComponent(sPauseGame)
 		/**/.addComponent(sEmbed)
-		/**/.addComponent(closeButton,Alignment.CENTER));
+		/**/.addComponent(sCloseButton,Alignment.CENTER));
 
 		gl.setVerticalGroup(gl.createSequentialGroup()
 		/**/.addGroup(gl.createParallelGroup()
@@ -460,7 +456,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		/**/.addComponent(sAlwaysOnTop)
 		/**/.addComponent(sPauseGame)
 		/**/.addComponent(sEmbed)
-		/**/.addComponent(closeButton));
+		/**/.addComponent(sCloseButton));
 
 		return p;
 		}
@@ -725,10 +721,8 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			}
 		else if (com.equals("GameInformationFrame.SETTINGS")) //$NON-NLS-1$
 			{
-			if (settings == null)
-				{
-				settings = new SettingsFrame();
-				}
+			if (settings == null) settings = new SettingsFrame();
+			settings.setLocationRelativeTo(this);
 			settings.setVisible(true);
 			}
 		else if (com.equals("GameInformationFrame.FILESAVE")) //$NON-NLS-1$

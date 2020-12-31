@@ -11,6 +11,8 @@
 
 package org.lateralgm.subframes;
 
+import static java.lang.Integer.MAX_VALUE;
+import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
 import java.awt.BorderLayout;
@@ -22,7 +24,6 @@ import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
-import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
@@ -39,12 +40,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.instrument.Instrumentation;
 import java.net.URI;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -52,14 +53,14 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
+import javax.swing.BoxLayout;
 import javax.swing.DropMode;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -68,7 +69,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -76,7 +76,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.LayoutStyle;
+import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -87,15 +87,15 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.text.NumberFormatter;
 
 import org.lateralgm.components.EffectsFrame;
-import org.lateralgm.components.NumberField;
 import org.lateralgm.components.EffectsFrame.EffectsFrameListener;
+import org.lateralgm.components.NumberField;
 import org.lateralgm.components.NumberField.ValueChangeEvent;
 import org.lateralgm.components.NumberField.ValueChangeListener;
-import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.impl.SpriteStripDialog;
 import org.lateralgm.components.visual.SubimagePreview;
 import org.lateralgm.file.FileChangeMonitor;
+import org.lateralgm.file.ProjectFile;
 import org.lateralgm.file.FileChangeMonitor.FileUpdateEvent;
 import org.lateralgm.main.FileChooser.FileDropHandler;
 import org.lateralgm.main.LGM;
@@ -106,7 +106,9 @@ import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Sprite.BBMode;
+import org.lateralgm.resources.Sprite.MaskShape;
 import org.lateralgm.resources.Sprite.PSprite;
+import org.lateralgm.ui.swing.propertylink.ComboBoxLink.KeyComboBoxConversion;
 import org.lateralgm.ui.swing.util.SwingExecutor;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
@@ -115,15 +117,8 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		UpdateListener,ValueChangeListener,ClipboardOwner,EffectsFrameListener
 	{
 	private static final long serialVersionUID = 1L;
-	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("SpriteFrame.LOAD"); //$NON-NLS-1$
-	private static final ImageIcon SAVE_ICON = LGM.getIconForKey("SpriteFrame.SAVE"); //$NON-NLS-1$
-	private static final ImageIcon LOAD_SUBIMAGE_ICON = LGM.getIconForKey("SpriteFrame.LOAD_SUBIMAGE"); //$NON-NLS-1$
-	private static final ImageIcon LOAD_STRIP_ICON = LGM.getIconForKey("SpriteFrame.LOAD_STRIP"); //$NON-NLS-1$
 	private static final ImageIcon PLAY_ICON = LGM.getIconForKey("SpriteFrame.PLAY"); //$NON-NLS-1$
 	private static final ImageIcon STOP_ICON = LGM.getIconForKey("SpriteFrame.STOP"); //$NON-NLS-1$
-	private static final ImageIcon ZOOM_ICON = LGM.getIconForKey("SpriteFrame.ZOOM"); //$NON-NLS-1$
-	private static final ImageIcon ZOOM_IN_ICON = LGM.getIconForKey("SpriteFrame.ZOOM_IN"); //$NON-NLS-1$
-	private static final ImageIcon ZOOM_OUT_ICON = LGM.getIconForKey("SpriteFrame.ZOOM_OUT"); //$NON-NLS-1$
 
 	//toolbar
 	public JButton load, loadSubimages, loadStrip, saveSubimages, zoomIn, zoomOut;
@@ -134,13 +129,10 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	public JButton centre;
 
 	//bbox
-	public IndexButtonGroup bboxGroup;
 	public NumberField bboxLeft, bboxRight;
 	public NumberField bboxTop, bboxBottom;
-	public JRadioButton auto, full, manual;
 
 	//properties
-	public JRadioButton rect, prec, disk, diam, poly;
 	public JCheckBox smooth, preload, transparent, separateMasks;
 	public JLabel statusLabel;
 
@@ -171,72 +163,23 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	private Map<BufferedImage,ImageEditor> editors;
 	private MouseAdapter previewMouseAdapter;
 
-	/** Zoom in, centering around a specific point, usually the mouse. */
-	public void zoomIn(Point point)
-		{
-		if (this.getZoom() >= 32) return;
-		this.setZoom(this.getZoom() * 2);
-		Dimension size = previewScroll.getViewport().getSize();
-
-		int newX = (int) (point.x * 2) - size.width / 2;
-		int newY = (int) (point.y * 2) - size.height / 2;
-		previewScroll.getViewport().setViewPosition(new Point(newX,newY));
-
-		previewScroll.revalidate();
-		previewScroll.repaint();
-		}
-
-	/** Zoom out, centering around a specific point, usually the mouse. */
-	public void zoomOut(Point point)
-		{
-		if (this.getZoom() <= 0.04) return;
-		this.setZoom(this.getZoom() / 2);
-		Dimension size = previewScroll.getViewport().getSize();
-
-		int newX = (int) (point.x / 2) - size.width / 2;
-		int newY = (int) (point.y / 2) - size.height / 2;
-		previewScroll.getViewport().setViewPosition(new Point(newX,newY));
-
-		previewScroll.revalidate();
-		previewScroll.repaint();
-		}
-
-	public void zoomIn()
-		{
-		Dimension size = previewScroll.getViewport().getViewSize();
-		zoomIn(new Point(size.width/2,size.height/2));
-		}
-
-	public void zoomOut()
-		{
-		Dimension size = previewScroll.getViewport().getViewSize();
-		zoomOut(new Point(size.width/2,size.height/2));
-		}
-
 	public SpriteFrame(Sprite res, ResNode node)
 		{
 		super(res,node);
+		this.getRootPane().setDefaultButton(save);
+
 		res.properties.getUpdateSource(PSprite.BB_MODE).addListener(spl);
 		res.reference.updateSource.addListener(this);
 
 		setLayout(new BorderLayout());
 
-		final JSplitPane previewPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,makePreviewPane(),
-				makeSubimagesPane());
+		final JSplitPane previewPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,true,
+				makePreviewPane(),makeSubimagesPane());
 		previewPane.setResizeWeight(1);
 
-		if (Prefs.rightOrientation) {
-			splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-					previewPane,makePropertiesPane());
-			splitPane.setResizeWeight(1d);
-		} else {
-			splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-					makePropertiesPane(),previewPane);
-		}
-
-		add(makeToolBar(),BorderLayout.NORTH);
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true);
+		Util.orientSplit(splitPane,Prefs.rightOrientation,makePropertiesPane(),previewPane);
 		add(splitPane,BorderLayout.CENTER);
-		add(makeStatusBar(),BorderLayout.SOUTH);
 
 		previewMouseAdapter = new MouseAdapter()
 			{
@@ -258,11 +201,11 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 					{
 					if (ev.getButton() == MouseEvent.BUTTON1)
 						{
-						zoomIn(ev.getPoint());
+						preview.zoomIn(ev.getPoint(),previewScroll);
 						}
 					if (ev.getButton() == MouseEvent.BUTTON3)
 						{
-						zoomOut(ev.getPoint());
+						preview.zoomOut(ev.getPoint(),previewScroll);
 						}
 					preview.setCursor(LGM.zoomCursor);
 					}
@@ -276,7 +219,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		// will cause a height of 13,000 with some elongated subimages (8 x 56 as an example)
 		// setFixedCellWidth/Height is not an alternative because it does not work with subimages
 		// of varying dimensions
-		this.setSize(getWidth(),650);
+		this.setSize(getWidth(),586);
 		SwingUtilities.invokeLater(new Runnable()
 			{
 			@Override
@@ -294,54 +237,23 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		tool.setFloatable(false);
 		tool.setAlignmentX(0);
 
-		tool.add(save);
-
-		tool.addSeparator();
-
-		load = new JButton(LOAD_ICON);
-		load.setToolTipText(Messages.getString("SpriteFrame.LOAD")); //$NON-NLS-1$
-		load.addActionListener(this);
-		tool.add(load);
-
-		loadSubimages = new JButton(LOAD_SUBIMAGE_ICON);
-		loadSubimages.setToolTipText(Messages.getString("SpriteFrame.LOAD_SUBIMAGE")); //$NON-NLS-1$
-		loadSubimages.addActionListener(this);
-		tool.add(loadSubimages);
-
-		loadStrip = new JButton(LOAD_STRIP_ICON);
-		loadStrip.setToolTipText(Messages.getString("SpriteFrame.LOAD_STRIP")); //$NON-NLS-1$
-		loadStrip.addActionListener(this);
-		tool.add(loadStrip);
-
-		saveSubimages = new JButton(SAVE_ICON);
-		saveSubimages.setToolTipText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
-		saveSubimages.addActionListener(this);
-		tool.add(saveSubimages);
-
-		tool.addSeparator();
-
-		zoomButton = new JToggleButton(ZOOM_ICON);
-		zoomButton.setToolTipText(Messages.getString("SpriteFrame.ZOOM"));
+		zoomButton = new JToggleButton(LGM.getIconForKey("SpriteFrame.ZOOM")); //$NON-NLS-1$
+		zoomButton.setToolTipText(Messages.getString("SpriteFrame.ZOOM")); //$NON-NLS-1$
 		zoomButton.addActionListener(this);
 		tool.add(zoomButton);
 
-		zoomIn = new JButton(ZOOM_IN_ICON);
-		zoomIn.setToolTipText(Messages.getString("SpriteFrame.ZOOM_IN")); //$NON-NLS-1$
-		zoomIn.addActionListener(this);
+		zoomIn = makeJButton("SpriteFrame.ZOOM_IN"); //$NON-NLS-1$
+		zoomOut = makeJButton("SpriteFrame.ZOOM_OUT"); //$NON-NLS-1$
 		tool.add(zoomIn);
-
-		zoomOut = new JButton(ZOOM_OUT_ICON);
-		zoomOut.setToolTipText(Messages.getString("SpriteFrame.ZOOM_OUT")); //$NON-NLS-1$
-		zoomOut.addActionListener(this);
 		tool.add(zoomOut);
 
 		tool.addSeparator();
 
-		showBbox = new JCheckBox(Messages.getString("SpriteFrame.SHOW_BBOX"),true);
+		showBbox = new JCheckBox(Messages.getString("SpriteFrame.SHOW_BBOX"),true); //$NON-NLS-1$
 		showBbox.addActionListener(this);
 		showBbox.setOpaque(false);
 		tool.add(showBbox);
-		showOrigin = new JCheckBox(Messages.getString("SpriteFrame.SHOW_ORIGIN"),true);
+		showOrigin = new JCheckBox(Messages.getString("SpriteFrame.SHOW_ORIGIN"),true); //$NON-NLS-1$
 		showOrigin.addActionListener(this);
 		showOrigin.setOpaque(false);
 		tool.add(showOrigin);
@@ -372,29 +284,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		play.addActionListener(this);
 		tool.add(play);
 
-		tool.addSeparator();
-
-		name.setColumns(13);
-		name.setMaximumSize(name.getPreferredSize());
-		tool.add(new JLabel(Messages.getString("SpriteFrame.NAME"))); //$NON-NLS-1$
-		tool.add(name);
-
 		return tool;
-		}
-
-	public static class ObjectSizeFetcher
-		{
-		private static Instrumentation instrumentation;
-
-		public static void premain(String args, Instrumentation inst)
-			{
-			instrumentation = inst;
-			}
-
-		public static long getObjectSize(Object o)
-			{
-			return instrumentation.getObjectSize(o);
-			}
 		}
 
 	private void updateStatusLabel()
@@ -485,50 +375,12 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	private JPanel makeCollisionPane()
 		{
 		JPanel pane = new JPanel();
-		GroupLayout bLayout = new GroupLayout(pane);
-
-		pane.setLayout(bLayout);
-		pane.setBorder(BorderFactory.createTitledBorder(Messages.getString("SpriteFrame.COLLISION"))); //$NON-NLS-1$
-
-		ButtonGroup g = new ButtonGroup();
-		prec = new JRadioButton(Messages.getString("SpriteFrame.PRECISE")); //$NON-NLS-1$
-		g.add(prec);
-		rect = new JRadioButton(Messages.getString("SpriteFrame.RECTANGLE")); //$NON-NLS-1$
-		g.add(rect);
-		disk = new JRadioButton(Messages.getString("SpriteFrame.DISK")); //$NON-NLS-1$
-		g.add(disk);
-		diam = new JRadioButton(Messages.getString("SpriteFrame.DIAMOND")); //$NON-NLS-1$
-		g.add(diam);
-		poly = new JRadioButton(Messages.getString("SpriteFrame.POLYGON")); //$NON-NLS-1$
-		g.add(poly);
-		plf.make(g,PSprite.SHAPE,Sprite.MaskShape.class);
-
-		bLayout.setHorizontalGroup(bLayout.createSequentialGroup()
-		.addGroup(bLayout.createParallelGroup()
-		/**/.addComponent(prec)
-		/**/.addComponent(rect)
-		/**/.addComponent(disk)
-		/**/.addComponent(diam)
-		/**/.addComponent(poly))
-		/**/.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, PREFERRED_SIZE, Short.MAX_VALUE));
-
-		bLayout.setVerticalGroup(bLayout.createSequentialGroup()
-		/**/.addComponent(prec)
-		/**/.addComponent(rect)
-		/**/.addComponent(disk)
-		/**/.addComponent(diam)
-		/**/.addComponent(poly));
-
-		return pane;
-		}
-
-	private JPanel makeBBoxPane()
-		{
-		JPanel pane = new JPanel();
-		GroupLayout bLayout = new GroupLayout(pane);
-		pane.setLayout(bLayout);
+		GroupLayout cLayout = new GroupLayout(pane);
+		cLayout.setAutoCreateGaps(true);
+		cLayout.setAutoCreateContainerGaps(true);
+		pane.setLayout(cLayout);
 		pane.setBorder(BorderFactory.createTitledBorder(
-				Messages.getString("SpriteFrame.BBOX"))); //$NON-NLS-1$
+				Messages.getString("SpriteFrame.MASK"))); //$NON-NLS-1$
 
 		JLabel toleranceLabel = new JLabel(
 				Messages.getString("SpriteFrame.ALPHA_TOLERANCE")); //$NON-NLS-1$
@@ -537,14 +389,27 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		JSlider toleranceSlider = new JSlider(0, 255);
 		plf.make(toleranceSlider.getModel(),PSprite.ALPHA_TOLERANCE);
 
-		ButtonGroup g = new ButtonGroup();
-		auto = new JRadioButton(Messages.getString("SpriteFrame.AUTO")); //$NON-NLS-1$
-		g.add(auto);
-		full = new JRadioButton(Messages.getString("SpriteFrame.FULL")); //$NON-NLS-1$
-		g.add(full);
-		manual = new JRadioButton(Messages.getString("SpriteFrame.MANUAL")); //$NON-NLS-1$
-		g.add(manual);
-		plf.make(g,PSprite.BB_MODE,BBMode.class);
+		// The options must be added in the order corresponding to Sprite.BBMode
+		final String bboxOptions[] = { "SpriteFrame.AUTO", //$NON-NLS-1$
+				"SpriteFrame.FULL","SpriteFrame.MANUAL" }; //$NON-NLS-1$ //$NON-NLS-2$
+		Messages.translate(bboxOptions);
+
+		JLabel bboxLabel = new JLabel(Messages.getString("SpriteFrame.MASK_MODE")); //$NON-NLS-1$
+		JComboBox<String> bboxCombo = new JComboBox<String>(bboxOptions);
+		plf.make(bboxCombo,PSprite.BB_MODE,new KeyComboBoxConversion<BBMode>(ProjectFile.SPRITE_BB_MODE,
+			ProjectFile.SPRITE_BB_CODE));
+
+		// The options must be added in the order corresponding to Sprite.MaskShape
+		final String shapeOptions[] = { "SpriteFrame.PRECISE", //$NON-NLS-1$
+				"SpriteFrame.RECTANGLE","SpriteFrame.DISK", //$NON-NLS-1$ //$NON-NLS-2$
+				"SpriteFrame.DIAMOND" }; //$NON-NLS-1$ //$NON-NLS-2$
+		//TODO: what the fuck "SpriteFrame.POLYGON"
+		Messages.translate(shapeOptions);
+
+		JLabel shapeLabel = new JLabel(Messages.getString("SpriteFrame.MASK_TYPE")); //$NON-NLS-1$
+		JComboBox<String> shapeCombo = new JComboBox<String>(shapeOptions);
+		plf.make(shapeCombo,PSprite.SHAPE,new KeyComboBoxConversion<MaskShape>(ProjectFile.SPRITE_MASK_SHAPE,
+			ProjectFile.SPRITE_MASK_CODE));
 
 		JLabel lLab = new JLabel(Messages.getString("SpriteFrame.LEFT")); //$NON-NLS-1$
 		lLab.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -572,62 +437,54 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		updateBoundingBoxEditors();
 
-		bLayout.setHorizontalGroup(bLayout.createParallelGroup()
-		/**/.addGroup(bLayout.createSequentialGroup()
-		/*	*/.addComponent(auto)
-		/*	*/.addComponent(full))
-		/**/.addComponent(manual)
-		/**/.addGroup(bLayout.createSequentialGroup()
-		/*	*/.addContainerGap(4,4)
-		/*	*/.addGroup(bLayout.createParallelGroup()
-		/*		*/.addGroup(bLayout.createSequentialGroup()
-		/*			*/.addGroup(bLayout.createParallelGroup(Alignment.TRAILING)
-		/*				*/.addComponent(lLab)
-		/*				*/.addComponent(tLab))
-		/*			*/.addGap(2)
-		/*			*/.addGroup(bLayout.createParallelGroup()
-		/*				*/.addComponent(bboxLeft)
-		/*				*/.addComponent(bboxTop))
-		/*			*/.addGap(8)
-		/*			*/.addGroup(bLayout.createParallelGroup(Alignment.TRAILING)
-		/*				*/.addComponent(rLab)
-		/*				*/.addComponent(bLab))
-		/*			*/.addGap(2)
-		/*			*/.addGroup(bLayout.createParallelGroup()
-		/*				*/.addComponent(bboxRight)
-		/*				*/.addComponent(bboxBottom)))
-		/*		*/.addGroup(bLayout.createSequentialGroup()
-		/*			*/.addComponent(toleranceLabel))
-		/*		*/.addGroup(bLayout.createSequentialGroup()
-		/*			*/.addComponent(toleranceSlider, 0, 0, Short.MAX_VALUE)
-		/*			*/.addGap(2)
-		/*			*/.addComponent(tolerance, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)))
-		/*	*/.addContainerGap(4,4)));
-		bLayout.setVerticalGroup(bLayout.createSequentialGroup()
-		/**/.addGroup(bLayout.createParallelGroup(Alignment.BASELINE)
-		/*	*/.addComponent(auto)
-		/*	*/.addComponent(full))
-		/**/.addComponent(manual)
-		/**/.addGap(4)
-		/**/.addGroup(bLayout.createParallelGroup(Alignment.BASELINE)
+		cLayout.setHorizontalGroup(cLayout.createParallelGroup()
+		/**/.addGroup(cLayout.createSequentialGroup()
+		/*	*/.addGroup(cLayout.createParallelGroup()
+		/*		*/.addComponent(bboxLabel)
+		/*		*/.addComponent(shapeLabel))
+		/*	*/.addGroup(cLayout.createParallelGroup()
+		/*		*/.addComponent(bboxCombo)
+		/*		*/.addComponent(shapeCombo)))
+		/**/.addGroup(cLayout.createSequentialGroup()
 		/*	*/.addComponent(toleranceLabel))
-		/**/.addGap(2)
-		/**/.addGroup(bLayout.createParallelGroup(Alignment.CENTER)
+		/**/.addGroup(cLayout.createSequentialGroup()
+		/*	*/.addComponent(toleranceSlider, 0, 0, Short.MAX_VALUE)
+		/*	*/.addComponent(tolerance, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
+		/**/.addGroup(cLayout.createSequentialGroup()
+		/*	*/.addGroup(cLayout.createParallelGroup(Alignment.TRAILING)
+		/*		*/.addComponent(lLab)
+		/*		*/.addComponent(tLab))
+		/*	*/.addGroup(cLayout.createParallelGroup()
+		/*		*/.addComponent(bboxLeft, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE)
+		/*		*/.addComponent(bboxTop, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE))
+		/*	*/.addGroup(cLayout.createParallelGroup(Alignment.TRAILING)
+		/*		*/.addComponent(rLab)
+		/*		*/.addComponent(bLab))
+		/*	*/.addGroup(cLayout.createParallelGroup()
+		/*		*/.addComponent(bboxRight, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE)
+		/*		*/.addComponent(bboxBottom, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE))));
+		cLayout.setVerticalGroup(cLayout.createSequentialGroup()
+		/**/.addGroup(cLayout.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(bboxLabel)
+		/*	*/.addComponent(bboxCombo,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE))
+		/**/.addGroup(cLayout.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(shapeLabel)
+		/*	*/.addComponent(shapeCombo,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE))
+		/**/.addGroup(cLayout.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(toleranceLabel))
+		/**/.addGroup(cLayout.createParallelGroup(Alignment.CENTER)
 		/*	*/.addComponent(toleranceSlider)
 		/*	*/.addComponent(tolerance, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
-		/**/.addGap(4)
-		/**/.addGroup(bLayout.createParallelGroup(Alignment.BASELINE)
+		/**/.addGroup(cLayout.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(lLab)
 		/*	*/.addComponent(bboxLeft)
 		/*	*/.addComponent(rLab)
 		/*	*/.addComponent(bboxRight))
-		/**/.addGap(4)
-		/**/.addGroup(bLayout.createParallelGroup(Alignment.BASELINE)
+		/**/.addGroup(cLayout.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(tLab)
 		/*	*/.addComponent(bboxTop)
 		/*	*/.addComponent(bLab)
-		/*	*/.addComponent(bboxBottom))
-		/**/.addContainerGap(2,2));
+		/*	*/.addComponent(bboxBottom)));
 
 		return pane;
 		}
@@ -636,6 +493,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		{
 		JPanel pane = new JPanel();
 		GroupLayout layout = new GroupLayout(pane);
+		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
 
 		pane.setLayout(layout);
@@ -652,25 +510,37 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		plf.make(separateMasks,PSprite.SEPARATE_MASK);
 
 		JPanel origin = makeOriginPane();
-		JPanel coll = makeCollisionPane();
-		JPanel bbox = makeBBoxPane();
+		JPanel mask = makeCollisionPane();
+
+		JLabel nameLabel = new JLabel(Messages.getString("SpriteFrame.NAME")); //$NON-NLS-1$
+		save.setText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
+		/*	*/.addComponent(nameLabel)
+		/*	*/.addComponent(name,DEFAULT_SIZE,120,MAX_VALUE))
 		/**/.addComponent(smooth)
 		/**/.addComponent(preload)
 		/**/.addComponent(transparent)
 		/**/.addComponent(separateMasks)
 		/**/.addComponent(origin)
-		/**/.addComponent(coll)
-		/**/.addComponent(bbox));
+		/**/.addComponent(mask)
+		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
 		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(nameLabel)
+		/*	*/.addComponent(name))
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addComponent(smooth)
 		/**/.addComponent(preload)
 		/**/.addComponent(transparent)
 		/**/.addComponent(separateMasks)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addComponent(origin)
-		/**/.addComponent(coll)
-		/**/.addComponent(bbox));
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
+		/**/.addComponent(mask)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED,0,MAX_VALUE)
+		/**/.addComponent(save));
 
 		return pane;
 		}
@@ -693,7 +563,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 				g.setColor(list.getSelectionBackground());
 				g.drawRect(0,0,this.getWidth() - 1,this.getHeight() - 1);
 				}
-			g.dispose();
 			}
 		}
 
@@ -756,6 +625,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			Graphics2D g = cimg.createGraphics();
 			g.drawImage(transparencyBackground,0,0,bwidth*10,bheight*10,null);
 			g.drawImage(img,0,0,width,height,null);
+			g.dispose();
 
 			l.img = cimg;
 
@@ -793,29 +663,41 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		final JPopupMenu popup = new JPopupMenu();
 
-		popup.add(makeJMenuItem("SpriteFrame.EDIT"));
+		popup.add(makeJMenuItem("SpriteFrame.EDIT")); //$NON-NLS-1$
 
 		popup.addSeparator();
 
-		popup.add(makeJMenuItem("SpriteFrame.SELECT_ALL"));
+		popup.add(makeJMenuItem("SpriteFrame.SELECT_ALL")); //$NON-NLS-1$
 
 		JToolBar tool = new JToolBar();
 		tool.setFloatable(false);
 		pane.add(tool,BorderLayout.NORTH);
 
-		tool.add(makeJButton("SpriteFrame.ADD"));
-		tool.add(makeJButton("SpriteFrame.REMOVE"));
+		load = makeJButton("SpriteFrame.LOAD"); //$NON-NLS-1$
+		loadSubimages = makeJButton("SpriteFrame.LOAD_SUBIMAGE"); //$NON-NLS-1$
+		loadStrip = makeJButton("SpriteFrame.LOAD_STRIP"); //$NON-NLS-1$
+		saveSubimages = makeJButton("SpriteFrame.SAVE_SUBIMAGE"); //$NON-NLS-1$
+
+		tool.add(makeJButton("SpriteFrame.ADD")); //$NON-NLS-1$
+		tool.add(load);
+		tool.add(loadSubimages);
+		tool.add(loadStrip);
+		tool.add(saveSubimages);
 
 		tool.addSeparator();
 
-		tool.add(makeJButton("SpriteFrame.EDIT"));
-		tool.add(makeJButton("SpriteFrame.EFFECT"));
+		tool.add(makeJButton("SpriteFrame.REMOVE")); //$NON-NLS-1$
 
 		tool.addSeparator();
 
-		tool.add(makeJButton("SpriteFrame.CUT"));
-		tool.add(makeJButton("SpriteFrame.COPY"));
-		tool.add(makeJButton("SpriteFrame.PASTE"));
+		tool.add(makeJButton("SpriteFrame.EDIT")); //$NON-NLS-1$
+		tool.add(makeJButton("SpriteFrame.EFFECT")); //$NON-NLS-1$
+
+		tool.addSeparator();
+
+		tool.add(makeJButton("SpriteFrame.CUT")); //$NON-NLS-1$
+		tool.add(makeJButton("SpriteFrame.COPY")); //$NON-NLS-1$
+		tool.add(makeJButton("SpriteFrame.PASTE")); //$NON-NLS-1$
 
 		tool.addSeparator();
 
@@ -826,8 +708,9 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		show = new NumberField(0,res.subImages.size() - 1);
 		show.setHorizontalAlignment(SwingConstants.CENTER);
 		show.addValueChangeListener(this);
-		show.setColumns(10);
+		show.setColumns(4);
 		show.setMaximumSize(show.getPreferredSize());
+		show.setMinimumSize(show.getPreferredSize());
 		//		show.setValue(0);
 		tool.add(show);
 
@@ -905,6 +788,8 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		subimagesScroll.getHorizontalScrollBar().setUnitIncrement(0);
 		subimagesScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		pane.add(subimagesScroll,BorderLayout.CENTER);
+
+		pane.add(makeStatusBar(),BorderLayout.SOUTH);
 
 		return pane;
 		}
@@ -1014,6 +899,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		previewScroll = new JScrollPane(preview);
 		previewScroll.setPreferredSize(previewScroll.getSize());
 
+		pane.add(makeToolBar(),BorderLayout.NORTH);
 		pane.add(previewScroll,BorderLayout.CENTER);
 
 		return pane;
@@ -1158,11 +1044,11 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		if (askforsize)
 			{
 			NumberFormatter nf = new NumberFormatter();
-			nf.setMinimum(new Integer(1));
+			nf.setMinimum(1);
 			JFormattedTextField wField = new JFormattedTextField(nf);
-			wField.setValue(new Integer(width));
+			wField.setValue(width);
 			JFormattedTextField hField = new JFormattedTextField(nf);
-			hField.setValue(new Integer(height));
+			hField.setValue(height);
 
 			JPanel myPanel = new JPanel();
 			GridLayout layout = new GridLayout(0,2,0,3);
@@ -1311,32 +1197,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		updateScrollBars();
 		}
 
-	private class AnimThread extends Thread
-		{
-		public boolean freeze = false;
-
-		public void run()
-			{
-			while (!freeze && subList != null && preview != null)
-				{
-				// TODO: Shit throws all kinds of NPE's
-				// These two are threaded because updating the Swing controls
-				// Slows down the animation so its best to thread them to within a
-				// 60 frame per second quality playback.
-				//subList.setSelectedIndex(preview.getIndex());
-				//updateImageControls();
-				try
-					{
-					Thread.sleep(25);
-					}
-				catch (InterruptedException e)
-					{
-					LGM.showDefaultExceptionHandler(e);
-					}
-				}
-			}
-		}
-
 	public ArrayList<BufferedImage> getSelectedImages() {
 		int[] selected = subList.getSelectedIndices();
 		if (selected.length <= 0) {
@@ -1351,8 +1211,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		}
 
 	}
-
-	private AnimThread animThread = null;
 
 	public void actionPerformed(ActionEvent e)
 		{
@@ -1390,13 +1248,11 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		else if (e.getSource() == showBbox)
 			{
 			preview.setShowBbox(showBbox.isSelected());
-			preview.updateUI();
 			return;
 			}
 		else if (e.getSource() == showOrigin)
 			{
 			preview.setShowOrigin(showOrigin.isSelected());
-			preview.updateUI();
 			return;
 			}
 		else if (e.getSource() == subLeft)
@@ -1485,12 +1341,12 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			}
 		else if (e.getSource() == zoomIn)
 			{
-			zoomIn();
+			preview.zoomIn(previewScroll);
 			return;
 			}
 		else if (e.getSource() == zoomOut)
 			{
-			zoomOut();
+			preview.zoomOut(previewScroll);
 			return;
 			}
 		else if (e.getSource() == play)
@@ -1498,20 +1354,11 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			if (timer != null)
 				{
 				play.setIcon(PLAY_ICON);
-				animThread = null;
-				timer.stop();
-				timer = null; //used to indicate that this is not animating, and frees memory
+				stopAnimation();
 				updateImageControls();
 				}
 			else if (res.subImages.size() > 1)
 				{
-				if (animThread == null)
-					{
-					animThread = new AnimThread();
-
-					animThread.start();
-					}
-				animThread.freeze = false;
 				play.setIcon(STOP_ICON);
 				timer = new Timer(1000 / speed.getIntValue(),this);
 				timer.start();
@@ -1586,6 +1433,13 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		BufferedImage[] img = d.getStrip();
 		if (img == null) return; //cancelled/closed
 		addSubimages(img,clear);
+		}
+
+	private void stopAnimation()
+		{
+		if (timer == null) return;
+		timer.stop();
+		timer = null; //used to indicate that this is not animating, and frees memory
 		}
 
 	private void updateImageControls()
@@ -1796,6 +1650,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	public void dispose()
 		{
 		super.dispose();
+		stopAnimation();
 		cleanup();
 		}
 
@@ -1803,8 +1658,15 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	protected void cleanup()
 		{
 		if (editors != null)
-			for (ImageEditor ie : editors.values())
-				ie.stop();
+			// because stopping an editor removes it from the collection we must iterate
+			// here in a way that prevents concurrent modification exceptions by first 
+			// removing the editor through the iterator so that stop's remove is a noop
+			for (final Iterator<ImageEditor> it = editors.values().iterator(); it.hasNext();)
+				{
+				ImageEditor ie = it.next(); // << grab it first
+				it.remove(); // << remove it the safe way before stop does
+				ie.stop(); // << safe from concurrent modification now
+				}
 		}
 
 	public void lostOwnership(Clipboard arg0, Transferable arg1)

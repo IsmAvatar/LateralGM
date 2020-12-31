@@ -307,6 +307,11 @@ public class EventPanel extends JPanel implements ActionListener,PropertyChangeL
 		asynchronousMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_NETWORKING));
 		asynchronousMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_STEAM));
 		asynchronousMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_SOCIAL));
+		asynchronousMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_PUSHNOTIFICATION));
+		asynchronousMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_SAVELOAD));
+		asynchronousMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_AUDIORECORDING));
+		asynchronousMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_AUDIOPLAYBACK));
+		asynchronousMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_SYSTEM));
 		otherMenu.add(asynchronousMenu);
 
 		otherBt.setEventMenu(otherMenu);

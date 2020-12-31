@@ -123,16 +123,8 @@ public class ProjectFile implements UpdateListener
 	public static final BBMode[] SPRITE_BB_MODE = { BBMode.AUTO,BBMode.FULL,BBMode.MANUAL };
 	public static final Map<BBMode,Integer> SPRITE_BB_CODE = enumCodeMap(SPRITE_BB_MODE,BBMode.class);
 	public static final MaskShape[] SPRITE_MASK_SHAPE = { MaskShape.PRECISE,MaskShape.RECTANGLE,
-			MaskShape.DISK,MaskShape.DIAMOND };
-	public static final Map<MaskShape,Integer> SPRITE_MASK_CODE;
-	static
-		{
-		EnumMap<MaskShape,Integer> m = new EnumMap<MaskShape,Integer>(MaskShape.class);
-		for (int i = 0; i < SPRITE_MASK_SHAPE.length; i++)
-			m.put(SPRITE_MASK_SHAPE[i],i);
-		m.put(MaskShape.POLYGON,m.get(MaskShape.RECTANGLE));
-		SPRITE_MASK_CODE = Collections.unmodifiableMap(m);
-		}
+			MaskShape.DISK,MaskShape.DIAMOND,MaskShape.POLYGON };
+	public static final Map<MaskShape,Integer> SPRITE_MASK_CODE = enumCodeMap(SPRITE_MASK_SHAPE,MaskShape.class);
 	public static final ExportAction[] INCLUDE_EXPORT_ACTION = { ExportAction.DONT_EXPORT, ExportAction.TEMP_DIRECTORY,
 			ExportAction.SAME_FOLDER, ExportAction.CUSTOM_FOLDER };
 	public static final Map<ExportAction,Integer> INCLUDE_EXPORT_CODE = enumCodeMap(INCLUDE_EXPORT_ACTION,ExportAction.class);
@@ -286,12 +278,173 @@ public class ProjectFile implements UpdateListener
 			}
 		}
 
+	/**
+	 * Class {@code InterfaceProvider} is used by the file readers
+	 * to report progress changes to the UI or to ask the frontend
+	 * to translate a message. The remaining documentation shall
+	 * refer to both project readers and writers synonymously in
+	 * this context.
+	 *
+	 * Any of the methods in this class which are called by the
+	 * reader could potentially be running on a background thread
+	 * and may therefore not be safe to perform UI work directly.
+	 *
+	 * @see javax.swing.SwingUtilities#invokeLater()
+	 * @since 1.8.111
+	 */
+	public static interface InterfaceProvider
+		{
+		/**
+		 * Called by the frontend when project reading begins.
+		 * This is where any desired modal blocking, such
+		 * as a progress dialog, should begin. As a result of
+		 * this usually starting the modal blocking, it is
+		 * usually called by the frontend on the EDT.
+		 *
+		 * @since 1.8.113
+		 */
+		public void start();
+		/**
+		 * Called by the frontend when project reading is done.
+		 * This is where any modal blocking should be finished
+		 * by hiding any shown progress dialogs. As a result of
+		 * this usually ending the modal blocking, it is usually
+		 * called by the frontend on the EDT, such as in
+		 * the done method of {@code SwingWorker}.
+		 *
+		 * @see   javax.swing.SwingWorker
+		 * @since 1.8.113
+		 */
+		public void done();
+		/**
+		 * Called by the reader when it has determined the size
+		 * of its workload and can provide a primary caption.
+		 *
+		 * @param max The maximum progress value.
+		 * @param titleKey A translatable key of the primary caption.
+		 */
+		public void init(int max, String titleKey);
+		/**
+		 * Called by the reader when progress has been made and
+		 * a secondary caption is available.
+		 *
+		 * @param percent The current progress value.
+		 * @param messageKey A translatable key of the secondary caption.
+		 */
+		public void setProgress(int percent, String messageKey);
+		/**
+		 * Called by the reader when it needs a message translated.
+		 * Usually required for translating exception messages.
+		 * Although the frontend is free to use it for translation
+		 * of progress message keys as well.
+		 *
+		 * @param  key A translatable key of the message.
+		 * @return The translation of the key.
+		 */
+		public String translate(String key);
+		/**
+		 * Called by the reader when it needs a message translated
+		 * and formated. Usually required for translating exception
+		 * messages. Although the frontend is free to use it for
+		 * translation of progress message keys as well.
+		 *
+		 * @param  key A translatable key of the message to format.
+		 * @param  arguments Variadic number of arguments to format.
+		 * @return The translation of the key formatted with arguments.
+		 */
+		public String format(String key, Object...arguments);
+		/**
+		 * Called by the reader whenever a recoverable exception
+		 * is encountered, allowing the frontend to decide how to
+		 * proceed.
+		 *
+		 * @param e The recoverable exception that should be handled.
+		 * @since 1.8.112
+		 */
+		public void handleException(Exception e);
+		}
+
+	/**
+	 * Class {@code DefaultInterfaceProvider} provides a default
+	 * implementation of InterfaceProvider. This makes it easy to
+	 * subclass and is equivalent to MouseAdapter in that you do
+	 * not need to override every interface method. Most of the
+	 * methods simply sink the progress output of the readers.
+	 *
+	 * @see   java.awt.event.MouseAdapter
+	 * @since 1.8.112
+	 */
+	public static class DefaultInterfaceProvider implements InterfaceProvider
+		{
+		/**
+		 * Does nothing.
+		 *
+		 * @since 1.8.113
+		 */
+		@Override
+		public void start() {}
+		/**
+		 * Does nothing.
+		 *
+		 * @since 1.8.113
+		 */
+		@Override
+		public void done() {}
+		/**
+		 * Does nothing.
+		 *
+		 * @param max Unused
+		 * @param titleKey Unused
+		 */
+		@Override
+		public void init(int max, String titleKey) {}
+		/**
+		 * Does nothing.
+		 *
+		 * @param percent Unused
+		 * @param messageKey Unused
+		 */
+		@Override
+		public void setProgress(int percent, String messageKey) {}
+		/**
+		 * Returns the unused key.
+		 *
+		 * @param  key Unused
+		 * @return The unused key.
+		 */
+		@Override
+		public String translate(String key) { return key; }
+		/**
+		 * Returns the unused key.
+		 *
+		 * @param  key Unused
+		 * @param  arguments Unused
+		 * @return The unused key.
+		 */
+		@Override
+		public String format(String key, Object...arguments) { return key; }
+		/**
+		 * Forwards the recoverable exception to the current thread's
+		 * default uncaught exception handler.
+		 *
+		 * @param e The recoverable exception that should be handled.
+		 */
+		@Override
+		public void handleException(Exception e)
+			{
+			Thread t = Thread.currentThread();
+			t.getUncaughtExceptionHandler().uncaughtException(t,e);
+			}
+		};
+
+	// This is the one that the project readers will actually use and depend upon.
+	public static InterfaceProvider interfaceProvider = new DefaultInterfaceProvider();
+
 	public ProjectFile()
 		{
 		resMap = new ResourceMap();
 		for (Class<?> kind : Resource.kinds)
 			if (InstantiableResource.class.isAssignableFrom(kind)) resMap.addList(kind);
-
 
 		// Default initial configuration
 		GameSettings gs = createDefaultConfig();

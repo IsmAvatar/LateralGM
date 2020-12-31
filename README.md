@@ -1,6 +1,10 @@
-LateralGM
+LateralGM [![Travis CI Build Status](https://travis-ci.org/IsmAvatar/lateralgm.svg?branch=master)](https://travis-ci.org/github/IsmAvatar/LateralGM)
 =========
 A cross-platform editor for Game Maker project files written in Java using Swing. You can find the latest build on the releases page. The source code is doxygen commented but [online documentation](http://enigma-dev.org/docs/Wiki/LateralGM) of the internals is available, including format specification details.
+
+LateralGM is also maintained by the ![ENIGMA](https://github.com/enigma-dev/enigma-dev) developers, so please consider donating to them on Patreon!
+
+[![Patreon](https://enigma-dev.org/site/images/v4/patreon.png)](https://www.patreon.com/m/enigma_dev) 
 
 License
 -------

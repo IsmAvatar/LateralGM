@@ -70,6 +70,7 @@ public class IncludeFrame extends InstantiableResourceFrame<Include,Include.PInc
 	public IncludeFrame(Include r, ResNode node)
 		{
 		super(r,node);
+		this.getRootPane().setDefaultButton(save);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		this.setLayout(new BorderLayout());
 
@@ -148,10 +149,6 @@ public class IncludeFrame extends InstantiableResourceFrame<Include,Include.PInc
 
 		gl.setHorizontalGroup(gl.createParallelGroup()
 		/**/.addGroup(gl.createSequentialGroup()
-		/*	*/.addComponent(save,DEFAULT_SIZE,PREFERRED_SIZE,MAX_VALUE)
-		/*	*/.addComponent(loadDataBut,DEFAULT_SIZE,PREFERRED_SIZE,MAX_VALUE)
-		/*	*/.addComponent(saveDataBut,DEFAULT_SIZE,PREFERRED_SIZE,MAX_VALUE))
-		/**/.addGroup(gl.createSequentialGroup()
 		/*	*/.addComponent(nameLabel)
 		/*	*/.addComponent(name,DEFAULT_SIZE,PREFERRED_SIZE,MAX_VALUE))
 		// we want these two labels to have an ellipsis if too long
@@ -165,13 +162,13 @@ public class IncludeFrame extends InstantiableResourceFrame<Include,Include.PInc
 		/**/.addComponent(removeEnd)
 		/**/.addComponent(freeMemory)
 		/**/.addComponent(overwrite)
-		/**/.addComponent(exportActionPanel,DEFAULT_SIZE,PREFERRED_SIZE,MAX_VALUE));
+		/**/.addComponent(exportActionPanel,DEFAULT_SIZE,PREFERRED_SIZE,MAX_VALUE)
+		/**/.addGroup(gl.createSequentialGroup()
+		/*	*/.addComponent(save,DEFAULT_SIZE,PREFERRED_SIZE,MAX_VALUE)
+		/*	*/.addComponent(loadDataBut,DEFAULT_SIZE,PREFERRED_SIZE,MAX_VALUE)
+		/*	*/.addComponent(saveDataBut,DEFAULT_SIZE,PREFERRED_SIZE,MAX_VALUE)));
 
 		gl.setVerticalGroup(gl.createSequentialGroup()
-		/**/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
-		/*	*/.addComponent(save)
-		/*	*/.addComponent(loadDataBut)
-		/*	*/.addComponent(saveDataBut))
 		/**/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(nameLabel)
 		/*	*/.addComponent(name))
@@ -184,7 +181,11 @@ public class IncludeFrame extends InstantiableResourceFrame<Include,Include.PInc
 		/**/.addComponent(removeEnd)
 		/**/.addComponent(freeMemory)
 		/**/.addComponent(overwrite)
-		/**/.addComponent(exportActionPanel,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE));
+		/**/.addComponent(exportActionPanel,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/**/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(save)
+		/*	*/.addComponent(loadDataBut)
+		/*	*/.addComponent(saveDataBut)));
 
 		this.add(p,BorderLayout.CENTER);
 		this.pack();

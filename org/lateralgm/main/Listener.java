@@ -35,10 +35,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
 import javax.swing.JTree;
+import javax.swing.Timer;
 import javax.swing.TransferHandler;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
@@ -67,6 +70,34 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 
 	MListener mListener = new MListener();
 	public FileChooser fc = new FileChooser();
+
+	// A timer controlled by autosave backup preferences.
+	private final Timer backupTimer = new Timer(0,
+			new ActionListener()
+		{
+		@Override
+		public void actionPerformed(ActionEvent e)
+			{
+			if (!Prefs.backupAuto) return; // << autosave got disabled
+			// this will only prompt the user if this was a new project
+			// without a previous save location to backup to
+			fc.save(LGM.currentFile.uri,LGM.currentFile.format); // << pretend save was pressed
+			}
+		});
+
+	public void updateBackupTimer()
+		{
+		if (Prefs.backupAuto)
+			{
+			int delay = (int) TimeUnit.MINUTES.toMillis(Prefs.backupMinutes);
+			backupTimer.setCoalesce(true); // << don't ask more than once
+			backupTimer.setDelay(delay);
+			backupTimer.setInitialDelay(delay);
+			if (backupTimer.isRunning()) backupTimer.restart();
+			else backupTimer.start();
+			}
+		else if (backupTimer.isRunning()) backupTimer.stop();
+		}
 
 	private Listener()
 		{
@@ -128,19 +159,18 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		// This is why I am changing the behavior of this function, another possible solution
 		// is to add a selection change listener to the tree to ensure that it is never negative.
 		// - Robert B. Colton
-		if (parent != null)
+		if (parent == null)
 			{
-			putNode(tree,parent,parent,r,parent.getChildCount(),res);
-			return;
+			for (ResNode rn : LGM.root.getChildren())
+				if (rn.status == ResNode.STATUS_PRIMARY && r == rn.kind)
+					{
+					parent = rn;
+					break;
+					}
+			if (parent == null) return;
 			}
-		for (ResNode rn : LGM.root.getChildren())
-			{
-			if (rn.status == ResNode.STATUS_PRIMARY && r == rn.kind)
-				{
-				putNode(tree,rn,rn,r,rn.getChildCount(),res);
-				return;
-				}
-			}
+
+		putNode(tree,parent,parent,r,parent.getChildCount(),res);
 		}
 
 	public static void insertResource(JTree tree, Class<?> r)
@@ -468,7 +498,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			fc.save(LGM.currentFile.uri,LGM.currentFile.format);
 			return;
 			}
-		else if (com.endsWith(".EXPLORELATERALGM"))
+		else if (com.endsWith(".EXPLORELATERALGM")) //$NON-NLS-1$
 			{
 			String userDir = System.getProperty("user.dir");
 			if (userDir == null)
@@ -485,7 +515,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				LGM.showDefaultExceptionHandler(e1);
 				}
 			}
-		else if (com.endsWith(".EXPLOREPROJECT"))
+		else if (com.endsWith(".EXPLOREPROJECT")) //$NON-NLS-1$
 			{
 			String userDir = LGM.currentFile.getDirectory();
 			if (userDir == null)
@@ -653,11 +683,11 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			if (node.status == ResNode.STATUS_SECONDARY) node.openFrame();
 			return;
 			}
-		else if (com.endsWith(".FIND"))
+		else if (com.endsWith(".FIND")) //$NON-NLS-1$
 			{
 			String name = JOptionPane.showInputDialog(LGM.frame,
-				Messages.getString("FindResourceDialog.MESSAGE"),
-				Messages.getString("FindResourceDialog.TITLE"),
+				Messages.getString("FindResourceDialog.MESSAGE"), //$NON-NLS-1$
+				Messages.getString("FindResourceDialog.TITLE"), //$NON-NLS-1$
 				JOptionPane.PLAIN_MESSAGE);
 			if (name != null)
 				{

@@ -12,9 +12,9 @@ package org.lateralgm.resources;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.UpdateSource;
@@ -82,25 +82,25 @@ public class Font extends InstantiableResource<Font,Font.PFont>
 
 	public void addRangesFromString(String s)
 		{
-		ArrayList<Integer> sorted = new ArrayList<Integer>();
-		int cp = 0;
-		for (int i = 0; i < s.codePointCount(0,s.length()); i++)
+		Set<Integer> unique = new HashSet<Integer>();
+		int mincp = Integer.MAX_VALUE, maxcp = 0;
+		for (int i = 0; i < s.length();)
 			{
-			int cpa = s.codePointAt(cp);
-			sorted.add(cpa);
-			cp += Character.toChars(cpa).length;
+			final int cp = s.codePointAt(i);
+			if (cp < mincp) mincp = cp;
+			if (cp > maxcp) maxcp = cp;
+			unique.add(cp);
+			i += Character.charCount(cp);
 			}
 
-		Collections.sort(sorted);
-
-		int last = sorted.get(0);
-		CharacterRange cr = addRange(last,last);
-		for (Integer charint : sorted)
+		CharacterRange cr = null;
+		for (int i = mincp; i <= maxcp; ++i)
 			{
-			int current = charint;
-			if (current - last > 1) cr = addRange(current,current);
-			last = current;
-			cr.properties.put(PCharacterRange.RANGE_MAX,current);
+			if (unique.contains(i))
+				if (cr == null) cr = addRange(i,i);
+				else cr.properties.put(PCharacterRange.RANGE_MAX,i);
+			else
+				cr = null;
 			}
 		}
 
