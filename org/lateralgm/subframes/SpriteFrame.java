@@ -69,7 +69,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -134,7 +133,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	//bbox
 	public NumberField bboxLeft, bboxRight;
 	public NumberField bboxTop, bboxBottom;
-	public JRadioButton auto, full, manual;
 
 	//properties
 	public JCheckBox smooth, preload, transparent, separateMasks;
@@ -392,24 +390,24 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		plf.make(toleranceSlider.getModel(),PSprite.ALPHA_TOLERANCE);
 
 		// The options must be added in the order corresponding to Sprite.BBMode
-		final String kindOptions[] = { "SpriteFrame.AUTO", //$NON-NLS-1$
+		final String bboxOptions[] = { "SpriteFrame.AUTO", //$NON-NLS-1$
 				"SpriteFrame.FULL","SpriteFrame.MANUAL" }; //$NON-NLS-1$ //$NON-NLS-2$
-		Messages.translate(kindOptions);
+		Messages.translate(bboxOptions);
 
-		JLabel bboxLabel = new JLabel("Mode");
-		JComboBox<String> bboxCombo = new JComboBox<String>(kindOptions);
+		JLabel bboxLabel = new JLabel(Messages.getString("SpriteFrame.MASK_MODE")); //$NON-NLS-1$
+		JComboBox<String> bboxCombo = new JComboBox<String>(bboxOptions);
 		plf.make(bboxCombo,PSprite.BB_MODE,new KeyComboBoxConversion<BBMode>(ProjectFile.SPRITE_BB_MODE,
 			ProjectFile.SPRITE_BB_CODE));
 
 		// The options must be added in the order corresponding to Sprite.MaskShape
-		final String typeOptions[] = { "SpriteFrame.PRECISE", //$NON-NLS-1$
+		final String shapeOptions[] = { "SpriteFrame.PRECISE", //$NON-NLS-1$
 				"SpriteFrame.RECTANGLE","SpriteFrame.DISK", //$NON-NLS-1$ //$NON-NLS-2$
 				"SpriteFrame.DIAMOND" }; //$NON-NLS-1$ //$NON-NLS-2$
 		//TODO: what the fuck "SpriteFrame.POLYGON"
-		Messages.translate(typeOptions);
+		Messages.translate(shapeOptions);
 
-		JLabel shapeLabel = new JLabel("Type");
-		JComboBox<String> shapeCombo = new JComboBox<String>(typeOptions);
+		JLabel shapeLabel = new JLabel(Messages.getString("SpriteFrame.MASK_TYPE")); //$NON-NLS-1$
+		JComboBox<String> shapeCombo = new JComboBox<String>(shapeOptions);
 		plf.make(shapeCombo,PSprite.SHAPE,new KeyComboBoxConversion<MaskShape>(ProjectFile.SPRITE_MASK_SHAPE,
 			ProjectFile.SPRITE_MASK_CODE));
 
@@ -448,25 +446,23 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		/*		*/.addComponent(bboxCombo)
 		/*		*/.addComponent(shapeCombo)))
 		/**/.addGroup(cLayout.createSequentialGroup()
+		/*	*/.addComponent(toleranceLabel))
+		/**/.addGroup(cLayout.createSequentialGroup()
+		/*	*/.addComponent(toleranceSlider, 0, 0, Short.MAX_VALUE)
+		/*	*/.addComponent(tolerance, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
+		/**/.addGroup(cLayout.createSequentialGroup()
+		/*	*/.addGroup(cLayout.createParallelGroup(Alignment.TRAILING)
+		/*		*/.addComponent(lLab)
+		/*		*/.addComponent(tLab))
 		/*	*/.addGroup(cLayout.createParallelGroup()
-		/*		*/.addGroup(cLayout.createSequentialGroup()
-		/*			*/.addGroup(cLayout.createParallelGroup(Alignment.TRAILING)
-		/*				*/.addComponent(lLab)
-		/*				*/.addComponent(tLab))
-		/*			*/.addGroup(cLayout.createParallelGroup()
-		/*				*/.addComponent(bboxLeft, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE)
-		/*				*/.addComponent(bboxTop, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE))
-		/*			*/.addGroup(cLayout.createParallelGroup(Alignment.TRAILING)
-		/*				*/.addComponent(rLab)
-		/*				*/.addComponent(bLab))
-		/*			*/.addGroup(cLayout.createParallelGroup()
-		/*				*/.addComponent(bboxRight, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE)
-		/*				*/.addComponent(bboxBottom, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE)))
-		/*		*/.addGroup(cLayout.createSequentialGroup()
-		/*			*/.addComponent(toleranceLabel))
-		/*		*/.addGroup(cLayout.createSequentialGroup()
-		/*			*/.addComponent(toleranceSlider, 0, 0, Short.MAX_VALUE)
-		/*			*/.addComponent(tolerance, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)))));
+		/*		*/.addComponent(bboxLeft, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE)
+		/*		*/.addComponent(bboxTop, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE))
+		/*	*/.addGroup(cLayout.createParallelGroup(Alignment.TRAILING)
+		/*		*/.addComponent(rLab)
+		/*		*/.addComponent(bLab))
+		/*	*/.addGroup(cLayout.createParallelGroup()
+		/*		*/.addComponent(bboxRight, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE)
+		/*		*/.addComponent(bboxBottom, PREFERRED_SIZE, PREFERRED_SIZE, DEFAULT_SIZE))));
 		cLayout.setVerticalGroup(cLayout.createSequentialGroup()
 		/**/.addGroup(cLayout.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(bboxLabel)
@@ -547,10 +543,10 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		plf.make(separateMasks,PSprite.SEPARATE_MASK);
 
 		JPanel origin = makeOriginPane();
-		JPanel coll = makeCollisionPane();
+		JPanel mask = makeCollisionPane();
 		JPanel text = makeTexturePane();
 		JTabbedPane tabPane = new JTabbedPane();
-		tabPane.addTab("Collision",coll);
+		tabPane.addTab("Collision",mask);
 		tabPane.addTab("Texture",text);
 
 		JLabel nameLabel = new JLabel(Messages.getString("SpriteFrame.NAME")); //$NON-NLS-1$
