@@ -74,7 +74,7 @@ public class SpriteStripPreview extends AbstractImagePreview implements ValueCha
 
 	protected void processMouseMotionEvent(MouseEvent e)
 		{
-		if (e.getID() == MouseEvent.MOUSE_DRAGGED && (e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)
+		if (e.getID() == MouseEvent.MOUSE_DRAGGED && (e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) != 0)
 			{
 			Point pnt = this.translatePoint(e.getPoint());
 			setBoundedOrigin(pnt.x,pnt.y);
