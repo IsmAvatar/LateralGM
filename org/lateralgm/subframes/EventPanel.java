@@ -14,7 +14,6 @@ import static org.lateralgm.main.Util.deRef;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -130,7 +129,7 @@ public class EventPanel extends JPanel implements ActionListener,PropertyChangeL
 					{
 					f.functionEvent(function.getValue(),mid,sid,other,null);
 					f.toTop();
-					boolean ctrlDown = (e.getModifiers() & InputEvent.CTRL_MASK) != 0;
+					boolean ctrlDown = (e.getModifiers() & ActionEvent.CTRL_MASK) != 0;
 					if (!stayOpen.isSelected() ^ ctrlDown) LGM.hideEventPanel();
 					}
 				}

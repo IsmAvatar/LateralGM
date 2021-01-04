@@ -148,7 +148,7 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 		if (enableMouse)
 			{
 			if (e.getID() == MouseEvent.MOUSE_DRAGGED
-					&& (e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)
+					&& (e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) != 0)
 				{
 				Point pnt = this.translatePoint(e.getPoint());
 				setBoundedOrigin(pnt.x,pnt.y);
