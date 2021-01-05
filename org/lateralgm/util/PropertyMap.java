@@ -25,41 +25,18 @@ public class PropertyMap<K extends Enum<K>> extends EnumMap<K,Object>
 
 	private final UpdateTrigger updateTrigger = new UpdateTrigger();
 	public final UpdateSource updateSource = new UpdateSource(this,updateTrigger);
-	private EnumMap<K,TriggerSourcePair> updatePairs;
-	private final Class<K> keyType;
 	private final PropertyValidator<K> validator;
 
 	public PropertyMap(Class<K> type, PropertyValidator<K> v, EnumMap<K,Object> defaults)
 		{
 		super(defaults == null ? new EnumMap<K,Object>(type) : defaults);
-		keyType = type;
 		validator = v;
-		}
-
-	public UpdateSource getUpdateSource(K key)
-		{
-		TriggerSourcePair p = null;
-		if (updatePairs == null)
-			updatePairs = new EnumMap<K,TriggerSourcePair>(keyType);
-		else
-			p = updatePairs.get(key);
-		if (p == null)
-			{
-			p = new TriggerSourcePair();
-			updatePairs.put(key,p);
-			}
-		return p.source;
 		}
 
 	protected void fireUpdate(K k)
 		{
 		PropertyUpdateEvent<K> e = new PropertyUpdateEvent<K>(updateSource,this,k);
 		updateTrigger.fire(e);
-		if (updatePairs != null)
-			{
-			TriggerSourcePair p = updatePairs.get(k);
-			if (p != null) p.trigger.fire(e);
-			}
 		}
 
 	@SuppressWarnings("unchecked")
@@ -152,18 +129,6 @@ public class PropertyMap<K extends Enum<K>> extends EnumMap<K,Object>
 			}
 
 		public abstract void updated(PropertyUpdateEvent<K> e);
-		}
-
-	private class TriggerSourcePair
-		{
-		public final UpdateTrigger trigger;
-		public final UpdateSource source;
-
-		public TriggerSourcePair()
-			{
-			trigger = new UpdateTrigger();
-			source = new UpdateSource(PropertyMap.this,trigger);
-			}
 		}
 
 	public static interface PropertyValidator<K extends Enum<K>>

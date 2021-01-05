@@ -78,7 +78,7 @@ public class GmObject extends InstantiableResource<GmObject,GmObject.PGmObject> 
 		for (int j = 0; j < 12; j++)
 			e[j] = new MainEvent();
 		mainEvents = Collections.unmodifiableList(Arrays.asList(e));
-		properties.getUpdateSource(PGmObject.SPRITE).addListener(opl);
+		properties.updateSource.addListener(opl);
 		}
 
 	public GmObject makeInstance(ResourceReference<GmObject> r)

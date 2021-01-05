@@ -73,9 +73,7 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 	public Sprite(ResourceReference<Sprite> r)
 		{
 		super(r);
-		properties.getUpdateSource(PSprite.TRANSPARENT).addListener(spl);
-		properties.getUpdateSource(PSprite.ALPHA_TOLERANCE).addListener(spl);
-		properties.getUpdateSource(PSprite.BB_MODE).addListener(spl);
+		properties.updateSource.addListener(spl);
 		}
 
 	public Sprite makeInstance(ResourceReference<Sprite> r)

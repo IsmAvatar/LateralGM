@@ -168,7 +168,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		super(res,node);
 		this.getRootPane().setDefaultButton(save);
 
-		res.properties.getUpdateSource(PSprite.BB_MODE).addListener(spl);
+		res.properties.updateSource.addListener(spl);
 		res.reference.updateSource.addListener(this);
 
 		setLayout(new BorderLayout());
@@ -1567,7 +1567,10 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		public void updated(PropertyUpdateEvent<PSprite> e)
 			{
 			// BB_MODE
-			updateBoundingBoxEditors();
+			if (e.key == PSprite.ALPHA_TOLERANCE || e.key == PSprite.BB_MODE || e.key == PSprite.SHAPE ||
+					e.key == PSprite.BB_TOP || e.key == PSprite.BB_RIGHT || e.key == PSprite.BB_BOTTOM ||
+					e.key == PSprite.BB_LEFT)
+				updateBoundingBoxEditors();
 			}
 		}
 

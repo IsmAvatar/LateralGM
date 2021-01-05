@@ -102,7 +102,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		{
 		super(res,node);
 		this.getRootPane().setDefaultButton(save);
-		res.properties.getUpdateSource(PBackground.USE_AS_TILESET).addListener(bpl);
+		res.properties.updateSource.addListener(bpl);
 		res.reference.updateSource.addListener(this);
 
 		this.setLayout(new BorderLayout());

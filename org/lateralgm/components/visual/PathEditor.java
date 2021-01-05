@@ -254,8 +254,7 @@ public class PathEditor extends VisualPanel implements UpdateListener
 			{
 			point = p;
 			binVisual.setDepth(this,0);
-			p.properties.getUpdateSource(PPathPoint.X).addListener(ppl);
-			p.properties.getUpdateSource(PPathPoint.Y).addListener(ppl);
+			p.properties.updateSource.addListener(ppl);
 			validate();
 			}
 
@@ -297,7 +296,7 @@ public class PathEditor extends VisualPanel implements UpdateListener
 			@Override
 			public void updated(PropertyUpdateEvent<PPathPoint> e)
 				{
-				invalidate();
+				if (e.key == PPathPoint.X || e.key == PPathPoint.Y) invalidate();
 				}
 			}
 		}
@@ -344,8 +343,7 @@ public class PathEditor extends VisualPanel implements UpdateListener
 			binVisual.setDepth(this,1);
 			for (PathPoint point : p)
 				{
-				point.properties.getUpdateSource(PPathPoint.X).addListener(ppl);
-				point.properties.getUpdateSource(PPathPoint.Y).addListener(ppl);
+				point.properties.updateSource.addListener(ppl);
 				}
 			validate();
 			}
@@ -411,8 +409,7 @@ public class PathEditor extends VisualPanel implements UpdateListener
 			for (PathPoint point : p)
 				{
 				if (point == null) continue;
-				point.properties.getUpdateSource(PPathPoint.X).addListener(ppl);
-				point.properties.getUpdateSource(PPathPoint.Y).addListener(ppl);
+				point.properties.updateSource.addListener(ppl);
 				}
 			validate();
 			}
@@ -549,8 +546,7 @@ public class PathEditor extends VisualPanel implements UpdateListener
 			for (int i = 0; i < i2; i++)
 				{
 				PathPoint p = path.points.get(i == 3 ? path.points.size() - 1 : i);
-				p.properties.getUpdateSource(PPathPoint.X).addListener(ppl);
-				p.properties.getUpdateSource(PPathPoint.Y).addListener(ppl);
+				p.properties.updateSource.addListener(ppl);
 				}
 			validate();
 			}
