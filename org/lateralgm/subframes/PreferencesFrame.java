@@ -329,7 +329,6 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		JCheckBox dndEnable, expandEventsEnable, restrictTreeEnable, extraNodesEnable, showTreeFilter,
 			rightOrientation, backupSave, backupExit, backupAuto;
 		JComboBox<LocaleItem> localeCombo;
-		JComboBox<String> actionsCombo;
 		JTextField documentationURI, websiteURI, communityURI, issueURI, actionsPath;
 		JSpinner backupCopies, backupMinutes;
 
@@ -409,10 +408,6 @@ public class PreferencesFrame extends JDialog implements ActionListener
 			issueURI = new JTextField();
 			JButton issueBrowse = getURIBrowseButton(issueURI);
 
-			//JLabel actionsLabel = new JLabel(Messages.getString("PreferencesFrame.ACTIONLIBRARY"));
-			String[] actionsOptions = { "Standard","Logic","Custom" };
-			actionsCombo = new JComboBox<String>(actionsOptions);
-			//actionsCombo.setSelectedItem(Prefs.actionLibrary);
 			actionsPath = new JTextField();
 			actionsPath.setText(Prefs.userLibraryPath);
 
