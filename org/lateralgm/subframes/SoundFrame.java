@@ -266,7 +266,9 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		@Override
 		public long getPosition()
 			{
-			return (clip == null) ? 0 : clip.getMicrosecondPosition();
+			// Pulse audio in OpenJDK has a bug that requires us to check that the line
+			// is open, even getMicrosecondPosition is not supposed to throw an exception
+			return (clip == null || !clip.isOpen()) ? 0 : clip.getMicrosecondPosition();
 			}
 
 		@Override
