@@ -128,8 +128,22 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		tool.addSeparator();
 		tool.add(new JLabel(Messages.getString("ShaderFrame.TYPE"))); //$NON-NLS-1$
 		String[] typeOptions = { "GLSLES","GLSL","HLSL9","HLSL11" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		typeCombo = new JComboBox<String>(typeOptions);
-		typeCombo.setMaximumSize(typeCombo.getPreferredSize());
+		typeCombo = new JComboBox<String>(typeOptions) {
+			/**
+			 * Default UID generated, change if necessary.
+			 */
+			private static final long serialVersionUID = 868972443258270041L;
+
+			@Override
+			public Dimension getMaximumSize()
+				{
+				// little hack to fix its size just big enough to display longest value
+				// gets around the fact that JComboBox preferred size changes after
+				// being made visible, causing an ellipsis, and also works with dynamic
+				// L&F switching
+				return getPreferredSize();
+				}
+		};
 		typeCombo.addItemListener(new ItemListener()
 			{
 				public void itemStateChanged(ItemEvent arg0)

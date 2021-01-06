@@ -656,7 +656,7 @@ public class RoomEditor extends VisualPanel
 
 				alist = room.instances;
 				jlist = frame.oList;
-				CodeFrame fr = frame.codeFrames.get(mc);
+				CodeFrame fr = frame.codeFrames.get((Instance)mc);
 				if (fr != null) fr.dispose();
 				}
 			else if (mc instanceof Tile)
