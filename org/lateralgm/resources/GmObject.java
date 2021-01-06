@@ -115,7 +115,7 @@ public class GmObject extends InstantiableResource<GmObject,GmObject.PGmObject> 
 
 	public void updated(UpdateEvent e)
 		{
-		fireUpdate();
+		reference.updateTrigger.fire(e);
 		}
 
 	@Override
