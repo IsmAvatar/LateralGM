@@ -22,7 +22,7 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-package org.lateralgm.subframes;
+package org.lateralgm.main;
 
 import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
@@ -87,11 +87,6 @@ import org.lateralgm.joshedit.lexers.GLESTokenMarker;
 import org.lateralgm.joshedit.lexers.GLSLTokenMarker;
 import org.lateralgm.joshedit.lexers.GMLTokenMarker;
 import org.lateralgm.joshedit.lexers.HLSLTokenMarker;
-import org.lateralgm.main.LGM;
-import org.lateralgm.main.Listener;
-import org.lateralgm.main.Prefs;
-import org.lateralgm.main.PrefsStore;
-import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.InstantiableResource;
