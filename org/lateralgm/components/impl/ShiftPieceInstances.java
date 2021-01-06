@@ -10,7 +10,7 @@
  * See LICENSE for details.
  */
 
-package org.lateralgm.util;
+package org.lateralgm.components.impl;
 
 import java.awt.Point;
 

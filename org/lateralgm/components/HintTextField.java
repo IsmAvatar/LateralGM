@@ -1,4 +1,4 @@
-package org.lateralgm.components.visual;
+package org.lateralgm.components;
 
 import java.awt.Color;
 import java.awt.Graphics;

@@ -99,8 +99,13 @@ import javax.swing.undo.UndoableEditSupport;
 import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.ResourceMenu;
+import org.lateralgm.components.impl.AddPieceInstance;
 import org.lateralgm.components.impl.EditorScrollPane;
+import org.lateralgm.components.impl.ModifyPieceInstance;
+import org.lateralgm.components.impl.RemovePieceInstance;
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.components.impl.ShiftPieceInstances;
+import org.lateralgm.components.impl.ModifyPieceInstance.Type;
 import org.lateralgm.components.visual.RoomEditor;
 import org.lateralgm.components.visual.RoomEditor.CommandHandler;
 import org.lateralgm.components.visual.RoomEditor.PRoomEditor;
@@ -132,14 +137,9 @@ import org.lateralgm.ui.swing.propertylink.FormattedLink;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 import org.lateralgm.ui.swing.util.ArrayListModel;
 import org.lateralgm.util.ActiveArrayList;
-import org.lateralgm.util.AddPieceInstance;
-import org.lateralgm.util.ModifyPieceInstance;
 import org.lateralgm.util.PropertyLink;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
-import org.lateralgm.util.RemovePieceInstance;
-import org.lateralgm.util.ShiftPieceInstances;
-import org.lateralgm.util.ModifyPieceInstance.Type;
 
 public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		ListSelectionListener,CommandHandler,UpdateListener,FocusListener,ChangeListener

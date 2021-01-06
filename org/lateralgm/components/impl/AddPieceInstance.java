@@ -8,7 +8,7 @@
  * See LICENSE for details.
 */
 
-package org.lateralgm.util;
+package org.lateralgm.components.impl;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;

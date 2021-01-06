@@ -34,6 +34,10 @@ import javax.swing.JPopupMenu;
 import javax.swing.undo.CompoundEdit;
 import javax.swing.undo.UndoableEdit;
 
+import org.lateralgm.components.impl.AddPieceInstance;
+import org.lateralgm.components.impl.ModifyPieceInstance;
+import org.lateralgm.components.impl.RemovePieceInstance;
+import org.lateralgm.components.impl.ModifyPieceInstance.Type;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
@@ -53,14 +57,10 @@ import org.lateralgm.subframes.CodeFrame;
 import org.lateralgm.subframes.RoomFrame;
 import org.lateralgm.ui.swing.visuals.RoomVisual;
 import org.lateralgm.util.ActiveArrayList;
-import org.lateralgm.util.AddPieceInstance;
-import org.lateralgm.util.ModifyPieceInstance;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 import org.lateralgm.util.PropertyMap.PropertyValidator;
-import org.lateralgm.util.RemovePieceInstance;
-import org.lateralgm.util.ModifyPieceInstance.Type;
 
 public class RoomEditor extends VisualPanel
 	{

@@ -50,8 +50,8 @@ import javax.swing.tree.TreeSelectionModel;
 
 import org.lateralgm.components.CodeTextArea;
 import org.lateralgm.components.CustomJToolBar;
+import org.lateralgm.components.HintTextField;
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.components.visual.HintTextField;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Resource;
