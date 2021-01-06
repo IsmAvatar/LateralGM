@@ -45,7 +45,7 @@ public class BackgroundDef implements UpdateListener,
 	public BackgroundDef()
 		{
 		properties = new PropertyMap<PBackgroundDef>(PBackgroundDef.class,this,DEFS);
-		properties.getUpdateSource(PBackgroundDef.BACKGROUND).addListener(bdpl);
+		properties.updateSource.addListener(bdpl);
 		}
 
 	protected void fireUpdate(UpdateEvent e)

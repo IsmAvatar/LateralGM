@@ -61,8 +61,7 @@ public class CharacterRange implements UpdateListener,
 		super();
 		font = fnt.reference;
 		properties = new PropertyMap<PCharacterRange>(PCharacterRange.class,this,DEFS);
-		properties.getUpdateSource(PCharacterRange.RANGE_MAX).addListener(rpl);
-		properties.getUpdateSource(PCharacterRange.RANGE_MIN).addListener(rpl);
+		properties.updateSource.addListener(rpl);
 		}
 
 	public CharacterRange(Font fnt, int min, int max)
