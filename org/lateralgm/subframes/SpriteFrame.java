@@ -158,8 +158,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	/** Prevents <code>show</code> from resetting when it changes */
 	private boolean updateSub = true;
 
-	private final SpritePropertyListener spl = new SpritePropertyListener();
-
 	private Map<BufferedImage,ImageEditor> editors;
 	private MouseAdapter previewMouseAdapter;
 
@@ -168,7 +166,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		super(res,node);
 		this.getRootPane().setDefaultButton(save);
 
-		res.properties.updateSource.addListener(spl);
 		res.reference.updateSource.addListener(this);
 
 		setLayout(new BorderLayout());
@@ -1559,19 +1556,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		{
 		updateStatusLabel();
 		updateImageList();
-		}
-
-	private class SpritePropertyListener extends PropertyUpdateListener<PSprite>
-		{
-		@Override
-		public void updated(PropertyUpdateEvent<PSprite> e)
-			{
-			// BB_MODE
-			if (e.key == PSprite.ALPHA_TOLERANCE || e.key == PSprite.BB_MODE || e.key == PSprite.SHAPE ||
-					e.key == PSprite.BB_TOP || e.key == PSprite.BB_RIGHT || e.key == PSprite.BB_BOTTOM ||
-					e.key == PSprite.BB_LEFT)
-				updateBoundingBoxEditors();
-			}
 		}
 
 	private class ImageEditor implements UpdateListener
