@@ -1534,7 +1534,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		JScrollPane sp = new JScrollPane(bList);
 
 		for (BackgroundDef d : res.backgroundDefs)
-			d.properties.updateSource.addListener(bdpl);
+			d.properties.getUpdateSource(PBackgroundDef.VISIBLE).addListener(bdpl);
 
 		bVisible = new JCheckBox(Messages.getString("RoomFrame.BACK_VISIBLE")); //$NON-NLS-1$
 		bForeground = new JCheckBox(Messages.getString("RoomFrame.BACK_FOREGROUND")); //$NON-NLS-1$
@@ -1695,8 +1695,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 		for (View v : res.views)
 			{
-			
-			v.properties.updateSource.addListener(vpl);
+			v.properties.getUpdateSource(PView.VISIBLE).addListener(vpl);
+			v.properties.getUpdateSource(PView.OBJECT).addListener(vpl);
+			v.properties.getUpdateSource(PView.VIEW_W).addListener(vpl);
+			v.properties.getUpdateSource(PView.VIEW_H).addListener(vpl);
+			v.properties.getUpdateSource(PView.BORDER_H).addListener(vpl);
+			v.properties.getUpdateSource(PView.BORDER_V).addListener(vpl);
 			}
 
 		vVisible = new JCheckBox(Messages.getString("RoomFrame.VIEW_ENABLED")); //$NON-NLS-1$
