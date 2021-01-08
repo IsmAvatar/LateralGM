@@ -23,19 +23,41 @@
 
 package org.lateralgm.resources;
 
+import java.io.InputStream;
 import java.util.EnumMap;
 
+import org.lateralgm.main.LGM;
+import org.lateralgm.main.Util;
 import org.lateralgm.util.PropertyMap;
 
 public class Shader extends InstantiableResource<Shader,Shader.PShader>
 	{
+	// plugins may override these to change contents of newly created shaders
+	public static String TEMPLATE_VERTEX = "";
+	public static String TEMPLATE_FRAGMENT = "";
+
+	static
+		{
+		ClassLoader cl = Shader.class.getClassLoader();
+		try (InputStream vis = cl.getResourceAsStream("org/lateralgm/resources/shader_template.vert");
+				 InputStream fis = cl.getResourceAsStream("org/lateralgm/resources/shader_template.frag"))
+			{
+			TEMPLATE_VERTEX = new String(Util.readFully(vis).toByteArray());
+			TEMPLATE_FRAGMENT = new String(Util.readFully(fis).toByteArray());
+			}
+		catch (Exception e)
+			{
+			LGM.showDefaultExceptionHandler(e);
+			}
+		}
+
 	public enum PShader
 		{
 		VERTEX,FRAGMENT,TYPE,PRECOMPILE
 		}
 
-	private static final EnumMap<PShader,Object> DEFS = PropertyMap.makeDefaultMap(PShader.class,"",
-			"","GLSLES",true);
+	private static final EnumMap<PShader,Object> DEFS = PropertyMap.makeDefaultMap(PShader.class,TEMPLATE_VERTEX,
+			TEMPLATE_FRAGMENT,"GLSLES",true);
 
 	public Shader()
 		{
