@@ -37,8 +37,6 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 
 	private static final int ORIGIN_SIZE = 20;
 
-	public UpdateListener mouseListener;
-
 	public boolean enableMouse = true;
 
 	public SubimagePreview(Sprite s)
@@ -46,7 +44,7 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 		super();
 		sprite = s;
 		s.properties.updateSource.addListener(spl);
-		s.reference.updateSource.addListener(mouseListener);
+		s.reference.updateSource.addListener(this);
 
 		enableEvents(MouseEvent.MOUSE_PRESSED);
 		enableEvents(MouseEvent.MOUSE_DRAGGED);
