@@ -46,7 +46,6 @@ import javax.swing.event.PopupMenuListener;
 
 import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.ResourceList;
-import org.lateralgm.joshedit.lexers.GMLKeywords;
 import org.lateralgm.joshedit.Code;
 import org.lateralgm.joshedit.CompletionMenu;
 import org.lateralgm.joshedit.DefaultKeywords;
@@ -103,11 +102,9 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 	protected DefaultTokenMarker tokenMarker;
 
 	private static final Color PURPLE = new Color(138,54,186);
-	private static final Color BROWN = new Color(150,0,0);
 	private static final Color FUNCTION = new Color(0,100,150);
 
-	//new Color(255,0,128);
-	static KeywordSet resNames, scrNames, constructs, functions, operators, constants, variables;
+	static KeywordSet resNames, scrNames;
 
 	public CodeTextArea()
 		{
@@ -128,7 +125,6 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 		setTabSize(Prefs.tabSize);
 		setTokenMarker(tokenMarker);
 		setupKeywords();
-		updateKeywords();
 		updateResourceKeywords();
 		//painter.setStyles(PrefsStore.getSyntaxStyles());
 		text.getActionMap().put("COMPLETIONS",completionAction);
@@ -147,19 +143,17 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 		popup.addSeparator();
 		popup.add(makeContextButton(this.text.actSelAll));
 
-		popup.addPopupMenuListener(new PopupMenuListener() {
-
+		popup.addPopupMenuListener(new PopupMenuListener()
+			{
 			@Override
 			public void popupMenuCanceled(PopupMenuEvent arg0)
 				{
-				// TODO Auto-generated method stub
-				}
+				} // Unused
 
 			@Override
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0)
 				{
-				// TODO Auto-generated method stub
-				}
+				} // Unused
 
 			@Override
 			public void popupMenuWillBecomeVisible(PopupMenuEvent arg0)
@@ -167,8 +161,7 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 					undoItem.setEnabled(text.canUndo());
 					redoItem.setEnabled(text.canRedo());
 				}
-
-		});
+			});
 
 		text.setComponentPopupMenu(popup);
 		}
@@ -294,32 +287,6 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 		{
 		resNames = tokenMarker.addKeywordSet("Resource Names",PURPLE,Font.PLAIN);
 		scrNames = tokenMarker.addKeywordSet("Script Names",FUNCTION,Font.PLAIN);
-		functions = tokenMarker.addKeywordSet("Functions",FUNCTION,Font.PLAIN);
-		constructs = tokenMarker.addKeywordSet("Constructs",Color.BLACK,Font.BOLD);
-		operators = tokenMarker.addKeywordSet("Operators",Color.BLACK,Font.BOLD);
-		constants = tokenMarker.addKeywordSet("Constants",BROWN,Font.PLAIN);
-		variables = tokenMarker.addKeywordSet("Variables",Color.BLUE,Font.ITALIC);
-		}
-
-	//TODO: I believe this method can be removed.
-	public static void updateKeywords()
-		{
-		constructs.words.clear();
-		operators.words.clear();
-		constants.words.clear();
-		variables.words.clear();
-		functions.words.clear();
-
-		for (DefaultKeywords.Construct keyword : GMLKeywords.CONSTRUCTS)
-			constructs.words.add(keyword.getName());
-		for (DefaultKeywords.Operator keyword : GMLKeywords.OPERATORS)
-			operators.words.add(keyword.getName());
-		for (DefaultKeywords.Constant keyword : GMLKeywords.CONSTANTS)
-			constants.words.add(keyword.getName());
-		for (DefaultKeywords.Variable keyword : GMLKeywords.VARIABLES)
-			variables.words.add(keyword.getName());
-		for (DefaultKeywords.Function keyword : GMLKeywords.FUNCTIONS)
-			functions.words.add(keyword.getName());
 		}
 
 	public static void updateResourceKeywords()
@@ -552,9 +519,7 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 					public void run()
 						{
 						updateResourceKeywords();
-						text.repaint(); //should be capable of figuring out its own visible lines
-						//int fl = getFirstLine();
-						//painter.invalidateLineRange(fl,fl + getVisibleLines());
+						text.repaint();
 						}
 				});
 			}
