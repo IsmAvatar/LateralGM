@@ -162,7 +162,6 @@ public class GmObject extends InstantiableResource<GmObject,GmObject.PGmObject> 
 				GmObject p = (GmObject) ((ResourceReference<?>) v).get();
 				if (!isValidParent(p)) throw new ParentLoopException();
 			default:
-				//TODO: maybe put a failsafe here?
 				break;
 			}
 		return v;

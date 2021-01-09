@@ -436,7 +436,6 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 					updateBoundingBox();
 					break;
 				default:
-					//TODO: maybe put a failsafe here?
 					break;
 				}
 			}

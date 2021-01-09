@@ -129,7 +129,6 @@ public class Background extends InstantiableResource<Background,Background.PBack
 					fireUpdate();
 					break;
 				default:
-					//TODO: maybe put a failsafe here?
 					break;
 				}
 			}
