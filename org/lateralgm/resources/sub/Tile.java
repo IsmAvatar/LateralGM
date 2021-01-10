@@ -58,7 +58,83 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 	public Tile(Room r)
 		{
 		room = r.reference;
-		properties = new PropertyMap<PTile>(PTile.class,this,DEFS);
+		properties = new PropertyMap<PTile>(PTile.class,this,null)
+			{
+			int bgX = 0;
+			int bgY = 0;
+			int roomX = 0;
+			int roomY = 0;
+			int width = 0;
+			int height = 0;
+			int depth = 0;
+			Object background = null;
+			String name = "tile";
+			int id = 0;
+			boolean locked = false;
+			long color = 4294967295L;
+			int alpha = 255;
+			double scaleX = 1.0f;
+			double scaleY = 1.0f;
+			double rotation = 0.0f;
+			boolean selected = false;
+
+			@Override
+			public Object put(PTile key, Object value)
+				{
+				Object vv = validator == null ? value : validator.validate(key,value);
+				Object o = this.get(key);
+				switch (key)
+					{
+					case ALPHA: alpha = (int) value; break;
+					case BACKGROUND: background = value; break;
+					case BG_X: bgX = (int) value; break;
+					case BG_Y: bgY = (int) value; break;
+					case COLOR: color = (long) value; break;
+					case DEPTH: depth = (int) value; break;
+					case HEIGHT: height = (int) value; break;
+					case ID: id = (int) value; break;
+					case LOCKED: locked= (boolean) value; break;
+					case NAME: name = (String) value; break;
+					case ROOM_X: roomX = (int) value; break;
+					case ROOM_Y: roomY = (int) value; break;
+					case ROTATION: rotation = (double) value; break;
+					case SCALE_X: scaleX = (double) value; break;
+					case SCALE_Y: scaleY = (double) value; break;
+					case SELECTED: selected = (boolean) value; break;
+					case WIDTH: width = (int) value; break;
+					default: return value;
+					}
+				if (vv != value || o != value) fireUpdate(key);
+				return value;
+				}
+
+			@Override
+			public Object get(PTile key)
+				{
+				switch (key)
+				{
+				case ALPHA: return alpha;
+				case BACKGROUND: return background;
+				case BG_X: return bgX;
+				case BG_Y: return bgY;
+				case COLOR: return color;
+				case DEPTH: return depth;
+				case HEIGHT: return height;
+				case ID: return id;
+				case LOCKED: return locked;
+				case NAME: return name;
+				case ROOM_X: return roomX;
+				case ROOM_Y: return roomY;
+				case ROTATION: return rotation;
+				case SCALE_X: return scaleX;
+				case SCALE_Y: return scaleY;
+				case SELECTED: return selected;
+				case WIDTH: return width;
+				default: break;
+				}
+				return null;
+				}
+			};
 		properties.put(PTile.NAME, "tile_" + String.format("%08X", new Random().nextInt()));
 		properties.updateSource.addListener(tpl);
 		}

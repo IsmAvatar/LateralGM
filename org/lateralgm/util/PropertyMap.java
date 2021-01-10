@@ -27,7 +27,7 @@ public class PropertyMap<K extends Enum<K>> extends EnumMap<K,Object>
 	public final UpdateSource updateSource = new UpdateSource(this,updateTrigger);
 	private EnumMap<K,TriggerSourcePair> updatePairs;
 	private final Class<K> keyType;
-	private final PropertyValidator<K> validator;
+	protected final PropertyValidator<K> validator;
 
 	public PropertyMap(Class<K> type, PropertyValidator<K> v, EnumMap<K,Object> defaults)
 		{
