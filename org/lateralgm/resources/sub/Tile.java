@@ -48,9 +48,6 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 		ROTATION,SELECTED
 		}
 
-	private static final EnumMap<PTile,Object> DEFS = PropertyMap.makeDefaultMap(PTile.class,0,0,0,0,
-			0,0,0,null,"tile",0,false,4294967295L,255,1.0,1.0,0.0,false);
-
 	/**
 	 * Do not call this constructor unless you intend
 	 * to handle your own tile ID. See Tile(Room r, GmFile f).
@@ -58,7 +55,7 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 	public Tile(Room r)
 		{
 		room = r.reference;
-		properties = new PropertyMap<PTile>(PTile.class,this,null)
+		properties = new PropertyMap<PTile>(PTile.class,this)
 			{
 			int bgX = 0;
 			int bgY = 0;
@@ -135,7 +132,7 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 				return null;
 				}
 			};
-		properties.put(PTile.NAME, "tile_" + String.format("%08X", new Random().nextInt()));
+		//properties.put(PTile.NAME, "tile_" + String.format("%08X", new Random().nextInt()));
 		properties.updateSource.addListener(tpl);
 		}
 

@@ -11,15 +11,17 @@ package org.lateralgm.util;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
 
-public class PropertyMap<K extends Enum<K>> extends EnumMap<K,Object>
+public class PropertyMap<K extends Enum<K>> extends HashMap<K,Object>
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -32,6 +34,14 @@ public class PropertyMap<K extends Enum<K>> extends EnumMap<K,Object>
 	public PropertyMap(Class<K> type, PropertyValidator<K> v, EnumMap<K,Object> defaults)
 		{
 		super(defaults == null ? new EnumMap<K,Object>(type) : defaults);
+		keyType = type;
+		validator = v;
+		}
+
+	private enum FakeEnum {};
+	public PropertyMap(Class<K> type, PropertyValidator<K> v)
+		{
+		super();
 		keyType = type;
 		validator = v;
 		}
