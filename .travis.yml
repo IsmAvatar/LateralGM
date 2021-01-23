@@ -7,6 +7,8 @@ branches:
     - "master"
 # obviously this is java duh
 language: java
+jdk:
+  - oraclejdk8
 
 os: linux
 dist: xenial
