@@ -423,6 +423,15 @@ public final class GMXFileReader
 				Document setdoc = GMXFileReader.parseDocumentChecked(c.f, path + ".config.gmx"); //$NON-NLS-1$
 				if (setdoc == null) continue;
 
+				pSet.put(PGameSettings.USE_NEW_AUDIO,
+						Boolean.parseBoolean(setdoc.getElementsByTagName("option_use_new_audio").item(0).getTextContent())); //$NON-NLS-1$
+				pSet.put(PGameSettings.SHORT_CIRCUIT_EVAL,
+						Boolean.parseBoolean(setdoc.getElementsByTagName("option_shortcircuit").item(0).getTextContent())); //$NON-NLS-1$
+				pSet.put(PGameSettings.USE_FAST_COLLISION,
+						Boolean.parseBoolean(setdoc.getElementsByTagName("option_use_fast_collision").item(0).getTextContent())); //$NON-NLS-1$
+				pSet.put(PGameSettings.FAST_COLLISION_COMPAT,
+						Boolean.parseBoolean(setdoc.getElementsByTagName("option_fast_collision_compatibility").item(0).getTextContent())); //$NON-NLS-1$
+
 				pSet.put(
 						PGameSettings.START_FULLSCREEN,
 						Boolean.parseBoolean(setdoc.getElementsByTagName("option_fullscreen").item(0).getTextContent())); //$NON-NLS-1$
