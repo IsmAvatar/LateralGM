@@ -614,7 +614,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		public void sortChildren()
 			{
 			// This doesn't seem to have any unwanted effects (directly sorting the protected field)
-			Collections.sort((List)children);
+			Collections.sort((List<? extends EventInstanceNode>)(List<?>)children);
 			}
 
 		public TreePath childPath(Event e)

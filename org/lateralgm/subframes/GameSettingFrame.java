@@ -97,11 +97,71 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 	boolean imagesChanged = false;
 	public JPanel cardPane;
 
+	public NumberField gameId;
+	public JButton randomise;
+	public ColorSelect colorbutton;
+
+	private JPanel makeGeneralPane()
+		{
+		JPanel panel = new JPanel();
+		GroupLayout layout = new GroupLayout(panel);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+		panel.setLayout(layout);
+
+		JLabel backcolor = new JLabel(Messages.getString("GameSettingFrame.BACKCOLOR")); //$NON-NLS-1$
+		plf.make(colorbutton = new ColorSelect(),PGameSettings.COLOR_OUTSIDE_ROOM);
+
+		JCheckBox useNewAudio = new JCheckBox(Messages.getString("GameSettingFrame.USE_NEW_AUDIO")); //$NON-NLS-1$
+		plf.make(useNewAudio,PGameSettings.USE_NEW_AUDIO);
+		JCheckBox shortCircuitEval = new JCheckBox(Messages.getString("GameSettingFrame.SHORT_CIRCUIT_EVAL")); //$NON-NLS-1$
+		plf.make(shortCircuitEval,PGameSettings.SHORT_CIRCUIT_EVAL);
+		JCheckBox useFastCollision = new JCheckBox(Messages.getString("GameSettingFrame.USE_FAST_COLLISION")); //$NON-NLS-1$
+		plf.make(useFastCollision,PGameSettings.USE_FAST_COLLISION);
+		JCheckBox fastCollisionCompat = new JCheckBox(Messages.getString("GameSettingFrame.FAST_COLLISION_COMPAT")); //$NON-NLS-1$
+		plf.make(fastCollisionCompat,PGameSettings.FAST_COLLISION_COMPAT);
+
+		JLabel lId = new JLabel(Messages.getString("GameSettingFrame.GAME_ID")); //$NON-NLS-1$
+		gameId = new NumberField(0,100000000);
+		plf.make(gameId,PGameSettings.GAME_ID);
+		randomise = new JButton(Messages.getString("GameSettingFrame.RANDOMIZE")); //$NON-NLS-1$
+		randomise.addActionListener(this);
+
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addGroup(layout.createParallelGroup()
+		/*				*/.addGroup(layout.createSequentialGroup()
+		/*						*/.addComponent(lId)
+		/*						*/.addComponent(gameId,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)))
+		/*		*/.addGroup(layout.createParallelGroup()
+		/*				*/.addComponent(randomise,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)))
+		/**/.addGroup(layout.createSequentialGroup()
+		/*	*/.addComponent(backcolor)
+		/*	*/.addComponent(colorbutton))
+		/**/.addComponent(useNewAudio)
+		/**/.addComponent(shortCircuitEval)
+		/**/.addComponent(useFastCollision)
+		/**/.addComponent(fastCollisionCompat));
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lId)
+		/*		*/.addComponent(gameId)
+		/*		*/.addComponent(randomise))
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE,false)
+		/*	*/.addComponent(backcolor)
+		/*	*/.addComponent(colorbutton))
+		/**/.addComponent(useNewAudio)
+		/**/.addComponent(shortCircuitEval)
+		/**/.addComponent(useFastCollision)
+		/**/.addComponent(fastCollisionCompat));
+
+		return panel;
+		}
+
 	public JCheckBox startFullscreen;
 	public IndexButtonGroup scaling;
 	public NumberField scale;
 	public JCheckBox interpolatecolors;
-	public ColorSelect colorbutton;
 	public JCheckBox resizeWindow;
 	public JCheckBox stayOnTop;
 	public JCheckBox noWindowBorder;
@@ -158,9 +218,6 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		t = Messages.getString("GameSettingFrame.INTERPOLATE"); //$NON-NLS-1$
 		plf.make(interpolatecolors = new JCheckBox(t),PGameSettings.INTERPOLATE);
 
-		JLabel backcolor = new JLabel(Messages.getString("GameSettingFrame.BACKCOLOR")); //$NON-NLS-1$
-		plf.make(colorbutton = new ColorSelect(),PGameSettings.COLOR_OUTSIDE_ROOM);
-
 		resizeWindow = new JCheckBox(Messages.getString("GameSettingFrame.RESIZE")); //$NON-NLS-1$
 		stayOnTop = new JCheckBox(Messages.getString("GameSettingFrame.STAYONTOP")); //$NON-NLS-1$
 		noWindowBorder = new JCheckBox(Messages.getString("GameSettingFrame.NOBORDER")); //$NON-NLS-1$
@@ -185,9 +242,6 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		/**/.addComponent(startFullscreen)
 		/**/.addComponent(scalegroup)
 		/**/.addComponent(interpolatecolors)
-		/**/.addGroup(layout.createSequentialGroup()
-		/*	*/.addComponent(backcolor)
-		/*	*/.addComponent(colorbutton))
 		/**/.addComponent(resizeWindow)
 		/**/.addComponent(stayOnTop)
 		/**/.addComponent(noWindowBorder)
@@ -200,9 +254,6 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		/**/.addComponent(startFullscreen)
 		/**/.addComponent(scalegroup)
 		/**/.addComponent(interpolatecolors)
-		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE,false)
-		/*	*/.addComponent(backcolor)
-		/*	*/.addComponent(colorbutton))
 		/**/.addComponent(resizeWindow)
 		/**/.addComponent(stayOnTop)
 		/**/.addComponent(noWindowBorder)
@@ -464,8 +515,6 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 	public BufferedImage backLoadImage;
 	public BufferedImage frontLoadImage;
 	public JCheckBox scaleProgressBar;
-	public NumberField gameId;
-	public JButton randomise;
 
 	private JPanel makeLoadingPane()
 		{
@@ -557,29 +606,13 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 		JFileChooser fc = new JFileChooser();
 		fc.setFileFilter(new CustomFileFilter(Messages.getString("GameSettingFrame.ICO_FILES"),".ico")); //$NON-NLS-1$ //$NON-NLS-2$
-		JLabel lId = new JLabel(Messages.getString("GameSettingFrame.GAME_ID")); //$NON-NLS-1$
-		gameId = new NumberField(0,100000000);
-		plf.make(gameId,PGameSettings.GAME_ID);
-		randomise = new JButton(Messages.getString("GameSettingFrame.RANDOMIZE")); //$NON-NLS-1$
-		randomise.addActionListener(this);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addComponent(loadImage,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/**/.addComponent(progBar,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addGroup(layout.createParallelGroup()
-		/*				*/.addGroup(layout.createSequentialGroup()
-		/*						*/.addComponent(lId)
-		/*						*/.addComponent(gameId,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)))
-		/*		*/.addGroup(layout.createParallelGroup()
-		/*				*/.addComponent(randomise,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))));
+		/**/.addComponent(progBar,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(loadImage)
-		/**/.addComponent(progBar)
-		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-		/*		*/.addComponent(lId)
-		/*		*/.addComponent(gameId)
-		/*		*/.addComponent(randomise)));
+		/**/.addComponent(progBar));
 		return panel;
 		}
 
@@ -975,20 +1008,21 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		{
 		cardPane = new JPanel(new CardLayout());
 
-		buildTab(root, "GameSettingFrame.TAB_GRAPHICS", makeGraphicsPane());
-		buildTab(root, "GameSettingFrame.TAB_RESOLUTION", makeResolutionPane());
-		buildTab(root, "GameSettingFrame.TAB_OTHER", makeOtherPane());
-		buildTab(root, "GameSettingFrame.TAB_LOADING", makeLoadingPane());
-		buildTab(root, "GameSettingFrame.TAB_INCLUDE", makeIncludePane());
-		buildTab(root, "GameSettingFrame.TAB_ERRORS", makeErrorPane());
-		buildTab(root, "GameSettingFrame.TAB_INFO", makeInfoPane());
-		buildTab(root, "GameSettingFrame.TAB_TEXTUREGROUPS", makeTextureGroupsPane());
+		buildTab(root, "GameSettingFrame.TAB_GENERAL", makeGeneralPane()); //$NON-NLS-1$
+		buildTab(root, "GameSettingFrame.TAB_GRAPHICS", makeGraphicsPane()); //$NON-NLS-1$
+		buildTab(root, "GameSettingFrame.TAB_RESOLUTION", makeResolutionPane()); //$NON-NLS-1$
+		buildTab(root, "GameSettingFrame.TAB_OTHER", makeOtherPane()); //$NON-NLS-1$
+		buildTab(root, "GameSettingFrame.TAB_LOADING", makeLoadingPane()); //$NON-NLS-1$
+		buildTab(root, "GameSettingFrame.TAB_INCLUDE", makeIncludePane()); //$NON-NLS-1$
+		buildTab(root, "GameSettingFrame.TAB_ERRORS", makeErrorPane()); //$NON-NLS-1$
+		buildTab(root, "GameSettingFrame.TAB_INFO", makeInfoPane()); //$NON-NLS-1$
+		buildTab(root, "GameSettingFrame.TAB_TEXTUREGROUPS", makeTextureGroupsPane()); //$NON-NLS-1$
 
-		DefaultMutableTreeNode pnode = buildTab(root, "GameSettingFrame.TAB_PLATFORMS", null);
+		DefaultMutableTreeNode pnode = buildTab(root, "GameSettingFrame.TAB_PLATFORMS", null); //$NON-NLS-1$
 
-		buildTab(pnode, "GameSettingFrame.TAB_WINDOWS", makeWindowsPane());
-		buildTab(pnode, "GameSettingFrame.TAB_MAC", null);
-		buildTab(pnode, "GameSettingFrame.TAB_UBUNTU", null);
+		buildTab(pnode, "GameSettingFrame.TAB_WINDOWS", makeWindowsPane()); //$NON-NLS-1$
+		buildTab(pnode, "GameSettingFrame.TAB_MAC", null); //$NON-NLS-1$
+		buildTab(pnode, "GameSettingFrame.TAB_UBUNTU", null); //$NON-NLS-1$
 		}
 
 	public void actionPerformed(ActionEvent e)
@@ -1010,13 +1044,17 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 			}
 		}
 		if (name == null) return;
-		if (name.endsWith(".TAB_GRAPHICS")) {
-			if (e.getSource() instanceof JRadioButton) scale.setEnabled(scaling.getValue() > 0);
-		} else if (name.endsWith(".TAB_RESOLUTION")) {
+		if (name.endsWith(".TAB_GENERAL")) { //$NON-NLS-1$
+			if (e.getSource() == randomise)
+				gameId.setValue(new Random().nextInt(100000001));
+		} if (name.endsWith(".TAB_GRAPHICS")) { //$NON-NLS-1$
+			if (e.getSource() instanceof JRadioButton)
+				scale.setEnabled(scaling.getValue() > 0);
+		} else if (name.endsWith(".TAB_RESOLUTION")) { //$NON-NLS-1$
 			resolutionPane.setVisible(setResolution.isSelected());
-		} else if (name.endsWith(".TAB_LOADING")) {
+		} else if (name.endsWith(".TAB_LOADING")) { //$NON-NLS-1$
 			loadActionPerformed(e);
-		} else if (name.endsWith(".TAB_WINDOWS")) {
+		} else if (name.endsWith(".TAB_WINDOWS")) { //$NON-NLS-1$
 			windowsActionPerformed(e);
 		} else if (name.endsWith(".TAB_TEXTUREGROUPS")) {
 			texturesActionPerformed(e);
@@ -1092,10 +1130,6 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 				frontLoadImage = img;
 				imagesChanged = true;
 				}
-			}
-		else if (e.getSource() == randomise)
-			{
-			gameId.setValue(new Random().nextInt(100000001));
 			}
 		}
 

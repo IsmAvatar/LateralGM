@@ -443,6 +443,15 @@ public final class GMXFileWriter
 				}
 			optNode.appendChild(createElement(doc,"option_sync_vertex",Long.toString(syncvertex))); //$NON-NLS-1$
 
+			optNode.appendChild(createElement(doc,"option_use_new_audio", //$NON-NLS-1$
+					gs.get(PGameSettings.USE_NEW_AUDIO).toString()));
+			optNode.appendChild(createElement(doc,"option_shortcircuit", //$NON-NLS-1$
+					gs.get(PGameSettings.SHORT_CIRCUIT_EVAL).toString()));
+			optNode.appendChild(createElement(doc,"option_use_fast_collision", //$NON-NLS-1$
+					gs.get(PGameSettings.USE_FAST_COLLISION).toString()));
+			optNode.appendChild(createElement(doc,"option_fast_collision_compatibility", //$NON-NLS-1$
+					gs.get(PGameSettings.FAST_COLLISION_COMPAT).toString()));
+
 			optNode.appendChild(createElement(doc,"option_fullscreen", //$NON-NLS-1$
 					gs.get(PGameSettings.START_FULLSCREEN).toString()));
 			optNode.appendChild(createElement(doc,"option_sizeable", //$NON-NLS-1$

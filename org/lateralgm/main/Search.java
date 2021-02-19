@@ -10,7 +10,6 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
@@ -51,8 +50,8 @@ import javax.swing.tree.TreeSelectionModel;
 
 import org.lateralgm.components.CodeTextArea;
 import org.lateralgm.components.CustomJToolBar;
+import org.lateralgm.components.HintTextField;
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.components.visual.HintTextField;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Resource;
@@ -1560,13 +1559,13 @@ public class Search
 							}
 						}
 
-					if (me.getModifiers() == InputEvent.BUTTON1_MASK && inpath)
+					if (me.getButton() == MouseEvent.BUTTON1 && inpath)
 						{
 						tree.setSelectionPath(path);
 						}
 					}
 				//Isn't Java supposed to handle ctrl+click for us? For some reason it doesn't.
-				if (me.getModifiers() == InputEvent.BUTTON3_MASK && me.getClickCount() == 1)
+				if (me.getButton() == MouseEvent.BUTTON3 && me.getClickCount() == 1)
 					{
 					// Yes the right click button does change the selection,
 					// go ahead and experiment with Eclipse, CodeBlocks, Visual Studio
@@ -1584,7 +1583,7 @@ public class Search
 				if (path == null) return;
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
 				if (node == null) return;
-				if (me.getModifiers() == InputEvent.BUTTON1_MASK && me.getClickCount() >= 2
+				if (me.getButton() == MouseEvent.BUTTON1 && me.getClickCount() >= 2
 						&& ((me.getClickCount() & 1) == 0))
 					{
 					if (node instanceof SearchResultNode)

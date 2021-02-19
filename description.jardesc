@@ -46,6 +46,7 @@
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.util"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main{FileChooser.java"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.ui.swing.util"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main{PreferencesFrame.java"/>
         <file path="/LateralGM/org/lateralgm/main/lgmbackground.png"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.Contrast.restree"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main{UpdateSource.java"/>

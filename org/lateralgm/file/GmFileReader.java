@@ -101,29 +101,6 @@ public final class GmFileReader
 		boolean invoke();
 		}
 
-	static class DefaultPostponedRef<K extends Enum<K>> implements PostponedRef
-		{
-		ResourceList<?> list;
-		String name;
-		PropertyMap<K> p;
-		K key;
-
-		DefaultPostponedRef(ResourceList<?> list, PropertyMap<K> p, K key, String name)
-			{
-			this.list = list;
-			this.p = p;
-			this.key = key;
-			this.name = name;
-			}
-
-		public boolean invoke()
-			{
-			Resource<?,?> temp = list.get(name);
-			if (temp != null) p.put(key,temp.reference);
-			return temp != null;
-			}
-		}
-
 	//Workaround for Parameter limit
 	private static class ProjectFileContext
 		{

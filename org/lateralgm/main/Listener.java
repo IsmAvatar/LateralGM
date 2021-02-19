@@ -19,7 +19,6 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -931,7 +930,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 					}
 				}
 
-			if (e.getModifiers() == InputEvent.BUTTON1_MASK && inpath)
+			if (e.getButton() == MouseEvent.BUTTON1 && inpath)
 				{
 				LGM.tree.setSelectionPath(path);
 				}
@@ -939,7 +938,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			ResNode node = (ResNode) path.getLastPathComponent();
 			if (node == null) return;
 			//Isn't Java supposed to handle ctrl+click for us? For some reason it doesn't.
-			if (e.getModifiers() == InputEvent.BUTTON3_MASK && e.getClickCount() == 1)
+			if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1)
 				{
 				// Yes the right click button does change the selection,
 				// go ahead and experiment with Eclipse, CodeBlocks, Visual Studio
@@ -953,7 +952,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				node.showMenu(e);
 				return;
 				}
-			if (e.getModifiers() == InputEvent.BUTTON1_MASK && e.getClickCount() == 2)
+			if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2)
 				{
 				// kind must be a Resource kind
 				if (node.status != ResNode.STATUS_SECONDARY) return;

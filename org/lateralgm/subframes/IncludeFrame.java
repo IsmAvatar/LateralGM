@@ -52,7 +52,6 @@ import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
-import org.lateralgm.resources.ExtensionPackages;
 import org.lateralgm.resources.Include;
 import org.lateralgm.resources.Include.ExportAction;
 import org.lateralgm.resources.Include.PInclude;
@@ -205,17 +204,6 @@ public class IncludeFrame extends InstantiableResourceFrame<Include,Include.PInc
 		sizeLabel.setToolTipText(sizeText);
 		}
 
-	public Object getUserObject()
-		{
-		if (node != null) return node.getUserObject();
-		for (int m = 0; m < LGM.root.getChildCount(); m++)
-			{
-			ResNode n = (ResNode) LGM.root.getChildAt(m);
-			if (n.kind == ExtensionPackages.class) return n.getUserObject();
-			}
-		return 0;//Messages.getString("LGM.EXT");
-		}
-
 	public void actionPerformed(ActionEvent ev)
 		{
 		super.actionPerformed(ev);
@@ -264,12 +252,6 @@ public class IncludeFrame extends InstantiableResourceFrame<Include,Include.PInc
 	public void setComponents(Include inc)
 		{
 
-		}
-
-	@Override
-	public String getConfirmationName()
-		{
-		return (String) getUserObject();
 		}
 
 	@Override

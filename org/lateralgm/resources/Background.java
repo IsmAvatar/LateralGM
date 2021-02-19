@@ -44,7 +44,7 @@ public class Background extends InstantiableResource<Background,Background.PBack
 	public Background(ResourceReference<Background> r)
 		{
 		super(r);
-		properties.getUpdateSource(PBackground.TRANSPARENT).addListener(bpl);
+		properties.updateSource.addListener(bpl);
 		}
 
 	public Background makeInstance(ResourceReference<Background> r)
@@ -129,7 +129,6 @@ public class Background extends InstantiableResource<Background,Background.PBack
 					fireUpdate();
 					break;
 				default:
-					//TODO: maybe put a failsafe here?
 					break;
 				}
 			}

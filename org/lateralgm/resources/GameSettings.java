@@ -99,7 +99,8 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 		DISPLAY_ERRORS,WRITE_TO_LOG,ABORT_ON_ERROR,TREAT_UNINIT_AS_0,ERROR_ON_ARGS,AUTHOR,VERSION,
 		LAST_CHANGED,INFORMATION,/**/
 		INCLUDE_FOLDER,OVERWRITE_EXISTING,REMOVE_AT_GAME_END,VERSION_MAJOR,VERSION_MINOR,
-		VERSION_RELEASE,VERSION_BUILD,COMPANY,PRODUCT,COPYRIGHT,DESCRIPTION,GAME_ICON
+		VERSION_RELEASE,VERSION_BUILD,COMPANY,PRODUCT,COPYRIGHT,DESCRIPTION,GAME_ICON,
+		USE_NEW_AUDIO,SHORT_CIRCUIT_EVAL,USE_FAST_COLLISION,FAST_COLLISION_COMPAT
 		}
 
 	//GAME_ID and  DPLAY_GUID randomized in GmFile constructor
@@ -110,7 +111,8 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 			true,ProgressBar.DEFAULT,null,null,false,null,false,255,true,/**/
 			true,false,false,false,true,
 			"","100",ProjectFile.longTimeToGmTime(System.currentTimeMillis()),"",/**///$NON-NLS-1$ //$NON-NLS-3$
-			IncludeFolder.MAIN,false,false,1,0,0,0,"","","","",DEFAULT_ICON); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			IncludeFolder.MAIN,false,false,1,0,0,0,"","","","",DEFAULT_ICON, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			true,true,false,false); 
 
 	@Override
 	public GameSettings makeInstance(ResourceReference<GameSettings> ref)

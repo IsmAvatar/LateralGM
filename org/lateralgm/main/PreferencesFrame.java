@@ -22,7 +22,7 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-package org.lateralgm.subframes;
+package org.lateralgm.main;
 
 import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
@@ -87,11 +87,6 @@ import org.lateralgm.joshedit.lexers.GLESTokenMarker;
 import org.lateralgm.joshedit.lexers.GLSLTokenMarker;
 import org.lateralgm.joshedit.lexers.GMLTokenMarker;
 import org.lateralgm.joshedit.lexers.HLSLTokenMarker;
-import org.lateralgm.main.LGM;
-import org.lateralgm.main.Listener;
-import org.lateralgm.main.Prefs;
-import org.lateralgm.main.PrefsStore;
-import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.InstantiableResource;
@@ -329,7 +324,6 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		JCheckBox dndEnable, expandEventsEnable, restrictTreeEnable, extraNodesEnable, showTreeFilter,
 			rightOrientation, backupSave, backupExit, backupAuto;
 		JComboBox<LocaleItem> localeCombo;
-		JComboBox<String> actionsCombo;
 		JTextField documentationURI, websiteURI, communityURI, issueURI, actionsPath;
 		JSpinner backupCopies, backupMinutes;
 
@@ -409,10 +403,6 @@ public class PreferencesFrame extends JDialog implements ActionListener
 			issueURI = new JTextField();
 			JButton issueBrowse = getURIBrowseButton(issueURI);
 
-			//JLabel actionsLabel = new JLabel(Messages.getString("PreferencesFrame.ACTIONLIBRARY"));
-			String[] actionsOptions = { "Standard","Logic","Custom" };
-			actionsCombo = new JComboBox<String>(actionsOptions);
-			//actionsCombo.setSelectedItem(Prefs.actionLibrary);
 			actionsPath = new JTextField();
 			actionsPath.setText(Prefs.userLibraryPath);
 
