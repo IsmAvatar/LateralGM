@@ -78,6 +78,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import org.lateralgm.components.ColorSelect;
@@ -120,7 +121,8 @@ public class PreferencesFrame extends JDialog implements ActionListener
 			{
 			DefaultMutableTreeNode node = new DefaultMutableTreeNode(group.name);
 			root.add(node);
-			cardPane.add(group.makePanel(), group.name);
+			TreePath path = new TreePath(node.getPath());
+			cardPane.add(path.toString(),group.makePanel());
 			}
 
 		//TODO: Fix UI bugs in JoshEdit repo and then use the serialize feature to save them.
@@ -163,14 +165,13 @@ public class PreferencesFrame extends JDialog implements ActionListener
 			{
 				public void valueChanged(TreeSelectionEvent e)
 					{
-					DefaultMutableTreeNode node =
-						(DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+					TreePath path = e.getPath();
 
 					/* if nothing is selected */
-					if (node == null) return;
+					if (path == null) return;
 
 					/* retrieve the node that was selected */
-					String nodeInfo = node.getUserObject().toString();
+					String nodeInfo = path.toString();
 
 					CardLayout cl = (CardLayout) (cardPane.getLayout());
 					cl.show(cardPane,nodeInfo);

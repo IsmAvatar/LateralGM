@@ -57,6 +57,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import org.lateralgm.components.ColorSelect;
@@ -846,14 +847,13 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
 		public void valueChanged(TreeSelectionEvent e) {
-				DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-													 tree.getLastSelectedPathComponent();
+				TreePath path = e.getPath();
 
 				// if nothing is selected
-				if (node == null) return;
+				if (path == null) return;
 
 				// retrieve the node that was selected
-				String nodeInfo = node.getUserObject().toString();
+				String nodeInfo = path.toString();
 
 				CardLayout cl = (CardLayout)(cardPane.getLayout());
 				cl.show(cardPane, nodeInfo);
@@ -892,7 +892,8 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		root.add(node);
 		if (pane != null) {
 			pane.setName(key);
-			cardPane.add(Messages.getString(key),pane);
+			TreePath path = new TreePath(node.getPath());
+			cardPane.add(path.toString(),pane);
 		}
 		return node;
 	}
