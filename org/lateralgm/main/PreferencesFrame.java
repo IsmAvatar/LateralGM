@@ -120,7 +120,7 @@ public class PreferencesFrame extends JDialog implements ActionListener
 			{
 			DefaultMutableTreeNode node = new DefaultMutableTreeNode(group.name);
 			root.add(node);
-			cardPane.add(group.makePanel(), group.name);
+			cardPane.add(group.makePanel(), Integer.toString(node.hashCode()));
 			}
 
 		//TODO: Fix UI bugs in JoshEdit repo and then use the serialize feature to save them.
@@ -161,20 +161,24 @@ public class PreferencesFrame extends JDialog implements ActionListener
 
 		tree.addTreeSelectionListener(new TreeSelectionListener()
 			{
-				public void valueChanged(TreeSelectionEvent e)
-					{
-					DefaultMutableTreeNode node =
-						(DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+			public void valueChanged(TreeSelectionEvent e)
+				{
+				// retrieve the node that was selected
+				DefaultMutableTreeNode node =
+					(DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
 
-					/* if nothing is selected */
-					if (node == null) return;
+				// short-circuit if nothing is selected
+				if (node == null) return;
 
-					/* retrieve the node that was selected */
-					String nodeInfo = node.getUserObject().toString();
+				CardLayout cl = (CardLayout) (cardPane.getLayout());
 
-					CardLayout cl = (CardLayout) (cardPane.getLayout());
-					cl.show(cardPane,nodeInfo);
-					}
+				// show panel with same name as the node
+				String nodeInfo = node.getUserObject().toString();
+				cl.show(cardPane,nodeInfo);
+				// show card with node hash if name was not unique
+				nodeInfo = Integer.toString(node.hashCode());
+				cl.show(cardPane,nodeInfo);
+				}
 			});
 
 		JScrollPane scroll = new JScrollPane(tree);
