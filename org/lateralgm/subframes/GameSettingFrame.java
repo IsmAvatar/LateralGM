@@ -844,21 +844,27 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		// reload after adding all root children to make sure its children are visible
 		((DefaultTreeModel)tree.getModel()).reload();
 
-		tree.addTreeSelectionListener(new TreeSelectionListener() {
-		public void valueChanged(TreeSelectionEvent e) {
+		tree.addTreeSelectionListener(new TreeSelectionListener()
+			{
+			public void valueChanged(TreeSelectionEvent e)
+				{
+				// retrieve the node that was selected
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode)
 													 tree.getLastSelectedPathComponent();
-
-				// if nothing is selected
+	
+				// short-circuit if nothing is selected
 				if (node == null) return;
+	
+				CardLayout cl = (CardLayout) (cardPane.getLayout());
 
-				// retrieve the node that was selected
+				// show panel with same name as the node
 				String nodeInfo = node.getUserObject().toString();
-
-				CardLayout cl = (CardLayout)(cardPane.getLayout());
-				cl.show(cardPane, nodeInfo);
-			}
-		});
+				cl.show(cardPane,nodeInfo);
+				// show card with node hash if name was not unique
+				nodeInfo = Integer.toString(node.hashCode());
+				cl.show(cardPane,nodeInfo);
+				}
+			});
 
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,
 				new JScrollPane(tree),cardPane);
@@ -892,7 +898,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		root.add(node);
 		if (pane != null) {
 			pane.setName(key);
-			cardPane.add(Messages.getString(key),pane);
+			cardPane.add(pane,Integer.toString(node.hashCode()));
 		}
 		return node;
 	}
