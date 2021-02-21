@@ -574,6 +574,19 @@ public final class GMXFileReader
 						PGameSettings.VERSION_RELEASE,
 						Integer.parseInt(setdoc.getElementsByTagName("option_version_release").item(0).getTextContent())); //$NON-NLS-1$
 
+				pSet.put(PGameSettings.WINDOWS_STEAM_ID,
+						Integer.parseInt(setdoc.getElementsByTagName("option_windows_steam_app_id").item(0).getTextContent())); //$NON-NLS-1$
+				pSet.put(PGameSettings.MAC_STEAM_ID,
+						Integer.parseInt(setdoc.getElementsByTagName("option_mac_steam_app_id").item(0).getTextContent())); //$NON-NLS-1$
+				pSet.put(PGameSettings.LINUX_STEAM_ID,
+						Integer.parseInt(setdoc.getElementsByTagName("option_linux_steam_app_id").item(0).getTextContent())); //$NON-NLS-1$
+				pSet.put(PGameSettings.WINDOWS_STEAM_ENABLE,
+						Boolean.parseBoolean(setdoc.getElementsByTagName("option_windows_enable_steam").item(0).getTextContent())); //$NON-NLS-1$
+				pSet.put(PGameSettings.MAC_STEAM_ENABLE,
+						Boolean.parseBoolean(setdoc.getElementsByTagName("option_mac_enable_steam").item(0).getTextContent())); //$NON-NLS-1$
+				pSet.put(PGameSettings.LINUX_STEAM_ENABLE,
+						Boolean.parseBoolean(setdoc.getElementsByTagName("option_linux_enable_steam").item(0).getTextContent())); //$NON-NLS-1$
+
 				Node cnstNode = setdoc.getElementsByTagName("ConfigConstants").item(0); //$NON-NLS-1$
 
 				// If there is a constant section
