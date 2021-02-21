@@ -532,6 +532,19 @@ public final class GMXFileWriter
 			optNode.appendChild(createElement(doc,"option_version_release", //$NON-NLS-1$
 					gs.get(PGameSettings.VERSION_RELEASE).toString()));
 
+			optNode.appendChild(createElement(doc,"option_windows_steam_app_id", //$NON-NLS-1$
+					gs.get(PGameSettings.WINDOWS_STEAM_ID).toString()));
+			optNode.appendChild(createElement(doc,"option_mac_steam_app_id", //$NON-NLS-1$
+					gs.get(PGameSettings.MAC_STEAM_ID).toString()));
+			optNode.appendChild(createElement(doc,"option_linux_steam_app_id", //$NON-NLS-1$
+					gs.get(PGameSettings.LINUX_STEAM_ID).toString()));
+			optNode.appendChild(createElement(doc,"option_windows_enable_steam", //$NON-NLS-1$
+					gs.get(PGameSettings.WINDOWS_STEAM_ENABLE).toString()));
+			optNode.appendChild(createElement(doc,"option_mac_enable_steam", //$NON-NLS-1$
+					gs.get(PGameSettings.MAC_STEAM_ENABLE).toString()));
+			optNode.appendChild(createElement(doc,"option_linux_enable_steam", //$NON-NLS-1$
+					gs.get(PGameSettings.LINUX_STEAM_ENABLE).toString()));
+
 			optNode.appendChild(createElement(doc,"option_textureGroup_count", //$NON-NLS-1$
 					Integer.toString(gs.textureGroups.size())));
 			for (int i = 0; i < gs.textureGroups.size(); ++i) 

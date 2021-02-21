@@ -806,9 +806,9 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 				Messages.getString("GameSettingFrame.ICO_FILES"),".ico")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		JPanel versionPanel = new JPanel();
-		versionPanel.setBorder(BorderFactory.createTitledBorder(Messages.getString("GameSettingFrame.VERSION_INFORMATION")));
+		versionPanel.setBorder(BorderFactory.createTitledBorder(Messages.getString("GameSettingFrame.VERSION_INFORMATION"))); //$NON-NLS-1$
 
-		JLabel versionLabel = new JLabel(Messages.getString("GameSettingFrame.VERSION"));
+		JLabel versionLabel = new JLabel(Messages.getString("GameSettingFrame.VERSION")); //$NON-NLS-1$
 		versionMajorField = new NumberField(0);
 		plf.make(versionMajorField,PGameSettings.VERSION_MAJOR);
 		versionMinorField = new NumberField(0);
@@ -817,17 +817,17 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		plf.make(versionReleaseField,PGameSettings.VERSION_RELEASE);
 		versionBuildField = new NumberField(0);
 		plf.make(versionBuildField,PGameSettings.VERSION_BUILD);
-		JLabel companyLabel = new JLabel(Messages.getString("GameSettingFrame.COMPANY"));
-		companyField = new JTextField("");
+		JLabel companyLabel = new JLabel(Messages.getString("GameSettingFrame.COMPANY")); //$NON-NLS-1$
+		companyField = new JTextField();
 		plf.make(companyField.getDocument(),PGameSettings.COMPANY);
-		JLabel productLabel = new JLabel(Messages.getString("GameSettingFrame.PRODUCT"));
-		productField = new JTextField("");
+		JLabel productLabel = new JLabel(Messages.getString("GameSettingFrame.PRODUCT")); //$NON-NLS-1$
+		productField = new JTextField();
 		plf.make(productField.getDocument(),PGameSettings.PRODUCT);
-		JLabel copyrightLabel = new JLabel(Messages.getString("GameSettingFrame.COPYRIGHT"));
-		copyrightField = new JTextField("");
+		JLabel copyrightLabel = new JLabel(Messages.getString("GameSettingFrame.COPYRIGHT")); //$NON-NLS-1$
+		copyrightField = new JTextField();
 		plf.make(copyrightField.getDocument(),PGameSettings.COPYRIGHT);
-		JLabel descriptionLabel = new JLabel(Messages.getString("GameSettingFrame.DESCRIPTION"));
-		descriptionField = new JTextField("");
+		JLabel descriptionLabel = new JLabel(Messages.getString("GameSettingFrame.DESCRIPTION")); //$NON-NLS-1$
+		descriptionField = new JTextField();
 		plf.make(descriptionField.getDocument(),PGameSettings.DESCRIPTION);
 
 		GroupLayout vl = new GroupLayout(versionPanel);
@@ -894,6 +894,78 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		return panel;
 	}
 
+	private JPanel makeSteamPane()
+		{
+		JPanel panel = new JPanel();
+	
+		GroupLayout gl = new GroupLayout(panel);
+	
+		gl.setAutoCreateGaps(true);
+		gl.setAutoCreateContainerGaps(true);
+
+		JPanel appIdPanel = new JPanel();
+		appIdPanel.setBorder(BorderFactory.createTitledBorder(Messages.getString("GameSettingFrame.STEAM_APP_ID"))); //$NON-NLS-1$
+
+		GroupLayout al = new GroupLayout(appIdPanel);
+
+		al.setAutoCreateGaps(true);
+		al.setAutoCreateContainerGaps(true);
+
+		JLabel windowsSteamLabel = new JLabel(Messages.getString("GameSettingFrame.WINDOWS_STEAM_ID")); //$NON-NLS-1$
+		JLabel macSteamLabel = new JLabel(Messages.getString("GameSettingFrame.MAC_STEAM_ID")); //$NON-NLS-1$
+		JLabel linuxSteamLabel = new JLabel(Messages.getString("GameSettingFrame.LINUX_STEAM_ID")); //$NON-NLS-1$
+		NumberField windowsSteamAppId = new NumberField(0);
+		plf.make(windowsSteamAppId,PGameSettings.WINDOWS_STEAM_ID);
+		NumberField macSteamAppId = new NumberField(0);
+		plf.make(macSteamAppId,PGameSettings.MAC_STEAM_ID);
+		NumberField linuxSteamAppId = new NumberField(0);
+		plf.make(linuxSteamAppId,PGameSettings.LINUX_STEAM_ID);
+		JCheckBox windowsSteamEnable = new JCheckBox(Messages.getString("GameSettingFrame.WINDOWS_STEAM_ENABLE")); //$NON-NLS-1$
+		plf.make(windowsSteamEnable,PGameSettings.WINDOWS_STEAM_ENABLE);
+		JCheckBox macSteamEnable = new JCheckBox(Messages.getString("GameSettingFrame.MAC_STEAM_ENABLE")); //$NON-NLS-1$
+		plf.make(macSteamEnable,PGameSettings.MAC_STEAM_ENABLE);
+		JCheckBox linuxSteamEnable = new JCheckBox(Messages.getString("GameSettingFrame.LINUX_STEAM_ENABLE")); //$NON-NLS-1$
+		plf.make(linuxSteamEnable,PGameSettings.LINUX_STEAM_ENABLE);
+
+		al.setHorizontalGroup(al.createSequentialGroup()
+		/**/.addGroup(al.createParallelGroup(Alignment.TRAILING)
+		/*	*/.addComponent(windowsSteamLabel)
+		/*	*/.addComponent(macSteamLabel)
+		/*	*/.addComponent(linuxSteamLabel))
+		/**/.addGroup(al.createParallelGroup()
+		/*	*/.addComponent(windowsSteamAppId)
+		/*	*/.addComponent(macSteamAppId)
+		/*	*/.addComponent(linuxSteamAppId))
+		/**/.addGroup(al.createParallelGroup()
+		/*	*/.addComponent(windowsSteamEnable)
+		/*	*/.addComponent(macSteamEnable)
+		/*	*/.addComponent(linuxSteamEnable)));
+		al.setVerticalGroup(al.createSequentialGroup()
+		/**/.addGroup(al.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(windowsSteamLabel)
+		/*	*/.addComponent(windowsSteamAppId,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/*	*/.addComponent(windowsSteamEnable))
+		/**/.addGroup(al.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(macSteamLabel)
+		/*	*/.addComponent(macSteamAppId,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/*	*/.addComponent(macSteamEnable))
+		/**/.addGroup(al.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(linuxSteamLabel)
+		/*	*/.addComponent(linuxSteamAppId,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/*	*/.addComponent(linuxSteamEnable)));
+
+		appIdPanel.setLayout(al);
+
+		gl.setHorizontalGroup(gl.createParallelGroup()
+		/**/.addComponent(appIdPanel));
+		gl.setVerticalGroup(gl.createSequentialGroup()
+		/**/.addComponent(appIdPanel));
+
+		panel.setLayout(gl);
+	
+		return panel;
+		}
+
 	public JButton discardButton;
 
 	public JTree tree;
@@ -953,17 +1025,21 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 			{
 			public void valueChanged(TreeSelectionEvent e)
 				{
+				// retrieve the node that was selected
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode)
 													 tree.getLastSelectedPathComponent();
-
-				// if nothing is selected
+	
+				// short-circuit if nothing is selected
 				if (node == null) return;
+	
+				CardLayout cl = (CardLayout) (cardPane.getLayout());
 
-				// retrieve the node that was selected
+				// show panel with same name as the node
 				String nodeInfo = node.getUserObject().toString();
-
-				CardLayout cl = (CardLayout)(cardPane.getLayout());
-				cl.show(cardPane, nodeInfo);
+				cl.show(cardPane,nodeInfo);
+				// show card with node hash if name was not unique
+				nodeInfo = Integer.toString(node.hashCode());
+				cl.show(cardPane,nodeInfo);
 				}
 			});
 
@@ -999,7 +1075,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		root.add(node);
 		if (pane != null) {
 			pane.setName(key);
-			cardPane.add(Messages.getString(key),pane);
+			cardPane.add(pane,Integer.toString(node.hashCode()));
 		}
 		return node;
 	}
@@ -1023,6 +1099,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		buildTab(pnode, "GameSettingFrame.TAB_WINDOWS", makeWindowsPane()); //$NON-NLS-1$
 		buildTab(pnode, "GameSettingFrame.TAB_MAC", null); //$NON-NLS-1$
 		buildTab(pnode, "GameSettingFrame.TAB_UBUNTU", null); //$NON-NLS-1$
+		buildTab(pnode, "GameSettingFrame.TAB_STEAM", makeSteamPane()); //$NON-NLS-1$
 		}
 
 	public void actionPerformed(ActionEvent e)

@@ -100,7 +100,10 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 		LAST_CHANGED,INFORMATION,/**/
 		INCLUDE_FOLDER,OVERWRITE_EXISTING,REMOVE_AT_GAME_END,VERSION_MAJOR,VERSION_MINOR,
 		VERSION_RELEASE,VERSION_BUILD,COMPANY,PRODUCT,COPYRIGHT,DESCRIPTION,GAME_ICON,
-		USE_NEW_AUDIO,SHORT_CIRCUIT_EVAL,USE_FAST_COLLISION,FAST_COLLISION_COMPAT
+		USE_NEW_AUDIO,SHORT_CIRCUIT_EVAL,USE_FAST_COLLISION,FAST_COLLISION_COMPAT,
+		// Steam
+		WINDOWS_STEAM_ID,MAC_STEAM_ID,LINUX_STEAM_ID,
+		WINDOWS_STEAM_ENABLE,MAC_STEAM_ENABLE,LINUX_STEAM_ENABLE
 		}
 
 	//GAME_ID and  DPLAY_GUID randomized in GmFile constructor
@@ -112,7 +115,9 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 			true,false,false,false,true,
 			"","100",ProjectFile.longTimeToGmTime(System.currentTimeMillis()),"",/**///$NON-NLS-1$ //$NON-NLS-3$
 			IncludeFolder.MAIN,false,false,1,0,0,0,"","","","",DEFAULT_ICON, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			true,true,false,false); 
+			true,true,false,false,
+			// Steam
+			0,0,0,false,false,false); 
 
 	@Override
 	public GameSettings makeInstance(ResourceReference<GameSettings> ref)

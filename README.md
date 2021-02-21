@@ -1,10 +1,18 @@
 LateralGM [![Travis CI Build Status](https://travis-ci.org/IsmAvatar/lateralgm.svg?branch=master)](https://travis-ci.org/github/IsmAvatar/LateralGM)
 =========
-A cross-platform editor for Game Maker project files written in Java using Swing. You can find the latest build on the releases page. The source code is doxygen commented but [online documentation](http://enigma-dev.org/docs/Wiki/LateralGM) of the internals is available, including format specification details.
+A cross-platform editor for Game Maker project files written in Java using Swing. The ![releases page](https://github.com/IsmAvatar/LateralGM/releases) has a jar for the latest build. The source code is doxygen commented but [online documentation](http://enigma-dev.org/docs/Wiki/LateralGM) of the internals is available, including format specification details.
 
 LateralGM is also maintained by the ![ENIGMA](https://github.com/enigma-dev/enigma-dev) developers, so please consider donating to them on Patreon!
 
 [![Patreon](https://enigma-dev.org/site/images/v4/patreon.png)](https://www.patreon.com/m/enigma_dev) 
+
+Building From Source
+=======
+You don't actually have to build the project yourself. There are already jars available on the ![releases page](https://github.com/IsmAvatar/LateralGM/releases) which you can run in Java 1.7 or higher. If you are looking to develop the source, then you will need to make sure you recursively clone to properly initialize all submodules (e.g, JoshEdit).
+
+```git clone --recursive https://github.com/IsmAvatar/LateralGM.git```
+
+You can then run GNU Make to build a jar using the `javac` compiler. Alternatively, you can import the project into an Eclipse Workspace to build with the `ecj` compiler.
 
 License
 -------
