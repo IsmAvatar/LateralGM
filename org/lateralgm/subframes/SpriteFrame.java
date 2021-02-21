@@ -73,6 +73,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
@@ -379,8 +380,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		cLayout.setAutoCreateGaps(true);
 		cLayout.setAutoCreateContainerGaps(true);
 		pane.setLayout(cLayout);
-		pane.setBorder(BorderFactory.createTitledBorder(
-				Messages.getString("SpriteFrame.MASK"))); //$NON-NLS-1$
 
 		JLabel toleranceLabel = new JLabel(
 				Messages.getString("SpriteFrame.ALPHA_TOLERANCE")); //$NON-NLS-1$
@@ -489,6 +488,39 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		return pane;
 		}
 
+	private JPanel makeTexturePane()
+		{
+		JPanel pane = new JPanel();
+		GroupLayout tLayout = new GroupLayout(pane);
+		tLayout.setAutoCreateGaps(true);
+		tLayout.setAutoCreateContainerGaps(true);
+		pane.setLayout(tLayout);
+
+		JCheckBox usedFor3D = new JCheckBox("Used for 3D");
+		plf.make(usedFor3D,PSprite.FOR3D);
+		JCheckBox tileH = new JCheckBox("Tile Horizontal");
+		plf.make(tileH,PSprite.TILE_HORIZONTALLY);
+		JCheckBox tileV = new JCheckBox("Tile Vertical");
+		plf.make(tileV,PSprite.TILE_VERTICALLY);
+		JLabel groupLabel = new JLabel("Group:");
+		JComboBox<String> groupCombo = new JComboBox<String>();
+
+		tLayout.setHorizontalGroup(tLayout.createParallelGroup()
+		/**/.addComponent(usedFor3D)
+		/**/.addComponent(tileH)
+		/**/.addComponent(tileV)
+		/**/.addComponent(groupLabel)
+		/**/.addComponent(groupCombo));
+		tLayout.setVerticalGroup(tLayout.createSequentialGroup()
+		/**/.addComponent(usedFor3D)
+		/**/.addComponent(tileH)
+		/**/.addComponent(tileV)
+		/**/.addComponent(groupLabel)
+		/**/.addComponent(groupCombo,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE));
+
+		return pane;
+		}
+
 	private JPanel makePropertiesPane()
 		{
 		JPanel pane = new JPanel();
@@ -511,6 +543,10 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		JPanel origin = makeOriginPane();
 		JPanel mask = makeCollisionPane();
+		JPanel text = makeTexturePane();
+		JTabbedPane tabPane = new JTabbedPane();
+		tabPane.addTab("Collision",mask);
+		tabPane.addTab("Texture",text);
 
 		JLabel nameLabel = new JLabel(Messages.getString("SpriteFrame.NAME")); //$NON-NLS-1$
 		save.setText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
@@ -524,7 +560,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		/**/.addComponent(transparent)
 		/**/.addComponent(separateMasks)
 		/**/.addComponent(origin)
-		/**/.addComponent(mask)
+		/**/.addComponent(tabPane)
 		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
@@ -538,7 +574,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addComponent(origin)
 		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
-		/**/.addComponent(mask)
+		/**/.addComponent(tabPane,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
 		/**/.addPreferredGap(ComponentPlacement.UNRELATED,0,MAX_VALUE)
 		/**/.addComponent(save));
 
