@@ -1204,8 +1204,8 @@ public final class GMXFileReader
 		for (int p = 0; p < pointNodes.getLength(); p++)
 			{
 			String[] coords = pointNodes.item(p).getTextContent().split(","); //$NON-NLS-1$
-			obj.shapePoints.add(new ShapePoint(Integer.parseInt(coords[0]),
-					Integer.parseInt(coords[1])));
+			obj.shapePoints.add(new ShapePoint(Double.parseDouble(coords[0]),
+					Double.parseDouble(coords[1])));
 			}
 
 		ResNode rnode = new ResNode(obj.getName(),ResNode.STATUS_SECONDARY,GmObject.class,obj.reference);
