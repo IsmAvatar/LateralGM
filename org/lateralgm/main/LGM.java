@@ -131,7 +131,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.225"; //$NON-NLS-1$
+	public static final String version = "1.8.226"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -1216,6 +1216,9 @@ public final class LGM
 		System.out.format("Java Version: %d (%s)\n",javaVersion,System.getProperty("java.version")); //$NON-NLS-1$
 		if (javaVersion < 10700)
 			System.out.println("Some program functionality will be limited due to your outdated Java version"); //$NON-NLS-1$
+
+		// Fix up raw filepaths from 1.5.7.1 into file URI format.
+		PrefsStore.patchRecentFiles();
 
 		// Create the main window on the EDT for safety.
 		// https://docs.oracle.com/javase/tutorial/uiswing/concurrency/initial.html

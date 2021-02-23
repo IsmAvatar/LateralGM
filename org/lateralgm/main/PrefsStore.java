@@ -10,6 +10,7 @@
 package org.lateralgm.main;
 
 import java.awt.Rectangle;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.prefs.BackingStoreException;
@@ -52,7 +53,6 @@ public final class PrefsStore
 		for (String name : array)
 			list.add(Util.urlDecode(name));
 		return list;
-
 		}
 
 	public static void addRecentFile(String name)
@@ -65,6 +65,28 @@ public final class PrefsStore
 		for (int i = 0; i + 1 < maxcount && i < oldList.size(); i++)
 			newList += " " + Util.urlEncode(oldList.get(i));
 		PREFS.put("FILE_RECENT",newList);
+		}
+
+	/**
+	 * Updates raw filepaths from 1.5.7.1 to proper URI format.
+	 */
+	public static void patchRecentFiles()
+		{
+		String value = PREFS.get("FILE_RECENT",null);
+		if (value == null) return;
+		String[] array = value.split(" ");
+		if (array.length < 1) return;
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < array.length; ++i)
+			{
+			if (i > 0) sb.append(" ");
+			String str = array[i];
+			if (!str.startsWith("file%3A%2F"))
+				sb.append(Util.urlEncode(new File(Util.urlDecode(str)).toURI().toString()));
+			else
+				sb.append(str);
+			}
+		PREFS.put("FILE_RECENT",sb.toString());
 		}
 
 	public static Rectangle getWindowBounds(Rectangle def)
