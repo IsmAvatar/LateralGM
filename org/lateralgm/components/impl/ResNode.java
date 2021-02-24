@@ -210,9 +210,6 @@ public class ResNode extends DefaultNode implements Transferable,UpdateListener
 		{
 		this.newRes = newRes;
 		Resource<?,?> r = deRef();
-		if (r != null) {
-			r.changed = newRes;
-		}
 		if (SubframeInformer.fireSubframeRequest(r,this)) return;
 		ResourceFrame<?,?> rf = frame;
 		boolean wasVisible = false;

@@ -867,7 +867,7 @@ public class FileChooser
 			}
 
 		LGM.commitAll();
-		LGM.resetChanges();
+		LGM.setWindowModified(false);
 
 		String ext = selectedWriter.getExtension();
 		if (!uri.getPath().endsWith(ext))

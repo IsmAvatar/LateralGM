@@ -47,9 +47,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Scanner;
@@ -107,7 +105,6 @@ import org.lateralgm.components.mdi.MDIPane;
 import org.lateralgm.file.ProjectFile;
 import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.ProjectFile.SingletonResourceHolder;
-import org.lateralgm.file.ResourceList;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.file.iconio.ICOImageReaderSPI;
 import org.lateralgm.file.iconio.WBMPImageReaderSpiFix;
@@ -131,7 +128,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.226"; //$NON-NLS-1$
+	public static final String version = "1.8.227"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -145,7 +142,8 @@ public final class LGM
 	public static String iconspath = "org/lateralgm/icons/"; //$NON-NLS-1$
 	public static String iconspack = "Calico"; //$NON-NLS-1$
 	public static String themename = "Swing"; //$NON-NLS-1$
-	public static boolean themechanged = false;
+	private static boolean themechanged = false;
+	private static boolean windowModified = false;
 
 	public static int javaVersion;
 	public static File tempDir, workDir;
@@ -863,6 +861,7 @@ public final class LGM
 	public static void reload(boolean newRoot)
 		{
 		LGM.mdi.closeAll();
+		LGM.setWindowModified(false);
 
 		InvisibleTreeModel ml = new InvisibleTreeModel(LGM.root);
 		LGM.tree.setModel(ml);
@@ -1248,7 +1247,14 @@ public final class LGM
 			tabs.setSelectedIndex(index);
 		}
 
-	public static boolean checkForChanges()
+	/**
+	 * Determines whether the window has been modified since opening a project. This will be true if
+	 * any open frames have been changed. It will also be true if any resources were already changed
+	 * and their internal subframes closed by the save button.
+	 * 
+	 * @return Whether the application has modified the open project.
+	 */
+	public static boolean isWindowModified()
 		{
 		//TODO: Detect tree model changes, e.g, sort by name.
 		//GM8.1 did this as well, perhaps use listener on the
@@ -1259,56 +1265,19 @@ public final class LGM
 				if (((ResourceFrame<?,?>) f).resourceChanged())
 					return true;
 
-		Iterator<?> it = currentFile.resMap.entrySet().iterator();
-		while (it.hasNext())
-			{
-			Entry<?,?> pairs = (Map.Entry<?,?>)it.next();
-			if (pairs.getValue() instanceof ResourceList)
-				{
-				ResourceList<?> list = (ResourceList<?>) pairs.getValue();
-				for (Resource<?,?> res : list)
-					if (res.changed)
-						return true;
-				}
-			else if (pairs.getValue() instanceof SingletonResourceHolder)
-				{
-				SingletonResourceHolder<?> rh = (SingletonResourceHolder<?>) pairs.getValue();
-				Resource<?,?> res = rh.getResource();
-				if (res.changed)
-					return true;
-				}
-			}
-		return false;
+		return LGM.windowModified;
 		}
 
 	/**
-	 * When the user saves, reset all the resources to their unsaved state. We do not check the frames
-	 * because they commit their changes allowing them to be written, while still allowing the user to
-	 * revert the frame if they so choose.
-	 * If the user has an open frame with changes basically, the save button will save the changes to
-	 * file and if the user saves the frame then they will still be asked to save when they close, if
-	 * they revert the changes to the frame they will exit right out. This is the expected behavior of
-	 * these functions.
+	 * Marks the application dirty or clears its status as having no modifications.
+	 * When a resource is modified, this is set to true. When the project is saved
+	 * or another project is opened, this is set to false.
+	 * 
+	 * @param modified Whether the application has been modified.
 	 */
-	public static void resetChanges()
+	public static void setWindowModified(boolean modified)
 		{
-		Iterator<?> it = currentFile.resMap.entrySet().iterator();
-		while (it.hasNext())
-			{
-			Entry<?,?> pairs = (Map.Entry<?,?>)it.next();
-			if (pairs.getValue() instanceof ResourceList)
-				{
-				ResourceList<?> list = (ResourceList<?>) pairs.getValue();
-				for (Resource<?,?> res : list)
-					res.changed = false;
-				}
-			else if (pairs.getValue() instanceof SingletonResourceHolder)
-				{
-				SingletonResourceHolder<?> rh = (SingletonResourceHolder<?>) pairs.getValue();
-				Resource<?,?> res = rh.getResource();
-				res.changed = false;
-				}
-			}
+		LGM.windowModified = modified;
 		}
 
 	public static void onMainFrameClosed()
@@ -1316,7 +1285,7 @@ public final class LGM
 		int result = JOptionPane.CANCEL_OPTION;
 		try
 			{
-			if (!checkForChanges()) { System.exit(0); }
+			if (!isWindowModified()) { System.exit(0); }
 			result = JOptionPane.showConfirmDialog(frame,Messages.getString("LGM.KEEPCHANGES"), //$NON-NLS-1$
 					Messages.getString("LGM.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION); //$NON-NLS-1$
 			}

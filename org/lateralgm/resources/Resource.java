@@ -41,7 +41,6 @@ public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> imple
 	public static final Map<Class<? extends Resource<?,?>>,String> kindNamesPlural = new LinkedHashMap<Class<? extends Resource<?,?>>,String>();
 	public static final List<Class<? extends Resource<?,?>>> kinds = new ArrayList<Class<? extends Resource<?,?>>>();
 	public static final boolean hasNode = true;
-	public boolean changed = false;
 
 	static
 		{
