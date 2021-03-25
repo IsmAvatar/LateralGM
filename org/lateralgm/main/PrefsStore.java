@@ -11,6 +11,8 @@ package org.lateralgm.main;
 
 import java.awt.Rectangle;
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.prefs.BackingStoreException;
@@ -81,10 +83,28 @@ public final class PrefsStore
 			{
 			if (i > 0) sb.append(" ");
 			String str = array[i];
-			if (!str.startsWith("file%3A%2F"))
-				sb.append(Util.urlEncode(new File(Util.urlDecode(str)).toURI().toString()));
-			else
-				sb.append(str);
+			String strDecoded = Util.urlDecode(str);
+			File file = new File(strDecoded);
+			if (!file.exists())
+				{
+				try
+					{
+					URI uri = new URI(strDecoded);
+	
+					// URI has a scheme and is not relative, use as-is
+					if (uri.isAbsolute())
+						{
+						sb.append(str);
+						continue;
+						}
+					}
+				catch (URISyntaxException e)
+					{ // fall through, assume filepath
+					}
+				}
+
+			// convert filepath to file scheme URI and reencode
+			sb.append(Util.urlEncode(file.toURI().toString()));
 			}
 		PREFS.put("FILE_RECENT",sb.toString());
 		}
