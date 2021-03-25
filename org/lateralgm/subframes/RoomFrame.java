@@ -214,17 +214,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	private final BgDefPropertyListener bdpl = new BgDefPropertyListener();
 	//Views
 	private JCheckBox vEnabled, vVisible;
-	private ButtonModelLink<PView> lvVisible;
 	private JList<JLabel> vList;
 	/**Guaranteed valid version of vList.getLastSelectedIndex()*/
 	private int lastValidView = -1;
+	private PropertyLinkFactory<PView> vplf;
 	private NumberField vRX, vRY, vRW, vRH;
 	private NumberField vPX, vPY, vPW, vPH;
-	private FormattedLink<PView> lvRX, lvRY, lvRW, lvRH, lvPX, lvPY, lvPW, lvPH;
 	private ResourceMenu<GmObject> vObj;
-	private PropertyLink<PView,ResourceReference<GmObject>> lvObj;
 	private NumberField vOHBor, vOVBor, vOHSp, vOVSp;
-	private FormattedLink<PView> lvOHBor, lvOVBor, lvOHSp, lvOVSp;
 	private final ViewPropertyListener vpl = new ViewPropertyListener();
 
 	private final PropertyLinkFactory<PRoomEditor> prelf;
@@ -2822,25 +2819,31 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			return;
 			}
 		lastValidView = i;
-		PropertyLink.removeAll(lvVisible,lvRX,lvRY,lvRW,lvRH,lvPX,lvPY,lvPW,lvPH,lvObj,lvOHBor,lvOVBor,
-				lvOHSp,lvOVSp);
 		View view = res.views.get(i);
-		PropertyLinkFactory<PView> vplf = new PropertyLinkFactory<PView>(view.properties,this);
+
+		if (vplf != null)
+			{
+			vplf.setMap(view.properties);
+			return;
+			}
+
+		vplf = new PropertyLinkFactory<PView>(view.properties,this);
 		this.addSecondaryPropertyLinkFactory(vplf);
-		lvVisible = vplf.make(vVisible,PView.VISIBLE);
-		lvRX = vplf.make(vRX,PView.VIEW_X);
-		lvRY = vplf.make(vRY,PView.VIEW_Y);
-		lvRW = vplf.make(vRW,PView.VIEW_W);
-		lvRH = vplf.make(vRH,PView.VIEW_H);
-		lvPX = vplf.make(vPX,PView.PORT_X);
-		lvPY = vplf.make(vPY,PView.PORT_Y);
-		lvPW = vplf.make(vPW,PView.PORT_W);
-		lvPH = vplf.make(vPH,PView.PORT_H);
-		lvObj = vplf.make(vObj,PView.OBJECT);
-		lvOHBor = vplf.make(vOHBor,PView.BORDER_H);
-		lvOVBor = vplf.make(vOVBor,PView.BORDER_V);
-		lvOHSp = vplf.make(vOHSp,PView.SPEED_H);
-		lvOVSp = vplf.make(vOVSp,PView.SPEED_V);
+
+		vplf.make(vVisible,PView.VISIBLE);
+		vplf.make(vRX,PView.VIEW_X);
+		vplf.make(vRY,PView.VIEW_Y);
+		vplf.make(vRW,PView.VIEW_W);
+		vplf.make(vRH,PView.VIEW_H);
+		vplf.make(vPX,PView.PORT_X);
+		vplf.make(vPY,PView.PORT_Y);
+		vplf.make(vPW,PView.PORT_W);
+		vplf.make(vPH,PView.PORT_H);
+		vplf.make(vObj,PView.OBJECT);
+		vplf.make(vOHBor,PView.BORDER_H);
+		vplf.make(vOVBor,PView.BORDER_V);
+		vplf.make(vOHSp,PView.SPEED_H);
+		vplf.make(vOVSp,PView.SPEED_V);
 		}
 
 	// Display the selected tile with a border and centered in the editor window
