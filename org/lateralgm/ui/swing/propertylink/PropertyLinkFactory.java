@@ -21,7 +21,6 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JList;
 import javax.swing.text.Document;
 
-import org.lateralgm.ui.swing.propertylink.ComboBoxLink;
 import org.lateralgm.ui.swing.propertylink.ComboBoxLink.DefaultComboBoxConversion;
 import org.lateralgm.ui.swing.propertylink.ComboBoxLink.ComboBoxConversion;
 import org.lateralgm.util.PropertyEditor;
