@@ -35,13 +35,30 @@ public class PropertyLinkFactory<K extends Enum<K>>
 	/* Necessary for mass disposing links created by the factory */
 	private List<PropertyLink<K,?>> mapLinks = new ArrayList<PropertyLink<K,?>>();
 
+	/*
+	 * Removes all the links from the map.
+	 */
 	public void removeAllLinks()
 		{
 		for (PropertyLink<K,?> link : mapLinks)
 			link.remove();
+		}
+
+	/*
+	 * Removes all the links from the map and also forgets them.
+	 * This method is more suitable for disposing so there will
+	 * not be strong references preventing garbage collection.
+	 */
+	public void clearAllLinks()
+		{
+		removeAllLinks();
 		mapLinks.clear();
 		}
 
+	/*
+	 * Remove all of the links from the previous map and then add
+	 * them to the new map, automatically reinitializing all links.
+	 */
 	public void setMap(PropertyMap<K> m)
 		{
 		map = m;
