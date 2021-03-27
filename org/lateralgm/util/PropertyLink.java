@@ -27,11 +27,23 @@ public abstract class PropertyLink<K extends Enum<K>, V> extends PropertyUpdateL
 		m.getUpdateSource(k).addListener(this);
 		}
 
+	/**
+	 * Removes the link as a listener of the map it was bound to.
+	 * Child implementations will also remove the link as a
+	 * listener of the corresponding component.
+	 */
 	public void remove()
 		{
 		map.getUpdateSource(key).removeListener(this);
 		}
 
+	/**
+	 * Removes the link as a listener of the old map, and
+	 * adds it as a listener of the new map. The component
+	 * will be reset with the value from the new map.
+	 * 
+	 * @param m The PropertyMap to bind to.
+	 */
 	public void setMap(PropertyMap<K> m)
 		{
 		// does not call this.remove() because some subclasses

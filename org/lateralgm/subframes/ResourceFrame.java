@@ -264,13 +264,13 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		if (node != null) node.frame = null; // allows a new frame to open
 		save.removeActionListener(this);
 		removeAll();
-		plf.clearAllLinks(); // << remove primary property links
+		plf.removeAllLinks(); // << remove primary property links
 		// remove secondary subresource based property links
 		for (WeakReference<PropertyLinkFactory<?>> wrs : plfSecondaries)
 			{
 			PropertyLinkFactory<?> plfSecondary = wrs.get();
 			if (plfSecondary == null) continue;
-			plfSecondary.clearAllLinks();
+			plfSecondary.removeAllLinks();
 			}
 		plfSecondaries.clear();
 		}

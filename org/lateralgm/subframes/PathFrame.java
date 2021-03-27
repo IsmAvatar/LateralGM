@@ -317,19 +317,20 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 				{
 				case SELECTED_POINT:
 					PathPoint pp = e.map.get(e.key);
-					if (pp == null)
+
+					if (ppplf == null)
+						{
+						if (pp == null) return;
+						ppplf = new PropertyLinkFactory<PPathPoint>(pp.properties,null);
+						PathFrame.this.addSecondaryPropertyLinkFactory(ppplf);
+						}
+					else
 						{
 						ppplf.removeAllLinks();
-						return;
+						if (pp == null) return;
+						ppplf.setMap(pp.properties);
 						}
 
-					if (ppplf != null)
-						{
-						ppplf.setMap(pp.properties);
-						return;
-						}
-					ppplf = new PropertyLinkFactory<PPathPoint>(pp.properties,null);
-					PathFrame.this.addSecondaryPropertyLinkFactory(ppplf);
 					ppplf.make(tx,PPathPoint.X);
 					ppplf.make(ty,PPathPoint.Y);
 					ppplf.make(tsp,PPathPoint.SPEED);

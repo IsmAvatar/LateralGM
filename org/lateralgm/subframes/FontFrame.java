@@ -589,18 +589,20 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		CharacterRange cr = rangeList.getSelectedValue();
 		if (lastRange == cr) return;
 		lastRange = cr;
-		if (cr == null)
+
+		if (rplf == null)
+			{
+			if (cr == null) return;
+			rplf = new PropertyLinkFactory<PCharacterRange>(cr.properties,this);
+			this.addSecondaryPropertyLinkFactory(rplf);
+			}
+		else
 			{
 			rplf.removeAllLinks();
+			if (cr == null) return;
+			rplf.setMap(cr.properties);
 			}
 
-		if (rplf != null)
-			{
-			rplf.setMap(cr.properties);
-			return;
-			}
-		rplf = new PropertyLinkFactory<PCharacterRange>(cr.properties,this);
-		this.addSecondaryPropertyLinkFactory(rplf);
 		rplf.make(charMin,PCharacterRange.RANGE_MIN);
 		rplf.make(charMax,PCharacterRange.RANGE_MAX);
 		}

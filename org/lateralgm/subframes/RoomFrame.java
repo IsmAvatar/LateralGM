@@ -2717,20 +2717,20 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		Instance selectedInstance = oList.getSelectedValue();
 		if (lastObj == selectedInstance) return;
 		lastObj = selectedInstance;
-		if (selectedInstance == null)
+
+		if (iplf == null)
+			{
+			if (selectedInstance == null) return;
+			iplf = new PropertyLinkFactory<PInstance>(selectedInstance.properties,null);
+			this.addSecondaryPropertyLinkFactory(iplf);
+			}
+		else
 			{
 			iplf.removeAllLinks();
-			return;
-			}
-
-		if (iplf != null)
-			{
+			if (selectedInstance == null) return;
 			iplf.setMap(selectedInstance.properties);
-			return;
 			}
 
-		iplf = new PropertyLinkFactory<PInstance>(selectedInstance.properties,this);
-		this.addSecondaryPropertyLinkFactory(iplf);
 		iplf.make(oLocked,PInstance.LOCKED);
 		iplf.make(oSource,PInstance.OBJECT);
 		iplf.make(objectName.getDocument(), PInstance.NAME);
@@ -2759,20 +2759,20 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		Tile selectedTile = tList.getSelectedValue();
 		if (lastTile == selectedTile) return;
 		lastTile = selectedTile;
-		if (selectedTile == null)
+
+		if (tplf == null)
+			{
+			if (selectedTile == null) return;
+			tplf = new PropertyLinkFactory<PTile>(selectedTile.properties,null);
+			this.addSecondaryPropertyLinkFactory(tplf);
+			}
+		else
 			{
 			tplf.removeAllLinks();
-			return;
-			}
-
-		if (tplf != null)
-			{
+			if (selectedTile == null) return;
 			tplf.setMap(selectedTile.properties);
-			return;
 			}
 
-		tplf = new PropertyLinkFactory<PTile>(selectedTile.properties,this);
-		this.addSecondaryPropertyLinkFactory(tplf);
 		tplf.make(teDepth,PTile.DEPTH);
 		tplf.make(tLocked,PTile.LOCKED);
 		tplf.make(teSource,PTile.BACKGROUND);
