@@ -105,6 +105,9 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		this.getRootPane().setDefaultButton(save);
 		((JComponent) getContentPane()).setBorder(new EmptyBorder(4,4,4,4));
 
+		rplf = new PropertyLinkFactory<PCharacterRange>(null,this);
+		this.addSecondaryPropertyLinkFactory(rplf);
+
 		propUpdateListener = new PropertyUpdateListener<PFont>()
 			{
 				public void updated(PropertyUpdateEvent<PFont> e)
@@ -590,18 +593,9 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		if (lastRange == cr) return;
 		lastRange = cr;
 
-		if (rplf == null)
-			{
-			if (cr == null) return;
-			rplf = new PropertyLinkFactory<PCharacterRange>(cr.properties,this);
-			this.addSecondaryPropertyLinkFactory(rplf);
-			}
-		else
-			{
-			rplf.removeAllLinks();
-			if (cr == null) return;
-			rplf.setMap(cr.properties);
-			}
+		rplf.removeAllLinks();
+		if (cr == null) return;
+		rplf.setMap(cr.properties);
 
 		rplf.make(charMin,PCharacterRange.RANGE_MIN);
 		rplf.make(charMax,PCharacterRange.RANGE_MAX);

@@ -73,6 +73,8 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 		pathEditor.properties.updateSource.addListener(pepl);
 		peplf = new PropertyLinkFactory<PPathEditor>(pathEditor.properties,this);
 		this.addSecondaryPropertyLinkFactory(peplf);
+		ppplf = new PropertyLinkFactory<PPathPoint>(null,null);
+		this.addSecondaryPropertyLinkFactory(ppplf);
 
 		GroupLayout layout = new GroupLayout(getContentPane())
 			{
@@ -318,18 +320,9 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 				case SELECTED_POINT:
 					PathPoint pp = e.map.get(e.key);
 
-					if (ppplf == null)
-						{
-						if (pp == null) return;
-						ppplf = new PropertyLinkFactory<PPathPoint>(pp.properties,null);
-						PathFrame.this.addSecondaryPropertyLinkFactory(ppplf);
-						}
-					else
-						{
-						ppplf.removeAllLinks();
-						if (pp == null) return;
-						ppplf.setMap(pp.properties);
-						}
+					ppplf.removeAllLinks();
+					if (pp == null) return;
+					ppplf.setMap(pp.properties);
 
 					ppplf.make(tx,PPathPoint.X);
 					ppplf.make(ty,PPathPoint.Y);

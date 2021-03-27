@@ -1890,6 +1890,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		editor = new RoomEditor(res,this);
 		prelf = new PropertyLinkFactory<PRoomEditor>(editor.properties,null);
 		this.addSecondaryPropertyLinkFactory(prelf);
+		iplf = new PropertyLinkFactory<PInstance>(null,null);
+		this.addSecondaryPropertyLinkFactory(iplf);
+		tplf = new PropertyLinkFactory<PTile>(null,null);
+		this.addSecondaryPropertyLinkFactory(tplf);
 
 		GroupLayout layout = new GroupLayout(getContentPane())
 			{
@@ -2718,18 +2722,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		if (lastObj == selectedInstance) return;
 		lastObj = selectedInstance;
 
-		if (iplf == null)
-			{
-			if (selectedInstance == null) return;
-			iplf = new PropertyLinkFactory<PInstance>(selectedInstance.properties,null);
-			this.addSecondaryPropertyLinkFactory(iplf);
-			}
-		else
-			{
-			iplf.removeAllLinks();
-			if (selectedInstance == null) return;
-			iplf.setMap(selectedInstance.properties);
-			}
+		iplf.removeAllLinks();
+		if (selectedInstance == null) return;
+		iplf.setMap(selectedInstance.properties);
 
 		iplf.make(oLocked,PInstance.LOCKED);
 		iplf.make(oSource,PInstance.OBJECT);
@@ -2760,18 +2755,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		if (lastTile == selectedTile) return;
 		lastTile = selectedTile;
 
-		if (tplf == null)
-			{
-			if (selectedTile == null) return;
-			tplf = new PropertyLinkFactory<PTile>(selectedTile.properties,null);
-			this.addSecondaryPropertyLinkFactory(tplf);
-			}
-		else
-			{
-			tplf.removeAllLinks();
-			if (selectedTile == null) return;
-			tplf.setMap(selectedTile.properties);
-			}
+		tplf.removeAllLinks();
+		if (selectedTile == null) return;
+		tplf.setMap(selectedTile.properties);
 
 		tplf.make(teDepth,PTile.DEPTH);
 		tplf.make(tLocked,PTile.LOCKED);
