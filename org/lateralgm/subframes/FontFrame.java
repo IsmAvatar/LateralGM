@@ -64,11 +64,9 @@ import org.lateralgm.resources.Font;
 import org.lateralgm.resources.Font.PFont;
 import org.lateralgm.resources.sub.CharacterRange;
 import org.lateralgm.resources.sub.CharacterRange.PCharacterRange;
-import org.lateralgm.ui.swing.propertylink.FormattedLink;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 import org.lateralgm.ui.swing.propertylink.ComboBoxLink.IndexComboBoxConversion;
 import org.lateralgm.ui.swing.util.ArrayListModel;
-import org.lateralgm.util.PropertyLink;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
@@ -82,7 +80,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 	public JCheckBox italic, bold;
 	public JComboBox<String> aa;
 	public NumberField charMin, charMax;
-	private FormattedLink<PCharacterRange> minLink, maxLink;
+	private PropertyLinkFactory<PCharacterRange> rplf;
 	public JEditorPane previewText;
 	public JTextArea previewRange;
 	private JMenuItem cutItem, copyItem, pasteItem, selAllItem;
@@ -106,6 +104,9 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 
 		this.getRootPane().setDefaultButton(save);
 		((JComponent) getContentPane()).setBorder(new EmptyBorder(4,4,4,4));
+
+		rplf = new PropertyLinkFactory<PCharacterRange>(null,this);
+		this.addSecondaryPropertyLinkFactory(rplf);
 
 		propUpdateListener = new PropertyUpdateListener<PFont>()
 			{
@@ -591,15 +592,13 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		CharacterRange cr = rangeList.getSelectedValue();
 		if (lastRange == cr) return;
 		lastRange = cr;
-		PropertyLink.removeAll(minLink,maxLink);
-		if (cr != null)
-			{
-			PropertyLinkFactory<PCharacterRange> rplf = new PropertyLinkFactory<PCharacterRange>(
-					cr.properties,this);
-			this.addSecondaryPropertyLinkFactory(rplf);
-			minLink = rplf.make(charMin,PCharacterRange.RANGE_MIN);
-			maxLink = rplf.make(charMax,PCharacterRange.RANGE_MAX);
-			}
+
+		rplf.removeAllLinks();
+		if (cr == null) return;
+		rplf.setMap(cr.properties);
+
+		rplf.make(charMin,PCharacterRange.RANGE_MIN);
+		rplf.make(charMax,PCharacterRange.RANGE_MAX);
 		}
 
 	public void updated(UpdateEvent e)

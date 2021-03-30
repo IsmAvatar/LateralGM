@@ -131,13 +131,9 @@ import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.resources.sub.View;
 import org.lateralgm.resources.sub.View.PView;
 import org.lateralgm.subframes.CodeFrame.CodeHolder;
-import org.lateralgm.ui.swing.propertylink.ButtonModelLink;
-import org.lateralgm.ui.swing.propertylink.DocumentLink;
-import org.lateralgm.ui.swing.propertylink.FormattedLink;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 import org.lateralgm.ui.swing.util.ArrayListModel;
 import org.lateralgm.util.ActiveArrayList;
-import org.lateralgm.util.PropertyLink;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
@@ -160,19 +156,15 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 	//Objects
 	public JCheckBox oUnderlying, oLocked;
-	private ButtonModelLink<PInstance> loLocked;
 	public JList<Instance> oList;
 	private Instance lastObj = null; //non-guaranteed copy of oList.getLastSelectedValue()
+	private PropertyLinkFactory<PInstance> iplf;
 	private JButton addObjectButton, deleteObjectButton;
 	public ResourceMenu<GmObject> oNew, oSource;
-	private PropertyLink<PInstance,ResourceReference<GmObject>> loSource;
 	private JTextField objectName;
 	public NumberField objectHorizontalPosition, objectVerticalPosition, objectScaleX, objectScaleY,
 			objectRotation, objectAlpha;
 	public ColorSelect objectColor;
-	public PropertyLink<PInstance,Color> loColour;
-	private FormattedLink<PInstance> loX, loY, loScaleX, loScaleY, loRotation, loAlpha;
-	private DocumentLink<PInstance> loName;
 	private JButton oCreationCode;
 
 	//Settings
@@ -189,42 +181,35 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	Vector<Integer> layers = new Vector<Integer>();
 	private JButton addLayer, deleteLayer, changeLayer;
 	public JCheckBox tUnderlying, tLocked, tHideOtherLayers, tEditOtherLayers;
-	private ButtonModelLink<PTile> ltLocked;
 	public TileSelector tSelect;
 	private JScrollPane tScroll;
 	public JList<Tile> tList;
 	private Tile lastTile = null; //non-guaranteed copy of tList.getLastSelectedValue()
+	private PropertyLinkFactory<PTile> tplf;
 	private JButton deleteTileButton;
 	public ResourceMenu<Background> taSource, teSource;
-	private PropertyLink<PTile,ResourceReference<Background>> ltSource;
 	public NumberField tsX, tsY, tileHorizontalPosition, tileVerticalPosition, teDepth;
-	private FormattedLink<PTile> ltsX, ltsY, ltX, ltY, ltDepth;
 
 	//Backgrounds
 	private JCheckBox bDrawColor, bVisible, bForeground, bTileH, bTileV, bStretch;
-	private ButtonModelLink<PBackgroundDef> lbVisible, lbForeground, lbTileH, lbTileV, lbStretch;
 	private ColorSelect bColor;
 	private JList<JLabel> bList;
 	/**Guaranteed valid version of bList.getLastSelectedIndex()*/
 	private int lastValidBack = -1;
+	private PropertyLinkFactory<PBackgroundDef> bdplf;
 	private ResourceMenu<Background> bSource;
-	private PropertyLink<PBackgroundDef,ResourceReference<Background>> lbSource;
 	private NumberField bX, bY, bH, bV;
-	private FormattedLink<PBackgroundDef> lbX, lbY, lbH, lbV;
 	private final BgDefPropertyListener bdpl = new BgDefPropertyListener();
 	//Views
 	private JCheckBox vEnabled, vVisible;
-	private ButtonModelLink<PView> lvVisible;
 	private JList<JLabel> vList;
 	/**Guaranteed valid version of vList.getLastSelectedIndex()*/
 	private int lastValidView = -1;
+	private PropertyLinkFactory<PView> vplf;
 	private NumberField vRX, vRY, vRW, vRH;
 	private NumberField vPX, vPY, vPW, vPH;
-	private FormattedLink<PView> lvRX, lvRY, lvRW, lvRH, lvPX, lvPY, lvPW, lvPH;
 	private ResourceMenu<GmObject> vObj;
-	private PropertyLink<PView,ResourceReference<GmObject>> lvObj;
 	private NumberField vOHBor, vOVBor, vOHSp, vOVSp;
-	private FormattedLink<PView> lvOHBor, lvOVBor, lvOHSp, lvOVSp;
 	private final ViewPropertyListener vpl = new ViewPropertyListener();
 
 	private final PropertyLinkFactory<PRoomEditor> prelf;
@@ -1905,6 +1890,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		editor = new RoomEditor(res,this);
 		prelf = new PropertyLinkFactory<PRoomEditor>(editor.properties,null);
 		this.addSecondaryPropertyLinkFactory(prelf);
+		iplf = new PropertyLinkFactory<PInstance>(null,null);
+		this.addSecondaryPropertyLinkFactory(iplf);
+		tplf = new PropertyLinkFactory<PTile>(null,null);
+		this.addSecondaryPropertyLinkFactory(tplf);
 
 		GroupLayout layout = new GroupLayout(getContentPane())
 			{
@@ -2732,24 +2721,21 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		Instance selectedInstance = oList.getSelectedValue();
 		if (lastObj == selectedInstance) return;
 		lastObj = selectedInstance;
-		PropertyLink.removeAll(loLocked,loSource,loName,loX,loY,loScaleX,loScaleY,loColour,loRotation,loAlpha);
 
-		if (selectedInstance != null)
-			{
-			PropertyLinkFactory<PInstance> iplf = new PropertyLinkFactory<PInstance>(
-					selectedInstance.properties,this);
-			this.addSecondaryPropertyLinkFactory(iplf);
-			loLocked = iplf.make(oLocked,PInstance.LOCKED);
-			loSource = iplf.make(oSource,PInstance.OBJECT);
-			loName = iplf.make(objectName.getDocument(), PInstance.NAME);
-			loX = iplf.make(objectHorizontalPosition,PInstance.X);
-			loY = iplf.make(objectVerticalPosition,PInstance.Y);
-			loScaleX = iplf.make(objectScaleX,PInstance.SCALE_X);
-			loScaleY = iplf.make(objectScaleY,PInstance.SCALE_Y);
-			loRotation = iplf.make(objectRotation,PInstance.ROTATION);
-			loColour = iplf.make(objectColor,PInstance.COLOR);
-			loAlpha = iplf.make(objectAlpha,PInstance.ALPHA);
-			}
+		iplf.removeAllLinks();
+		if (selectedInstance == null) return;
+		iplf.setMap(selectedInstance.properties);
+
+		iplf.make(oLocked,PInstance.LOCKED);
+		iplf.make(oSource,PInstance.OBJECT);
+		iplf.make(objectName.getDocument(), PInstance.NAME);
+		iplf.make(objectHorizontalPosition,PInstance.X);
+		iplf.make(objectVerticalPosition,PInstance.Y);
+		iplf.make(objectScaleX,PInstance.SCALE_X);
+		iplf.make(objectScaleY,PInstance.SCALE_Y);
+		iplf.make(objectRotation,PInstance.ROTATION);
+		iplf.make(objectColor,PInstance.COLOR);
+		iplf.make(objectAlpha,PInstance.ALPHA);
 		}
 
 	@Override
@@ -2768,20 +2754,18 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		Tile selectedTile = tList.getSelectedValue();
 		if (lastTile == selectedTile) return;
 		lastTile = selectedTile;
-		PropertyLink.removeAll(ltDepth,ltLocked,ltSource,ltsX,ltsY,ltX,ltY);
 
-		if (selectedTile != null)
-			{
-			PropertyLinkFactory<PTile> tplf = new PropertyLinkFactory<PTile>(selectedTile.properties,this);
-			this.addSecondaryPropertyLinkFactory(tplf);
-			ltDepth = tplf.make(teDepth,PTile.DEPTH);
-			ltLocked = tplf.make(tLocked,PTile.LOCKED);
-			ltSource = tplf.make(teSource,PTile.BACKGROUND);
-			ltsX = tplf.make(tsX,PTile.BG_X);
-			ltsY = tplf.make(tsY,PTile.BG_Y);
-			ltX = tplf.make(tileHorizontalPosition,PTile.ROOM_X);
-			ltY = tplf.make(tileVerticalPosition,PTile.ROOM_Y);
-			}
+		tplf.removeAllLinks();
+		if (selectedTile == null) return;
+		tplf.setMap(selectedTile.properties);
+
+		tplf.make(teDepth,PTile.DEPTH);
+		tplf.make(tLocked,PTile.LOCKED);
+		tplf.make(teSource,PTile.BACKGROUND);
+		tplf.make(tsX,PTile.BG_X);
+		tplf.make(tsY,PTile.BG_Y);
+		tplf.make(tileHorizontalPosition,PTile.ROOM_X);
+		tplf.make(tileVerticalPosition,PTile.ROOM_Y);
 		}
 
 	public void fireBackUpdate()
@@ -2794,22 +2778,26 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			return;
 			}
 		lastValidBack = i;
-		PropertyLink.removeAll(lbVisible,lbForeground,lbSource,lbX,lbY,lbTileH,lbTileV,lbStretch,lbH,
-				lbV);
 		BackgroundDef b = res.backgroundDefs.get(i);
-		PropertyLinkFactory<PBackgroundDef> bdplf = new PropertyLinkFactory<PBackgroundDef>(
-				b.properties,this);
+
+		if (bdplf != null)
+			{
+			bdplf.setMap(b.properties);
+			return;
+			}
+
+		bdplf = new PropertyLinkFactory<PBackgroundDef>(b.properties,this);
 		this.addSecondaryPropertyLinkFactory(bdplf);
-		lbVisible = bdplf.make(bVisible,PBackgroundDef.VISIBLE);
-		lbForeground = bdplf.make(bForeground,PBackgroundDef.FOREGROUND);
-		lbSource = bdplf.make(bSource,PBackgroundDef.BACKGROUND);
-		lbX = bdplf.make(bX,PBackgroundDef.X);
-		lbY = bdplf.make(bY,PBackgroundDef.Y);
-		lbTileH = bdplf.make(bTileH,PBackgroundDef.TILE_HORIZ);
-		lbTileV = bdplf.make(bTileV,PBackgroundDef.TILE_VERT);
-		lbStretch = bdplf.make(bStretch,PBackgroundDef.STRETCH);
-		lbH = bdplf.make(bH,PBackgroundDef.H_SPEED);
-		lbV = bdplf.make(bV,PBackgroundDef.V_SPEED);
+		bdplf.make(bVisible,PBackgroundDef.VISIBLE);
+		bdplf.make(bForeground,PBackgroundDef.FOREGROUND);
+		bdplf.make(bSource,PBackgroundDef.BACKGROUND);
+		bdplf.make(bX,PBackgroundDef.X);
+		bdplf.make(bY,PBackgroundDef.Y);
+		bdplf.make(bTileH,PBackgroundDef.TILE_HORIZ);
+		bdplf.make(bTileV,PBackgroundDef.TILE_VERT);
+		bdplf.make(bStretch,PBackgroundDef.STRETCH);
+		bdplf.make(bH,PBackgroundDef.H_SPEED);
+		bdplf.make(bV,PBackgroundDef.V_SPEED);
 		}
 
 	public void fireViewUpdate()
@@ -2822,25 +2810,30 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			return;
 			}
 		lastValidView = i;
-		PropertyLink.removeAll(lvVisible,lvRX,lvRY,lvRW,lvRH,lvPX,lvPY,lvPW,lvPH,lvObj,lvOHBor,lvOVBor,
-				lvOHSp,lvOVSp);
 		View view = res.views.get(i);
-		PropertyLinkFactory<PView> vplf = new PropertyLinkFactory<PView>(view.properties,this);
+
+		if (vplf != null)
+			{
+			vplf.setMap(view.properties);
+			return;
+			}
+
+		vplf = new PropertyLinkFactory<PView>(view.properties,this);
 		this.addSecondaryPropertyLinkFactory(vplf);
-		lvVisible = vplf.make(vVisible,PView.VISIBLE);
-		lvRX = vplf.make(vRX,PView.VIEW_X);
-		lvRY = vplf.make(vRY,PView.VIEW_Y);
-		lvRW = vplf.make(vRW,PView.VIEW_W);
-		lvRH = vplf.make(vRH,PView.VIEW_H);
-		lvPX = vplf.make(vPX,PView.PORT_X);
-		lvPY = vplf.make(vPY,PView.PORT_Y);
-		lvPW = vplf.make(vPW,PView.PORT_W);
-		lvPH = vplf.make(vPH,PView.PORT_H);
-		lvObj = vplf.make(vObj,PView.OBJECT);
-		lvOHBor = vplf.make(vOHBor,PView.BORDER_H);
-		lvOVBor = vplf.make(vOVBor,PView.BORDER_V);
-		lvOHSp = vplf.make(vOHSp,PView.SPEED_H);
-		lvOVSp = vplf.make(vOVSp,PView.SPEED_V);
+		vplf.make(vVisible,PView.VISIBLE);
+		vplf.make(vRX,PView.VIEW_X);
+		vplf.make(vRY,PView.VIEW_Y);
+		vplf.make(vRW,PView.VIEW_W);
+		vplf.make(vRH,PView.VIEW_H);
+		vplf.make(vPX,PView.PORT_X);
+		vplf.make(vPY,PView.PORT_Y);
+		vplf.make(vPW,PView.PORT_W);
+		vplf.make(vPH,PView.PORT_H);
+		vplf.make(vObj,PView.OBJECT);
+		vplf.make(vOHBor,PView.BORDER_H);
+		vplf.make(vOVBor,PView.BORDER_V);
+		vplf.make(vOHSp,PView.SPEED_H);
+		vplf.make(vOVSp,PView.SPEED_V);
 		}
 
 	// Display the selected tile with a border and centered in the editor window

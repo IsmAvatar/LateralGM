@@ -21,7 +21,6 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JList;
 import javax.swing.text.Document;
 
-import org.lateralgm.ui.swing.propertylink.ComboBoxLink;
 import org.lateralgm.ui.swing.propertylink.ComboBoxLink.DefaultComboBoxConversion;
 import org.lateralgm.ui.swing.propertylink.ComboBoxLink.ComboBoxConversion;
 import org.lateralgm.util.PropertyEditor;
@@ -36,6 +35,9 @@ public class PropertyLinkFactory<K extends Enum<K>>
 	/* Necessary for mass disposing links created by the factory */
 	private List<PropertyLink<K,?>> mapLinks = new ArrayList<PropertyLink<K,?>>();
 
+	/**
+	 * Removes all the links from the map.
+	 */
 	public void removeAllLinks()
 		{
 		for (PropertyLink<K,?> link : mapLinks)
@@ -43,6 +45,12 @@ public class PropertyLinkFactory<K extends Enum<K>>
 		mapLinks.clear();
 		}
 
+	/**
+	 * Remove all of the links from the previous map and then add
+	 * them to the new map, automatically reinitializing all links.
+	 * 
+	 * @param m The new map to link the properties of.
+	 */
 	public void setMap(PropertyMap<K> m)
 		{
 		map = m;

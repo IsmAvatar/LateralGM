@@ -47,10 +47,8 @@ import org.lateralgm.resources.Path.PPath;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.resources.sub.PathPoint.PPathPoint;
-import org.lateralgm.ui.swing.propertylink.FormattedLink;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 import org.lateralgm.ui.swing.util.ArrayListModel;
-import org.lateralgm.util.PropertyLink;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
@@ -75,6 +73,8 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 		pathEditor.properties.updateSource.addListener(pepl);
 		peplf = new PropertyLinkFactory<PPathEditor>(pathEditor.properties,this);
 		this.addSecondaryPropertyLinkFactory(peplf);
+		ppplf = new PropertyLinkFactory<PPathPoint>(null,null);
+		this.addSecondaryPropertyLinkFactory(ppplf);
 
 		GroupLayout layout = new GroupLayout(getContentPane())
 			{
@@ -308,7 +308,7 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 		super.actionPerformed(e);
 		}
 
-	FormattedLink<PPathPoint> ltx, lty, ltsp;
+	private PropertyLinkFactory<PPathPoint> ppplf;
 
 	private class PathEditorPropertyListener extends PropertyUpdateListener<PPathEditor>
 		{
@@ -318,23 +318,15 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 			switch (e.key)
 				{
 				case SELECTED_POINT:
-					PropertyLink.removeAll(ltx,lty,ltsp);
 					PathPoint pp = e.map.get(e.key);
-					if (pp != null)
-						{
-						PropertyLinkFactory<PPathPoint> ppplf = new PropertyLinkFactory<PPathPoint>(
-								pp.properties,null);
-						PathFrame.this.addSecondaryPropertyLinkFactory(ppplf);
-						ltx = ppplf.make(tx,PPathPoint.X);
-						lty = ppplf.make(ty,PPathPoint.Y);
-						ltsp = ppplf.make(tsp,PPathPoint.SPEED);
-						}
-					else
-						{
-						ltx = null;
-						lty = null;
-						ltsp = null;
-						}
+
+					ppplf.removeAllLinks();
+					if (pp == null) return;
+					ppplf.setMap(pp.properties);
+
+					ppplf.make(tx,PPathPoint.X);
+					ppplf.make(ty,PPathPoint.Y);
+					ppplf.make(tsp,PPathPoint.SPEED);
 					break;
 				default:
 					break;
