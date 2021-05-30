@@ -107,7 +107,6 @@ import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.ProjectFile.SingletonResourceHolder;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.file.iconio.ICOImageReaderSPI;
-import org.lateralgm.file.iconio.WBMPImageReaderSpiFix;
 import org.lateralgm.main.Search.InvisibleTreeModel;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Constants;
@@ -124,11 +123,9 @@ import org.lateralgm.subframes.GameSettingFrame;
 import org.lateralgm.subframes.ResourceFrame;
 import org.lateralgm.subframes.ResourceFrame.ResourceFrameFactory;
 
-import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
-
 public final class LGM
 	{
-	public static final String version = "1.8.229"; //$NON-NLS-1$
+	public static final String version = "1.8.230"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -162,8 +159,6 @@ public final class LGM
 		//Tweak service providers
 		IIORegistry reg = IIORegistry.getDefaultInstance();
 		reg.registerServiceProvider(new ICOImageReaderSPI());
-		reg.deregisterServiceProvider(reg.getServiceProviderByClass(WBMPImageReaderSpi.class));
-		reg.registerServiceProvider(new WBMPImageReaderSpiFix());
 
 		//Setup workdir and tempdir
 		try
