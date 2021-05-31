@@ -32,6 +32,7 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -48,6 +49,11 @@ import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.ProjectFile.InterfaceProvider;
@@ -114,12 +120,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
+//import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 
-// TODO: Possibly rewrite from a DOM parser to a SAX parser,
-// because SAX is light weight faster and uses less memory,
-// DOM reads the whole thing into memory and then parses it.
-// There is a downside to SAX such as incompatibility with UTF-8
 public final class GMXFileReader
 	{
 	public static final String STUPID_SHADER_MARKER =
@@ -127,6 +129,7 @@ public final class GMXFileReader
 
 	private static DocumentBuilderFactory documentBuilderFactory;
 	private static DocumentBuilder documentBuilder;
+	private static XMLInputFactory xmlInputFactory;
 
 	private GMXFileReader()
 		{
@@ -194,6 +197,38 @@ public final class GMXFileReader
 			return doc;
 		}
 
+	private static XMLEventReader parseDocumentUnchecked2(ProjectFile f, String path) throws GmFormatException
+		{
+		XMLEventReader reader = null;
+		try
+			{
+			reader = xmlInputFactory.createXMLEventReader(new FileInputStream(path));
+			}
+		catch (FileNotFoundException e)
+			{
+			throw new GmFormatException(f, "file not found: " + path, e);
+			}
+		catch (XMLStreamException e)
+			{
+			throw new GmFormatException(f, "failed to parse: " + path, e);
+			}
+		return reader;
+		}
+
+	private static XMLEventReader parseDocumentChecked2(ProjectFile f, String path)
+		{
+		XMLEventReader reader = null;
+		try
+			{
+			reader = parseDocumentUnchecked2(f, path);
+			}
+		catch (GmFormatException e)
+			{
+			interfaceProvider.handleException(e);
+			}
+		return reader;
+		}
+
 	//Workaround for Parameter limit
 	private static class ProjectFileContext
 		{
@@ -255,6 +290,8 @@ public final class GMXFileReader
 				{
 				throw new GmFormatException(file,e1);
 				}
+		if (xmlInputFactory == null)
+			xmlInputFactory = XMLInputFactory.newInstance();
 		RefList<Timeline> timeids = new RefList<Timeline>(Timeline.class); // timeline ids
 		RefList<GmObject> objids = new RefList<GmObject>(GmObject.class); // object ids
 		RefList<Room> rmids = new RefList<Room>(Room.class); // room id
@@ -542,10 +579,10 @@ public final class GMXFileReader
 					}
 				pSet.put(PGameSettings.GAME_ID,
 						Integer.parseInt(setdoc.getElementsByTagName("option_gameid").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(
-						PGameSettings.GAME_GUID,
-						HexBin.decode(setdoc.getElementsByTagName("option_gameguid").item(0).getTextContent().replace( //$NON-NLS-1$
-								"-","").replace("{","").replace("}","")));
+				//pSet.put(
+					//	PGameSettings.GAME_GUID,
+						//HexBin.decode(setdoc.getElementsByTagName("option_gameguid").item(0).getTextContent().replace( //$NON-NLS-1$
+								//"-","").replace("{","").replace("}","")));
 
 				pSet.put(PGameSettings.AUTHOR,
 						setdoc.getElementsByTagName("option_author").item(0).getTextContent()); //$NON-NLS-1$
@@ -769,51 +806,80 @@ public final class GMXFileReader
 		node.add(rnode);
 		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-		Document bkgdoc = GMXFileReader.parseDocumentChecked(f, path + ".background.gmx"); //$NON-NLS-1$
-		if (bkgdoc == null) return;
+		XMLEventReader reader = parseDocumentChecked2(f, path + ".background.gmx");
+		if (reader == null) return;
 
-		bkg.put(PBackground.USE_AS_TILESET,
-				Integer.parseInt(bkgdoc.getElementsByTagName("istileset").item(0).getTextContent()) != 0); //$NON-NLS-1$
-		bkg.put(PBackground.TILE_WIDTH,
-				Integer.parseInt(bkgdoc.getElementsByTagName("tilewidth").item(0).getTextContent())); //$NON-NLS-1$
-		bkg.put(PBackground.TILE_HEIGHT,
-				Integer.parseInt(bkgdoc.getElementsByTagName("tileheight").item(0).getTextContent())); //$NON-NLS-1$
-		bkg.put(PBackground.H_OFFSET,
-				Integer.parseInt(bkgdoc.getElementsByTagName("tilexoff").item(0).getTextContent())); //$NON-NLS-1$
-		bkg.put(PBackground.V_OFFSET,
-				Integer.parseInt(bkgdoc.getElementsByTagName("tileyoff").item(0).getTextContent())); //$NON-NLS-1$
-		bkg.put(PBackground.H_SEP,
-				Integer.parseInt(bkgdoc.getElementsByTagName("tilehsep").item(0).getTextContent())); //$NON-NLS-1$
-		bkg.put(PBackground.V_SEP,
-				Integer.parseInt(bkgdoc.getElementsByTagName("tilevsep").item(0).getTextContent())); //$NON-NLS-1$
-		bkg.put(PBackground.TILE_HORIZONTALLY,
-				Integer.parseInt(bkgdoc.getElementsByTagName("HTile").item(0).getTextContent()) != 0); //$NON-NLS-1$
-		bkg.put(PBackground.TILE_VERTICALLY,
-				Integer.parseInt(bkgdoc.getElementsByTagName("VTile").item(0).getTextContent()) != 0); //$NON-NLS-1$
-
-		// TODO: Read texture groups
-
-		bkg.put(PBackground.FOR3D,
-				Integer.parseInt(bkgdoc.getElementsByTagName("For3D").item(0).getTextContent()) != 0); //$NON-NLS-1$
-
-		// NOTE: Just extra metadata stored in the GMX by studio
-		//int width = Integer.parseInt(bkgdoc.getElementsByTagName("width").item(0).getTextContent());
-		//int height = Integer.parseInt(bkgdoc.getElementsByTagName("height").item(0).getTextContent());
-
-		path = f.getDirectory() + "/background/"; //$NON-NLS-1$
-		Node fnode = bkgdoc.getElementsByTagName("data").item(0); //$NON-NLS-1$
-		BufferedImage img = null;
-		File imgfile = new File(path + Util.getPOSIXPath(fnode.getTextContent()));
-		if (imgfile.exists())
+		while (reader.hasNext())
 			{
+			XMLEvent nextEvent = null;
 			try
 				{
-				img = ImageIO.read(imgfile);
-				bkg.setBackgroundImage(img);
+				nextEvent = reader.nextEvent();
 				}
-			catch (IOException e)
+			catch (XMLStreamException e)
 				{
-				interfaceProvider.handleException(new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				}
+
+			if (!nextEvent.isStartElement()) continue;
+			StartElement sel = nextEvent.asStartElement();
+			String scope = sel.getName().getLocalPart();
+			if (!reader.hasNext()) break;
+			String data = "";
+			try
+				{
+				data = reader.nextEvent().asCharacters().getData();
+				}
+			catch (XMLStreamException e1)
+				{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				}
+
+			switch (scope)
+				{
+				case "istileset": //$NON-NLS-1$
+					bkg.put(PBackground.USE_AS_TILESET,Integer.parseInt(data) != 0); break;
+				case "tilewidth": //$NON-NLS-1$
+					bkg.put(PBackground.TILE_WIDTH,Integer.parseInt(data)); break;
+				case "tileheight": //$NON-NLS-1$
+					bkg.put(PBackground.TILE_HEIGHT,Integer.parseInt(data)); break;
+				case "tilexoff": //$NON-NLS-1$
+					bkg.put(PBackground.H_OFFSET,Integer.parseInt(data)); break;
+				case "tileyoff": //$NON-NLS-1$
+					bkg.put(PBackground.V_OFFSET,Integer.parseInt(data)); break;
+				case "tilehsep": //$NON-NLS-1$
+					bkg.put(PBackground.H_SEP,Integer.parseInt(data)); break;
+				case "tilevsep": //$NON-NLS-1$
+					bkg.put(PBackground.V_SEP,Integer.parseInt(data)); break;
+				case "HTile": //$NON-NLS-1$
+					bkg.put(PBackground.TILE_HORIZONTALLY,Integer.parseInt(data) != 0); break;
+				case "VTile": //$NON-NLS-1$
+					bkg.put(PBackground.TILE_VERTICALLY,Integer.parseInt(data) != 0); break;
+				case "For3D": //$NON-NLS-1$
+					bkg.put(PBackground.FOR3D,Integer.parseInt(data) != 0); break;
+				// TODO: Read texture groups
+				// NOTE: Just extra metadata stored in the GMX by studio
+				case "width": case "height": break; //$NON-NLS-1$ //$NON-NLS-2$
+				case "data": //$NON-NLS-1$
+					path = f.getDirectory() + "/background/"; //$NON-NLS-1$
+					BufferedImage img = null;
+					File imgfile = new File(path + Util.getPOSIXPath(data));
+					if (imgfile.exists())
+						{
+						try
+							{
+							img = ImageIO.read(imgfile);
+							bkg.setBackgroundImage(img);
+							}
+						catch (IOException e)
+							{
+							interfaceProvider.handleException(
+									new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
+							}
+						}
+					break;
 				}
 			}
 		}
