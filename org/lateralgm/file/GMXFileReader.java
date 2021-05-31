@@ -785,50 +785,70 @@ public final class GMXFileReader
 		snd.setNode(rnode);
 		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-		Document snddoc = GMXFileReader.parseDocumentChecked(f, path + ".sound.gmx"); //$NON-NLS-1$
-		if (snddoc == null) return;
+		XMLEventReader reader = parseDocumentChecked2(f, path + ".sound.gmx");
+		if (reader == null) return;
 
-		snd.put(PSound.FILE_NAME,snddoc.getElementsByTagName("origname").item(0).getTextContent()); //$NON-NLS-1$
-		// GMX uses double nested tags for volume, bit rate, sample rate, type, and bit depth
-		// There is a special clause here, every one of those tags after volume, the nested
-		// tag is singular, where its parent is plural.
-		NodeList nl = snddoc.getElementsByTagName("volume"); //$NON-NLS-1$
-		snd.put(PSound.VOLUME,Double.parseDouble(nl.item(nl.getLength() - 1).getTextContent()));
-		snd.put(PSound.PAN,
-			Double.parseDouble(snddoc.getElementsByTagName("pan").item(0).getTextContent())); //$NON-NLS-1$
-		snd.put(PSound.BIT_RATE,
-			Integer.parseInt(snddoc.getElementsByTagName("bitRate").item(0).getTextContent())); //$NON-NLS-1$
-		snd.put(PSound.SAMPLE_RATE,
-			Integer.parseInt(snddoc.getElementsByTagName("sampleRate").item(0).getTextContent())); //$NON-NLS-1$
-		int sndtype = Integer.parseInt(snddoc.getElementsByTagName("type").item(0).getTextContent()); //$NON-NLS-1$
-		snd.put(PSound.TYPE, ProjectFile.SOUND_TYPE[sndtype]);
-		snd.put(PSound.BIT_DEPTH,
-			Integer.parseInt(snddoc.getElementsByTagName("bitDepth").item(0).getTextContent())); //$NON-NLS-1$
-		snd.put(PSound.PRELOAD,
-			Integer.parseInt(snddoc.getElementsByTagName("preload").item(0).getTextContent()) != 0); //$NON-NLS-1$
-		snd.put(PSound.COMPRESSED,
-			Integer.parseInt(snddoc.getElementsByTagName("compressed").item(0).getTextContent()) != 0); //$NON-NLS-1$
-		snd.put(PSound.STREAMED,
-			Integer.parseInt(snddoc.getElementsByTagName("streamed").item(0).getTextContent()) != 0); //$NON-NLS-1$
-		snd.put(PSound.DECOMPRESS_ON_LOAD,
-			Integer.parseInt(snddoc.getElementsByTagName("uncompressOnLoad").item(0).getTextContent()) != 0); //$NON-NLS-1$
-		int sndkind = Integer.parseInt(snddoc.getElementsByTagName("kind").item(0).getTextContent()); //$NON-NLS-1$
-		snd.put(PSound.KIND,ProjectFile.SOUND_KIND[sndkind]);
-		snd.put(PSound.FILE_TYPE,snddoc.getElementsByTagName("extension").item(0).getTextContent()); //$NON-NLS-1$
-		int effects = Integer.parseInt(snddoc.getElementsByTagName("effects").item(0).getTextContent());
-		snd.setEffects(effects);
-		NodeList data = snddoc.getElementsByTagName("data"); //$NON-NLS-1$
-		if (data.item(0) != null)
+		while (reader.hasNext())
 			{
-			String fname = data.item(0).getTextContent();
-			fname = f.getDirectory() + "/sound/audio/" + fname;
+			XMLEvent nextEvent = null;
 			try
 				{
-				snd.data = Util.readFully(fname);
+				nextEvent = reader.nextEvent();
 				}
-			catch (IOException e)
+			catch (XMLStreamException e)
 				{
-				interfaceProvider.handleException(new GmFormatException(c.f, "failed to read: " + fname, e));
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				}
+
+			if (!nextEvent.isStartElement()) continue;
+			StartElement sel = nextEvent.asStartElement();
+			String scope = sel.getName().getLocalPart();
+			if (!reader.hasNext()) break;
+			String data = "";
+			try
+				{
+				nextEvent = reader.nextEvent();
+				if (nextEvent.asCharacters().isWhiteSpace()) continue;
+				data = nextEvent.asCharacters().getData();
+				}
+			catch (XMLStreamException e1)
+				{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				}
+			if (data == null || data.isEmpty()) continue;
+
+			switch (scope)
+				{
+				case "origname": snd.put(PSound.FILE_NAME,data); break; //$NON-NLS-1$
+				case "extension": snd.put(PSound.FILE_TYPE,data); break; //$NON-NLS-1$
+				// GMX uses double nested tags for volume, bit rate, sample rate, type, and bit depth
+				// There is a special clause here, every one of those tags after volume, the nested
+				// tag is singular, where its parent is plural.
+				case "volume": snd.put(PSound.VOLUME,Double.parseDouble(data)); break;
+				case "pan": snd.put(PSound.PAN,Double.parseDouble(data)); break; //$NON-NLS-1$
+				case "bitRate":  snd.put(PSound.BIT_RATE,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "sampleRate": snd.put(PSound.SAMPLE_RATE,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "type": snd.put(PSound.TYPE,ProjectFile.SOUND_TYPE[Integer.parseInt(data)]); break; //$NON-NLS-1$
+				case "bitDepth": snd.put(PSound.BIT_DEPTH,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "preload": snd.put(PSound.PRELOAD,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "compressed": snd.put(PSound.COMPRESSED,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "streamed": snd.put(PSound.STREAMED,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "uncompressOnLoad": snd.put(PSound.DECOMPRESS_ON_LOAD,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "kind": snd.put(PSound.KIND,ProjectFile.SOUND_KIND[Integer.parseInt(data)]); break; //$NON-NLS-1$
+				case "effects": snd.setEffects(Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "data": //$NON-NLS-1$
+					String fname = f.getDirectory() + "/sound/audio/" + data;
+					try
+						{
+						snd.data = Util.readFully(fname);
+						}
+					catch (IOException e)
+						{
+						interfaceProvider.handleException(new GmFormatException(c.f, "failed to read: " + fname, e));
+						}
+					break;
 				}
 			}
 		}
