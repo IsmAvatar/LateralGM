@@ -946,54 +946,78 @@ public final class GMXFileReader
 		Document pthdoc = GMXFileReader.parseDocumentChecked(f, path + ".path.gmx"); //$NON-NLS-1$
 		if (pthdoc == null) return;
 
-		pth.put(PPath.SMOOTH,
-				Integer.parseInt(pthdoc.getElementsByTagName("kind").item(0).getTextContent()) != 0); //$NON-NLS-1$
-		pth.put(PPath.PRECISION,
-				Integer.parseInt(pthdoc.getElementsByTagName("precision").item(0).getTextContent())); //$NON-NLS-1$
-		pth.put(PPath.CLOSED,
-				Integer.parseInt(pthdoc.getElementsByTagName("closed").item(0).getTextContent()) != 0); //$NON-NLS-1$
-		final int backroom = Integer.parseInt(pthdoc.getElementsByTagName("backroom").item(0).getTextContent()); //$NON-NLS-1$
+		XMLEventReader reader = parseDocumentChecked2(f, path + ".path.gmx");
+		if (reader == null) return;
 
-		if (backroom >= 0)
+		while (reader.hasNext())
 			{
-			PostponedRef pr = new PostponedRef()
+			XMLEvent nextEvent = null;
+			try
 				{
-				public boolean invoke()
-					{
-					ResourceList<Room> list = f.resMap.getList(Room.class);
-					if (list == null)
+				nextEvent = reader.nextEvent();
+				}
+			catch (XMLStreamException e)
+				{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				}
+
+			if (!nextEvent.isStartElement()) continue;
+			StartElement sel = nextEvent.asStartElement();
+			String scope = sel.getName().getLocalPart();
+			if (!reader.hasNext()) break;
+			String data = "";
+			try
+				{
+				data = reader.nextEvent().asCharacters().getData();
+				}
+			catch (XMLStreamException e1)
+				{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				}
+
+			switch (scope)
+				{
+				case "kind": pth.put(PPath.SMOOTH,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "precision": pth.put(PPath.PRECISION,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "closed": pth.put(PPath.CLOSED,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "backroom": //$NON-NLS-1$
+					final int backroom = Integer.parseInt(data);
+					if (backroom < 0) break;
+					PostponedRef pr = new PostponedRef()
 						{
-						return false;
-						}
+						public boolean invoke()
+							{
+							ResourceList<Room> list = f.resMap.getList(Room.class);
+							if (list == null)
+								{
+								return false;
+								}
 
-					Room rmn = list.getUnsafe(backroom);
-					if (rmn == null)
-						{
-						return false;
-						}
+							Room rmn = list.getUnsafe(backroom);
+							if (rmn == null)
+								{
+								return false;
+								}
 
-					pth.put(PPath.BACKGROUND_ROOM,rmn.reference);
-					return true;
-					}
-				};
-				postpone.add(pr);
-			}
-
-		pth.put(PPath.SNAP_X,
-				Integer.parseInt(pthdoc.getElementsByTagName("hsnap").item(0).getTextContent())); //$NON-NLS-1$
-		pth.put(PPath.SNAP_Y,
-				Integer.parseInt(pthdoc.getElementsByTagName("vsnap").item(0).getTextContent())); //$NON-NLS-1$
-
-		// iterate and add each path point
-		NodeList frList = pthdoc.getElementsByTagName("point"); //$NON-NLS-1$
-		for (int ii = 0; ii < frList.getLength(); ii++)
-			{
-			Node fnode = frList.item(ii);
-			String[] coords = fnode.getTextContent().split(","); //$NON-NLS-1$
-			pth.points.add(new PathPoint(Integer.parseInt(coords[0]),Integer.parseInt(coords[1]),
-					Integer.parseInt(coords[2])));
+							pth.put(PPath.BACKGROUND_ROOM,rmn.reference);
+							return true;
+							}
+						};
+						postpone.add(pr);
+						break;
+				case "hsnap": pth.put(PPath.SNAP_X,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "vsnap": pth.put(PPath.SNAP_Y,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "point": //$NON-NLS-1$
+					String[] coords = data.split(","); //$NON-NLS-1$
+					pth.points.add(new PathPoint(Integer.parseInt(coords[0]),Integer.parseInt(coords[1]),
+						Integer.parseInt(coords[2])));
+					break;
+				}
 			}
 		}
+
 
 	private static void readScript(ProjectFileContext c, ResNode node, Node cNode)
 		{

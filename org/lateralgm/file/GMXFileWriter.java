@@ -113,7 +113,7 @@ import org.lateralgm.util.PropertyMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
+//import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 
 public final class GMXFileWriter
 	{
@@ -502,10 +502,10 @@ public final class GMXFileWriter
 
 			optNode.appendChild(createElement(doc,"option_gameid", //$NON-NLS-1$
 					gs.get(PGameSettings.GAME_ID).toString()));
-			String guid = HexBin.encode((byte[]) gs.get(PGameSettings.GAME_GUID));
-			optNode.appendChild(createElement(doc,"option_gameguid", //$NON-NLS-1$
-					'{' + guid.substring(0,8) + '-' + guid.substring(8,12) + '-' + guid.substring(12,16) + '-'
-							+ guid.substring(16,20) + '-' + guid.substring(20,32) + '}'));
+			//String guid = HexBin.encode((byte[]) gs.get(PGameSettings.GAME_GUID));
+			//optNode.appendChild(createElement(doc,"option_gameguid", //$NON-NLS-1$
+					//'{' + guid.substring(0,8) + '-' + guid.substring(8,12) + '-' + guid.substring(12,16) + '-'
+				//			+ guid.substring(16,20) + '-' + guid.substring(20,32) + '}'));
 
 			optNode.appendChild(createElement(doc,"option_author", //$NON-NLS-1$
 					(String) gs.get(PGameSettings.AUTHOR)));
