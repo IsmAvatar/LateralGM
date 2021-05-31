@@ -669,67 +669,105 @@ public final class GMXFileReader
 		node.add(rnode);
 		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-		Document sprdoc = GMXFileReader.parseDocumentChecked(f, path + ".sprite.gmx"); //$NON-NLS-1$
-		if (sprdoc == null) return;
-
 		spr.put(PSprite.TRANSPARENT,false);
-		spr.put(PSprite.ORIGIN_X,
-				Integer.parseInt(sprdoc.getElementsByTagName("xorig").item(0).getTextContent())); //$NON-NLS-1$
-		spr.put(PSprite.ORIGIN_Y,
-				Integer.parseInt(sprdoc.getElementsByTagName("yorigin").item(0).getTextContent())); //$NON-NLS-1$
-		spr.put(
-				PSprite.SHAPE,
-				ProjectFile.SPRITE_MASK_SHAPE[Integer.parseInt(sprdoc.getElementsByTagName("colkind").item( //$NON-NLS-1$
-						0).getTextContent())]);
-		spr.put(PSprite.SEPARATE_MASK,
-				Integer.parseInt(sprdoc.getElementsByTagName("sepmasks").item(0).getTextContent()) != 0); //$NON-NLS-1$
-		spr.put(
-				PSprite.BB_MODE,
-				ProjectFile.SPRITE_BB_MODE[Integer.parseInt(sprdoc.getElementsByTagName("bboxmode").item( //$NON-NLS-1$
-						0).getTextContent())]);
-		spr.put(PSprite.BB_LEFT,
-				Integer.parseInt(sprdoc.getElementsByTagName("bbox_left").item(0).getTextContent())); //$NON-NLS-1$
-		spr.put(PSprite.BB_RIGHT,
-				Integer.parseInt(sprdoc.getElementsByTagName("bbox_right").item(0).getTextContent())); //$NON-NLS-1$
-		spr.put(PSprite.BB_TOP,
-				Integer.parseInt(sprdoc.getElementsByTagName("bbox_top").item(0).getTextContent())); //$NON-NLS-1$
-		spr.put(PSprite.BB_BOTTOM,
-				Integer.parseInt(sprdoc.getElementsByTagName("bbox_bottom").item(0).getTextContent())); //$NON-NLS-1$
-		spr.put(PSprite.ALPHA_TOLERANCE,
-				Integer.parseInt(sprdoc.getElementsByTagName("coltolerance").item(0).getTextContent())); //$NON-NLS-1$
 
-		spr.put(PSprite.TILE_HORIZONTALLY,
-				Integer.parseInt(sprdoc.getElementsByTagName("HTile").item(0).getTextContent()) != 0); //$NON-NLS-1$
-		spr.put(PSprite.TILE_VERTICALLY,
-				Integer.parseInt(sprdoc.getElementsByTagName("VTile").item(0).getTextContent()) != 0); //$NON-NLS-1$
+		XMLEventReader reader = parseDocumentChecked2(f, path + ".sprite.gmx");
+		if (reader == null) return;
 
-		// TODO: Read texture groups
-
-		spr.put(PSprite.FOR3D,
-				Integer.parseInt(sprdoc.getElementsByTagName("For3D").item(0).getTextContent()) != 0); //$NON-NLS-1$
-
-		// TODO: Just extra metadata stored in the GMX by studio
-		//int width = Integer.parseInt(sprdoc.getElementsByTagName("width").item(0).getTextContent());
-		//int height = Integer.parseInt(sprdoc.getElementsByTagName("height").item(0).getTextContent());
-
-		// iterate and load the sprites subimages
-		NodeList frList = sprdoc.getElementsByTagName("frame"); //$NON-NLS-1$
-		path = f.getDirectory() + "/sprites/"; //$NON-NLS-1$
-		for (int ii = 0; ii < frList.getLength(); ii++)
+		while (reader.hasNext())
 			{
-			Node fnode = frList.item(ii);
-			BufferedImage img = null;
-			File imgfile = new File(path + Util.getPOSIXPath(fnode.getTextContent()));
-			if (imgfile.exists())
+			XMLEvent nextEvent = null;
+			try
 				{
-				try
+				nextEvent = reader.nextEvent();
+				}
+			catch (XMLStreamException e)
+				{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				}
+
+			if (!nextEvent.isStartElement()) continue;
+			StartElement sel = nextEvent.asStartElement();
+			String scope = sel.getName().getLocalPart();
+			if (!reader.hasNext()) break;
+			String data = "";
+			try
+				{
+				data = reader.nextEvent().asCharacters().getData();
+				}
+			catch (XMLStreamException e1)
+				{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				}
+
+			switch (scope)
+				{
+				case "colkind": //$NON-NLS-1$
+					spr.put(PSprite.SHAPE,ProjectFile.SPRITE_MASK_SHAPE[Integer.parseInt(data)]); break;
+				case "sepmasks": spr.put(PSprite.SEPARATE_MASK,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "bboxmode": //$NON-NLS-1$
+					spr.put(PSprite.BB_MODE,ProjectFile.SPRITE_BB_MODE[Integer.parseInt(data)]); break;
+				case "bbox_left": spr.put(PSprite.BB_LEFT,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "bbox_right": spr.put(PSprite.BB_RIGHT,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "bbox_top": spr.put(PSprite.BB_TOP,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "bbox_bottom": spr.put(PSprite.BB_BOTTOM,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "coltolerance": spr.put(PSprite.ALPHA_TOLERANCE,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "xorig": spr.put(PSprite.ORIGIN_X,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "yorigin": spr.put(PSprite.ORIGIN_Y,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "HTile": spr.put(PSprite.TILE_HORIZONTALLY,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "VTile": spr.put(PSprite.TILE_VERTICALLY,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "For3D": spr.put(PSprite.FOR3D,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				// TODO: Read texture groups
+				// NOTE: Just extra metadata stored in the GMX by studio
+				case "width": case "height": break; //$NON-NLS-1$ //$NON-NLS-2$
+				case "frames": //$NON-NLS-1$
 					{
-					img = ImageIO.read(imgfile);
-					spr.subImages.add(img);
-					}
-				catch (IOException e)
-					{
-					interfaceProvider.handleException(new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
+					path = f.getDirectory() + "/sprites/"; //$NON-NLS-1$
+
+					while (reader.hasNext())
+						{
+						try
+							{
+							nextEvent = reader.nextEvent();
+							}
+						catch (XMLStreamException e)
+							{
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+							break;
+							}
+						if (!nextEvent.isStartElement()) continue;
+						sel = nextEvent.asStartElement();
+						if (!sel.getName().getLocalPart().equals("frame")) continue;
+						if (!reader.hasNext()) break;
+						data = "";
+						try
+							{
+							data = reader.nextEvent().asCharacters().getData();
+							}
+						catch (XMLStreamException e1)
+							{
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+							}
+						BufferedImage img = null;
+						File imgfile = new File(path + Util.getPOSIXPath(data));
+						if (imgfile.exists())
+							{
+							try
+								{
+								img = ImageIO.read(imgfile);
+								spr.subImages.add(img);
+								}
+							catch (IOException e)
+								{
+								interfaceProvider.handleException(new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
+								}
+							}
+						}
+					break;
 					}
 				}
 			}
@@ -839,26 +877,16 @@ public final class GMXFileReader
 
 			switch (scope)
 				{
-				case "istileset": //$NON-NLS-1$
-					bkg.put(PBackground.USE_AS_TILESET,Integer.parseInt(data) != 0); break;
-				case "tilewidth": //$NON-NLS-1$
-					bkg.put(PBackground.TILE_WIDTH,Integer.parseInt(data)); break;
-				case "tileheight": //$NON-NLS-1$
-					bkg.put(PBackground.TILE_HEIGHT,Integer.parseInt(data)); break;
-				case "tilexoff": //$NON-NLS-1$
-					bkg.put(PBackground.H_OFFSET,Integer.parseInt(data)); break;
-				case "tileyoff": //$NON-NLS-1$
-					bkg.put(PBackground.V_OFFSET,Integer.parseInt(data)); break;
-				case "tilehsep": //$NON-NLS-1$
-					bkg.put(PBackground.H_SEP,Integer.parseInt(data)); break;
-				case "tilevsep": //$NON-NLS-1$
-					bkg.put(PBackground.V_SEP,Integer.parseInt(data)); break;
-				case "HTile": //$NON-NLS-1$
-					bkg.put(PBackground.TILE_HORIZONTALLY,Integer.parseInt(data) != 0); break;
-				case "VTile": //$NON-NLS-1$
-					bkg.put(PBackground.TILE_VERTICALLY,Integer.parseInt(data) != 0); break;
-				case "For3D": //$NON-NLS-1$
-					bkg.put(PBackground.FOR3D,Integer.parseInt(data) != 0); break;
+				case "istileset": bkg.put(PBackground.USE_AS_TILESET,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "tilewidth": bkg.put(PBackground.TILE_WIDTH,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "tileheight": bkg.put(PBackground.TILE_HEIGHT,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "tilexoff": bkg.put(PBackground.H_OFFSET,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "tileyoff": bkg.put(PBackground.V_OFFSET,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "tilehsep": bkg.put(PBackground.H_SEP,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "tilevsep": bkg.put(PBackground.V_SEP,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "HTile": bkg.put(PBackground.TILE_HORIZONTALLY,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "VTile": bkg.put(PBackground.TILE_VERTICALLY,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "For3D": bkg.put(PBackground.FOR3D,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
 				// TODO: Read texture groups
 				// NOTE: Just extra metadata stored in the GMX by studio
 				case "width": case "height": break; //$NON-NLS-1$ //$NON-NLS-2$
