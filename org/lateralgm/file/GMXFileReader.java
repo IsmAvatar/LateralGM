@@ -41,17 +41,20 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
 import javax.imageio.ImageIO;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
@@ -1115,46 +1118,71 @@ public final class GMXFileReader
 		node.add(rnode);
 		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-		Document fntdoc = GMXFileReader.parseDocumentChecked(f, path + ".font.gmx"); //$NON-NLS-1$
-		if (fntdoc == null) return;
+		XMLEventReader reader = parseDocumentChecked2(f, path + ".font.gmx");
+		if (reader == null) return;
 
-		fnt.put(PFont.FONT_NAME,fntdoc.getElementsByTagName("name").item(0).getTextContent()); //$NON-NLS-1$
-		fnt.put(PFont.SIZE,
-				Integer.parseInt(fntdoc.getElementsByTagName("size").item(0).getTextContent())); //$NON-NLS-1$
-		fnt.put(PFont.BOLD,
-				Integer.parseInt(fntdoc.getElementsByTagName("bold").item(0).getTextContent()) != 0); //$NON-NLS-1$
-		fnt.put(PFont.ITALIC,
-				Integer.parseInt(fntdoc.getElementsByTagName("italic").item(0).getTextContent()) != 0); //$NON-NLS-1$
-		fnt.put(PFont.CHARSET,
-				Integer.parseInt(fntdoc.getElementsByTagName("charset").item(0).getTextContent())); //$NON-NLS-1$
-		fnt.put(PFont.ANTIALIAS,
-				Integer.parseInt(fntdoc.getElementsByTagName("aa").item(0).getTextContent())); //$NON-NLS-1$
-		NodeList ranges = fntdoc.getElementsByTagName("range0"); //$NON-NLS-1$
-		for (int item = 0; item < ranges.getLength(); item++)
+		while (reader.hasNext())
 			{
-			String[] range = ranges.item(item).getTextContent().split(","); //$NON-NLS-1$
-			fnt.addRange(Integer.parseInt(range[0]),Integer.parseInt(range[1]));
-			}
+			XMLEvent nextEvent = null;
+			try
+				{
+				nextEvent = reader.nextEvent();
+				}
+			catch (XMLStreamException e)
+				{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				}
 
-		NodeList glyphs = fntdoc.getElementsByTagName("glyph"); //$NON-NLS-1$
-		for (int item = 0; item < glyphs.getLength(); item++)
-			{
-			NamedNodeMap attribs = glyphs.item(item).getAttributes();
-			GlyphMetric gm = fnt.addGlyph();
-			gm.properties.put(PGlyphMetric.CHARACTER,
-					Integer.parseInt(attribs.getNamedItem("character").getTextContent())); //$NON-NLS-1$
-			gm.properties.put(PGlyphMetric.X,
-					Integer.parseInt(attribs.getNamedItem("x").getTextContent())); //$NON-NLS-1$
-			gm.properties.put(PGlyphMetric.Y,
-					Integer.parseInt(attribs.getNamedItem("y").getTextContent())); //$NON-NLS-1$
-			gm.properties.put(PGlyphMetric.W,
-					Integer.parseInt(attribs.getNamedItem("w").getTextContent())); //$NON-NLS-1$
-			gm.properties.put(PGlyphMetric.H,
-					Integer.parseInt(attribs.getNamedItem("h").getTextContent())); //$NON-NLS-1$
-			gm.properties.put(PGlyphMetric.SHIFT,
-					Integer.parseInt(attribs.getNamedItem("shift").getTextContent())); //$NON-NLS-1$
-			gm.properties.put(PGlyphMetric.OFFSET,
-					Integer.parseInt(attribs.getNamedItem("offset").getTextContent())); //$NON-NLS-1$
+			if (!nextEvent.isStartElement()) continue;
+			StartElement sel = nextEvent.asStartElement();
+			String scope = sel.getName().getLocalPart();
+			if (!reader.hasNext()) break;
+			String data = "";
+			try
+				{
+				nextEvent = reader.nextEvent();
+				if (!nextEvent.isCharacters()) continue;
+				data = nextEvent.asCharacters().getData();
+				}
+			catch (XMLStreamException e1)
+				{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				}
+
+			switch (scope)
+				{
+				case "name": fnt.put(PFont.FONT_NAME,data); break; //$NON-NLS-1$
+				case "size": fnt.put(PFont.SIZE,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "bold": fnt.put(PFont.BOLD,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "italic": fnt.put(PFont.ITALIC,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "charset": fnt.put(PFont.CHARSET,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "aa": fnt.put(PFont.ANTIALIAS,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "range0": //$NON-NLS-1$
+					String[] range = data.split(","); //$NON-NLS-1$
+					fnt.addRange(Integer.parseInt(range[0]),Integer.parseInt(range[1]));
+					break;
+				case "glyph": //$NON-NLS-1$
+					GlyphMetric gm = fnt.addGlyph();
+					PropertyMap<PGlyphMetric> props = gm.properties;
+					Iterator<Attribute> atts = sel.getAttributes();
+					while (atts.hasNext())
+						{
+						Attribute att = atts.next();
+						switch (att.getName().getLocalPart())
+							{
+							case "character": props.put(PGlyphMetric.CHARACTER, Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "x": props.put(PGlyphMetric.X, Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "y": props.put(PGlyphMetric.Y, Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "w": props.put(PGlyphMetric.W, Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "h": props.put(PGlyphMetric.H, Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "shift": props.put(PGlyphMetric.SHIFT, Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "offset": props.put(PGlyphMetric.OFFSET, Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							}
+						}
+					break;
+				}
 			}
 		}
 
