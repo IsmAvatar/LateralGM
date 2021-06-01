@@ -445,7 +445,6 @@ public final class GMXFileReader
 				}
 			else if (cname.toLowerCase().equals("config")) //$NON-NLS-1$
 				{
-
 				GameSettings gSet = new GameSettings();
 				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
 				gSet.setName(fileName);
@@ -455,200 +454,133 @@ public final class GMXFileReader
 
 				String path = c.f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-				Document setdoc = GMXFileReader.parseDocumentChecked(c.f, path + ".config.gmx"); //$NON-NLS-1$
-				if (setdoc == null) continue;
+				XMLEventReader reader = parseDocumentChecked2(c.f, path + ".config.gmx");
+				if (reader == null) return;
 
-				pSet.put(PGameSettings.USE_NEW_AUDIO,
-						Boolean.parseBoolean(setdoc.getElementsByTagName("option_use_new_audio").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(PGameSettings.SHORT_CIRCUIT_EVAL,
-						Boolean.parseBoolean(setdoc.getElementsByTagName("option_shortcircuit").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(PGameSettings.USE_FAST_COLLISION,
-						Boolean.parseBoolean(setdoc.getElementsByTagName("option_use_fast_collision").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(PGameSettings.FAST_COLLISION_COMPAT,
-						Boolean.parseBoolean(setdoc.getElementsByTagName("option_fast_collision_compatibility").item(0).getTextContent())); //$NON-NLS-1$
-
-				pSet.put(
-						PGameSettings.START_FULLSCREEN,
-						Boolean.parseBoolean(setdoc.getElementsByTagName("option_fullscreen").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(
-						PGameSettings.ALLOW_WINDOW_RESIZE,
-						Boolean.parseBoolean(setdoc.getElementsByTagName("option_sizeable").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(
-						PGameSettings.ALWAYS_ON_TOP,
-						Boolean.parseBoolean(setdoc.getElementsByTagName("option_stayontop").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(
-						PGameSettings.ABORT_ON_ERROR,
-						Boolean.parseBoolean(setdoc.getElementsByTagName("option_aborterrors").item(0).getTextContent())); //$NON-NLS-1$
-				// TODO: This value is stored using the Windows native dialog's name for the color value, ie
-				// "clBlack" or "clWhite" meaning black and white respectively. If the user chooses a custom
-				// defined color in the dialog, then the value is in the hexadecimal form "$HHHHHHHH" using
-				// a dollar sign instead of a hash sign as a normal hex color value does in other places in
-				// the same configuration file.
-				// This will not be compatible if they ever try to port their IDE to other platforms.
-				//gSet.put(PGameSettings.COLOR_OUTSIDE_ROOM, Integer.parseInt(setdoc.getElementsByTagName("option_windowcolor").item(0).getTextContent()));
-				pSet.put(
-						PGameSettings.DISABLE_SCREENSAVERS,
-						Boolean.parseBoolean(setdoc.getElementsByTagName("option_noscreensaver").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(
-						PGameSettings.DISPLAY_CURSOR,
-						Boolean.parseBoolean(setdoc.getElementsByTagName("option_showcursor").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(
-						PGameSettings.DISPLAY_ERRORS,
-						Boolean.parseBoolean(setdoc.getElementsByTagName("option_displayerrors").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(
-						PGameSettings.DONT_DRAW_BORDER,
-						Boolean.parseBoolean(setdoc.getElementsByTagName("option_noborder").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(
-						PGameSettings.DONT_SHOW_BUTTONS,
-						Boolean.parseBoolean(setdoc.getElementsByTagName("option_nobuttons").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(
-						PGameSettings.ERROR_ON_ARGS,
-						Boolean.parseBoolean(setdoc.getElementsByTagName("option_argumenterrors").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(
-						PGameSettings.FREEZE_ON_LOSE_FOCUS,
-						Boolean.parseBoolean(setdoc.getElementsByTagName("option_freeze").item(0).getTextContent())); //$NON-NLS-1$
-
-				pSet.put(
-						PGameSettings.COLOR_DEPTH,
-						ProjectFile.GS_DEPTHS[Integer.parseInt(setdoc.getElementsByTagName("option_colordepth").item( //$NON-NLS-1$
-								0).getTextContent())]);
-				pSet.put(
-						PGameSettings.FREQUENCY,
-						ProjectFile.GS_FREQS[Integer.parseInt(setdoc.getElementsByTagName("option_frequency").item( //$NON-NLS-1$
-								0).getTextContent())]);
-				pSet.put(
-						PGameSettings.RESOLUTION,
-						ProjectFile.GS_RESOLS[Integer.parseInt(setdoc.getElementsByTagName("option_resolution").item( //$NON-NLS-1$
-								0).getTextContent())]);
-				pSet.put(
-						PGameSettings.SET_RESOLUTION,
-						Boolean.parseBoolean(setdoc.getElementsByTagName("option_changeresolution").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(
-						PGameSettings.GAME_PRIORITY,
-						ProjectFile.GS_PRIORITIES[Integer.parseInt(setdoc.getElementsByTagName(
-								"option_priority").item(0).getTextContent())]); //$NON-NLS-1$
-
-				// For some odd reason these two settings are combined together.
-				// 2147483649 - Both
-				// 2147483648 - Software Vertex Processing only
-				// 1 - Synchronization Only
-				// 0 - None
-				long syncvertex = Long.parseLong(setdoc.getElementsByTagName("option_sync_vertex").item(0).getTextContent()); //$NON-NLS-1$
-				gSet.put(PGameSettings.USE_SYNCHRONIZATION,(syncvertex == 2147483649L || syncvertex == 1));
-				pSet.put(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING,
-						(syncvertex == 2147483649L || syncvertex == 2147483648L));
-
-				pSet.put(
-						PGameSettings.LET_ESC_END_GAME,
-						Boolean.parseBoolean(setdoc.getElementsByTagName("option_closeesc").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(
-						PGameSettings.INTERPOLATE,
-						Boolean.parseBoolean(setdoc.getElementsByTagName("option_interpolate").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(PGameSettings.SCALING,
-						Integer.parseInt(setdoc.getElementsByTagName("option_scale").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(
-						PGameSettings.TREAT_CLOSE_AS_ESCAPE,
-						Boolean.parseBoolean(setdoc.getElementsByTagName("option_closeesc").item(0).getTextContent())); //$NON-NLS-1$
-				String changed = setdoc.getElementsByTagName("option_lastchanged").item(0).getTextContent(); //$NON-NLS-1$
-				if (!changed.isEmpty())
-					pSet.put(PGameSettings.LAST_CHANGED,Double.parseDouble(changed));
-
-				// TODO: Could not find these properties in GMX
-				//gSet.put(PGameSettings.BACK_LOAD_BAR,
-				//	Boolean.parseBoolean(setdoc.getElementsByTagName("option_stayontop").item(0).getTextContent()));
-				//gSet.put(PGameSettings.FRONT_LOAD_BAR,
-				//	Boolean.parseBoolean(setdoc.getElementsByTagName("option_showcursor").item(0).getTextContent()));
-
-				String icopath = c.f.getDirectory() + '/'
-						+ setdoc.getElementsByTagName("option_windows_game_icon").item(0).getTextContent(); //$NON-NLS-1$
-				icopath = Util.getPOSIXPath(icopath);
-				try
+				while (reader.hasNext())
 					{
-					// the icon not existing is a silent fail in GMSv1.4
-					// which will automatically recreate it as the default
-					// probably because the IDE does not require it, but
-					// the asset compiler does
-					if (new File(icopath).exists()) // << GMZ does not export if default icon
-						pSet.put(PGameSettings.GAME_ICON,new ICOFile(icopath));
-					}
-				catch (IOException e)
-					{
-					interfaceProvider.handleException(new GmFormatException(c.f, "failed to read: " + icopath, e));
-					}
-				pSet.put(PGameSettings.GAME_ID,
-						Integer.parseInt(setdoc.getElementsByTagName("option_gameid").item(0).getTextContent())); //$NON-NLS-1$
-				//pSet.put(
-					//	PGameSettings.GAME_GUID,
-						//HexBin.decode(setdoc.getElementsByTagName("option_gameguid").item(0).getTextContent().replace( //$NON-NLS-1$
-								//"-","").replace("{","").replace("}","")));
-
-				pSet.put(PGameSettings.AUTHOR,
-						setdoc.getElementsByTagName("option_author").item(0).getTextContent()); //$NON-NLS-1$
-				pSet.put(PGameSettings.VERSION,
-						setdoc.getElementsByTagName("option_version").item(0).getTextContent()); //$NON-NLS-1$
-				pSet.put(PGameSettings.INFORMATION,
-						setdoc.getElementsByTagName("option_information").item(0).getTextContent()); //$NON-NLS-1$
-				pSet.put(PGameSettings.COMPANY,
-						setdoc.getElementsByTagName("option_version_company").item(0).getTextContent()); //$NON-NLS-1$
-				pSet.put(PGameSettings.COPYRIGHT,
-						setdoc.getElementsByTagName("option_version_copyright").item(0).getTextContent()); //$NON-NLS-1$
-				pSet.put(PGameSettings.DESCRIPTION,
-						setdoc.getElementsByTagName("option_version_description").item(0).getTextContent()); //$NON-NLS-1$
-				pSet.put(PGameSettings.PRODUCT,
-						setdoc.getElementsByTagName("option_version_product").item(0).getTextContent()); //$NON-NLS-1$
-				pSet.put(
-						PGameSettings.VERSION_BUILD,
-						Integer.parseInt(setdoc.getElementsByTagName("option_version_build").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(
-						PGameSettings.VERSION_MAJOR,
-						Integer.parseInt(setdoc.getElementsByTagName("option_version_major").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(
-						PGameSettings.VERSION_MINOR,
-						Integer.parseInt(setdoc.getElementsByTagName("option_version_minor").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(
-						PGameSettings.VERSION_RELEASE,
-						Integer.parseInt(setdoc.getElementsByTagName("option_version_release").item(0).getTextContent())); //$NON-NLS-1$
-
-				pSet.put(PGameSettings.WINDOWS_STEAM_ID,
-						Integer.parseInt(setdoc.getElementsByTagName("option_windows_steam_app_id").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(PGameSettings.MAC_STEAM_ID,
-						Integer.parseInt(setdoc.getElementsByTagName("option_mac_steam_app_id").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(PGameSettings.LINUX_STEAM_ID,
-						Integer.parseInt(setdoc.getElementsByTagName("option_linux_steam_app_id").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(PGameSettings.WINDOWS_STEAM_ENABLE,
-						Boolean.parseBoolean(setdoc.getElementsByTagName("option_windows_enable_steam").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(PGameSettings.MAC_STEAM_ENABLE,
-						Boolean.parseBoolean(setdoc.getElementsByTagName("option_mac_enable_steam").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(PGameSettings.LINUX_STEAM_ENABLE,
-						Boolean.parseBoolean(setdoc.getElementsByTagName("option_linux_enable_steam").item(0).getTextContent())); //$NON-NLS-1$
-
-				Node cnstNode = setdoc.getElementsByTagName("ConfigConstants").item(0); //$NON-NLS-1$
-
-				// If there is a constant section
-				if (cnstNode != null)
-					{
-					NodeList cnstsList = cnstNode.getChildNodes();
-					boolean found = false;
-
-					for (int ic = 0; ic < cnstsList.getLength(); ic++)
+					XMLEvent nextEvent = null;
+					try
 						{
-						cnstNode = cnstsList.item(ic);
-						String cnstName = cnstNode.getNodeName();
-						if (cnstName.toLowerCase().equals("#text")) //$NON-NLS-1$
+						nextEvent = reader.nextEvent();
+						}
+					catch (XMLStreamException e)
+						{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						}
+
+					if (!nextEvent.isStartElement()) continue;
+					StartElement sel = nextEvent.asStartElement();
+					String scope = sel.getName().getLocalPart();
+					if (!reader.hasNext()) break;
+					String data = "";
+					try
+						{
+						data = reader.getElementText();
+						}
+					catch (XMLStreamException e)
+						{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						}
+					if (data.isEmpty()) continue;
+					
+					switch (scope)
+						{
+						case "option_sync_vertex": //$NON-NLS-1$
 							{
-							continue;
+							// For some odd reason these two settings are combined together.
+							// 2147483649 - Both
+							// 2147483648 - Software Vertex Processing only
+							// 1 - Synchronization Only
+							// 0 - None
+							long syncvertex = Long.parseLong(data);
+							gSet.put(PGameSettings.USE_SYNCHRONIZATION,(syncvertex == 2147483649L || syncvertex == 1));
+							pSet.put(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING,
+									(syncvertex == 2147483649L || syncvertex == 2147483648L));
+							break;
 							}
-						else if (cnstName.toLowerCase().equals("constants")) //$NON-NLS-1$
+						case "option_use_new_audio": gSet.put(PGameSettings.USE_NEW_AUDIO,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+						case "option_shortcircuit": gSet.put(PGameSettings.SHORT_CIRCUIT_EVAL,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+						case "option_use_fast_collision": //$NON-NLS-1$
+							gSet.put(PGameSettings.USE_FAST_COLLISION,Boolean.parseBoolean(data)); break;
+						case "option_fast_collision_compatibility": //$NON-NLS-1$
+							gSet.put(PGameSettings.FAST_COLLISION_COMPAT,Boolean.parseBoolean(data)); break;
+						case "option_fullscreen": gSet.put(PGameSettings.START_FULLSCREEN,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+						case "option_sizeable": gSet.put(PGameSettings.ALLOW_WINDOW_RESIZE,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+						case "option_stayontop": gSet.put(PGameSettings.ALWAYS_ON_TOP,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+						case "option_aborterrors": gSet.put(PGameSettings.ABORT_ON_ERROR,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+						// TODO: This value is stored using the Windows native dialog's name for the color value, ie
+						// "clBlack" or "clWhite" meaning black and white respectively. If the user chooses a custom
+						// defined color in the dialog, then the value is in the hexadecimal form "$HHHHHHHH" using
+						// a dollar sign instead of a hash sign as a normal hex color value does in other places in
+						// the same configuration file.
+						case "option_windowcolor": /*gSet.put(PGameSettings.COLOR_OUTSIDE_ROOM,data);*/ break; //$NON-NLS-1$
+						case "option_noscreensaver": gSet.put(PGameSettings.DISABLE_SCREENSAVERS,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+						case "option_showcursor": gSet.put(PGameSettings.DISPLAY_CURSOR,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+						case "option_displayerrors": gSet.put(PGameSettings.DISPLAY_ERRORS,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+						case "option_noborder": gSet.put(PGameSettings.DONT_DRAW_BORDER,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+						case "option_nobuttons": gSet.put(PGameSettings.DONT_SHOW_BUTTONS,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+						case "option_argumenterrors": gSet.put(PGameSettings.ERROR_ON_ARGS,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+						case "option_freeze": gSet.put(PGameSettings.FREEZE_ON_LOSE_FOCUS,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+						case "option_colordepth": //$NON-NLS-1$
+							gSet.put(PGameSettings.COLOR_DEPTH, ProjectFile.GS_DEPTHS[Integer.parseInt(data)]); break;
+						case "option_frequency": //$NON-NLS-1$
+							gSet.put(PGameSettings.FREQUENCY, ProjectFile.GS_FREQS[Integer.parseInt(data)]); break;
+						case "option_resolution": //$NON-NLS-1$
+							gSet.put(PGameSettings.RESOLUTION, ProjectFile.GS_RESOLS[Integer.parseInt(data)]); break;
+						case "option_changeresolution": gSet.put(PGameSettings.SET_RESOLUTION, Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+						case "option_priority": //$NON-NLS-1$
+							gSet.put(PGameSettings.GAME_PRIORITY, ProjectFile.GS_PRIORITIES[Integer.parseInt(data)]); break;
+						case "option_closeesc": //$NON-NLS-1$
+							gSet.put(PGameSettings.LET_ESC_END_GAME,Boolean.parseBoolean(data));
+							gSet.put(PGameSettings.TREAT_CLOSE_AS_ESCAPE,Boolean.parseBoolean(data));
+							break;
+						case "option_interpolate": gSet.put(PGameSettings.INTERPOLATE,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+						case "option_scale": gSet.put(PGameSettings.SCALING,Integer.parseInt(data)); break; //$NON-NLS-1$
+						case "option_lastchanged": gSet.put(PGameSettings.LAST_CHANGED,Double.parseDouble(data)); break; //$NON-NLS-1$
+						case "option_gameid": gSet.put(PGameSettings.GAME_ID,Integer.parseInt(data)); break; //$NON-NLS-1$
+						case "option_author": gSet.put(PGameSettings.AUTHOR,data); break; //$NON-NLS-1$
+						case "option_version_company": gSet.put(PGameSettings.COMPANY,data); break; //$NON-NLS-1$
+						case "option_version_copyright": gSet.put(PGameSettings.COPYRIGHT,data); break; //$NON-NLS-1$
+						case "option_version_description": gSet.put(PGameSettings.DESCRIPTION,data); break; //$NON-NLS-1$
+						case "option_version_product": gSet.put(PGameSettings.PRODUCT,data); break; //$NON-NLS-1$
+						case "option_information": gSet.put(PGameSettings.INFORMATION,data); break; //$NON-NLS-1$
+						case "option_version": gSet.put(PGameSettings.VERSION,data); break; //$NON-NLS-1$
+						case "option_version_build": gSet.put(PGameSettings.VERSION_BUILD,Integer.parseInt(data)); break; //$NON-NLS-1$
+						case "option_version_major": gSet.put(PGameSettings.VERSION_MAJOR,Integer.parseInt(data)); break; //$NON-NLS-1$
+						case "option_version_minor": gSet.put(PGameSettings.VERSION_MINOR,Integer.parseInt(data)); break; //$NON-NLS-1$
+						case "option_version_release": gSet.put(PGameSettings.VERSION_RELEASE,Integer.parseInt(data)); break; //$NON-NLS-1$
+						case "option_windows_steam_app_id": gSet.put(PGameSettings.WINDOWS_STEAM_ID,Integer.parseInt(data)); break; //$NON-NLS-1$
+						case "option_mac_steam_app_id": gSet.put(PGameSettings.MAC_STEAM_ID,Integer.parseInt(data)); break; //$NON-NLS-1$
+						case "option_linux_steam_app_id": gSet.put(PGameSettings.LINUX_STEAM_ID,Integer.parseInt(data)); break; //$NON-NLS-1$
+						case "option_windows_enable_steam": //$NON-NLS-1$
+							gSet.put(PGameSettings.WINDOWS_STEAM_ENABLE,Boolean.parseBoolean(data)); break;
+						case "option_mac_enable_steam": gSet.put(PGameSettings.MAC_STEAM_ENABLE,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+						case "option_linux_enable_steam": //$NON-NLS-1$
+							gSet.put(PGameSettings.LINUX_STEAM_ENABLE,Boolean.parseBoolean(data)); break;
+						case "option_windows_game_icon": //$NON-NLS-1$
 							{
-							found = true;
+							String icopath = c.f.getDirectory() + '/' + data;
+							icopath = Util.getPOSIXPath(icopath);
+							try
+								{
+								// the icon not existing is a silent fail in GMSv1.4
+								// which will automatically recreate it as the default
+								// probably because the IDE does not require it, but
+								// the asset compiler does
+								if (new File(icopath).exists()) // << GMZ does not export if default icon
+									pSet.put(PGameSettings.GAME_ICON,new ICOFile(icopath));
+								}
+							catch (IOException e)
+								{
+								interfaceProvider.handleException(new GmFormatException(c.f, "failed to read: " + icopath, e));
+								}
 							break;
 							}
 						}
-
-					if (found) readConstants(gSet.constants,cnstNode);
-
 					}
-
 				}
 			}
 
@@ -1780,7 +1712,7 @@ public final class GMXFileReader
 		String functionname = ""; // execInfo for if the action just calls an action function //$NON-NLS-1$
 		String codestring = ""; // execInfo for if the action executes code //$NON-NLS-1$
 
-		Argument[] args = null;
+		Argument[] args = new Argument[0];
 
 		LibAction la = null;
 
