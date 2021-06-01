@@ -946,9 +946,6 @@ public final class GMXFileReader
 		node.add(rnode);
 		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-		Document pthdoc = GMXFileReader.parseDocumentChecked(f, path + ".path.gmx"); //$NON-NLS-1$
-		if (pthdoc == null) return;
-
 		XMLEventReader reader = parseDocumentChecked2(f, path + ".path.gmx");
 		if (reader == null) return;
 
@@ -1020,7 +1017,6 @@ public final class GMXFileReader
 				}
 			}
 		}
-
 
 	private static void readScript(ProjectFileContext c, ResNode node, Node cNode)
 		{
@@ -1393,381 +1389,230 @@ public final class GMXFileReader
 		node.add(rnode);
 		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-		Document rmndoc = GMXFileReader.parseDocumentChecked(f, path + ".room.gmx"); //$NON-NLS-1$
-		if (rmndoc == null) return;
+		XMLEventReader reader = parseDocumentChecked2(f, path + ".room.gmx");
+		if (reader == null) return;
 
-		String caption = rmndoc.getElementsByTagName("caption").item(0).getTextContent(); //$NON-NLS-1$
-		rmn.put(PRoom.CAPTION,caption);
-
-		NodeList cnodes = rmndoc.getElementsByTagName("room").item(0).getChildNodes(); //$NON-NLS-1$
-		for (int x = 0; x < cnodes.getLength(); x++)
+		boolean makerSettings = false;
+		int bkgnum = 0, viewnum = 0;
+		while (reader.hasNext())
 			{
-			Node pnode = cnodes.item(x);
-			String pname = pnode.getNodeName();
-			if (pname.equals("#text")) //$NON-NLS-1$
+			XMLEvent nextEvent = null;
+			try
 				{
+				nextEvent = reader.nextEvent();
+				}
+			catch (XMLStreamException e)
+				{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				}
+
+			if (!nextEvent.isStartElement())
+				{
+				if (nextEvent.isEndElement() && nextEvent.asEndElement().getName().getLocalPart().equals("makerSettings"))
+					makerSettings = false;
 				continue;
 				}
-			else if (pname.equals("caption")) //$NON-NLS-1$
+			StartElement sel = nextEvent.asStartElement();
+			String scope = sel.getName().getLocalPart();
+			if (!reader.hasNext()) break;
+			String data = "";
+			try
 				{
-				rmn.put(PRoom.CAPTION,pnode.getTextContent());
+				nextEvent = reader.nextEvent();
+				if (nextEvent.isCharacters())
+					data = nextEvent.asCharacters().getData();
 				}
-			else if (pname.equals("width")) //$NON-NLS-1$
+			catch (XMLStreamException e1)
 				{
-				rmn.put(PRoom.WIDTH,Integer.parseInt(pnode.getTextContent()));
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 				}
-			else if (pname.equals("height")) //$NON-NLS-1$
+
+			if (makerSettings)
 				{
-				rmn.put(PRoom.HEIGHT,Integer.parseInt(pnode.getTextContent()));
-				}
-			else if (pname.equals("vsnap")) //$NON-NLS-1$
-				{
-				rmn.put(PRoom.SNAP_Y,Integer.parseInt(pnode.getTextContent()));
-				}
-			else if (pname.equals("hsnap")) //$NON-NLS-1$
-				{
-				rmn.put(PRoom.SNAP_X,Integer.parseInt(pnode.getTextContent()));
-				}
-			else if (pname.equals("isometric")) //$NON-NLS-1$
-				{
-				rmn.put(PRoom.ISOMETRIC,Integer.parseInt(pnode.getTextContent()) != 0);
-				}
-			else if (pname.equals("speed")) //$NON-NLS-1$
-				{
-				rmn.put(PRoom.SPEED,Integer.parseInt(pnode.getTextContent()));
-				}
-			else if (pname.equals("persistent")) //$NON-NLS-1$
-				{
-				rmn.put(PRoom.PERSISTENT,Integer.parseInt(pnode.getTextContent()) != 0);
-				}
-			else if (pname.equals("colour")) //$NON-NLS-1$
-				{
-				int col = Integer.parseInt(pnode.getTextContent());
-				rmn.put(PRoom.BACKGROUND_COLOR,Util.convertGmColor(col));
-				}
-			else if (pname.equals("showcolour")) //$NON-NLS-1$
-				{
-				rmn.put(PRoom.DRAW_BACKGROUND_COLOR,Integer.parseInt(pnode.getTextContent()) != 0);
-				}
-			else if (pname.equals("code")) //$NON-NLS-1$
-				{
-				rmn.put(PRoom.CREATION_CODE,pnode.getTextContent());
-				}
-			else if (pname.equals("enableViews")) //$NON-NLS-1$
-				{
-				rmn.put(PRoom.VIEWS_ENABLED,Integer.parseInt(pnode.getTextContent()) != 0);
-				}
-			else if (pname.equals("clearViewBackground")) //$NON-NLS-1$
-				{
-				rmn.put(PRoom.VIEWS_CLEAR,Integer.parseInt(pnode.getTextContent()) != 0);
-				}
-			else if (pname.equals("makerSettings")) //$NON-NLS-1$
-				{
-				NodeList msnodes = pnode.getChildNodes();
-				for (int y = 0; y < msnodes.getLength(); y++)
+				switch (scope)
 					{
-					Node mnode = msnodes.item(y);
-					String mname = mnode.getNodeName();
-					if (mname.equals("#text")) //$NON-NLS-1$
-						{
-						continue;
-						}
-					else if (mname.equals("isSet")) //$NON-NLS-1$
-						{
-						rmn.put(PRoom.REMEMBER_WINDOW_SIZE,Integer.parseInt(mnode.getTextContent()) != 0);
-						}
-					else if (mname.equals("w")) //$NON-NLS-1$
-						{
-						rmn.put(PRoom.EDITOR_WIDTH,Integer.parseInt(mnode.getTextContent()));
-						}
-					else if (mname.equals("h")) //$NON-NLS-1$
-						{
-						rmn.put(PRoom.EDITOR_HEIGHT,Integer.parseInt(mnode.getTextContent()));
-						}
-					else if (mname.equals("showGrid")) //$NON-NLS-1$
-						{
-						rmn.put(PRoom.SHOW_GRID,Integer.parseInt(mnode.getTextContent()) != 0);
-						}
-					else if (mname.equals("showObjects")) //$NON-NLS-1$
-						{
-						rmn.put(PRoom.SHOW_OBJECTS,Integer.parseInt(mnode.getTextContent()) != 0);
-						}
-					else if (mname.equals("showTiles")) //$NON-NLS-1$
-						{
-						rmn.put(PRoom.SHOW_TILES,Integer.parseInt(mnode.getTextContent()) != 0);
-						}
-					else if (mname.equals("showBackgrounds")) //$NON-NLS-1$
-						{
-						rmn.put(PRoom.SHOW_BACKGROUNDS,Integer.parseInt(mnode.getTextContent()) != 0);
-						}
-					else if (mname.equals("showForegrounds")) //$NON-NLS-1$
-						{
-						rmn.put(PRoom.SHOW_FOREGROUNDS,Integer.parseInt(mnode.getTextContent()) != 0);
-						}
-					else if (mname.equals("showViews")) //$NON-NLS-1$
-						{
-						rmn.put(PRoom.SHOW_VIEWS,Integer.parseInt(mnode.getTextContent()) != 0);
-						}
-					else if (mname.equals("deleteUnderlyingObj")) //$NON-NLS-1$
-						{
-						rmn.put(PRoom.DELETE_UNDERLYING_OBJECTS,
-								Integer.parseInt(mnode.getTextContent()) != 0);
-						}
-					else if (mname.equals("deleteUnderlyingTiles")) //$NON-NLS-1$
-						{
-						rmn.put(PRoom.DELETE_UNDERLYING_TILES,Integer.parseInt(mnode.getTextContent()) != 0);
-						}
-					else if (mname.equals("page")) //$NON-NLS-1$
-						{
-						rmn.put(PRoom.CURRENT_TAB,Integer.parseInt(mnode.getTextContent()));
-						}
-					else if (mname.equals("xoffset")) //$NON-NLS-1$
-						{
-						rmn.put(PRoom.SCROLL_BAR_X,Integer.parseInt(mnode.getTextContent()));
-						}
-					else if (mname.equals("yoffset")) //$NON-NLS-1$
-						{
-						rmn.put(PRoom.SCROLL_BAR_Y,Integer.parseInt(mnode.getTextContent()));
-						}
+					case "isSet": rmn.put(PRoom.REMEMBER_WINDOW_SIZE,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+					case "w": rmn.put(PRoom.EDITOR_WIDTH,Integer.parseInt(data)); break; //$NON-NLS-1$
+					case "h": rmn.put(PRoom.EDITOR_HEIGHT,Integer.parseInt(data)); break; //$NON-NLS-1$
+					case "showGrid": rmn.put(PRoom.SHOW_GRID,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+					case "showObjects": rmn.put(PRoom.SHOW_OBJECTS,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+					case "showTiles": rmn.put(PRoom.SHOW_TILES,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+					case "showBackgrounds": rmn.put(PRoom.SHOW_BACKGROUNDS,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+					case "showForegrounds": rmn.put(PRoom.SHOW_FOREGROUNDS,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+					case "showViews": rmn.put(PRoom.SHOW_VIEWS,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+					case "deleteUnderlyingObj": rmn.put(PRoom.DELETE_UNDERLYING_OBJECTS,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+					case "deleteUnderlyingTiles": rmn.put(PRoom.DELETE_UNDERLYING_TILES,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+					case "page": rmn.put(PRoom.CURRENT_TAB,Integer.parseInt(data)); break; //$NON-NLS-1$
+					case "xoffset": rmn.put(PRoom.SCROLL_BAR_X,Integer.parseInt(data)); break; //$NON-NLS-1$
+					case "yoffset": rmn.put(PRoom.SCROLL_BAR_Y,Integer.parseInt(data)); break; //$NON-NLS-1$
 					}
+				continue;
 				}
-			else if (pname.equals("backgrounds")) //$NON-NLS-1$
+
+			switch (scope)
 				{
-				NodeList bgnodes = pnode.getChildNodes();
-				int bkgnum = 0;
-				for (int y = 0; y < bgnodes.getLength(); y++)
+				case "caption": rmn.put(PRoom.CAPTION,data); break; //$NON-NLS-1$
+				case "width": rmn.put(PRoom.WIDTH,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "height": rmn.put(PRoom.HEIGHT,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "vsnap": rmn.put(PRoom.SNAP_X,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "hsnap": rmn.put(PRoom.SNAP_Y,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "isometric": rmn.put(PRoom.ISOMETRIC,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "speed": rmn.put(PRoom.SPEED,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "persistent": rmn.put(PRoom.PERSISTENT,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "colour": rmn.put(PRoom.BACKGROUND_COLOR,Util.convertGmColor(Integer.parseInt(data))); break; //$NON-NLS-1$
+				case "showcolour": rmn.put(PRoom.DRAW_BACKGROUND_COLOR,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "code": rmn.put(PRoom.CREATION_CODE,data); break; //$NON-NLS-1$
+				case "enableViews": rmn.put(PRoom.VIEWS_ENABLED,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "clearViewBackgrounds": rmn.put(PRoom.VIEWS_CLEAR,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "PhysicsWorld": rmn.put(PRoom.PHYSICS_WORLD,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "PhysicsWorldTop": rmn.put(PRoom.PHYSICS_TOP,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "PhysicsWorldLeft": rmn.put(PRoom.PHYSICS_LEFT,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "PhysicsWorldRight": rmn.put(PRoom.PHYSICS_RIGHT,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "PhysicsWorldBottom": rmn.put(PRoom.PHYSICS_BOTTOM,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "PhysicsWorldGravityX": rmn.put(PRoom.PHYSICS_GRAVITY_X,Double.parseDouble(data)); break; //$NON-NLS-1$
+				case "PhysicsWorldGravityY": rmn.put(PRoom.PHYSICS_GRAVITY_Y,Double.parseDouble(data)); break; //$NON-NLS-1$
+				case "PhysicsWorldPixToMeters": rmn.put(PRoom.PHYSICS_PIXTOMETERS,Double.parseDouble(data)); break; //$NON-NLS-1$
+				case "makerSettings": makerSettings = true; break; //$NON-NLS-1$
+				case "background": //$NON-NLS-1$
 					{
-					Node bnode = bgnodes.item(y);
-					String bname = bnode.getNodeName();
-					if (bname.equals("#text")) //$NON-NLS-1$
+					final BackgroundDef bkg = rmn.backgroundDefs.get(bkgnum++);
+					PropertyMap<PBackgroundDef> props = bkg.properties;
+					Iterator<Attribute> atts = sel.getAttributes();
+					while (atts.hasNext())
 						{
-						continue;
-						}
-					final BackgroundDef bkg = rmn.backgroundDefs.get(bkgnum);
-					bkgnum += 1;
-
-					bkg.properties.put(
-							PBackgroundDef.VISIBLE,
-							Integer.parseInt(bnode.getAttributes().getNamedItem("visible").getTextContent()) != 0); //$NON-NLS-1$
-					final String bkgname = bnode.getAttributes().getNamedItem("name").getTextContent(); //$NON-NLS-1$
-
-					postpone.add(new DefaultPostponedRef<>(f.resMap.getList(Background.class), bkg.properties, PBackgroundDef.BACKGROUND, bkgname));
-
-					bkg.properties.put(
-							PBackgroundDef.FOREGROUND,
-							Integer.parseInt(bnode.getAttributes().getNamedItem("foreground").getTextContent()) != 0); //$NON-NLS-1$
-					bkg.properties.put(
-							PBackgroundDef.TILE_HORIZ,
-							Integer.parseInt(bnode.getAttributes().getNamedItem("htiled").getTextContent()) != 0); //$NON-NLS-1$
-					bkg.properties.put(
-							PBackgroundDef.TILE_VERT,
-							Integer.parseInt(bnode.getAttributes().getNamedItem("vtiled").getTextContent()) != 0); //$NON-NLS-1$
-					bkg.properties.put(
-							PBackgroundDef.STRETCH,
-							Integer.parseInt(bnode.getAttributes().getNamedItem("stretch").getTextContent()) != 0); //$NON-NLS-1$
-					bkg.properties.put(PBackgroundDef.H_SPEED,
-							Integer.parseInt(bnode.getAttributes().getNamedItem("hspeed").getTextContent())); //$NON-NLS-1$
-					bkg.properties.put(PBackgroundDef.V_SPEED,
-							Integer.parseInt(bnode.getAttributes().getNamedItem("vspeed").getTextContent())); //$NON-NLS-1$
-					bkg.properties.put(PBackgroundDef.X,
-							Integer.parseInt(bnode.getAttributes().getNamedItem("x").getTextContent())); //$NON-NLS-1$
-					bkg.properties.put(PBackgroundDef.Y,
-							Integer.parseInt(bnode.getAttributes().getNamedItem("y").getTextContent())); //$NON-NLS-1$
-
-					}
-				}
-			else if (pname.equals("views")) //$NON-NLS-1$
-				{
-				NodeList vinodes = pnode.getChildNodes();
-				int viewnum = 0;
-				for (int y = 0; y < vinodes.getLength(); y++)
-					{
-					Node vnode = vinodes.item(y);
-					String vname = vnode.getNodeName();
-					if (vname.equals("#text")) //$NON-NLS-1$
-						{
-						continue;
-						}
-					final View vw = rmn.views.get(viewnum);
-					viewnum += 1;
-
-					vw.properties.put(
-							PView.VISIBLE,
-							Integer.parseInt(vnode.getAttributes().getNamedItem("visible").getTextContent()) != 0); //$NON-NLS-1$
-					final String objname = vnode.getAttributes().getNamedItem("objName").getTextContent(); //$NON-NLS-1$
-
-					postpone.add(new DefaultPostponedRef<>(f.resMap.getList(GmObject.class), vw.properties, PView.OBJECT, objname));
-
-					vw.properties.put(PView.SPEED_H,
-							Integer.parseInt(vnode.getAttributes().getNamedItem("hspeed").getTextContent())); //$NON-NLS-1$
-					vw.properties.put(PView.SPEED_V,
-							Integer.parseInt(vnode.getAttributes().getNamedItem("vspeed").getTextContent())); //$NON-NLS-1$
-					vw.properties.put(PView.BORDER_H,
-							Integer.parseInt(vnode.getAttributes().getNamedItem("hborder").getTextContent())); //$NON-NLS-1$
-					vw.properties.put(PView.BORDER_V,
-							Integer.parseInt(vnode.getAttributes().getNamedItem("vborder").getTextContent())); //$NON-NLS-1$
-
-					vw.properties.put(PView.PORT_H,
-							Integer.parseInt(vnode.getAttributes().getNamedItem("hport").getTextContent())); //$NON-NLS-1$
-					vw.properties.put(PView.PORT_W,
-							Integer.parseInt(vnode.getAttributes().getNamedItem("wport").getTextContent())); //$NON-NLS-1$
-					vw.properties.put(PView.PORT_X,
-							Integer.parseInt(vnode.getAttributes().getNamedItem("xport").getTextContent())); //$NON-NLS-1$
-					vw.properties.put(PView.PORT_Y,
-							Integer.parseInt(vnode.getAttributes().getNamedItem("yport").getTextContent())); //$NON-NLS-1$
-
-					vw.properties.put(PView.VIEW_H,
-							Integer.parseInt(vnode.getAttributes().getNamedItem("hview").getTextContent())); //$NON-NLS-1$
-					vw.properties.put(PView.VIEW_W,
-							Integer.parseInt(vnode.getAttributes().getNamedItem("wview").getTextContent())); //$NON-NLS-1$
-					vw.properties.put(PView.VIEW_X,
-							Integer.parseInt(vnode.getAttributes().getNamedItem("xview").getTextContent())); //$NON-NLS-1$
-					vw.properties.put(PView.VIEW_Y,
-							Integer.parseInt(vnode.getAttributes().getNamedItem("yview").getTextContent())); //$NON-NLS-1$
-					}
-				}
-			else if (pname.equals("instances")) //$NON-NLS-1$
-				{
-				NodeList insnodes = pnode.getChildNodes();
-				for (int y = 0; y < insnodes.getLength(); y++)
-					{
-					Node inode = insnodes.item(y);
-					String iname = inode.getNodeName();
-					if (iname.equals("#text")) //$NON-NLS-1$
-						{
-						continue;
-						}
-					else if (iname.equals("instance") && inode.getAttributes().getLength() > 0) //$NON-NLS-1$
-						{
-						Instance inst = rmn.addInstance();
-
-						// TODO: Replace this with DelayedRef
-						String objname = inode.getAttributes().getNamedItem("objName").getTextContent(); //$NON-NLS-1$
-
-						// because of the way this is set up, sprites must be loaded before objects
-						GmObject temp = f.resMap.getList(GmObject.class).get(objname);
-						if (temp != null) inst.properties.put(PInstance.OBJECT,temp.reference);
-						NamedNodeMap attribs = inode.getAttributes();
-						int xx = Integer.parseInt(attribs.getNamedItem("x").getNodeValue()); //$NON-NLS-1$
-						int yy = Integer.parseInt(attribs.getNamedItem("y").getNodeValue()); //$NON-NLS-1$
-						double sx = Double.parseDouble(attribs.getNamedItem("scaleX").getNodeValue()); //$NON-NLS-1$
-						double sy = Double.parseDouble(attribs.getNamedItem("scaleY").getNodeValue()); //$NON-NLS-1$
-
-						// Read the color blending
-						if (attribs.getNamedItem("colour") != null) //$NON-NLS-1$
+						Attribute att = atts.next();
+						switch (att.getName().getLocalPart())
 							{
-							long col = Long.parseLong(attribs.getNamedItem("colour").getNodeValue()); //$NON-NLS-1$
-							Color color = Util.convertInstanceColorWithAlpha((int) col);
-							inst.setColor(color);
-							inst.setAlpha(color.getAlpha());
+							case "visible": props.put(PBackgroundDef.VISIBLE,Integer.parseInt(att.getValue()) != 0); break; //$NON-NLS-1$
+							case "name": //$NON-NLS-1$
+								String bkgname = att.getValue();
+								postpone.add(new DefaultPostponedRef<>(f.resMap.getList(Background.class), bkg.properties, PBackgroundDef.BACKGROUND, bkgname));
+								break;
+							case "foreground": props.put(PBackgroundDef.FOREGROUND,Integer.parseInt(att.getValue()) != 0); break; //$NON-NLS-1$
+							case "htiled": props.put(PBackgroundDef.TILE_HORIZ,Integer.parseInt(att.getValue()) != 0); break; //$NON-NLS-1$
+							case "vtiled": props.put(PBackgroundDef.TILE_VERT,Integer.parseInt(att.getValue()) != 0); break; //$NON-NLS-1$
+							case "stretch": props.put(PBackgroundDef.STRETCH,Integer.parseInt(att.getValue()) != 0); break; //$NON-NLS-1$
+							case "hspeed": props.put(PBackgroundDef.H_SPEED,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "vspeed": props.put(PBackgroundDef.V_SPEED,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "x": props.put(PBackgroundDef.X,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "y": props.put(PBackgroundDef.Y,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
 							}
-
-						double rot = Double.parseDouble(attribs.getNamedItem("rotation").getNodeValue()); //$NON-NLS-1$
-						inst.properties.put(PInstance.NAME, inode.getAttributes().getNamedItem("name").getNodeValue()); //$NON-NLS-1$
-
-						// NOTE: Because LGM still supports GMK, we attempt to preserve the ID which Studio
-						// will remove if it saves over the GMX, so see if the "id" attribute we added is
-						// there otherwise make up a new ID.
-						Node idNode = inode.getAttributes().getNamedItem("id"); //$NON-NLS-1$
-						int instid;
-						if (idNode != null) {
-							instid = Integer.parseInt(idNode.getNodeValue());
-							if (instid > f.lastInstanceId) {
-								f.lastInstanceId = instid;
-							}
-						} else {
-							instid = ++f.lastInstanceId;
-						}
-
-						inst.properties.put(PInstance.ID, instid);
-
-						inst.setPosition(new Point(xx,yy));
-						inst.setScale(new Point2D.Double(sx,sy));
-						inst.setRotation(rot);
-						inst.setCreationCode(inode.getAttributes().getNamedItem("code").getNodeValue()); //$NON-NLS-1$
-						inst.setLocked(Integer.parseInt(inode.getAttributes().getNamedItem("locked").getNodeValue()) != 0); //$NON-NLS-1$
 						}
 					}
-				}
-			else if (pname.equals("tiles")) //$NON-NLS-1$
-				{
-				NodeList tinodes = pnode.getChildNodes();
-				for (int p = 0; p < tinodes.getLength(); p++)
+					break;
+				case "view": //$NON-NLS-1$
 					{
-					Node tnode = tinodes.item(p);
-					String tname = tnode.getNodeName();
-					if (tname.equals("#text")) //$NON-NLS-1$
+					final View vw = rmn.views.get(viewnum++);
+					PropertyMap<PView> props = vw.properties;
+					Iterator<Attribute> atts = sel.getAttributes();
+					while (atts.hasNext())
 						{
-						continue;
+						Attribute att = atts.next();
+						switch (att.getName().getLocalPart())
+							{
+							case "visible": props.put(PView.VISIBLE,Integer.parseInt(att.getValue()) != 0); break; //$NON-NLS-1$
+							case "objName": //$NON-NLS-1$
+								String objname = att.getValue();
+								postpone.add(new DefaultPostponedRef<>(f.resMap.getList(GmObject.class), vw.properties, PView.OBJECT, objname));
+								break;
+							case "hspeed": props.put(PView.SPEED_H,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "vspeed": props.put(PView.SPEED_V,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "hborder": props.put(PView.BORDER_H,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "vborder": props.put(PView.BORDER_V,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "hport": props.put(PView.PORT_H,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "wport": props.put(PView.PORT_W,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "xport": props.put(PView.PORT_X,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "yport": props.put(PView.PORT_Y,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "hview": props.put(PView.VIEW_H,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "wview": props.put(PView.VIEW_W,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "xview": props.put(PView.VIEW_X,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "yview": props.put(PView.VIEW_Y,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							}
 						}
+					}
+					break;
+				case "instance": //$NON-NLS-1$
+					{
+					Instance inst = rmn.addInstance();
+					PropertyMap<PInstance> props = inst.properties;
+					Iterator<Attribute> atts = sel.getAttributes();
+					while (atts.hasNext())
+						{
+						Attribute att = atts.next();
+						switch (att.getName().getLocalPart())
+							{
+							case "x": props.put(PInstance.X,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "y": props.put(PInstance.Y,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "objName": //$NON-NLS-1$
+								// TODO: Replace this with DelayedRef
+								// because of the way this is set up, sprites must be loaded before objects
+								GmObject temp = f.resMap.getList(GmObject.class).get(att.getValue());
+								if (temp != null) inst.properties.put(PInstance.OBJECT,temp.reference);
+								break;
+							case "name": props.put(PInstance.NAME,att.getValue()); break; //$NON-NLS-1$
+							case "id"://$NON-NLS-1$
+								// NOTE: Because LGM still supports GMK, we attempt to preserve the ID which Studio
+								// will remove if it saves over the GMX, so see if the "id" attribute we added is
+								// there otherwise make up a new ID.
+								int instid = Integer.parseInt(att.getValue());
+								if (instid > f.lastInstanceId)
+									f.lastInstanceId = instid;
+								inst.properties.put(PInstance.ID, instid);
+								break;
+							case "rotation": props.put(PInstance.ROTATION,Double.parseDouble(att.getValue())); break; //$NON-NLS-1$
+							case "locked": props.put(PInstance.LOCKED,Integer.parseInt(att.getValue()) != 0); break; //$NON-NLS-1$
+							case "scaleX": props.put(PInstance.SCALE_X,Double.parseDouble(att.getValue())); break; //$NON-NLS-1$
+							case "scaleY": props.put(PInstance.SCALE_Y,Double.parseDouble(att.getValue())); break; //$NON-NLS-1$
+							case "colour": //$NON-NLS-1$
+								long col = Long.parseLong(att.getValue()); //$NON-NLS-1$
+								Color color = Util.convertInstanceColorWithAlpha((int) col);
+								inst.setColor(color);
+								inst.setAlpha(color.getAlpha());
+								break;
+							case "code": props.put(PInstance.CREATION_CODE,att.getValue()); break; //$NON-NLS-1$
+							}
+						}
+					break;
+					}
+				case "tile": //$NON-NLS-1$
+					{
 					final Tile tile = new Tile(rmn);
-
-					NamedNodeMap attribs = tnode.getAttributes();
-
-					tile.setPosition(new Point(
-							Integer.parseInt(attribs.getNamedItem("x").getTextContent()), //$NON-NLS-1$
-							Integer.parseInt(attribs.getNamedItem("y").getTextContent()))); //$NON-NLS-1$
-
-					final String bkgname = tnode.getAttributes().getNamedItem("bgName").getTextContent(); //$NON-NLS-1$
-					postpone.add(new DefaultPostponedRef<>(f.resMap.getList(Background.class), tile.properties, PTile.BACKGROUND, bkgname));
-
-					tile.properties.put(PTile.NAME, attribs.getNamedItem("name").getNodeValue()); //$NON-NLS-1$
-
-					int tileid = Integer.parseInt(attribs.getNamedItem("id").getTextContent()); //$NON-NLS-1$
-					if (tileid > f.lastTileId) {
-						f.lastTileId = tileid;
+					PropertyMap<PTile> props = tile.properties;
+					Iterator<Attribute> atts = sel.getAttributes();
+					while (atts.hasNext())
+						{
+						Attribute att = atts.next();
+						switch (att.getName().getLocalPart())
+							{
+							case "x": props.put(PTile.ROOM_X,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "y": props.put(PTile.ROOM_Y,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "bgName": //$NON-NLS-1$
+								postpone.add(
+										new DefaultPostponedRef<>(
+												f.resMap.getList(Background.class), tile.properties, PTile.BACKGROUND, att.getValue()));
+								break;
+							case "name": props.put(PTile.NAME,att.getValue()); break; //$NON-NLS-1$
+							case "id"://$NON-NLS-1$
+								int tileid = Integer.parseInt(att.getValue());
+								if (tileid > f.lastTileId)
+									f.lastTileId = tileid;
+								tile.properties.put(PTile.ID,tileid);
+								break;
+							case "xo": props.put(PTile.BG_X,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "yo": props.put(PTile.BG_Y,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "w": props.put(PTile.WIDTH,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "h": props.put(PTile.HEIGHT,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "depth": props.put(PTile.DEPTH,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "locked": props.put(PTile.LOCKED,Integer.parseInt(att.getValue()) != 0); break; //$NON-NLS-1$
+							case "scaleX": props.put(PTile.SCALE_X,Double.parseDouble(att.getValue())); break; //$NON-NLS-1$
+							case "scaleY": props.put(PTile.SCALE_Y,Double.parseDouble(att.getValue())); break; //$NON-NLS-1$
+							case "colour": props.put(PTile.COLOR,Long.parseLong(att.getValue())); break; //$NON-NLS-1$
+							}
+						}
+					break;
 					}
-					tile.properties.put(PTile.ID,tileid);
-
-					tile.setBackgroundPosition(new Point(
-							Integer.parseInt(attribs.getNamedItem("xo").getTextContent()), //$NON-NLS-1$
-							Integer.parseInt(attribs.getNamedItem("yo").getTextContent()))); //$NON-NLS-1$
-					tile.setSize(new Dimension(
-							Integer.parseInt(attribs.getNamedItem("w").getTextContent()), //$NON-NLS-1$
-							Integer.parseInt(attribs.getNamedItem("h").getTextContent()))); //$NON-NLS-1$
-					tile.setDepth(Integer.parseInt(attribs.getNamedItem("depth").getTextContent())); //$NON-NLS-1$
-
-					tile.setLocked(Integer.parseInt(attribs.getNamedItem("locked").getTextContent()) != 0); //$NON-NLS-1$
-
-					double sx = Double.parseDouble(attribs.getNamedItem("scaleX").getNodeValue()); //$NON-NLS-1$
-					double sy = Double.parseDouble(attribs.getNamedItem("scaleY").getNodeValue()); //$NON-NLS-1$
-					tile.setScale(new Point2D.Double(sx,sy));
-					tile.setColor(Long.parseLong(attribs.getNamedItem("colour").getNodeValue())); //$NON-NLS-1$
-
-					rmn.tiles.add(tile);
-					}
-				}
-			else if (pname.equals("PhysicsWorld")) //$NON-NLS-1$
-				{
-				rmn.put(PRoom.PHYSICS_WORLD,Integer.parseInt(pnode.getTextContent()) != 0);
-				}
-			else if (pname.equals("PhysicsWorldTop")) //$NON-NLS-1$
-				{
-				rmn.put(PRoom.PHYSICS_TOP,Integer.parseInt(pnode.getTextContent()));
-				}
-			else if (pname.equals("PhysicsWorldLeft")) //$NON-NLS-1$
-				{
-				rmn.put(PRoom.PHYSICS_LEFT,Integer.parseInt(pnode.getTextContent()));
-				}
-			else if (pname.equals("PhysicsWorldRight")) //$NON-NLS-1$
-				{
-				rmn.put(PRoom.PHYSICS_RIGHT,Integer.parseInt(pnode.getTextContent()));
-				}
-			else if (pname.equals("PhysicsWorldBottom")) //$NON-NLS-1$
-				{
-				rmn.put(PRoom.PHYSICS_BOTTOM,Integer.parseInt(pnode.getTextContent()));
-				}
-			else if (pname.equals("PhysicsWorldGravityX")) //$NON-NLS-1$
-				{
-				rmn.put(PRoom.PHYSICS_GRAVITY_X,Double.parseDouble(pnode.getTextContent()));
-				}
-			else if (pname.equals("PhysicsWorldGravityY")) //$NON-NLS-1$
-				{
-				rmn.put(PRoom.PHYSICS_GRAVITY_Y,Double.parseDouble(pnode.getTextContent()));
-				}
-			else if (pname.equals("PhysicsWorldPixToMeters")) //$NON-NLS-1$
-				{
-				rmn.put(PRoom.PHYSICS_PIXTOMETERS,Double.parseDouble(pnode.getTextContent()));
 				}
 			}
 		}
