@@ -4,7 +4,7 @@
 *
 * @section License
 *
-* Copyright (C) 2013-2015,2019 Robert B. Colton
+* Copyright (C) 2013-2015,2019,2021 Robert B. Colton
 * This file is a part of the LateralGM IDE.
 *
 * This program is free software: you can redistribute it and/or modify
@@ -26,9 +26,6 @@ package org.lateralgm.file;
 import static org.lateralgm.file.ProjectFile.interfaceProvider;
 
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
@@ -60,7 +57,6 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.ProjectFile.InterfaceProvider;
-import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.Util;
 import org.lateralgm.resources.Background;
@@ -118,7 +114,6 @@ import org.lateralgm.util.PropertyMap;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -1200,32 +1195,48 @@ public final class GMXFileReader
 		node.add(rnode);
 		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-		Document tmldoc = GMXFileReader.parseDocumentChecked(f, path + ".timeline.gmx"); //$NON-NLS-1$
-		if (tmldoc == null) return;
+		XMLEventReader reader = parseDocumentChecked2(f, path + ".timeline.gmx");
+		if (reader == null) return;
 
-		//Iterate the moments and load the actions
-		NodeList frList = tmldoc.getElementsByTagName("entry"); //$NON-NLS-1$
-		for (int ii = 0; ii < frList.getLength(); ii++)
+		int stepnum = 0;
+		while (reader.hasNext())
 			{
-			Node fnode = frList.item(ii);
-			Moment mom = tml.addMoment();
-
-			NodeList children = fnode.getChildNodes();
-			for (int x = 0; x < children.getLength(); x++)
+			XMLEvent nextEvent = null;
+			try
 				{
-				Node cnode = children.item(x);
-				if (cnode.getNodeName().equals("#text")) //$NON-NLS-1$
-					{
-					continue;
-					}
-				else if (cnode.getNodeName().equals("step")) //$NON-NLS-1$
-					{
-					mom.stepNo = Integer.parseInt(cnode.getTextContent());
-					}
-				else if (cnode.getNodeName().equals("event")) //$NON-NLS-1$
-					{
-					readActions(c,mom,"INTIMELINEACTION",tml.getId(),mom.stepNo,cnode.getChildNodes()); //$NON-NLS-1$
-					}
+				nextEvent = reader.nextEvent();
+				}
+			catch (XMLStreamException e)
+				{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				}
+
+			if (!nextEvent.isStartElement()) continue;
+			StartElement sel = nextEvent.asStartElement();
+			String scope = sel.getName().getLocalPart();
+			if (!reader.hasNext()) break;
+			String data = "";
+			try
+				{
+				nextEvent = reader.nextEvent();
+				if (!nextEvent.isCharacters()) continue;
+				data = nextEvent.asCharacters().getData();
+				}
+			catch (XMLStreamException e1)
+				{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				}
+
+			switch (scope)
+				{
+				case "step": stepnum = Integer.parseInt(data); break; //$NON-NLS-1$
+				case "event": //$NON-NLS-1$
+					Moment mom = tml.addMoment();
+					mom.stepNo = stepnum;
+					readActions(c,mom,"INTIMELINEACTION",tml.getId(),mom.stepNo,reader); //$NON-NLS-1$
+					break;
 				}
 			}
 		}
@@ -1245,135 +1256,118 @@ public final class GMXFileReader
 
 		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-		Document objdoc = GMXFileReader.parseDocumentChecked(f, path + ".object.gmx"); //$NON-NLS-1$
-		if (objdoc == null) return;
-
-		final String sprname = objdoc.getElementsByTagName("spriteName").item(0).getTextContent(); //$NON-NLS-1$
-		if (!sprname.equals("<undefined>"))
-			{
-			postpone.add(new DefaultPostponedRef<>(f.resMap.getList(Sprite.class), obj.properties, PGmObject.SPRITE, sprname));
-			}
-		else
-			{
-			obj.put(PGmObject.SPRITE,null);
-			}
-
-		final String mskname = objdoc.getElementsByTagName("maskName").item(0).getTextContent(); //$NON-NLS-1$
-		if (!mskname.equals("<undefined>"))
-			{
-			postpone.add(new DefaultPostponedRef<>(f.resMap.getList(Sprite.class), obj.properties, PGmObject.MASK, mskname));
-			}
-		else
-			{
-			obj.put(PGmObject.MASK,null);
-			}
-
-		final String parname = objdoc.getElementsByTagName("parentName").item(0).getTextContent(); //$NON-NLS-1$
-		if (!parname.equals("<undefined>") && !parname.equals("self"))
-			{
-			postpone.add(new DefaultPostponedRef<>(f.resMap.getList(GmObject.class), obj.properties, PGmObject.PARENT, parname));
-			}
-		else
-			{
-			obj.put(PGmObject.PARENT,null);
-			}
-
-		obj.put(PGmObject.SOLID,
-				Integer.parseInt(objdoc.getElementsByTagName("solid").item(0).getTextContent()) != 0); //$NON-NLS-1$
-		obj.put(PGmObject.VISIBLE,
-				Integer.parseInt(objdoc.getElementsByTagName("visible").item(0).getTextContent()) != 0); //$NON-NLS-1$
-		obj.put(PGmObject.DEPTH,
-				Integer.parseInt(objdoc.getElementsByTagName("depth").item(0).getTextContent())); //$NON-NLS-1$
-		obj.put(
-				PGmObject.PERSISTENT,
-				Integer.parseInt(objdoc.getElementsByTagName("persistent").item(0).getTextContent()) != 0); //$NON-NLS-1$
-
-		// Now that properties are loaded iterate the events and load the actions
-		NodeList frList = objdoc.getElementsByTagName("event"); //$NON-NLS-1$
-		for (int ii = 0; ii < frList.getLength(); ii++)
-			{
-			Node fnode = frList.item(ii);
-			final Event ev = new Event();
-
-			ev.mainId = Integer.parseInt(fnode.getAttributes().getNamedItem("eventtype").getTextContent()); //$NON-NLS-1$
-			MainEvent me = obj.mainEvents.get(ev.mainId);
-			me.events.add(0,ev);
-			if (ev.mainId == MainEvent.EV_COLLISION)
-				{
-				final String colname = fnode.getAttributes().getNamedItem("ename").getTextContent(); //$NON-NLS-1$
-				PostponedRef pr = new PostponedRef()
-					{
-						public boolean invoke()
-							{
-							ResourceList<GmObject> list = f.resMap.getList(GmObject.class);
-							if (list == null)
-								{
-								return false;
-								}
-							GmObject col = list.get(colname);
-							if (col == null)
-								{
-								return false;
-								}
-							ev.other = col.reference;
-							return true;
-							}
-					};
-				postpone.add(pr);
-				}
-			else
-				{
-				ev.id = Integer.parseInt(fnode.getAttributes().getNamedItem("enumb").getTextContent()); //$NON-NLS-1$
-				}
-			readActions(c,ev,"INOBJECTACTION",obj.getId(),ii * 1000 + ev.id,fnode.getChildNodes()); //$NON-NLS-1$
-			}
-		obj.put(
-				PGmObject.PHYSICS_OBJECT,
-				Integer.parseInt(objdoc.getElementsByTagName("PhysicsObject").item(0).getTextContent()) != 0); //$NON-NLS-1$
-		obj.put(
-				PGmObject.PHYSICS_SENSOR,
-				Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectSensor").item(0).getTextContent()) != 0); //$NON-NLS-1$
-		int shapekind = Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectShape").item(0).getTextContent()); //$NON-NLS-1$
-		obj.put(PGmObject.PHYSICS_SHAPE,ProjectFile.PHYSICS_SHAPE[shapekind]);
-		obj.put(
-				PGmObject.PHYSICS_DENSITY,
-				Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectDensity").item(0).getTextContent())); //$NON-NLS-1$
-		obj.put(
-				PGmObject.PHYSICS_RESTITUTION,
-				Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectRestitution").item(0).getTextContent())); //$NON-NLS-1$
-		obj.put(
-				PGmObject.PHYSICS_GROUP,
-				Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectGroup").item(0).getTextContent())); //$NON-NLS-1$
-		obj.put(
-				PGmObject.PHYSICS_DAMPING_LINEAR,
-				Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectLinearDamping").item(0).getTextContent())); //$NON-NLS-1$
-		obj.put(
-				PGmObject.PHYSICS_DAMPING_ANGULAR,
-				Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectAngularDamping").item(0).getTextContent())); //$NON-NLS-1$
-		// NOTE: Some versions of the format did not have all of the physics properties.
-		// It is the same for GMK 820/821 as well.
-		Node fNode = objdoc.getElementsByTagName("PhysicsObjectFriction").item(0); //$NON-NLS-1$
-		if (fNode != null)
-			{
-			obj.put(PGmObject.PHYSICS_FRICTION,Double.parseDouble(fNode.getTextContent()));
-			obj.put(
-					PGmObject.PHYSICS_AWAKE,
-					Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectAwake").item(0).getTextContent()) != 0); //$NON-NLS-1$
-			obj.put(
-					PGmObject.PHYSICS_KINEMATIC,
-					Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectKinematic").item(0).getTextContent()) != 0); //$NON-NLS-1$
-			}
-
-		NodeList pointNodes = objdoc.getElementsByTagName("point"); //$NON-NLS-1$
-		for (int p = 0; p < pointNodes.getLength(); p++)
-			{
-			String[] coords = pointNodes.item(p).getTextContent().split(","); //$NON-NLS-1$
-			obj.shapePoints.add(new ShapePoint(Double.parseDouble(coords[0]),
-					Double.parseDouble(coords[1])));
-			}
-
 		ResNode rnode = new ResNode(obj.getName(),ResNode.STATUS_SECONDARY,GmObject.class,obj.reference);
 		node.add(rnode);
+
+		XMLEventReader reader = parseDocumentChecked2(f, path + ".object.gmx");
+		if (reader == null) return;
+
+		int stepnum = 0;
+		while (reader.hasNext())
+			{
+			XMLEvent nextEvent = null;
+			try
+				{
+				nextEvent = reader.nextEvent();
+				}
+			catch (XMLStreamException e)
+				{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				}
+
+			if (!nextEvent.isStartElement()) continue;
+			StartElement sel = nextEvent.asStartElement();
+			String scope = sel.getName().getLocalPart();
+			if (!reader.hasNext()) break;
+			String data = "";
+			try
+				{
+				nextEvent = reader.nextEvent();
+				if (!nextEvent.isCharacters()) continue;
+				data = nextEvent.asCharacters().getData();
+				}
+			catch (XMLStreamException e1)
+				{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				}
+
+			switch (scope)
+				{
+				case "spriteName": //$NON-NLS-1$
+					if (!data.equals("<undefined>")) //$NON-NLS-1$
+						postpone.add(new DefaultPostponedRef<>(f.resMap.getList(Sprite.class), obj.properties, PGmObject.SPRITE, data));
+					break;
+				case "maskName": //$NON-NLS-1$
+					if (!data.equals("<undefined>")) //$NON-NLS-1$
+						postpone.add(new DefaultPostponedRef<>(f.resMap.getList(Sprite.class), obj.properties, PGmObject.MASK, data));
+					break;
+				case "parentName": //$NON-NLS-1$
+					if (!data.equals("<undefined>") && !data.equals("self")) //$NON-NLS-1$ //$NON-NLS-2$
+						postpone.add(new DefaultPostponedRef<>(f.resMap.getList(GmObject.class), obj.properties, PGmObject.PARENT, data));
+					break;
+				case "solid": obj.put(PGmObject.SOLID,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "visible": obj.put(PGmObject.VISIBLE,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "depth": obj.put(PGmObject.DEPTH,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "persistent": obj.put(PGmObject.PERSISTENT,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "event": //$NON-NLS-1$
+					{
+					final Event ev = new Event();
+
+					ev.mainId = Integer.parseInt(sel.getAttributeByName(new QName("eventtype")).getValue()); //$NON-NLS-1$
+					MainEvent me = obj.mainEvents.get(ev.mainId);
+					me.events.add(0,ev);
+					if (ev.mainId == MainEvent.EV_COLLISION)
+						{
+						final String colname = sel.getAttributeByName(new QName("ename")).getValue(); //$NON-NLS-1$
+						PostponedRef pr = new PostponedRef()
+							{
+								public boolean invoke()
+									{
+									ResourceList<GmObject> list = f.resMap.getList(GmObject.class);
+									if (list == null)
+										{
+										return false;
+										}
+									GmObject col = list.get(colname);
+									if (col == null)
+										{
+										return false;
+										}
+									ev.other = col.reference;
+									return true;
+									}
+							};
+						postpone.add(pr);
+						}
+					else
+						{
+						ev.id = Integer.parseInt(sel.getAttributeByName(new QName("enumb")).getValue()); //$NON-NLS-1$
+						}
+					readActions(c,ev,"INOBJECTACTION",obj.getId(),ev.mainId * 1000 + ev.id,reader); //$NON-NLS-1$
+					}
+					break;
+				case "PhysicsObject": obj.put(PGmObject.PHYSICS_OBJECT, Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "PhysicsObjectSensor": obj.put(PGmObject.PHYSICS_SENSOR, Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "PhysicsObjectShape": obj.put(PGmObject.PHYSICS_SHAPE, ProjectFile.PHYSICS_SHAPE[Integer.parseInt(data)]); break; //$NON-NLS-1$
+				case "PhysicsObjectDensity": obj.put(PGmObject.PHYSICS_DENSITY, Double.parseDouble(data)); break; //$NON-NLS-1$
+				case "PhysicsObjectRestitution": obj.put(PGmObject.PHYSICS_RESTITUTION, Double.parseDouble(data)); break; //$NON-NLS-1$
+				case "PhysicsObjectGroup": obj.put(PGmObject.PHYSICS_GROUP, Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "PhysicsObjectLinearDamping": obj.put(PGmObject.PHYSICS_DAMPING_LINEAR, Double.parseDouble(data)); break; //$NON-NLS-1$
+				case "PhysicsObjectAngularDamping": obj.put(PGmObject.PHYSICS_DAMPING_ANGULAR, Double.parseDouble(data)); break; //$NON-NLS-1$
+				// NOTE: Some versions of the format did not have all of the physics properties.
+				// It is the same for GMK 820/821 as well.
+				case "PhysicsObjectFriction": obj.put(PGmObject.PHYSICS_FRICTION, Double.parseDouble(data)); break; //$NON-NLS-1$
+				case "PhysicsObjectAwake": obj.put(PGmObject.PHYSICS_AWAKE, Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "PhysicsObjectKinematic": obj.put(PGmObject.PHYSICS_KINEMATIC, Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "point": //$NON-NLS-1$
+					String[] coords = data.split(","); //$NON-NLS-1$
+					obj.shapePoints.add(new ShapePoint(Double.parseDouble(coords[0]),
+							Double.parseDouble(coords[1])));
+					break;
+				}
+			}
 		}
 
 	private static void readRoom(ProjectFileContext c, ResNode node, Node cNode)
@@ -1768,254 +1762,153 @@ public final class GMXFileReader
 		}
 
 	private static void readActions(ProjectFileContext c, ActionContainer container, String errorKey,
-			int format1, int format2, NodeList actList)
+			int format1, int format2, XMLEventReader reader)
 		{
 		final ProjectFile f = c.f;
 
-		for (int i = 0; i < actList.getLength(); i++)
-			{
-			Node actNode = actList.item(i);
+		int libid = 0;
+		int actid = 0;
+		byte kind = 0;
+		boolean userelative = false;
+		boolean isquestion = false;
+		boolean isquestiontrue = false;
+		boolean isrelative = false;
+		boolean useapplyto = false;
+		byte exectype = 0;
 
-			if (actNode.getNodeName().equals("#text")) //$NON-NLS-1$
+		String appliesto = ""; //$NON-NLS-1$
+		String functionname = ""; // execInfo for if the action just calls an action function //$NON-NLS-1$
+		String codestring = ""; // execInfo for if the action executes code //$NON-NLS-1$
+
+		Argument[] args = null;
+
+		LibAction la = null;
+
+		while (reader.hasNext())
+			{
+			XMLEvent nextEvent = null;
+			try
 				{
+				nextEvent = reader.nextEvent();
+				}
+			catch (XMLStreamException e)
+				{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				}
+
+			if (!nextEvent.isStartElement())
+				{
+				if (nextEvent.isEndElement() && nextEvent.asEndElement().getName().getLocalPart().equals("action"))
+					{
+					la = LibManager.getLibAction(libid,actid);
+					boolean unknownLib = la == null;
+					// The libAction will have a null parent, among other things
+					if (unknownLib)
+						{
+						la = new LibAction();
+						la.id = actid;
+						la.parentId = libid;
+						la.actionKind = kind;
+						// TODO: Maybe make this more agnostic?
+						if (la.actionKind == Action.ACT_CODE)
+							{
+							la = LibManager.codeAction;
+							}
+						else
+							{
+							la.allowRelative = userelative;
+							la.question = isquestion;
+							la.canApplyTo = useapplyto;
+							la.execType = exectype;
+							if (la.execType == Action.EXEC_FUNCTION) la.execInfo = functionname;
+							if (la.execType == Action.EXEC_CODE) la.execInfo = codestring;
+							}
+						if (args != null)
+							{
+							la.libArguments = new LibArgument[args.length];
+							for (int b = 0; b < args.length; b++)
+								{
+								LibArgument argument = new LibArgument();
+								argument.kind = args[b].kind;
+								la.libArguments[b] = argument;
+								}
+							}
+						}
+
+					final Action act = container.addAction(la);
+					if (appliesto.equals("self")) //$NON-NLS-1$
+						{
+						act.setAppliesTo(GmObject.OBJECT_SELF);
+						}
+					else if (appliesto.equals("other")) //$NON-NLS-1$
+						{
+						act.setAppliesTo(GmObject.OBJECT_OTHER);
+						}
+					else
+						{
+						final String objname = appliesto;
+						PostponedRef pr = new PostponedRef()
+							{
+								public boolean invoke()
+									{
+									ResourceList<GmObject> list = f.resMap.getList(GmObject.class);
+									if (list == null)
+										{
+										return false;
+										}
+									GmObject obj = list.get(objname);
+									if (obj == null)
+										{
+										return false;
+										}
+									act.setAppliesTo(obj.reference);
+									return true;
+									}
+							};
+						postpone.add(pr);
+						}
+
+					act.setRelative(isrelative);
+					if (args != null && args.length > 0)
+						{
+						act.setArguments(args);
+						}
+					act.setNot(isquestiontrue);
+					}
 				continue;
 				}
-
-			int libid = 0;
-			int actid = 0;
-			byte kind = 0;
-			boolean userelative = false;
-			boolean isquestion = false;
-			boolean isquestiontrue = false;
-			boolean isrelative = false;
-			boolean useapplyto = false;
-			byte exectype = 0;
-
-			String appliesto = ""; //$NON-NLS-1$
-			String functionname = ""; // execInfo for if the action just calls an action function //$NON-NLS-1$
-			String codestring = ""; // execInfo for if the action executes code //$NON-NLS-1$
-
-			Argument[] args = null;
-
-			LibAction la = null;
-
-			NodeList propList = actNode.getChildNodes();
-			for (int ii = 0; ii < propList.getLength(); ii++)
+			StartElement sel = nextEvent.asStartElement();
+			String scope = sel.getName().getLocalPart();
+			if (!reader.hasNext()) break;
+			String data = "";
+			try
 				{
-				Node prop = propList.item(ii);
-
-				if (prop.getNodeName().equals("#text")) //$NON-NLS-1$
-					{
-					continue;
-					}
-
-				if (prop.getNodeName().equals("libid")) //$NON-NLS-1$
-					{
-					libid = Integer.parseInt(prop.getTextContent());
-					}
-				else if (prop.getNodeName().equals("id")) //$NON-NLS-1$
-					{
-					actid = Integer.parseInt(prop.getTextContent());
-					}
-				else if (prop.getNodeName().equals("kind")) //$NON-NLS-1$
-					{
-					kind = Byte.parseByte(prop.getTextContent());
-					}
-				else if (prop.getNodeName().equals("userelative")) //$NON-NLS-1$
-					{
-					userelative = Integer.parseInt(prop.getTextContent()) != 0;
-					}
-				else if (prop.getNodeName().equals("relative")) //$NON-NLS-1$
-					{
-					isrelative = Integer.parseInt(prop.getTextContent()) != 0;
-					}
-				else if (prop.getNodeName().equals("isquestion")) //$NON-NLS-1$
-					{
-					isquestion = Integer.parseInt(prop.getTextContent()) != 0;
-					}
-				else if (prop.getNodeName().equals("isnot")) //$NON-NLS-1$
-					{
-					isquestiontrue = Integer.parseInt(prop.getTextContent()) != 0;
-					}
-				else if (prop.getNodeName().equals("useapplyto")) //$NON-NLS-1$
-					{
-					useapplyto = Integer.parseInt(prop.getTextContent()) != 0;
-					}
-				else if (prop.getNodeName().equals("exetype")) //$NON-NLS-1$
-					{
-					exectype = Byte.parseByte(prop.getTextContent());
-					}
-				else if (prop.getNodeName().equals("whoName")) //$NON-NLS-1$
-					{
-					appliesto = prop.getTextContent();
-					}
-				else if (prop.getNodeName().equals("functionname")) //$NON-NLS-1$
-					{
-					functionname = prop.getTextContent();
-					}
-				else if (prop.getNodeName().equals("codestring")) //$NON-NLS-1$
-					{
-					codestring = prop.getTextContent();
-					}
-				else if (prop.getNodeName().equals("arguments")) //$NON-NLS-1$
-					{
-					NodeList targList = prop.getChildNodes();
-
-					List<Node> argList = new ArrayList<Node>();
-					for (int x = 0; x < targList.getLength(); x++)
-						{
-						Node arg = targList.item(x);
-						if (!arg.getNodeName().equals("#text")) //$NON-NLS-1$
-							{
-							argList.add(arg);
-							}
-						}
-
-					args = new Argument[argList.size()];
-
-					for (int x = 0; x < argList.size(); x++)
-						{
-						Node arg = argList.get(x);
-
-						if (arg.getNodeName().equals("#text")) //$NON-NLS-1$
-							{
-							continue;
-							}
-
-						args[x] = new Argument((byte) 0);
-
-						NodeList argproplist = arg.getChildNodes();
-						for (int xx = 0; xx < argproplist.getLength(); xx++)
-							{
-							Node argprop = argproplist.item(xx);
-
-							if (prop.getNodeName().equals("#text")) //$NON-NLS-1$
-								{
-								continue;
-								}
-
-							final String proptext = argprop.getTextContent();
-							final Argument argument = args[x];
-							if (argprop.getNodeName().equals("kind")) //$NON-NLS-1$
-								{
-								argument.kind = Byte.parseByte(argprop.getTextContent());
-								}
-							else if (argprop.getNodeName().equals("string")) //$NON-NLS-1$
-								{
-								argument.setVal(proptext);
-								}
-							else
-								{
-
-								Class<? extends Resource<?,?>> kindc = Argument.getResourceKind(argument.kind);
-								if (kindc != null && Resource.class.isAssignableFrom(kindc)) try
-									{
-									PostponedRef pr = new PostponedRef()
-										{
-											public boolean invoke()
-												{
-												ResourceHolder<?> rh = f.resMap.get(Argument.getResourceKind(argument.kind));
-												if (rh == null)
-													{
-													return false;
-													}
-												Resource<?,?> temp = null;
-												if (rh instanceof ResourceList<?>)
-													temp = ((ResourceList<?>) rh).get(proptext);
-												else
-													temp = rh.getResource();
-												if (temp != null) argument.setRes(temp.reference);
-												argument.setVal(proptext);
-												return temp != null;
-												}
-										};
-									postpone.add(pr);
-									}
-								catch (NumberFormatException e)
-									{
-									// Trying to ref a resource without a valid id number?
-									// Fallback to strval (already set)
-									}
-								}
-							}
-						}
-					}
+				nextEvent = reader.nextEvent();
+				if (nextEvent.isCharacters())
+					data = nextEvent.asCharacters().getData();
+				}
+			catch (XMLStreamException e1)
+				{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 				}
 
-			la = LibManager.getLibAction(libid,actid);
-			boolean unknownLib = la == null;
-			// The libAction will have a null parent, among other things
-			if (unknownLib)
+			switch (scope)
 				{
-				la = new LibAction();
-				la.id = actid;
-				la.parentId = libid;
-				la.actionKind = kind;
-				// TODO: Maybe make this more agnostic?
-				if (la.actionKind == Action.ACT_CODE)
-					{
-					la = LibManager.codeAction;
-					}
-				else
-					{
-					la.allowRelative = userelative;
-					la.question = isquestion;
-					la.canApplyTo = useapplyto;
-					la.execType = exectype;
-					if (la.execType == Action.EXEC_FUNCTION) la.execInfo = functionname;
-					if (la.execType == Action.EXEC_CODE) la.execInfo = codestring;
-					}
-				if (args != null)
-					{
-					la.libArguments = new LibArgument[args.length];
-					for (int b = 0; b < args.length; b++)
-						{
-						LibArgument argument = new LibArgument();
-						argument.kind = args[b].kind;
-						la.libArguments[b] = argument;
-						}
-					}
+				case "libid": libid = Integer.parseInt(data); break; //$NON-NLS-1$
+				case "id": actid = Integer.parseInt(data); break; //$NON-NLS-1$
+				case "kind": kind = Byte.parseByte(data); break; //$NON-NLS-1$
+				case "userrelative": userelative = Integer.parseInt(data) != 0; break; //$NON-NLS-1$
+				case "relative": isrelative = Integer.parseInt(data) != 0; break; //$NON-NLS-1$
+				case "isquestion": isquestion = Integer.parseInt(data) != 0; break; //$NON-NLS-1$
+				case "isnot": isquestiontrue = Integer.parseInt(data) != 0; break; //$NON-NLS-1$
+				case "useapplyto": useapplyto = Integer.parseInt(data) != 0; break; //$NON-NLS-1$
+				case "exetype": exectype = Byte.parseByte(data); break; //$NON-NLS-1$
+				case "whoName": appliesto = data; break; //$NON-NLS-1$
+				case "functionname": functionname = data; break; //$NON-NLS-1$
+				case "codestring": codestring = data; break; //$NON-NLS-1$
 				}
-
-			final Action act = container.addAction(la);
-			if (appliesto.equals("self")) //$NON-NLS-1$
-				{
-				act.setAppliesTo(GmObject.OBJECT_SELF);
-				}
-			else if (appliesto.equals("other")) //$NON-NLS-1$
-				{
-				act.setAppliesTo(GmObject.OBJECT_OTHER);
-				}
-			else
-				{
-				final String objname = appliesto;
-				PostponedRef pr = new PostponedRef()
-					{
-						public boolean invoke()
-							{
-							ResourceList<GmObject> list = f.resMap.getList(GmObject.class);
-							if (list == null)
-								{
-								return false;
-								}
-							GmObject obj = list.get(objname);
-							if (obj == null)
-								{
-								return false;
-								}
-							act.setAppliesTo(obj.reference);
-							return true;
-							}
-					};
-				postpone.add(pr);
-				}
-
-			act.setRelative(isrelative);
-			if (args != null && args.length > 0)
-				{
-				act.setArguments(args);
-				}
-			act.setNot(isquestiontrue);
 			}
 		}
 	}
