@@ -697,7 +697,9 @@ public final class GMXFileReader
 			String data = "";
 			try
 				{
-				data = reader.nextEvent().asCharacters().getData();
+				nextEvent = reader.nextEvent();
+				if (nextEvent.isCharacters())
+					data = nextEvent.asCharacters().getData();
 				}
 			catch (XMLStreamException e1)
 				{
