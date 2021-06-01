@@ -878,6 +878,7 @@ public final class LGM
 
 		// NOTE: We do this to update the reference to the one now loaded
 		// since we never close these frames, then we simply revert their controls.
+		/*
 		constantsFrame.res = LGM.currentFile.defaultConstants;
 		constantsFrame.resOriginal = LGM.currentFile.defaultConstants.clone();
 		constantsFrame.revertResource();
@@ -890,6 +891,7 @@ public final class LGM
 		gameSet.resOriginal = LGM.currentFile.gameSettings.firstElement().clone();
 		gameSet.revertResource();
 		gameSet.setVisible(false);
+		*/
 
 		LGM.fireReloadPerformed(newRoot);
 		}

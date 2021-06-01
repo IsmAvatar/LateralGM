@@ -36,18 +36,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
+import java.util.Stack;
 
 import javax.imageio.ImageIO;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -62,8 +57,6 @@ import org.lateralgm.main.Util;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.Constants;
-import org.lateralgm.resources.Extension;
-import org.lateralgm.resources.ExtensionPackages;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.Font.PFont;
 import org.lateralgm.resources.GameInformation;
@@ -72,8 +65,6 @@ import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GameSettings.PGameSettings;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.GmObject.PGmObject;
-import org.lateralgm.resources.Include;
-import org.lateralgm.resources.Include.PInclude;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Path.PPath;
 import org.lateralgm.resources.Resource;
@@ -96,7 +87,6 @@ import org.lateralgm.resources.sub.ActionContainer;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
-import org.lateralgm.resources.sub.Constant;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.GlyphMetric;
 import org.lateralgm.resources.sub.GlyphMetric.PGlyphMetric;
@@ -112,27 +102,12 @@ import org.lateralgm.resources.sub.View;
 import org.lateralgm.resources.sub.View.PView;
 import org.lateralgm.util.PropertyMap;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-//import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
-
 public final class GMXFileReader
 	{
 	public static final String STUPID_SHADER_MARKER =
 			"//######################_==_YOYO_SHADER_MARKER_==_######################@~"; //$NON-NLS-1$
 
-	private static DocumentBuilderFactory documentBuilderFactory;
-	private static DocumentBuilder documentBuilder;
 	private static XMLInputFactory xmlInputFactory;
-
-	private GMXFileReader()
-		{
-		}
-
 	private static Queue<PostponedRef> postpone = new LinkedList<PostponedRef>();
 
 	static interface PostponedRef
@@ -163,36 +138,8 @@ public final class GMXFileReader
 			}
 		}
 
-	private static Document parseDocumentUnchecked(ProjectFile f, String path) throws GmFormatException
+	private GMXFileReader()
 		{
-		Document doc = null;
-		try
-			{
-			doc = documentBuilder.parse(path);
-			}
-		catch (SAXException e)
-			{
-			throw new GmFormatException(f, "failed to parse: " + path, e);
-			}
-		catch (IOException e)
-			{
-			throw new GmFormatException(f, "failed to read: " + path, e);
-			}
-		return doc;
-		}
-
-	private static Document parseDocumentChecked(ProjectFile f, String path)
-		{
-			Document doc = null;
-			try
-				{
-				doc = parseDocumentUnchecked(f, path);
-				}
-			catch (GmFormatException e)
-				{
-				interfaceProvider.handleException(e);
-				}
-			return doc;
 		}
 
 	private static XMLEventReader parseDocumentUnchecked2(ProjectFile f, String path) throws GmFormatException
@@ -231,16 +178,16 @@ public final class GMXFileReader
 	private static class ProjectFileContext
 		{
 		ProjectFile f;
-		Document in;
+		XMLEventReader in;
 		RefList<Timeline> timeids;
 		RefList<GmObject> objids;
 		RefList<Room> rmids;
 
-		public ProjectFileContext(ProjectFile f, Document d, RefList<Timeline> timeids,
+		public ProjectFileContext(ProjectFile f, XMLEventReader in, RefList<Timeline> timeids,
 				RefList<GmObject> objids, RefList<Room> rmids)
 			{
 			this.f = f;
-			this.in = d;
+			this.in = in;
 			this.timeids = timeids;
 			this.objids = objids;
 			this.rmids = rmids;
@@ -277,17 +224,6 @@ public final class GMXFileReader
 		{
 		interfaceProvider.init(160,"ProgressDialog.GMX_LOADING"); //$NON-NLS-1$
 		file.format = ProjectFile.FormatFlavor.GMX;
-		if (documentBuilderFactory == null)
-			documentBuilderFactory = DocumentBuilderFactory.newInstance();
-		if (documentBuilder == null)
-			try
-				{
-				documentBuilder = documentBuilderFactory.newDocumentBuilder();
-				}
-			catch (ParserConfigurationException e1)
-				{
-				throw new GmFormatException(file,e1);
-				}
 		if (xmlInputFactory == null)
 			xmlInputFactory = XMLInputFactory.newInstance();
 		RefList<Timeline> timeids = new RefList<Timeline>(Timeline.class); // timeline ids
@@ -296,42 +232,71 @@ public final class GMXFileReader
 
 		try
 			{
-			Document document = GMXFileReader.parseDocumentUnchecked(file, uri.toString());
+			XMLEventReader document = GMXFileReader.parseDocumentUnchecked2(file, file.getPath());
 
 			ProjectFileContext c = new ProjectFileContext(file,document,timeids,objids,rmids);
 
-			interfaceProvider.setProgress(0,"ProgressDialog.SPRITES"); //$NON-NLS-1$
-			readGroup(c,root,Sprite.class);
-			interfaceProvider.setProgress(10,"ProgressDialog.SOUNDS"); //$NON-NLS-1$
-			readGroup(c,root,Sound.class);
-			interfaceProvider.setProgress(20,"ProgressDialog.BACKGROUNDS"); //$NON-NLS-1$
-			readGroup(c,root,Background.class);
-			interfaceProvider.setProgress(30,"ProgressDialog.PATHS"); //$NON-NLS-1$
-			readGroup(c,root,Path.class);
-			interfaceProvider.setProgress(40,"ProgressDialog.SCRIPTS"); //$NON-NLS-1$
-			readGroup(c,root,Script.class);
-			interfaceProvider.setProgress(50,"ProgressDialog.SHADERS"); //$NON-NLS-1$
-			readGroup(c,root,Shader.class);
-			interfaceProvider.setProgress(60,"ProgressDialog.FONTS"); //$NON-NLS-1$
-			readGroup(c,root,Font.class);
-			interfaceProvider.setProgress(70,"ProgressDialog.TIMELINES"); //$NON-NLS-1$
-			readGroup(c,root,Timeline.class);
-			interfaceProvider.setProgress(80,"ProgressDialog.OBJECTS"); //$NON-NLS-1$
-			readGroup(c,root,GmObject.class);
-			interfaceProvider.setProgress(90,"ProgressDialog.ROOMS"); //$NON-NLS-1$
-			readGroup(c,root,Room.class);
-			interfaceProvider.setProgress(100,"ProgressDialog.INCLUDEFILES"); //$NON-NLS-1$
-			readGroup(c,root,Include.class);
-			interfaceProvider.setProgress(110,"ProgressDialog.EXTENSIONS"); //$NON-NLS-1$
-			readExtensions(c,root);
-			interfaceProvider.setProgress(120,"ProgressDialog.CONSTANTS"); //$NON-NLS-1$
-			readDefaultConstants(c,root);
-			interfaceProvider.setProgress(130,"ProgressDialog.GAMEINFORMATION"); //$NON-NLS-1$
-			readGameInformation(c,root);
-			interfaceProvider.setProgress(140,"ProgressDialog.SETTINGS"); //$NON-NLS-1$
-			readConfigurations(c,root);
-			interfaceProvider.setProgress(150,"ProgressDialog.PACKAGES"); //$NON-NLS-1$
-			readPackages(c,root);
+			// clear old/default configurations
+			c.f.gameSettings.clear();
+
+			ResNode snode = new ResNode("Game Settings",ResNode.STATUS_SECONDARY,GameSettings.class,null);
+			root.add(snode);
+			ResNode inode = new ResNode(Resource.kindNamesPlural.get(GameInformation.class),
+					ResNode.STATUS_SECONDARY,GameInformation.class,c.f.gameInfo.reference);
+			root.add(inode);
+
+			Stack<ResNode> nodes = new Stack<>();
+			while (document.hasNext())
+				{
+				XMLEvent nextEvent = null;
+				try
+					{
+					nextEvent = document.nextEvent();
+					}
+				catch (XMLStreamException e)
+					{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					}
+
+				if (!nextEvent.isStartElement())
+					{
+					if (nextEvent.isEndElement() && !nodes.isEmpty())
+						nodes.pop();
+					continue;
+					}
+				StartElement sel = nextEvent.asStartElement();
+				String scope = sel.getName().getLocalPart();
+
+				ResNode node = nodes.isEmpty() ? root : nodes.peek();
+				if (GMXFileWriter.tagNames.containsValue(scope)) //$NON-NLS-1$
+					{
+					String groupName = nodes.isEmpty() ?
+							"wtf" :
+							sel.getAttributeByName(new QName("name")).getValue(); //$NON-NLS-1$
+					ResNode rnode = new ResNode(groupName,(node == null) ? ResNode.STATUS_PRIMARY : ResNode.STATUS_GROUP,Sprite.class,null);
+					node.add(rnode);
+					nodes.push(rnode);
+					continue;
+					}
+
+				switch (scope)
+					{
+					case "sprite": readSprite(c,node,document.getElementText()); break; //$NON-NLS-1$
+					case "sound": readSound(c,node,document.getElementText()); break; //$NON-NLS-1$
+					case "background": readBackground(c,node,document.getElementText()); break; //$NON-NLS-1$
+					case "path": readPath(c,node,document.getElementText()); break; //$NON-NLS-1$
+					case "script": readScript(c,node,document.getElementText()); break; //$NON-NLS-1$
+					case "shader": readShader(c,node,document.getElementText()); break; //$NON-NLS-1$
+					case "font": readFont(c,node,document.getElementText()); break; //$NON-NLS-1$
+					case "timeline": readTimeline(c,node,document.getElementText()); break; //$NON-NLS-1$
+					case "object": readGmObject(c,node,document.getElementText()); break; //$NON-NLS-1$
+					case "room": readRoom(c,node,document.getElementText()); break; //$NON-NLS-1$
+					case "datafile": readInclude(c,node,document.getElementText()); break; //$NON-NLS-1$
+					case "Config": readConfig(c,document.getElementText()); break; //$NON-NLS-1$
+					case "rtf": readGameInformation(c,document.getElementText()); break; //$NON-NLS-1$
+					}
+				}
 
 			interfaceProvider.setProgress(160,"ProgressDialog.POSTPONED"); //$NON-NLS-1$
 			// All resources read, now we can invoke our postponed references.
@@ -364,240 +329,156 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readGroup(ProjectFileContext c, ResNode root, Class<?> kind)
+	private static void readConfig(ProjectFileContext c, String cNode)
 		{
-		Document in = c.in;
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(kind),ResNode.STATUS_PRIMARY,kind,null);
-		root.add(node);
+		GameSettings gSet = new GameSettings();
+		String fileName = new File(Util.getPOSIXPath(cNode)).getName();
+		gSet.setName(fileName);
 
-		String kindTagName = GMXFileWriter.tagNames.get(kind);
-		if (kindTagName == null) return;
-		NodeList list = in.getElementsByTagName(kindTagName);
-		if (list == null || list.getLength() <= 0) return;
-		list = list.item(0).getChildNodes();
-		readTree(c,list,node,kind);
-		}
+		c.f.gameSettings.add(gSet);
+		PropertyMap<PGameSettings> pSet = gSet.properties;
 
-	private static void readTree(ProjectFileContext c, NodeList list, ResNode node, Class<?> kind)
-		{
-		for (int i = 0; i < list.getLength(); i++)
+		String path = c.f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
+
+		XMLEventReader reader = parseDocumentChecked2(c.f, path + ".config.gmx");
+		if (reader == null) return;
+
+		while (reader.hasNext())
 			{
-			Node cNode = list.item(i);
-			String tagName = cNode.getNodeName();
-			if (tagName.equals("#text")) continue; //$NON-NLS-1$
-
-			if (tagName.equals(GMXFileWriter.tagNames.get(kind)))
+			XMLEvent nextEvent = null;
+			try
 				{
-				String groupName = cNode.getAttributes().getNamedItem("name").getTextContent(); //$NON-NLS-1$
-				ResNode rnode = new ResNode(groupName,ResNode.STATUS_GROUP,kind,null);
-				node.add(rnode);
-				readTree(c,cNode.getChildNodes(),rnode, kind);
+				nextEvent = reader.nextEvent();
 				}
-			else
+			catch (XMLStreamException e)
 				{
-				if (tagName.equals("sprite")) //$NON-NLS-1$
-					readSprite(c,node,cNode);
-				else if (tagName.equals("sound")) //$NON-NLS-1$
-					readSound(c,node,cNode);
-				else if (tagName.equals("background")) //$NON-NLS-1$
-					readBackground(c,node,cNode);
-				else if (tagName.equals("path")) //$NON-NLS-1$
-					readPath(c,node,cNode);
-				else if (tagName.equals("script")) //$NON-NLS-1$
-					readScript(c,node,cNode);
-				else if (tagName.equals("shader")) //$NON-NLS-1$
-					readShader(c,node,cNode);
-				else if (tagName.equals("font")) //$NON-NLS-1$
-					readFont(c,node,cNode);
-				else if (tagName.equals("timeline")) //$NON-NLS-1$
-					readTimeline(c,node,cNode);
-				else if (tagName.equals("object")) //$NON-NLS-1$
-					readGmObject(c,node,cNode);
-				else if (tagName.equals("room")) //$NON-NLS-1$
-					readRoom(c,node,cNode);
-				else if (tagName.equals("datafile")) //$NON-NLS-1$
-					readInclude(c,node,cNode);
-				}
-			}
-		}
-
-	private static void readConfigurations(ProjectFileContext c, ResNode root)
-		{
-		Document in = c.in;
-
-		NodeList configNodes = in.getElementsByTagName("Configs").item(0).getChildNodes(); //$NON-NLS-1$
-
-		// clear the old/default ones
-		c.f.gameSettings.clear();
-
-		for (int i = 0; i < configNodes.getLength(); i++)
-			{
-			Node cNode = configNodes.item(i);
-			String cname = cNode.getNodeName();
-			if (cname.equals("#text")) //$NON-NLS-1$
-				{
-				continue;
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 				}
 
-			if (cname.toLowerCase().equals("configs")) //$NON-NLS-1$
+			if (!nextEvent.isStartElement()) continue;
+			StartElement sel = nextEvent.asStartElement();
+			String scope = sel.getName().getLocalPart();
+			if (!reader.hasNext()) break;
+			String data = "";
+			try
 				{
-				continue;
+				data = reader.getElementText();
 				}
-			else if (cname.toLowerCase().equals("config")) //$NON-NLS-1$
+			catch (XMLStreamException e)
 				{
-				GameSettings gSet = new GameSettings();
-				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
-				gSet.setName(fileName);
-
-				c.f.gameSettings.add(gSet);
-				PropertyMap<PGameSettings> pSet = gSet.properties;
-
-				String path = c.f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
-
-				XMLEventReader reader = parseDocumentChecked2(c.f, path + ".config.gmx");
-				if (reader == null) return;
-
-				while (reader.hasNext())
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				}
+			if (data.isEmpty()) continue;
+			
+			switch (scope)
+				{
+				case "option_sync_vertex": //$NON-NLS-1$
 					{
-					XMLEvent nextEvent = null;
+					// For some odd reason these two settings are combined together.
+					// 2147483649 - Both
+					// 2147483648 - Software Vertex Processing only
+					// 1 - Synchronization Only
+					// 0 - None
+					long syncvertex = Long.parseLong(data);
+					gSet.put(PGameSettings.USE_SYNCHRONIZATION,(syncvertex == 2147483649L || syncvertex == 1));
+					pSet.put(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING,
+							(syncvertex == 2147483649L || syncvertex == 2147483648L));
+					break;
+					}
+				case "option_use_new_audio": gSet.put(PGameSettings.USE_NEW_AUDIO,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+				case "option_shortcircuit": gSet.put(PGameSettings.SHORT_CIRCUIT_EVAL,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+				case "option_use_fast_collision": //$NON-NLS-1$
+					gSet.put(PGameSettings.USE_FAST_COLLISION,Boolean.parseBoolean(data)); break;
+				case "option_fast_collision_compatibility": //$NON-NLS-1$
+					gSet.put(PGameSettings.FAST_COLLISION_COMPAT,Boolean.parseBoolean(data)); break;
+				case "option_fullscreen": gSet.put(PGameSettings.START_FULLSCREEN,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+				case "option_sizeable": gSet.put(PGameSettings.ALLOW_WINDOW_RESIZE,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+				case "option_stayontop": gSet.put(PGameSettings.ALWAYS_ON_TOP,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+				case "option_aborterrors": gSet.put(PGameSettings.ABORT_ON_ERROR,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+				// TODO: This value is stored using the Windows native dialog's name for the color value, ie
+				// "clBlack" or "clWhite" meaning black and white respectively. If the user chooses a custom
+				// defined color in the dialog, then the value is in the hexadecimal form "$HHHHHHHH" using
+				// a dollar sign instead of a hash sign as a normal hex color value does in other places in
+				// the same configuration file.
+				case "option_windowcolor": /*gSet.put(PGameSettings.COLOR_OUTSIDE_ROOM,data);*/ break; //$NON-NLS-1$
+				case "option_noscreensaver": gSet.put(PGameSettings.DISABLE_SCREENSAVERS,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+				case "option_showcursor": gSet.put(PGameSettings.DISPLAY_CURSOR,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+				case "option_displayerrors": gSet.put(PGameSettings.DISPLAY_ERRORS,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+				case "option_noborder": gSet.put(PGameSettings.DONT_DRAW_BORDER,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+				case "option_nobuttons": gSet.put(PGameSettings.DONT_SHOW_BUTTONS,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+				case "option_argumenterrors": gSet.put(PGameSettings.ERROR_ON_ARGS,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+				case "option_freeze": gSet.put(PGameSettings.FREEZE_ON_LOSE_FOCUS,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+				case "option_colordepth": //$NON-NLS-1$
+					gSet.put(PGameSettings.COLOR_DEPTH, ProjectFile.GS_DEPTHS[Integer.parseInt(data)]); break;
+				case "option_frequency": //$NON-NLS-1$
+					gSet.put(PGameSettings.FREQUENCY, ProjectFile.GS_FREQS[Integer.parseInt(data)]); break;
+				case "option_resolution": //$NON-NLS-1$
+					gSet.put(PGameSettings.RESOLUTION, ProjectFile.GS_RESOLS[Integer.parseInt(data)]); break;
+				case "option_changeresolution": gSet.put(PGameSettings.SET_RESOLUTION, Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+				case "option_priority": //$NON-NLS-1$
+					gSet.put(PGameSettings.GAME_PRIORITY, ProjectFile.GS_PRIORITIES[Integer.parseInt(data)]); break;
+				case "option_closeesc": //$NON-NLS-1$
+					gSet.put(PGameSettings.LET_ESC_END_GAME,Boolean.parseBoolean(data));
+					gSet.put(PGameSettings.TREAT_CLOSE_AS_ESCAPE,Boolean.parseBoolean(data));
+					break;
+				case "option_interpolate": gSet.put(PGameSettings.INTERPOLATE,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+				case "option_scale": gSet.put(PGameSettings.SCALING,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "option_lastchanged": gSet.put(PGameSettings.LAST_CHANGED,Double.parseDouble(data)); break; //$NON-NLS-1$
+				case "option_gameid": gSet.put(PGameSettings.GAME_ID,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "option_author": gSet.put(PGameSettings.AUTHOR,data); break; //$NON-NLS-1$
+				case "option_version_company": gSet.put(PGameSettings.COMPANY,data); break; //$NON-NLS-1$
+				case "option_version_copyright": gSet.put(PGameSettings.COPYRIGHT,data); break; //$NON-NLS-1$
+				case "option_version_description": gSet.put(PGameSettings.DESCRIPTION,data); break; //$NON-NLS-1$
+				case "option_version_product": gSet.put(PGameSettings.PRODUCT,data); break; //$NON-NLS-1$
+				case "option_information": gSet.put(PGameSettings.INFORMATION,data); break; //$NON-NLS-1$
+				case "option_version": gSet.put(PGameSettings.VERSION,data); break; //$NON-NLS-1$
+				case "option_version_build": gSet.put(PGameSettings.VERSION_BUILD,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "option_version_major": gSet.put(PGameSettings.VERSION_MAJOR,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "option_version_minor": gSet.put(PGameSettings.VERSION_MINOR,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "option_version_release": gSet.put(PGameSettings.VERSION_RELEASE,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "option_windows_steam_app_id": gSet.put(PGameSettings.WINDOWS_STEAM_ID,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "option_mac_steam_app_id": gSet.put(PGameSettings.MAC_STEAM_ID,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "option_linux_steam_app_id": gSet.put(PGameSettings.LINUX_STEAM_ID,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "option_windows_enable_steam": //$NON-NLS-1$
+					gSet.put(PGameSettings.WINDOWS_STEAM_ENABLE,Boolean.parseBoolean(data)); break;
+				case "option_mac_enable_steam": gSet.put(PGameSettings.MAC_STEAM_ENABLE,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+				case "option_linux_enable_steam": //$NON-NLS-1$
+					gSet.put(PGameSettings.LINUX_STEAM_ENABLE,Boolean.parseBoolean(data)); break;
+				case "option_windows_game_icon": //$NON-NLS-1$
+					{
+					String icopath = c.f.getDirectory() + '/' + data;
+					icopath = Util.getPOSIXPath(icopath);
 					try
 						{
-						nextEvent = reader.nextEvent();
+						// the icon not existing is a silent fail in GMSv1.4
+						// which will automatically recreate it as the default
+						// probably because the IDE does not require it, but
+						// the asset compiler does
+						if (new File(icopath).exists()) // << GMZ does not export if default icon
+							pSet.put(PGameSettings.GAME_ICON,new ICOFile(icopath));
 						}
-					catch (XMLStreamException e)
+					catch (IOException e)
 						{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						interfaceProvider.handleException(new GmFormatException(c.f, "failed to read: " + icopath, e));
 						}
-
-					if (!nextEvent.isStartElement()) continue;
-					StartElement sel = nextEvent.asStartElement();
-					String scope = sel.getName().getLocalPart();
-					if (!reader.hasNext()) break;
-					String data = "";
-					try
-						{
-						data = reader.getElementText();
-						}
-					catch (XMLStreamException e)
-						{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						}
-					if (data.isEmpty()) continue;
-					
-					switch (scope)
-						{
-						case "option_sync_vertex": //$NON-NLS-1$
-							{
-							// For some odd reason these two settings are combined together.
-							// 2147483649 - Both
-							// 2147483648 - Software Vertex Processing only
-							// 1 - Synchronization Only
-							// 0 - None
-							long syncvertex = Long.parseLong(data);
-							gSet.put(PGameSettings.USE_SYNCHRONIZATION,(syncvertex == 2147483649L || syncvertex == 1));
-							pSet.put(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING,
-									(syncvertex == 2147483649L || syncvertex == 2147483648L));
-							break;
-							}
-						case "option_use_new_audio": gSet.put(PGameSettings.USE_NEW_AUDIO,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-						case "option_shortcircuit": gSet.put(PGameSettings.SHORT_CIRCUIT_EVAL,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-						case "option_use_fast_collision": //$NON-NLS-1$
-							gSet.put(PGameSettings.USE_FAST_COLLISION,Boolean.parseBoolean(data)); break;
-						case "option_fast_collision_compatibility": //$NON-NLS-1$
-							gSet.put(PGameSettings.FAST_COLLISION_COMPAT,Boolean.parseBoolean(data)); break;
-						case "option_fullscreen": gSet.put(PGameSettings.START_FULLSCREEN,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-						case "option_sizeable": gSet.put(PGameSettings.ALLOW_WINDOW_RESIZE,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-						case "option_stayontop": gSet.put(PGameSettings.ALWAYS_ON_TOP,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-						case "option_aborterrors": gSet.put(PGameSettings.ABORT_ON_ERROR,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-						// TODO: This value is stored using the Windows native dialog's name for the color value, ie
-						// "clBlack" or "clWhite" meaning black and white respectively. If the user chooses a custom
-						// defined color in the dialog, then the value is in the hexadecimal form "$HHHHHHHH" using
-						// a dollar sign instead of a hash sign as a normal hex color value does in other places in
-						// the same configuration file.
-						case "option_windowcolor": /*gSet.put(PGameSettings.COLOR_OUTSIDE_ROOM,data);*/ break; //$NON-NLS-1$
-						case "option_noscreensaver": gSet.put(PGameSettings.DISABLE_SCREENSAVERS,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-						case "option_showcursor": gSet.put(PGameSettings.DISPLAY_CURSOR,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-						case "option_displayerrors": gSet.put(PGameSettings.DISPLAY_ERRORS,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-						case "option_noborder": gSet.put(PGameSettings.DONT_DRAW_BORDER,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-						case "option_nobuttons": gSet.put(PGameSettings.DONT_SHOW_BUTTONS,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-						case "option_argumenterrors": gSet.put(PGameSettings.ERROR_ON_ARGS,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-						case "option_freeze": gSet.put(PGameSettings.FREEZE_ON_LOSE_FOCUS,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-						case "option_colordepth": //$NON-NLS-1$
-							gSet.put(PGameSettings.COLOR_DEPTH, ProjectFile.GS_DEPTHS[Integer.parseInt(data)]); break;
-						case "option_frequency": //$NON-NLS-1$
-							gSet.put(PGameSettings.FREQUENCY, ProjectFile.GS_FREQS[Integer.parseInt(data)]); break;
-						case "option_resolution": //$NON-NLS-1$
-							gSet.put(PGameSettings.RESOLUTION, ProjectFile.GS_RESOLS[Integer.parseInt(data)]); break;
-						case "option_changeresolution": gSet.put(PGameSettings.SET_RESOLUTION, Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-						case "option_priority": //$NON-NLS-1$
-							gSet.put(PGameSettings.GAME_PRIORITY, ProjectFile.GS_PRIORITIES[Integer.parseInt(data)]); break;
-						case "option_closeesc": //$NON-NLS-1$
-							gSet.put(PGameSettings.LET_ESC_END_GAME,Boolean.parseBoolean(data));
-							gSet.put(PGameSettings.TREAT_CLOSE_AS_ESCAPE,Boolean.parseBoolean(data));
-							break;
-						case "option_interpolate": gSet.put(PGameSettings.INTERPOLATE,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-						case "option_scale": gSet.put(PGameSettings.SCALING,Integer.parseInt(data)); break; //$NON-NLS-1$
-						case "option_lastchanged": gSet.put(PGameSettings.LAST_CHANGED,Double.parseDouble(data)); break; //$NON-NLS-1$
-						case "option_gameid": gSet.put(PGameSettings.GAME_ID,Integer.parseInt(data)); break; //$NON-NLS-1$
-						case "option_author": gSet.put(PGameSettings.AUTHOR,data); break; //$NON-NLS-1$
-						case "option_version_company": gSet.put(PGameSettings.COMPANY,data); break; //$NON-NLS-1$
-						case "option_version_copyright": gSet.put(PGameSettings.COPYRIGHT,data); break; //$NON-NLS-1$
-						case "option_version_description": gSet.put(PGameSettings.DESCRIPTION,data); break; //$NON-NLS-1$
-						case "option_version_product": gSet.put(PGameSettings.PRODUCT,data); break; //$NON-NLS-1$
-						case "option_information": gSet.put(PGameSettings.INFORMATION,data); break; //$NON-NLS-1$
-						case "option_version": gSet.put(PGameSettings.VERSION,data); break; //$NON-NLS-1$
-						case "option_version_build": gSet.put(PGameSettings.VERSION_BUILD,Integer.parseInt(data)); break; //$NON-NLS-1$
-						case "option_version_major": gSet.put(PGameSettings.VERSION_MAJOR,Integer.parseInt(data)); break; //$NON-NLS-1$
-						case "option_version_minor": gSet.put(PGameSettings.VERSION_MINOR,Integer.parseInt(data)); break; //$NON-NLS-1$
-						case "option_version_release": gSet.put(PGameSettings.VERSION_RELEASE,Integer.parseInt(data)); break; //$NON-NLS-1$
-						case "option_windows_steam_app_id": gSet.put(PGameSettings.WINDOWS_STEAM_ID,Integer.parseInt(data)); break; //$NON-NLS-1$
-						case "option_mac_steam_app_id": gSet.put(PGameSettings.MAC_STEAM_ID,Integer.parseInt(data)); break; //$NON-NLS-1$
-						case "option_linux_steam_app_id": gSet.put(PGameSettings.LINUX_STEAM_ID,Integer.parseInt(data)); break; //$NON-NLS-1$
-						case "option_windows_enable_steam": //$NON-NLS-1$
-							gSet.put(PGameSettings.WINDOWS_STEAM_ENABLE,Boolean.parseBoolean(data)); break;
-						case "option_mac_enable_steam": gSet.put(PGameSettings.MAC_STEAM_ENABLE,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-						case "option_linux_enable_steam": //$NON-NLS-1$
-							gSet.put(PGameSettings.LINUX_STEAM_ENABLE,Boolean.parseBoolean(data)); break;
-						case "option_windows_game_icon": //$NON-NLS-1$
-							{
-							String icopath = c.f.getDirectory() + '/' + data;
-							icopath = Util.getPOSIXPath(icopath);
-							try
-								{
-								// the icon not existing is a silent fail in GMSv1.4
-								// which will automatically recreate it as the default
-								// probably because the IDE does not require it, but
-								// the asset compiler does
-								if (new File(icopath).exists()) // << GMZ does not export if default icon
-									pSet.put(PGameSettings.GAME_ICON,new ICOFile(icopath));
-								}
-							catch (IOException e)
-								{
-								interfaceProvider.handleException(new GmFormatException(c.f, "failed to read: " + icopath, e));
-								}
-							break;
-							}
-						}
+					break;
 					}
 				}
 			}
-
-		ResNode node = new ResNode("Game Settings",ResNode.STATUS_SECONDARY,GameSettings.class,null);
-		root.add(node);
 		}
 
-	private static void readSprite(ProjectFileContext c, ResNode node, Node cNode)
+	private static void readSprite(ProjectFileContext c, ResNode node, String cNode)
 		{
 		ProjectFile f = c.f;
 
 		Sprite spr = f.resMap.getList(Sprite.class).add();
-		String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
+		String fileName = new File(Util.getPOSIXPath(cNode)).getName();
 		spr.setName(fileName);
 		ResNode rnode = new ResNode(spr.getName(),ResNode.STATUS_SECONDARY,Sprite.class,spr.reference);
 		node.add(rnode);
-		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
+		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
 		spr.put(PSprite.TRANSPARENT,false);
 
@@ -705,17 +586,17 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readSound(ProjectFileContext c, ResNode node, Node cNode)
+	private static void readSound(ProjectFileContext c, ResNode node, String cNode)
 		{
 		ProjectFile f = c.f;
 
 		Sound snd = f.resMap.getList(Sound.class).add();
-		String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
+		String fileName = new File(Util.getPOSIXPath(cNode)).getName();
 		snd.setName(fileName);
 		ResNode rnode = new ResNode(snd.getName(),ResNode.STATUS_SECONDARY,Sound.class,snd.reference);
 		node.add(rnode);
 		snd.setNode(rnode);
-		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
+		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
 		XMLEventReader reader = parseDocumentChecked2(f, path + ".sound.gmx");
 		if (reader == null) return;
@@ -785,16 +666,16 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readBackground(ProjectFileContext c, ResNode node, Node cNode)
+	private static void readBackground(ProjectFileContext c, ResNode node, String cNode)
 		{
 		ProjectFile f = c.f;
 
 		Background bkg = f.resMap.getList(Background.class).add();
-		String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
+		String fileName = new File(Util.getPOSIXPath(cNode)).getName();
 		bkg.setName(fileName);
 		ResNode rnode = new ResNode(bkg.getName(),ResNode.STATUS_SECONDARY,Background.class,bkg.reference);
 		node.add(rnode);
-		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
+		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
 		XMLEventReader reader = parseDocumentChecked2(f, path + ".background.gmx");
 		if (reader == null) return;
@@ -864,16 +745,16 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readPath(ProjectFileContext c, ResNode node, Node cNode)
+	private static void readPath(ProjectFileContext c, ResNode node, String cNode)
 		{
 		final ProjectFile f = c.f;
 
 		final Path pth = f.resMap.getList(Path.class).add();
-		String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
+		String fileName = new File(Util.getPOSIXPath(cNode)).getName();
 		pth.setName(fileName);
 		ResNode rnode = new ResNode(pth.getName(),ResNode.STATUS_SECONDARY,Path.class,pth.reference);
 		node.add(rnode);
-		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
+		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
 		XMLEventReader reader = parseDocumentChecked2(f, path + ".path.gmx");
 		if (reader == null) return;
@@ -947,16 +828,16 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readScript(ProjectFileContext c, ResNode node, Node cNode)
+	private static void readScript(ProjectFileContext c, ResNode node, String cNode)
 		{
 		ProjectFile f = c.f;
 
 		Script scr = f.resMap.getList(Script.class).add();
-		String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
+		String fileName = new File(Util.getPOSIXPath(cNode)).getName();
 		scr.setName(fileName.substring(0,fileName.lastIndexOf('.')));
 		ResNode rnode = new ResNode(scr.getName(),ResNode.STATUS_SECONDARY,Script.class,scr.reference);
 		node.add(rnode);
-		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
+		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
 		try (BufferedReader reader = new BufferedReader(new FileReader(path)))
 			{
@@ -997,18 +878,19 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readShader(ProjectFileContext c, ResNode node, Node cNode)
+	private static void readShader(ProjectFileContext c, ResNode node, String cNode)
 		{
+		if (true) return;
 		ProjectFile f = c.f;
 
 		Shader shr = f.resMap.getList(Shader.class).add();
-		String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
+		String fileName = new File(Util.getPOSIXPath(cNode)).getName();
 		shr.setName(fileName.substring(0,fileName.lastIndexOf('.')));
 		ResNode rnode = new ResNode(shr.getName(),ResNode.STATUS_SECONDARY,Shader.class,shr.reference);
 		node.add(rnode);
-		shr.put(PShader.TYPE,cNode.getAttributes().item(0).getTextContent());
+		//shr.put(PShader.TYPE,cNode.getAttributes().item(0).getTextContent());
 		String code = ""; //$NON-NLS-1$
-		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
+		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
 		try (BufferedReader reader = new BufferedReader(new FileReader(path)))
 			{
@@ -1032,16 +914,16 @@ public final class GMXFileReader
 		shr.put(PShader.FRAGMENT,splitcode[1]);
 		}
 
-	private static void readFont(ProjectFileContext c, ResNode node, Node cNode)
+	private static void readFont(ProjectFileContext c, ResNode node, String cNode)
 		{
 		ProjectFile f = c.f;
 
 		Font fnt = f.resMap.getList(Font.class).add();
-		String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
+		String fileName = new File(Util.getPOSIXPath(cNode)).getName();
 		fnt.setName(fileName);
 		ResNode rnode = new ResNode(fnt.getName(),ResNode.STATUS_SECONDARY,Font.class,fnt.reference);
 		node.add(rnode);
-		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
+		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
 		XMLEventReader reader = parseDocumentChecked2(f, path + ".font.gmx");
 		if (reader == null) return;
@@ -1111,7 +993,7 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readTimeline(ProjectFileContext c, ResNode node, Node cNode)
+	private static void readTimeline(ProjectFileContext c, ResNode node, String cNode)
 		{
 		ProjectFile f = c.f;
 
@@ -1121,11 +1003,11 @@ public final class GMXFileReader
 
 		Timeline tml = f.resMap.getList(Timeline.class).add();
 
-		String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
+		String fileName = new File(Util.getPOSIXPath(cNode)).getName();
 		tml.setName(fileName);
 		ResNode rnode = new ResNode(tml.getName(),ResNode.STATUS_SECONDARY,Timeline.class,tml.reference);
 		node.add(rnode);
-		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
+		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
 		XMLEventReader reader = parseDocumentChecked2(f, path + ".timeline.gmx");
 		if (reader == null) return;
@@ -1173,7 +1055,7 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readGmObject(ProjectFileContext c, ResNode node, Node cNode)
+	private static void readGmObject(ProjectFileContext c, ResNode node, String cNode)
 		{
 		final ProjectFile f = c.f;
 
@@ -1183,10 +1065,10 @@ public final class GMXFileReader
 
 		final GmObject obj = f.resMap.getList(GmObject.class).add();
 
-		String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
+		String fileName = new File(Util.getPOSIXPath(cNode)).getName();
 		obj.setName(fileName);
 
-		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
+		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
 		ResNode rnode = new ResNode(obj.getName(),ResNode.STATUS_SECONDARY,GmObject.class,obj.reference);
 		node.add(rnode);
@@ -1302,7 +1184,7 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readRoom(ProjectFileContext c, ResNode node, Node cNode)
+	private static void readRoom(ProjectFileContext c, ResNode node, String cNode)
 		{
 		final ProjectFile f = c.f;
 
@@ -1311,11 +1193,11 @@ public final class GMXFileReader
 		//f.resMap.getList(Room.class).add(rmn);
 		Room rmn = f.resMap.getList(Room.class).add();
 
-		String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
+		String fileName = new File(Util.getPOSIXPath(cNode)).getName();
 		rmn.setName(fileName);
 		ResNode rnode = new ResNode(rmn.getName(),ResNode.STATUS_SECONDARY,Room.class,rmn.reference);
 		node.add(rnode);
-		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
+		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
 		XMLEventReader reader = parseDocumentChecked2(f, path + ".room.gmx");
 		if (reader == null) return;
@@ -1545,127 +1427,31 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readInclude(ProjectFileContext c, ResNode node, Node cNode)
+	private static void readInclude(ProjectFileContext c, ResNode node, String cNode)
 		{
-		if (!(cNode instanceof Element)) return;
-		Element el = (Element)cNode;
 
-		final ProjectFile f = c.f;
-
-		final Include inc = f.resMap.getList(Include.class).add();
-		String name = el.getElementsByTagName("name").item(0).getTextContent(); //$NON-NLS-1$
-		//NOTE: we don't yet allow file extensions in the resource tree at all
-		//and it really might not be a good idea to allow that anyway
-		inc.setName(Util.fileNameWithoutExtension(name));
-		ResNode rnode = new ResNode(inc.getName(),ResNode.STATUS_SECONDARY,Include.class,inc.reference);
-		node.add(rnode);
-
-		boolean overwrite = Integer.parseInt(el.getElementsByTagName("overwrite").item(0).getTextContent()) != 0; //$NON-NLS-1$
-		inc.put(PInclude.OVERWRITE,overwrite);
-		boolean freeMemory = Integer.parseInt(el.getElementsByTagName("freeData").item(0).getTextContent()) != 0; //$NON-NLS-1$
-		inc.put(PInclude.FREEMEMORY,freeMemory);
-		boolean removeEnd = Integer.parseInt(el.getElementsByTagName("removeEnd").item(0).getTextContent()) != 0; //$NON-NLS-1$
-		inc.put(PInclude.REMOVEATGAMEEND,removeEnd);
-		boolean store = Integer.parseInt(el.getElementsByTagName("store").item(0).getTextContent()) != 0; //$NON-NLS-1$
-		inc.put(PInclude.STORE,store);
-		int size = Integer.parseInt(el.getElementsByTagName("size").item(0).getTextContent()); //$NON-NLS-1$
-		inc.put(PInclude.SIZE,size);
-		String exportFolder = el.getElementsByTagName("exportDir").item(0).getTextContent(); //$NON-NLS-1$
-		inc.put(PInclude.EXPORTFOLDER,exportFolder);
-		int exportAction = Integer.parseInt(el.getElementsByTagName("exportAction").item(0).getTextContent()); //$NON-NLS-1$
-		inc.put(PInclude.EXPORTACTION,ProjectFile.INCLUDE_EXPORT_ACTION[exportAction]);
-		String filename = el.getElementsByTagName("filename").item(0).getTextContent(); //$NON-NLS-1$
-		inc.put(PInclude.FILENAME,filename);
-
-		String filePath = filename;
-		ResNode parent = node;
-		while (parent != null && parent.status == ResNode.STATUS_GROUP) {
-			filePath = parent.toString() + File.separatorChar + filePath;
-			parent = (ResNode) parent.getParent();
-		}
-		filePath = f.getDirectory() + File.separatorChar + "datafiles" + File.separatorChar + filePath; //$NON-NLS-1$
-		inc.put(PInclude.FILEPATH,filePath);
-		File dataFile = new File(filePath);
-		try
-			{
-			inc.data = Files.readAllBytes(dataFile.toPath());
-			}
-		catch (IOException e)
-			{
-			interfaceProvider.handleException(new GmFormatException(c.f, "failed to read: " + dataFile.getAbsolutePath(), e));
-			}
 		}
 
 	private static void readPackages(ProjectFileContext c, ResNode root)
 		{
-		//iteratePackages(c, extList, node);
-		ExtensionPackages extpkgs = c.f.extPackages;
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(ExtensionPackages.class),
-				ResNode.STATUS_SECONDARY,ExtensionPackages.class,extpkgs.reference);
-		root.add(node);
+
 		}
 
-	private static void readExtensions(ProjectFileContext c, ResNode root)
+	private static void readConstants(Constants cnsts, String node)
 		{
-		Document in = c.in;
 
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Extension.class),
-				ResNode.STATUS_PRIMARY,Extension.class,null);
-		root.add(node);
-
-		NodeList extList = in.getElementsByTagName("extensions"); //$NON-NLS-1$
-		if (extList.getLength() > 0)
-			{
-			extList = extList.item(0).getChildNodes();
-			}
-		else
-			{
-			return;
-			}
-		//iterateExtensions(c, extList, node);
-		}
-
-	private static void readConstants(Constants cnsts, Node node)
-		{
-		if (node == null) return;
-		int count = Integer.valueOf(node.getAttributes().getNamedItem("number").getNodeValue()); //$NON-NLS-1$
-		List<Constant> newList = new ArrayList<Constant>(count);
-		NodeList cnstNodes = node.getChildNodes();
-		for (int i = 0; i < cnstNodes.getLength(); i++)
-			{
-			Node cnstNode = cnstNodes.item(i);
-			if (!cnstNode.getNodeName().equals("constant")) //$NON-NLS-1$
-				{
-				continue;
-				}
-			String name = cnstNode.getAttributes().getNamedItem("name").getTextContent(); //$NON-NLS-1$
-			String value = cnstNode.getTextContent();
-			newList.add(new Constant(name,value));
-			}
-		cnsts.constants = newList;
 		}
 
 	private static void readDefaultConstants(ProjectFileContext c, ResNode root)
 		{
-		readConstants(c.f.defaultConstants,c.in.getElementsByTagName("constants").item(0)); //$NON-NLS-1$
-		ResNode node = new ResNode("Constants",ResNode.STATUS_SECONDARY,Constants.class,null); //$NON-NLS-1$
-		root.add(node);
+
 		}
 
-	private static void readGameInformation(ProjectFileContext c, ResNode root)
+	private static void readGameInformation(ProjectFileContext c, String cNode)
 		{
-		Document in = c.in;
-
 		GameInformation gameInfo = c.f.gameInfo;
 
-		NodeList rtfNodes = in.getElementsByTagName("rtf"); //$NON-NLS-1$
-		if (rtfNodes.getLength() == 0)
-			{
-			return;
-			}
-		Node rtfNode = rtfNodes.item(rtfNodes.getLength() - 1);
-
-		String path = c.f.getDirectory() + '/' + Util.getPOSIXPath(rtfNode.getTextContent());
+		String path = c.f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
 		String text = ""; //$NON-NLS-1$
 
@@ -1687,10 +1473,6 @@ public final class GMXFileReader
 			}
 
 		gameInfo.put(PGameInformation.TEXT,text);
-
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(GameInformation.class),
-				ResNode.STATUS_SECONDARY,GameInformation.class,gameInfo.reference);
-		root.add(node);
 		}
 
 	private static void readActions(ProjectFileContext c, ActionContainer container, String errorKey,
