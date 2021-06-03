@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.EnumMap;
+import java.util.Random;
+import java.util.UUID;
 
 import org.lateralgm.file.ProjectFile;
 import org.lateralgm.file.iconio.ICOFile;
@@ -98,9 +100,9 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 		WINDOWS_STEAM_ENABLE,MAC_STEAM_ENABLE,LINUX_STEAM_ENABLE
 		}
 
-	//GAME_ID and  DPLAY_GUID randomized in GmFile constructor
+	//GAME_ID and GAME_GUID (DirectPlay) randomized in ProjectFile factory constructor
 	private static final EnumMap<PGameSettings,Object> DEFS = PropertyMap.makeDefaultMap(
-			PGameSettings.class,-1,new byte[16],false,false,false,false,true,-1,false,false,Color.BLACK,/**/
+			PGameSettings.class,-1,UUID.randomUUID(),false,false,false,false,true,-1,false,false,Color.BLACK,/**/
 			false,ColorDepth.NO_CHANGE,Resolution.NO_CHANGE,Frequency.NO_CHANGE,/**/
 			false,false,true,true,true,true,false,false,true,Priority.NORMAL,/**/
 			true,ProgressBar.DEFAULT,null,null,false,null,false,255,true,/**/
@@ -146,5 +148,12 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 	public Double getLastChanged()
 		{
 		return (Double) properties.get(PGameSettings.LAST_CHANGED);
+		}
+
+	public void randomizeGameIds()
+		{
+		Random random = new Random();
+		put(PGameSettings.GAME_ID,random.nextInt(100000001));
+		put(PGameSettings.GAME_GUID,UUID.randomUUID());
 		}
 	}

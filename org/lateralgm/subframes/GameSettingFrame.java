@@ -27,7 +27,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Random;
+import java.util.UUID;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -91,6 +91,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 	public JPanel cardPane;
 
 	public NumberField gameId;
+	public JTextField gameGUID;
 	public JButton randomise;
 	public ColorSelect colorbutton;
 
@@ -119,15 +120,20 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		plf.make(gameId,PGameSettings.GAME_ID);
 		randomise = new JButton(Messages.getString("GameSettingFrame.RANDOMIZE")); //$NON-NLS-1$
 		randomise.addActionListener(this);
+		JLabel lGUID = new JLabel(Messages.getString("GameSettingFrame.GAME_GUID")); //$NON-NLS-1$
+		gameGUID = new JTextField();
+		gameGUID.setEditable(false);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addGroup(layout.createParallelGroup()
 		/*				*/.addGroup(layout.createSequentialGroup()
 		/*						*/.addComponent(lId)
-		/*						*/.addComponent(gameId,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)))
-		/*		*/.addGroup(layout.createParallelGroup()
-		/*				*/.addComponent(randomise,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)))
+		/*						*/.addComponent(gameId,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/*				*/.addComponent(randomise,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
+		/*				*/.addGroup(layout.createSequentialGroup()
+		/*						*/.addComponent(lGUID)
+		/*						*/.addComponent(gameGUID))))
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(backcolor)
 		/*	*/.addComponent(colorbutton))
@@ -140,13 +146,18 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		/*		*/.addComponent(lId)
 		/*		*/.addComponent(gameId)
 		/*		*/.addComponent(randomise))
-		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE,false)
-		/*	*/.addComponent(backcolor)
-		/*	*/.addComponent(colorbutton))
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lGUID)
+		/*		*/.addComponent(gameGUID))
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addComponent(useNewAudio)
 		/**/.addComponent(shortCircuitEval)
 		/**/.addComponent(useFastCollision)
-		/**/.addComponent(fastCollisionCompat));
+		/**/.addComponent(fastCollisionCompat)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE,false)
+		/*	*/.addComponent(backcolor)
+		/*	*/.addComponent(colorbutton)));
 
 		return panel;
 		}
@@ -1018,7 +1029,11 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		if (name == null) return;
 		if (name.endsWith(".TAB_GENERAL")) { //$NON-NLS-1$
 			if (e.getSource() == randomise)
-				gameId.setValue(new Random().nextInt(100000001));
+				{
+				res.randomizeGameIds();
+				UUID guid = res.get(PGameSettings.GAME_GUID);
+				gameGUID.setText('{' + guid.toString().toUpperCase() + '}');
+				}
 		} if (name.endsWith(".TAB_GRAPHICS")) { //$NON-NLS-1$
 			if (e.getSource() instanceof JRadioButton)
 				scale.setEnabled(scaling.getValue() > 0);
@@ -1105,8 +1120,6 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 	public void commitChanges()
 		{
-		// in GMX this is two options binded together into one value
-		//res.put(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING,softwareVertexProcessing.is);
 		res.put(PGameSettings.SCALING,scaling.getValue() > 0 ? scale.getIntValue() : scaling.getValue());
 		res.put(PGameSettings.LOADING_IMAGE,customLoadingImage);
 		res.put(PGameSettings.BACK_LOAD_BAR,backLoadImage);
@@ -1117,6 +1130,9 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 	public void setComponents(GameSettings g)
 		{
+		UUID guid = g.get(PGameSettings.GAME_GUID);
+		gameGUID.setText('{' + guid.toString().toUpperCase() + '}');
+
 		int s = g.get(PGameSettings.SCALING);
 		scaling.setValue(s > 1 ? 1 : s);
 		if (s > 1) scale.setValue(s);

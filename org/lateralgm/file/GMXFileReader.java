@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.UUID;
 
 import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
@@ -113,8 +114,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
-import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 
 // TODO: Possibly rewrite from a DOM parser to a SAX parser,
 // because SAX is light weight faster and uses less memory,
@@ -242,6 +241,17 @@ public final class GMXFileReader
 	public static void readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root,
 			Charset forceCharset) throws GmFormatException
 		{
+		// {5399779A-DA3E-6DDA-CB3F-2CAFCC536A98}
+		// .replace("-","").replace("{","").replace("}","")
+		String hexy = "{5399779A-DA3E-6DDA-CB3F-2CAFCC536A98}";
+		String hexy2 = hexy.replace("{","").replace("}","");
+		byte decoded[] = Util.decodeHex(hexy2);
+		String encoded = Util.encodeHex(decoded);
+		System.out.println(encoded);
+		
+		UUID uuid = UUID.fromString(hexy2);
+		System.out.println(uuid.toString());
+		
 		interfaceProvider.init(160,"ProgressDialog.GMX_LOADING"); //$NON-NLS-1$
 		file.format = ProjectFile.FormatFlavor.GMX;
 		if (documentBuilderFactory == null)
@@ -542,10 +552,10 @@ public final class GMXFileReader
 					}
 				pSet.put(PGameSettings.GAME_ID,
 						Integer.parseInt(setdoc.getElementsByTagName("option_gameid").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(
-						PGameSettings.GAME_GUID,
-						HexBin.decode(setdoc.getElementsByTagName("option_gameguid").item(0).getTextContent().replace( //$NON-NLS-1$
-								"-","").replace("{","").replace("}","")));
+				String guid = setdoc.getElementsByTagName("option_gameguid").item(0).getTextContent(); //$NON-NLS-1$
+				// The braces are a Microsoft thing for GUID, and UUID class does not like them.
+				guid = guid.replaceAll("[{}]",""); //$NON-NLS-1$ //$NON-NLS-2$
+				pSet.put(PGameSettings.GAME_GUID,UUID.fromString(guid));
 
 				pSet.put(PGameSettings.AUTHOR,
 						setdoc.getElementsByTagName("option_author").item(0).getTextContent()); //$NON-NLS-1$

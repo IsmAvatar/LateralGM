@@ -38,6 +38,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.Vector;
 
 import org.lateralgm.main.UpdateSource;
@@ -463,9 +464,7 @@ public class ProjectFile implements UpdateListener
 
 	public static GameSettings createDefaultConfig() {
 		GameSettings gs = new GameSettings();
-		Random random = new Random();
-		gs.put(PGameSettings.GAME_ID,random.nextInt(100000001));
-		random.nextBytes((byte[]) gs.get(PGameSettings.GAME_GUID));
+		gs.randomizeGameIds();
 		return gs;
 	}
 

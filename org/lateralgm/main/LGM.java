@@ -125,7 +125,7 @@ import org.lateralgm.subframes.ResourceFrame.ResourceFrameFactory;
 
 public final class LGM
 	{
-	public static final String version = "1.8.230"; //$NON-NLS-1$
+	public static final String version = "1.8.231"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
