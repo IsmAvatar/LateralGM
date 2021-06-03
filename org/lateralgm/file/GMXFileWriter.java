@@ -114,8 +114,6 @@ import org.lateralgm.util.PropertyMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
-
 public final class GMXFileWriter
 	{
 	private static DocumentBuilder documentBuilder;

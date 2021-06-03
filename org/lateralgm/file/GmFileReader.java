@@ -200,8 +200,11 @@ public final class GmFileReader
 				}
 			else
 				gs.put(PGameSettings.GAME_ID,in.read4());
-			gs.put(PGameSettings.GAME_GUID,UUID.nameUUIDFromBytes(in.readNBytes(16)));
-			in.read((byte[]) gs.get(PGameSettings.GAME_GUID)); //16 bytes
+			byte bts[] = in.readNBytes(16);
+			for (int i = 0; i < 16; ++i)
+				System.out.print(String.format("%02X ", bts[i]));
+			System.out.println(" " + bts);
+			gs.put(PGameSettings.GAME_GUID,UUID.randomUUID());
 
 			readSettings(c,gs);
 
