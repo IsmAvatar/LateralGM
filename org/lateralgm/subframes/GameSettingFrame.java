@@ -92,7 +92,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 	public NumberField gameId;
 	public JTextField gameGUID;
-	public JButton randomise;
+	public JButton randomise, copyGUID;
 	public ColorSelect colorbutton;
 
 	private JPanel makeGeneralPane()
@@ -116,13 +116,16 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		plf.make(fastCollisionCompat,PGameSettings.FAST_COLLISION_COMPAT);
 
 		JLabel lId = new JLabel(Messages.getString("GameSettingFrame.GAME_ID")); //$NON-NLS-1$
-		gameId = new NumberField(0,100000000);
+		gameId = new NumberField(0,999999999);
 		plf.make(gameId,PGameSettings.GAME_ID);
 		randomise = new JButton(Messages.getString("GameSettingFrame.RANDOMIZE")); //$NON-NLS-1$
 		randomise.addActionListener(this);
 		JLabel lGUID = new JLabel(Messages.getString("GameSettingFrame.GAME_GUID")); //$NON-NLS-1$
 		gameGUID = new JTextField();
 		gameGUID.setEditable(false);
+		copyGUID = new JButton(Messages.getString("GameSettingFrame.COPY_GUID")); //$NON-NLS-1$
+		copyGUID.setIcon(LGM.getIconForKey("GameSettingFrame.COPY_GUID")); //$NON-NLS-1$
+		copyGUID.addActionListener(this);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
@@ -130,7 +133,8 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		/*				*/.addGroup(layout.createSequentialGroup()
 		/*						*/.addComponent(lId)
 		/*						*/.addComponent(gameId,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
-		/*				*/.addComponent(randomise,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
+		/*						*/.addComponent(randomise,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/*						*/.addComponent(copyGUID))
 		/*				*/.addGroup(layout.createSequentialGroup()
 		/*						*/.addComponent(lGUID)
 		/*						*/.addComponent(gameGUID))))
@@ -145,7 +149,8 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(lId)
 		/*		*/.addComponent(gameId)
-		/*		*/.addComponent(randomise))
+		/*		*/.addComponent(randomise,DEFAULT_SIZE,PREFERRED_SIZE,DEFAULT_SIZE)
+		/*		*/.addComponent(copyGUID,DEFAULT_SIZE,PREFERRED_SIZE,DEFAULT_SIZE))
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(lGUID)
 		/*		*/.addComponent(gameGUID))
@@ -158,6 +163,8 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE,false)
 		/*	*/.addComponent(backcolor)
 		/*	*/.addComponent(colorbutton)));
+
+		layout.linkSize(SwingConstants.VERTICAL,randomise,copyGUID);
 
 		return panel;
 		}
@@ -1033,6 +1040,10 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 				res.randomizeGameIds();
 				UUID guid = res.get(PGameSettings.GAME_GUID);
 				gameGUID.setText('{' + guid.toString().toUpperCase() + '}');
+				}
+			else if (e.getSource() == copyGUID)
+				{
+				Util.setClipboardContents(gameGUID.getText());
 				}
 		} if (name.endsWith(".TAB_GRAPHICS")) { //$NON-NLS-1$
 			if (e.getSource() instanceof JRadioButton)

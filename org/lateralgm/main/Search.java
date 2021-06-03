@@ -5,9 +5,6 @@ import static javax.swing.GroupLayout.PREFERRED_SIZE;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagLayout;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -1481,9 +1478,7 @@ public class Search
 							+ path.getLastPathComponent().toString().replaceAll("\\<[^>]*>",""); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 
-				StringSelection selection = new StringSelection(text);
-				Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-				clipboard.setContents(selection,selection);
+				Util.setClipboardContents(text);
 				}
 			};
 

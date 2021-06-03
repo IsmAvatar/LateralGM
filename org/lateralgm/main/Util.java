@@ -22,7 +22,10 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 import java.awt.image.BufferedImage;
 import java.awt.image.FilteredImageSource;
 import java.awt.image.ImageFilter;
@@ -1394,5 +1397,17 @@ public final class Util
 			for (File c : f.listFiles())
 				if (!directoryDelete(c)) return false;
 		return f.delete();
+		}
+
+	public static void setClipboardContents(String text, ClipboardOwner owner)
+		{
+		StringSelection ss = new StringSelection(text);
+		Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
+		cb.setContents(ss, owner);
+		}
+
+	public static void setClipboardContents(String text)
+		{
+		setClipboardContents(text,null);
 		}
 	}
