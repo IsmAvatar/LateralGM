@@ -13,8 +13,6 @@ package org.lateralgm.components;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.Toolkit;
-import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -32,6 +30,7 @@ import javax.swing.JTextArea;
 
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 
 public class ErrorDialog extends JDialog implements ActionListener
@@ -219,8 +218,7 @@ public class ErrorDialog extends JDialog implements ActionListener
 			}
 		else if (e.getSource() == copy)
 			{
-			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
-				new StringSelection(debugInfo.getText()), null);
+			Util.setClipboardContents(debugInfo.getText());
 			}
 		else if (e.getSource() == cancel)
 			{
