@@ -155,7 +155,9 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 	public void randomizeGameIds()
 		{
 		Random random = new Random();
-		put(PGameSettings.GAME_ID,random.nextInt(100000001));
+		// generate new Id to be 9 digits like GameMaker
+		int newId = 100000000 + random.nextInt(900000000);
+		put(PGameSettings.GAME_ID,newId);
 		put(PGameSettings.GAME_GUID,UUID.randomUUID());
 		}
 
