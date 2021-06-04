@@ -162,6 +162,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		/*	*/.addComponent(backcolor)
 		/*	*/.addComponent(colorbutton)));
 
+		// make the same height so copy isn't taller because of its icon
 		layout.linkSize(SwingConstants.VERTICAL,randomise,copyGUID);
 
 		return panel;
