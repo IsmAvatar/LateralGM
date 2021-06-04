@@ -906,10 +906,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		t = Messages.getString("GameSettingFrame.BUTTON_DISCARD"); //$NON-NLS-1$
 		discardButton = new JButton(t);
 		discardButton.addActionListener(this);
-		discardButton.setIcon(LGM.getIconForKey("GameSettingFrame.BUTTON_DISCARD"));
-		// make discard button the same height as save, Win32 look and feel makes
-		// buttons with icons 2x as tall
-		discardButton.setMinimumSize(save.getMaximumSize());
+		discardButton.setIcon(LGM.getIconForKey("GameSettingFrame.BUTTON_DISCARD")); //$NON-NLS-1$
 
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Preferences");
 
