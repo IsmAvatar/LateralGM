@@ -241,17 +241,6 @@ public final class GMXFileReader
 	public static void readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root,
 			Charset forceCharset) throws GmFormatException
 		{
-		// {5399779A-DA3E-6DDA-CB3F-2CAFCC536A98}
-		// .replace("-","").replace("{","").replace("}","")
-		String hexy = "{5399779A-DA3E-6DDA-CB3F-2CAFCC536A98}";
-		String hexy2 = hexy.replace("{","").replace("}","");
-		byte decoded[] = Util.decodeHex(hexy2);
-		String encoded = Util.encodeHex(decoded);
-		System.out.println(encoded);
-		
-		UUID uuid = UUID.fromString(hexy2);
-		System.out.println(uuid.toString());
-		
 		interfaceProvider.init(160,"ProgressDialog.GMX_LOADING"); //$NON-NLS-1$
 		file.format = ProjectFile.FormatFlavor.GMX;
 		if (documentBuilderFactory == null)
