@@ -189,11 +189,12 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 			order(ByteOrder.BIG_ENDIAN).
 			putLong(source.getLong());
 		target.rewind();
-		put(PGameSettings.GAME_GUID, new UUID(target.getLong(), target.getLong()));
+		UUID uuid =  new UUID(target.getLong(), target.getLong());
+		put(PGameSettings.GAME_GUID, uuid);
 		}
 
 	/**
-	 * This method serializes the game's GUID in Microsoft's string format, Uppercase letters
+	 * This method serializes the game's GUID to Microsoft's string format, Uppercase letters
 	 * are used and the GUID is enclosed by braces.
 	 * 
 	 * @return The GUID as a string in Microsoft's format.
@@ -205,7 +206,8 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 		}
 
 	/**
-	 * This method serializes the game's GUID in Microsoft's mixed-endian format.
+	 * This method serializes the game's GUID to Microsoft's mixed-endian format.
+	 * https://docs.microsoft.com/en-us/dotnet/api/system.guid.tobytearray?view=net-5.0
 	 * 
 	 * @return The GUID serialized as an array of 16 bytes in Microsoft's mixed-endian format.
 	 */
@@ -213,17 +215,16 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 		{
 		UUID uuid = get(PGameSettings.GAME_GUID);
 		ByteBuffer source = ByteBuffer.allocate(16).
-				putLong(uuid.getMostSignificantBits()).
-				putLong(uuid.getLeastSignificantBits());
+			putLong(uuid.getMostSignificantBits()).
+			putLong(uuid.getLeastSignificantBits());
 		source.rewind();
-		ByteBuffer target = ByteBuffer.allocate(16).
-				order(ByteOrder.LITTLE_ENDIAN).
-				putInt(source.getInt()).
-				putShort(source.getShort()).
-				putShort(source.getShort()).
-				order(ByteOrder.BIG_ENDIAN).
-				putLong(source.getLong());
-		target.rewind();
-		return target.array();
+		return ByteBuffer.allocate(16).
+			order(ByteOrder.LITTLE_ENDIAN).
+			putInt(source.getInt()).
+			putShort(source.getShort()).
+			putShort(source.getShort()).
+			order(ByteOrder.BIG_ENDIAN).
+			putLong(source.getLong()).
+			array();
 		}
 	}
