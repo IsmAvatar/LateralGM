@@ -127,18 +127,16 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addGroup(layout.createParallelGroup()
-		/*				*/.addGroup(layout.createSequentialGroup()
-		/*						*/.addComponent(lId)
-		/*						*/.addComponent(gameId,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
-		/*						*/.addComponent(randomise,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/*						*/.addComponent(copyGUID))
-		/*				*/.addGroup(layout.createSequentialGroup()
-		/*						*/.addComponent(lGUID)
-		/*						*/.addComponent(gameGUID))))
+		/*		*/.addComponent(lId)
+		/*		*/.addComponent(gameId,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/*		*/.addComponent(randomise,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/*		*/.addComponent(copyGUID))
 		/**/.addGroup(layout.createSequentialGroup()
-		/*	*/.addComponent(backcolor)
-		/*	*/.addComponent(colorbutton))
+		/*		*/.addComponent(lGUID)
+		/*		*/.addComponent(gameGUID))
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(backcolor)
+		/*		*/.addComponent(colorbutton))
 		/**/.addComponent(useNewAudio)
 		/**/.addComponent(shortCircuitEval)
 		/**/.addComponent(useFastCollision)
@@ -159,8 +157,8 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		/**/.addComponent(fastCollisionCompat)
 		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE,false)
-		/*	*/.addComponent(backcolor)
-		/*	*/.addComponent(colorbutton)));
+		/*		*/.addComponent(backcolor)
+		/*		*/.addComponent(colorbutton)));
 
 		// make the same height so copy isn't taller because of its icon
 		layout.linkSize(SwingConstants.VERTICAL,randomise,copyGUID);
