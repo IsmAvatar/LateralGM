@@ -221,17 +221,17 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 		StringBuilder sb = new StringBuilder();
 		source.order(ByteOrder.LITTLE_ENDIAN);
 		sb.append('{');
-		sb.append(String.format("%04X", source.getInt()));
+		sb.append(String.format("%04X", source.getInt())); //$NON-NLS-1$
 		sb.append('-');
-		sb.append(String.format("%02X", source.getShort()));
+		sb.append(String.format("%02X", source.getShort())); //$NON-NLS-1$
 		sb.append('-');
-		sb.append(String.format("%02X", source.getShort()));
+		sb.append(String.format("%02X", source.getShort())); //$NON-NLS-1$
 		sb.append('-');
 		source.order(ByteOrder.BIG_ENDIAN);
-		sb.append(String.format("%02X", source.getShort()));
+		sb.append(String.format("%02X", source.getShort())); //$NON-NLS-1$
 		sb.append('-');
-		sb.append(String.format("%04X", source.getInt()));
-		sb.append(String.format("%02X", source.getShort()));
+		sb.append(String.format("%04X", source.getInt())); //$NON-NLS-1$
+		sb.append(String.format("%02X", source.getShort())); //$NON-NLS-1$
 		sb.append('}');
 		return sb.toString();
 		}
