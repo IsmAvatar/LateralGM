@@ -27,8 +27,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.UUID;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -908,7 +906,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		discardButton = new JButton(t);
 		discardButton.addActionListener(this);
 		discardButton.setIcon(LGM.getIconForKey("GameSettingFrame.BUTTON_DISCARD"));
-		// make discard button the height as save, Win32 look and feel makes
+		// make discard button the same height as save, Win32 look and feel makes
 		// buttons with icons 2x as tall
 		discardButton.setMinimumSize(save.getMaximumSize());
 
@@ -1038,8 +1036,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 			if (e.getSource() == randomise)
 				{
 				res.randomizeGameIds();
-				UUID guid = res.get(PGameSettings.GAME_GUID);
-				gameGUID.setText('{' + guid.toString().toUpperCase() + '}');
+				gameGUID.setText(res.getGUID());
 				}
 			else if (e.getSource() == copyGUID)
 				{
@@ -1141,9 +1138,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 	public void setComponents(GameSettings g)
 		{
-		UUID guid = g.get(PGameSettings.GAME_GUID);
-		gameGUID.setText('{' + guid.toString().toUpperCase() + '}');
-
+		gameGUID.setText(g.getGUID());
 		int s = g.get(PGameSettings.SCALING);
 		scaling.setValue(s > 1 ? 1 : s);
 		if (s > 1) scale.setValue(s);

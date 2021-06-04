@@ -41,7 +41,6 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
@@ -501,10 +500,7 @@ public final class GMXFileWriter
 
 			optNode.appendChild(createElement(doc,"option_gameid", //$NON-NLS-1$
 					gs.get(PGameSettings.GAME_ID).toString()));
-			UUID guid = (UUID)gs.get(PGameSettings.GAME_GUID);
-			// Microsoft GUID likes braces and GMSv1.4 likes uppercase.
-			optNode.appendChild(createElement(doc,"option_gameguid", //$NON-NLS-1$
-					'{' + guid.toString().toUpperCase() + '}'));
+			optNode.appendChild(createElement(doc,"option_gameguid", gs.getGUID())); //$NON-NLS-1$
 
 			optNode.appendChild(createElement(doc,"option_author", //$NON-NLS-1$
 					(String) gs.get(PGameSettings.AUTHOR)));

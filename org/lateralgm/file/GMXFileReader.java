@@ -43,8 +43,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.UUID;
-
 import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -541,10 +539,7 @@ public final class GMXFileReader
 					}
 				pSet.put(PGameSettings.GAME_ID,
 						Integer.parseInt(setdoc.getElementsByTagName("option_gameid").item(0).getTextContent())); //$NON-NLS-1$
-				String guid = setdoc.getElementsByTagName("option_gameguid").item(0).getTextContent(); //$NON-NLS-1$
-				// The braces are a Microsoft thing for GUID, and UUID class does not like them.
-				guid = guid.replaceAll("[{}]",""); //$NON-NLS-1$ //$NON-NLS-2$
-				pSet.put(PGameSettings.GAME_GUID,UUID.fromString(guid));
+				gSet.setGUID(setdoc.getElementsByTagName("option_gameguid").item(0).getTextContent()); //$NON-NLS-1$
 
 				pSet.put(PGameSettings.AUTHOR,
 						setdoc.getElementsByTagName("option_author").item(0).getTextContent()); //$NON-NLS-1$

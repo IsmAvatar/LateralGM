@@ -24,7 +24,6 @@ import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
-import java.util.UUID;
 import java.util.zip.DataFormatException;
 
 import org.lateralgm.components.impl.ResNode;
@@ -200,11 +199,7 @@ public final class GmFileReader
 				}
 			else
 				gs.put(PGameSettings.GAME_ID,in.read4());
-			byte bts[] = in.readNBytes(16);
-			for (int i = 0; i < 16; ++i)
-				System.out.print(String.format("%02X", bts[i]));
-			System.out.println(" " + bts);
-			gs.put(PGameSettings.GAME_GUID,UUID.randomUUID());
+			gs.setGUID(in.readNBytes(16));
 
 			readSettings(c,gs);
 

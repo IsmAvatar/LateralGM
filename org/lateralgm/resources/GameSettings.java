@@ -13,6 +13,8 @@ import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.EnumMap;
 import java.util.Random;
 import java.util.UUID;
@@ -155,5 +157,71 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 		Random random = new Random();
 		put(PGameSettings.GAME_ID,random.nextInt(100000001));
 		put(PGameSettings.GAME_GUID,UUID.randomUUID());
+		}
+
+	/**
+	 * Set the GUID from the text of the given GUID string. Characters are accepted in both
+	 * uppercase and lowercase. Braces are stripped first if the GUID is enclosed by them.
+	 * 
+	 * @param guid String formatted GUID optionally enclosed by braces.
+	 */
+	public void setGUID(String guid)
+		{
+		UUID uuid = UUID.fromString(guid.replaceAll("[{}]","")); //$NON-NLS-1$ //$NON-NLS-2$
+		put(PGameSettings.GAME_GUID, uuid);
+		}
+
+	/**
+	 * Set the GUID from the given array of 16 bytes.
+	 * 
+	 * @param bytes Mixed endian array of 16 bytes representing the serialized GUID.
+	 */
+	public void setGUID(byte[] guid)
+		{
+		ByteBuffer source = ByteBuffer.wrap(guid);
+		ByteBuffer target = ByteBuffer.allocate(16).
+			order(ByteOrder.LITTLE_ENDIAN).
+			putInt(source.getInt()).
+			putShort(source.getShort()).
+			putShort(source.getShort()).
+			order(ByteOrder.BIG_ENDIAN).
+			putLong(source.getLong());
+		target.rewind();
+		put(PGameSettings.GAME_GUID, new UUID(target.getLong(), target.getLong()));
+		}
+
+	/**
+	 * This method serializes the game's GUID in Microsoft's string format, Uppercase letters
+	 * are used and the GUID is enclosed by braces.
+	 * 
+	 * @return The GUID as a string in Microsoft's format.
+	 */
+	public String getGUID()
+		{
+		UUID uuid = get(PGameSettings.GAME_GUID);
+		return '{' + uuid.toString().toUpperCase() + '}';
+		}
+
+	/**
+	 * This method serializes the game's GUID in Microsoft's mixed-endian format.
+	 * 
+	 * @return The GUID serialized as an array of 16 bytes in Microsoft's mixed-endian format.
+	 */
+	public byte[] getGUIDAsBytes()
+		{
+		UUID uuid = get(PGameSettings.GAME_GUID);
+		ByteBuffer source = ByteBuffer.allocate(16).
+				putLong(uuid.getMostSignificantBits()).
+				putLong(uuid.getLeastSignificantBits());
+		source.rewind();
+		ByteBuffer target = ByteBuffer.allocate(16).
+				order(ByteOrder.LITTLE_ENDIAN).
+				putInt(source.getInt()).
+				putShort(source.getShort()).
+				putShort(source.getShort()).
+				order(ByteOrder.BIG_ENDIAN).
+				putLong(source.getLong());
+		target.rewind();
+		return target.array();
 		}
 	}
