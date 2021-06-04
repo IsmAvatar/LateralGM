@@ -104,7 +104,7 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 
 	//GAME_ID and GAME_GUID (DirectPlay) randomized in ProjectFile factory constructor
 	private static final EnumMap<PGameSettings,Object> DEFS = PropertyMap.makeDefaultMap(
-			PGameSettings.class,-1,UUID.randomUUID(),false,false,false,false,true,-1,false,false,Color.BLACK,/**/
+			PGameSettings.class,-1,new byte[16],false,false,false,false,true,-1,false,false,Color.BLACK,/**/
 			false,ColorDepth.NO_CHANGE,Resolution.NO_CHANGE,Frequency.NO_CHANGE,/**/
 			false,false,true,true,true,true,false,false,true,Priority.NORMAL,/**/
 			true,ProgressBar.DEFAULT,null,null,false,null,false,255,true,/**/
@@ -158,62 +158,19 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 		// generate new Id to be 9 digits like GameMaker
 		int newId = 100000000 + random.nextInt(900000000);
 		put(PGameSettings.GAME_ID,newId);
-		put(PGameSettings.GAME_GUID,UUID.randomUUID());
+		// generate version 4 GUID just like GMSv1.4
+		UUID uuid = UUID.randomUUID();
+		setGUID(UUIDtoGUID(uuid));
 		}
 
 	/**
-	 * Set the GUID from the text of the given GUID string. Characters are accepted in both
-	 * uppercase and lowercase. Braces are stripped first if the GUID is enclosed by them.
+	 * Convert a Java UUID instance to a .NET/COM mixed-endian GUID byte array.
 	 * 
-	 * @param guid String formatted GUID optionally enclosed by braces.
+	 * @param uuid The Java UUID instance to convert.
+	 * @return A 16 byte array of the mixed-endian GUID.
 	 */
-	public void setGUID(String guid)
+	public static byte[] UUIDtoGUID(UUID uuid)
 		{
-		UUID uuid = UUID.fromString(guid.replaceAll("[{}]","")); //$NON-NLS-1$ //$NON-NLS-2$
-		put(PGameSettings.GAME_GUID, uuid);
-		}
-
-	/**
-	 * Set the GUID from the given array of 16 bytes.
-	 * 
-	 * @param bytes Mixed endian array of 16 bytes representing the serialized GUID.
-	 */
-	public void setGUID(byte[] guid)
-		{
-		ByteBuffer source = ByteBuffer.wrap(guid);
-		ByteBuffer target = ByteBuffer.allocate(16).
-			order(ByteOrder.LITTLE_ENDIAN).
-			putInt(source.getInt()).
-			putShort(source.getShort()).
-			putShort(source.getShort()).
-			order(ByteOrder.BIG_ENDIAN).
-			putLong(source.getLong());
-		target.rewind();
-		UUID uuid =  new UUID(target.getLong(), target.getLong());
-		put(PGameSettings.GAME_GUID, uuid);
-		}
-
-	/**
-	 * This method serializes the game's GUID to Microsoft's string format, Uppercase letters
-	 * are used and the GUID is enclosed by braces.
-	 * 
-	 * @return The GUID as a string in Microsoft's format.
-	 */
-	public String getGUID()
-		{
-		UUID uuid = get(PGameSettings.GAME_GUID);
-		return '{' + uuid.toString().toUpperCase() + '}';
-		}
-
-	/**
-	 * This method serializes the game's GUID to Microsoft's mixed-endian format.
-	 * https://docs.microsoft.com/en-us/dotnet/api/system.guid.tobytearray?view=net-5.0
-	 * 
-	 * @return The GUID serialized as an array of 16 bytes in Microsoft's mixed-endian format.
-	 */
-	public byte[] getGUIDAsBytes()
-		{
-		UUID uuid = get(PGameSettings.GAME_GUID);
 		ByteBuffer source = ByteBuffer.allocate(16).
 			putLong(uuid.getMostSignificantBits()).
 			putLong(uuid.getLeastSignificantBits());
@@ -226,5 +183,65 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 			order(ByteOrder.BIG_ENDIAN).
 			putLong(source.getLong()).
 			array();
+		}
+
+	/**
+	 * Set the GUID from the text of the given GUID string. Characters are accepted in both
+	 * uppercase and lowercase. Braces are stripped first if the GUID is enclosed by them.
+	 * 
+	 * @param guid String formatted GUID optionally enclosed by braces.
+	 */
+	public void setGUID(String guid)
+		{
+		guid = guid.replaceAll("[{}]",""); //$NON-NLS-1$ //$NON-NLS-2$
+		UUID uuid = UUID.fromString(guid);
+		put(PGameSettings.GAME_GUID, UUIDtoGUID(uuid));
+		}
+
+	/**
+	 * Set the GUID from the given array of 16 bytes.
+	 * 
+	 * @param bytes Mixed endian array of 16 bytes representing the serialized GUID.
+	 */
+	public void setGUID(byte[] guid)
+		{
+		put(PGameSettings.GAME_GUID, guid);
+		}
+
+	/**
+	 * This method serializes the game's GUID to Microsoft's string format, Uppercase letters
+	 * are used and the GUID is enclosed by braces.
+	 * 
+	 * @return The GUID as a string in Microsoft's format.
+	 */
+	public String getGUIDAsString()
+		{
+		byte[] guid = get(PGameSettings.GAME_GUID);
+		ByteBuffer source = ByteBuffer.wrap(guid);
+		StringBuilder sb = new StringBuilder();
+		sb.append('{');
+		sb.append(String.format("%04X", Integer.reverseBytes(source.getInt())));
+		sb.append('-');
+		sb.append(String.format("%02X", Short.reverseBytes( source.getShort())));
+		sb.append('-');
+		sb.append(String.format("%02X", Short.reverseBytes( source.getShort())));
+		sb.append('-');
+		sb.append(String.format("%02X", source.getShort()));
+		sb.append('-');
+		sb.append(String.format("%04X", source.getInt()));
+		sb.append(String.format("%02X", source.getShort()));
+		sb.append('}');
+		return sb.toString();
+		}
+
+	/**
+	 * This method serializes the game's GUID to Microsoft's mixed-endian format.
+	 * https://docs.microsoft.com/en-us/dotnet/api/system.guid.tobytearray?view=net-5.0
+	 * 
+	 * @return The GUID serialized as an array of 16 bytes in Microsoft's mixed-endian format.
+	 */
+	public byte[] getGUID()
+		{
+		return get(PGameSettings.GAME_GUID);
 		}
 	}

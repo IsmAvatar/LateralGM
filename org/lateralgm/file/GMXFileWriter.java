@@ -500,7 +500,7 @@ public final class GMXFileWriter
 
 			optNode.appendChild(createElement(doc,"option_gameid", //$NON-NLS-1$
 					gs.get(PGameSettings.GAME_ID).toString()));
-			optNode.appendChild(createElement(doc,"option_gameguid", gs.getGUID())); //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_gameguid", gs.getGUIDAsString())); //$NON-NLS-1$
 
 			optNode.appendChild(createElement(doc,"option_author", //$NON-NLS-1$
 					(String) gs.get(PGameSettings.AUTHOR)));

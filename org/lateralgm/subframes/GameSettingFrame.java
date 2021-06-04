@@ -1032,7 +1032,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 			if (e.getSource() == randomise)
 				{
 				res.randomizeGameIds();
-				gameGUID.setText(res.getGUID());
+				gameGUID.setText(res.getGUIDAsString());
 				}
 			else if (e.getSource() == copyGUID)
 				{
@@ -1134,7 +1134,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 	public void setComponents(GameSettings g)
 		{
-		gameGUID.setText(g.getGUID());
+		gameGUID.setText(g.getGUIDAsString());
 		int s = g.get(PGameSettings.SCALING);
 		scaling.setValue(s > 1 ? 1 : s);
 		if (s > 1) scale.setValue(s);
