@@ -219,13 +219,15 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 		byte[] guid = get(PGameSettings.GAME_GUID);
 		ByteBuffer source = ByteBuffer.wrap(guid);
 		StringBuilder sb = new StringBuilder();
+		source.order(ByteOrder.LITTLE_ENDIAN);
 		sb.append('{');
-		sb.append(String.format("%04X", Integer.reverseBytes(source.getInt())));
+		sb.append(String.format("%04X", source.getInt()));
 		sb.append('-');
-		sb.append(String.format("%02X", Short.reverseBytes( source.getShort())));
+		sb.append(String.format("%02X", source.getShort()));
 		sb.append('-');
-		sb.append(String.format("%02X", Short.reverseBytes( source.getShort())));
+		sb.append(String.format("%02X", source.getShort()));
 		sb.append('-');
+		source.order(ByteOrder.BIG_ENDIAN);
 		sb.append(String.format("%02X", source.getShort()));
 		sb.append('-');
 		sb.append(String.format("%04X", source.getInt()));
