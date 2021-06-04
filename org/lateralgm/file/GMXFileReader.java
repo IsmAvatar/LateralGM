@@ -427,6 +427,7 @@ public final class GMXFileReader
 				case "option_scale": gSet.put(PGameSettings.SCALING,Integer.parseInt(data)); break; //$NON-NLS-1$
 				case "option_lastchanged": gSet.put(PGameSettings.LAST_CHANGED,Double.parseDouble(data)); break; //$NON-NLS-1$
 				case "option_gameid": gSet.put(PGameSettings.GAME_ID,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "option_gameguid": gSet.setGUID(data); break; //$NON-NLS-1$
 				case "option_author": gSet.put(PGameSettings.AUTHOR,data); break; //$NON-NLS-1$
 				case "option_version_company": gSet.put(PGameSettings.COMPANY,data); break; //$NON-NLS-1$
 				case "option_version_copyright": gSet.put(PGameSettings.COPYRIGHT,data); break; //$NON-NLS-1$

@@ -113,7 +113,7 @@ public final class GmFileWriter
 			}
 		else
 			out.write4(gameId);
-		out.write((byte[]) gs.get(PGameSettings.GAME_GUID)); //16 bytes
+		out.write(gs.getGUID()); //16 bytes
 
 		writeSettings(f,out,ver,savetime,gs);
 

@@ -47,6 +47,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -54,7 +55,10 @@ import java.util.Scanner;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
 import javax.imageio.spi.IIORegistry;
+import javax.imageio.spi.ImageReaderSpi;
 import javax.swing.AbstractButton;
 import javax.swing.Box;
 import javax.swing.DefaultComboBoxModel;
@@ -125,7 +129,7 @@ import org.lateralgm.subframes.ResourceFrame.ResourceFrameFactory;
 
 public final class LGM
 	{
-	public static final String version = "1.8.230"; //$NON-NLS-1$
+	public static final String version = "1.8.233"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -158,7 +162,17 @@ public final class LGM
 
 		//Tweak service providers
 		IIORegistry reg = IIORegistry.getDefaultInstance();
-		reg.registerServiceProvider(new ICOImageReaderSPI());
+		ICOImageReaderSPI icoSPI = new ICOImageReaderSPI();
+		reg.registerServiceProvider(icoSPI);
+		//Java 6 confuses ICO as WBMP causing exception
+		//Patch: Make ICO reader take precedence over all WBMP readers.
+		//https://bugs.openjdk.java.net/browse/JDK-6633448
+		Iterator<ImageReader> wbmpReaders = ImageIO.getImageReadersByFormatName("wbmp"); //$NON-NLS-1$
+		while (wbmpReaders.hasNext())
+			{
+			ImageReader reader = wbmpReaders.next();
+			reg.setOrdering(ImageReaderSpi.class,icoSPI,reader.getOriginatingProvider());
+			}
 
 		//Setup workdir and tempdir
 		try
