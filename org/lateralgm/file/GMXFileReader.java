@@ -36,8 +36,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
 
@@ -52,6 +54,7 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.ProjectFile.InterfaceProvider;
+import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.Util;
 import org.lateralgm.resources.Background;
@@ -233,6 +236,7 @@ public final class GMXFileReader
 		try
 			{
 			XMLEventReader document = GMXFileReader.parseDocumentUnchecked2(file, file.getPath());
+			if (document == null) return;
 
 			ProjectFileContext c = new ProjectFileContext(file,document,timeids,objids,rmids);
 
@@ -1623,7 +1627,101 @@ public final class GMXFileReader
 				case "whoName": appliesto = data; break; //$NON-NLS-1$
 				case "functionname": functionname = data; break; //$NON-NLS-1$
 				case "codestring": codestring = data; break; //$NON-NLS-1$
+				case "arguments": args = readActionArguments(c, reader); break; //$NON-NLS-1$
 				}
 			}
+		}
+
+	private static Argument[] readActionArguments(ProjectFileContext c, XMLEventReader reader)
+		{
+		final ProjectFile f = c.f;
+		List<Argument> args = new ArrayList<>();
+
+		Argument arg = null;
+		while (reader.hasNext())
+			{
+			XMLEvent nextEvent = null;
+			try
+				{
+				nextEvent = reader.nextEvent();
+				}
+			catch (XMLStreamException e)
+				{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				}
+			if (!nextEvent.isStartElement())
+				{
+				if (nextEvent.isEndElement())
+					{
+					String name = nextEvent.asEndElement().getName().getLocalPart();
+					if (name.equals("arguments"))
+						break;
+					else if (name.equals("argument"))
+						args.add(arg);
+					}
+				continue;
+				}
+			StartElement sel = nextEvent.asStartElement();
+			String scope = sel.getName().getLocalPart();
+			if (!reader.hasNext()) break;
+			String data = "";
+			try
+				{
+				nextEvent = reader.nextEvent();
+				if (nextEvent.isCharacters())
+					data = nextEvent.asCharacters().getData();
+				}
+			catch (XMLStreamException e1)
+				{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				}
+
+			switch (scope)
+				{
+				case "kind": arg.kind = Byte.parseByte(data); break; //$NON-NLS-1$
+				case "string": arg.setVal(data); break; //$NON-NLS-1$
+				case "argument": arg = new Argument((byte)0); //$NON-NLS-1$
+				default:
+					{
+					Class<? extends Resource<?,?>> kindc = Argument.getResourceKind(arg.kind);
+					final Argument argument = arg;
+					final String data2 = data;
+					if (kindc != null && Resource.class.isAssignableFrom(kindc))
+						try
+							{
+							PostponedRef pr = new PostponedRef()
+								{
+									public boolean invoke()
+										{
+										ResourceHolder<?> rh = f.resMap.get(Argument.getResourceKind(argument.kind));
+										if (rh == null)
+											{
+											return false;
+											}
+										Resource<?,?> temp = null;
+										if (rh instanceof ResourceList<?>)
+											temp = ((ResourceList<?>) rh).get(data2);
+										else
+											temp = rh.getResource();
+										if (temp != null) argument.setRes(temp.reference);
+										argument.setVal(data2);
+										return temp != null;
+										}
+								};
+							postpone.add(pr);
+							}
+						catch (NumberFormatException e)
+							{
+							// Trying to ref a resource without a valid id number?
+							// Fallback to strval (already set)
+							}
+					break;
+					}
+				}
+			}
+
+		return args.toArray(new Argument[args.size()]);
 		}
 	}
