@@ -37,6 +37,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -60,6 +61,8 @@ import org.lateralgm.main.Util;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.Constants;
+import org.lateralgm.resources.Extension;
+import org.lateralgm.resources.ExtensionPackages;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.Font.PFont;
 import org.lateralgm.resources.GameInformation;
@@ -67,6 +70,8 @@ import org.lateralgm.resources.GameInformation.PGameInformation;
 import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GameSettings.PGameSettings;
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.Include;
+import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.GmObject.PGmObject;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Path.PPath;
@@ -145,7 +150,7 @@ public final class GMXFileReader
 		{
 		}
 
-	private static XMLEventReader parseDocumentUnchecked2(ProjectFile f, String path) throws GmFormatException
+	private static XMLEventReader parseDocumentUnchecked(ProjectFile f, String path) throws GmFormatException
 		{
 		XMLEventReader reader = null;
 		try
@@ -163,12 +168,12 @@ public final class GMXFileReader
 		return reader;
 		}
 
-	private static XMLEventReader parseDocumentChecked2(ProjectFile f, String path)
+	private static XMLEventReader parseDocumentChecked(ProjectFile f, String path)
 		{
 		XMLEventReader reader = null;
 		try
 			{
-			reader = parseDocumentUnchecked2(f, path);
+			reader = parseDocumentUnchecked(f, path);
 			}
 		catch (GmFormatException e)
 			{
@@ -235,7 +240,7 @@ public final class GMXFileReader
 
 		try
 			{
-			XMLEventReader document = GMXFileReader.parseDocumentUnchecked2(file, file.getPath());
+			XMLEventReader document = GMXFileReader.parseDocumentUnchecked(file, file.getPath());
 			if (document == null) return;
 
 			ProjectFileContext c = new ProjectFileContext(file,document,timeids,objids,rmids);
@@ -243,11 +248,19 @@ public final class GMXFileReader
 			// clear old/default configurations
 			c.f.gameSettings.clear();
 
-			ResNode snode = new ResNode("Game Settings",ResNode.STATUS_SECONDARY,GameSettings.class,null);
-			root.add(snode);
-			ResNode inode = new ResNode(Resource.kindNamesPlural.get(GameInformation.class),
-					ResNode.STATUS_SECONDARY,GameInformation.class,c.f.gameInfo.reference);
-			root.add(inode);
+			HashMap<Class<?>,ResNode> roots = new HashMap<>();
+			Class<?>[] rootKinds = { (Class<?>) Sprite.class,Sound.class,Background.class,Path.class,Script.class,
+					Shader.class,Font.class,Timeline.class,GmObject.class,Room.class,Include.class,
+					Extension.class,Constants.class,GameInformation.class,GameSettings.class,
+					ExtensionPackages.class };
+			for (Class<?> k : rootKinds)
+				{
+				String name = Resource.kindNamesPlural.get(k);
+				byte status = InstantiableResource.class.isAssignableFrom(k) ? ResNode.STATUS_PRIMARY
+						: ResNode.STATUS_SECONDARY;
+				ResNode node = root.addChild(name,status,k);
+				roots.put(k,node);
+				}
 
 			Stack<ResNode> nodes = new Stack<>();
 			while (document.hasNext())
@@ -272,13 +285,31 @@ public final class GMXFileReader
 				StartElement sel = nextEvent.asStartElement();
 				String scope = sel.getName().getLocalPart();
 
-				ResNode node = nodes.isEmpty() ? root : nodes.peek();
+				Class<?> kind = null;
+				switch (scope)
+				{
+				case "sprite": kind = Sprite.class; break; //$NON-NLS-1$
+				case "sound": kind = Sound.class; break; //$NON-NLS-1$
+				case "background": kind = Background.class; break; //$NON-NLS-1$
+				case "path": kind = Path.class; break; //$NON-NLS-1$
+				case "script": kind = Script.class; break; //$NON-NLS-1$
+				case "shader": kind = Shader.class; break; //$NON-NLS-1$
+				case "font": kind = Font.class; break; //$NON-NLS-1$
+				case "timeline": kind = Timeline.class; break; //$NON-NLS-1$
+				case "object": kind = GmObject.class; break; //$NON-NLS-1$
+				case "room": kind = Room.class; break; //$NON-NLS-1$
+				case "datafile": kind = Include.class; break; //$NON-NLS-1$
+				case "Config": kind = GameSettings.class; break; //$NON-NLS-1$
+				case "rtf": kind = GameInformation.class; break; //$NON-NLS-1$
+				}
+
+				ResNode primary = roots.get(kind);
+				ResNode node = nodes.isEmpty() ? primary : nodes.peek();
+				if (node == null) continue; // unknown
 				if (GMXFileWriter.tagNames.containsValue(scope)) //$NON-NLS-1$
 					{
-					String groupName = nodes.isEmpty() ?
-							"wtf" :
-							sel.getAttributeByName(new QName("name")).getValue(); //$NON-NLS-1$
-					ResNode rnode = new ResNode(groupName,(node == null) ? ResNode.STATUS_PRIMARY : ResNode.STATUS_GROUP,Sprite.class,null);
+					String groupName = sel.getAttributeByName(new QName("name")).getValue(); //$NON-NLS-1$
+					ResNode rnode = new ResNode(groupName,ResNode.STATUS_GROUP,kind,null);
 					node.add(rnode);
 					nodes.push(rnode);
 					continue;
@@ -344,7 +375,7 @@ public final class GMXFileReader
 
 		String path = c.f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
-		XMLEventReader reader = parseDocumentChecked2(c.f, path + ".config.gmx");
+		XMLEventReader reader = parseDocumentChecked(c.f, path + ".config.gmx");
 		if (reader == null) return;
 
 		while (reader.hasNext())
@@ -487,7 +518,7 @@ public final class GMXFileReader
 
 		spr.put(PSprite.TRANSPARENT,false);
 
-		XMLEventReader reader = parseDocumentChecked2(f, path + ".sprite.gmx");
+		XMLEventReader reader = parseDocumentChecked(f, path + ".sprite.gmx");
 		if (reader == null) return;
 
 		while (reader.hasNext())
@@ -603,7 +634,7 @@ public final class GMXFileReader
 		snd.setNode(rnode);
 		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
-		XMLEventReader reader = parseDocumentChecked2(f, path + ".sound.gmx");
+		XMLEventReader reader = parseDocumentChecked(f, path + ".sound.gmx");
 		if (reader == null) return;
 
 		while (reader.hasNext())
@@ -682,7 +713,7 @@ public final class GMXFileReader
 		node.add(rnode);
 		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
-		XMLEventReader reader = parseDocumentChecked2(f, path + ".background.gmx");
+		XMLEventReader reader = parseDocumentChecked(f, path + ".background.gmx");
 		if (reader == null) return;
 
 		while (reader.hasNext())
@@ -761,7 +792,7 @@ public final class GMXFileReader
 		node.add(rnode);
 		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
-		XMLEventReader reader = parseDocumentChecked2(f, path + ".path.gmx");
+		XMLEventReader reader = parseDocumentChecked(f, path + ".path.gmx");
 		if (reader == null) return;
 
 		while (reader.hasNext())
@@ -930,7 +961,7 @@ public final class GMXFileReader
 		node.add(rnode);
 		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
-		XMLEventReader reader = parseDocumentChecked2(f, path + ".font.gmx");
+		XMLEventReader reader = parseDocumentChecked(f, path + ".font.gmx");
 		if (reader == null) return;
 
 		while (reader.hasNext())
@@ -1014,7 +1045,7 @@ public final class GMXFileReader
 		node.add(rnode);
 		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
-		XMLEventReader reader = parseDocumentChecked2(f, path + ".timeline.gmx");
+		XMLEventReader reader = parseDocumentChecked(f, path + ".timeline.gmx");
 		if (reader == null) return;
 
 		int stepnum = 0;
@@ -1078,7 +1109,7 @@ public final class GMXFileReader
 		ResNode rnode = new ResNode(obj.getName(),ResNode.STATUS_SECONDARY,GmObject.class,obj.reference);
 		node.add(rnode);
 
-		XMLEventReader reader = parseDocumentChecked2(f, path + ".object.gmx");
+		XMLEventReader reader = parseDocumentChecked(f, path + ".object.gmx");
 		if (reader == null) return;
 
 		int stepnum = 0;
@@ -1204,7 +1235,7 @@ public final class GMXFileReader
 		node.add(rnode);
 		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
-		XMLEventReader reader = parseDocumentChecked2(f, path + ".room.gmx");
+		XMLEventReader reader = parseDocumentChecked(f, path + ".room.gmx");
 		if (reader == null) return;
 
 		boolean makerSettings = false;
