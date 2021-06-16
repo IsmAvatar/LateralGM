@@ -38,21 +38,15 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
 
 import javax.imageio.ImageIO;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-
+import javax.xml.stream.XMLStreamReader;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.ProjectFile.InterfaceProvider;
 import org.lateralgm.file.ProjectFile.ResourceHolder;
@@ -150,12 +144,12 @@ public final class GMXFileReader
 		{
 		}
 
-	private static XMLEventReader parseDocumentUnchecked(ProjectFile f, String path) throws GmFormatException
+	private static XMLStreamReader parseDocumentUnchecked(ProjectFile f, String path) throws GmFormatException
 		{
-		XMLEventReader reader = null;
+		XMLStreamReader reader = null;
 		try
 			{
-			reader = xmlInputFactory.createXMLEventReader(new FileInputStream(path));
+			reader = xmlInputFactory.createXMLStreamReader(new FileInputStream(path));
 			}
 		catch (FileNotFoundException e)
 			{
@@ -168,9 +162,9 @@ public final class GMXFileReader
 		return reader;
 		}
 
-	private static XMLEventReader parseDocumentChecked(ProjectFile f, String path)
+	private static XMLStreamReader parseDocumentChecked(ProjectFile f, String path)
 		{
-		XMLEventReader reader = null;
+		XMLStreamReader reader = null;
 		try
 			{
 			reader = parseDocumentUnchecked(f, path);
@@ -186,12 +180,12 @@ public final class GMXFileReader
 	private static class ProjectFileContext
 		{
 		ProjectFile f;
-		XMLEventReader in;
+		XMLStreamReader in;
 		RefList<Timeline> timeids;
 		RefList<GmObject> objids;
 		RefList<Room> rmids;
 
-		public ProjectFileContext(ProjectFile f, XMLEventReader in, RefList<Timeline> timeids,
+		public ProjectFileContext(ProjectFile f, XMLStreamReader in, RefList<Timeline> timeids,
 				RefList<GmObject> objids, RefList<Room> rmids)
 			{
 			this.f = f;
@@ -240,7 +234,7 @@ public final class GMXFileReader
 
 		try
 			{
-			XMLEventReader document = GMXFileReader.parseDocumentUnchecked(file, file.getPath());
+			XMLStreamReader document = GMXFileReader.parseDocumentUnchecked(file, file.getPath());
 			if (document == null) return;
 
 			ProjectFileContext c = new ProjectFileContext(file,document,timeids,objids,rmids);
@@ -265,10 +259,10 @@ public final class GMXFileReader
 			Stack<ResNode> nodes = new Stack<>();
 			while (document.hasNext())
 				{
-				XMLEvent nextEvent = null;
+				XMLStreamReader nextEvent = document;
 				try
 					{
-					nextEvent = document.nextEvent();
+					nextEvent.next();
 					}
 				catch (XMLStreamException e)
 					{
@@ -282,8 +276,7 @@ public final class GMXFileReader
 						nodes.pop();
 					continue;
 					}
-				StartElement sel = nextEvent.asStartElement();
-				String scope = sel.getName().getLocalPart();
+				String scope = nextEvent.getName().getLocalPart();
 
 				Class<?> kind = null;
 				switch (scope)
@@ -308,7 +301,7 @@ public final class GMXFileReader
 				if (node == null) continue; // unknown
 				if (GMXFileWriter.tagNames.containsValue(scope)) //$NON-NLS-1$
 					{
-					String groupName = sel.getAttributeByName(new QName("name")).getValue(); //$NON-NLS-1$
+					String groupName = nextEvent.getAttributeValue(null,"name"); //$NON-NLS-1$
 					ResNode rnode = new ResNode(groupName,ResNode.STATUS_GROUP,kind,null);
 					node.add(rnode);
 					nodes.push(rnode);
@@ -364,7 +357,7 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readConfig(ProjectFileContext c, String cNode)
+	private static void readConfig(ProjectFileContext c, String cNode) throws XMLStreamException
 		{
 		GameSettings gSet = new GameSettings();
 		String fileName = new File(Util.getPOSIXPath(cNode)).getName();
@@ -375,15 +368,15 @@ public final class GMXFileReader
 
 		String path = c.f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
-		XMLEventReader reader = parseDocumentChecked(c.f, path + ".config.gmx");
+		XMLStreamReader reader = parseDocumentChecked(c.f, path + ".config.gmx");
 		if (reader == null) return;
 
 		while (reader.hasNext())
 			{
-			XMLEvent nextEvent = null;
+			XMLStreamReader nextEvent = reader;
 			try
 				{
-				nextEvent = reader.nextEvent();
+				reader.next();
 				}
 			catch (XMLStreamException e)
 				{
@@ -392,21 +385,9 @@ public final class GMXFileReader
 				}
 
 			if (!nextEvent.isStartElement()) continue;
-			StartElement sel = nextEvent.asStartElement();
-			String scope = sel.getName().getLocalPart();
+			String scope = nextEvent.getName().getLocalPart();
 			if (!reader.hasNext()) break;
-			String data = "";
-			try
-				{
-				data = reader.getElementText();
-				}
-			catch (XMLStreamException e)
-				{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				}
-			if (data.isEmpty()) continue;
-			
+
 			switch (scope)
 				{
 				case "option_sync_vertex": //$NON-NLS-1$
@@ -416,75 +397,76 @@ public final class GMXFileReader
 					// 2147483648 - Software Vertex Processing only
 					// 1 - Synchronization Only
 					// 0 - None
-					long syncvertex = Long.parseLong(data);
+					long syncvertex = Long.parseLong(reader.getElementText());
 					gSet.put(PGameSettings.USE_SYNCHRONIZATION,(syncvertex == 2147483649L || syncvertex == 1));
 					pSet.put(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING,
 							(syncvertex == 2147483649L || syncvertex == 2147483648L));
 					break;
 					}
-				case "option_use_new_audio": gSet.put(PGameSettings.USE_NEW_AUDIO,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-				case "option_shortcircuit": gSet.put(PGameSettings.SHORT_CIRCUIT_EVAL,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+				case "option_use_new_audio": gSet.put(PGameSettings.USE_NEW_AUDIO,readBool(reader)); break; //$NON-NLS-1$
+				case "option_shortcircuit": gSet.put(PGameSettings.SHORT_CIRCUIT_EVAL,readBool(reader)); break; //$NON-NLS-1$
 				case "option_use_fast_collision": //$NON-NLS-1$
-					gSet.put(PGameSettings.USE_FAST_COLLISION,Boolean.parseBoolean(data)); break;
+					gSet.put(PGameSettings.USE_FAST_COLLISION,readBool(reader)); break;
 				case "option_fast_collision_compatibility": //$NON-NLS-1$
-					gSet.put(PGameSettings.FAST_COLLISION_COMPAT,Boolean.parseBoolean(data)); break;
-				case "option_fullscreen": gSet.put(PGameSettings.START_FULLSCREEN,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-				case "option_sizeable": gSet.put(PGameSettings.ALLOW_WINDOW_RESIZE,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-				case "option_stayontop": gSet.put(PGameSettings.ALWAYS_ON_TOP,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-				case "option_aborterrors": gSet.put(PGameSettings.ABORT_ON_ERROR,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+					gSet.put(PGameSettings.FAST_COLLISION_COMPAT,readBool(reader)); break;
+				case "option_fullscreen": gSet.put(PGameSettings.START_FULLSCREEN,readBool(reader)); break; //$NON-NLS-1$
+				case "option_sizeable": gSet.put(PGameSettings.ALLOW_WINDOW_RESIZE,readBool(reader)); break; //$NON-NLS-1$
+				case "option_stayontop": gSet.put(PGameSettings.ALWAYS_ON_TOP,readBool(reader)); break; //$NON-NLS-1$
+				case "option_aborterrors": gSet.put(PGameSettings.ABORT_ON_ERROR,readBool(reader)); break; //$NON-NLS-1$
 				// TODO: This value is stored using the Windows native dialog's name for the color value, ie
 				// "clBlack" or "clWhite" meaning black and white respectively. If the user chooses a custom
 				// defined color in the dialog, then the value is in the hexadecimal form "$HHHHHHHH" using
 				// a dollar sign instead of a hash sign as a normal hex color value does in other places in
 				// the same configuration file.
 				case "option_windowcolor": /*gSet.put(PGameSettings.COLOR_OUTSIDE_ROOM,data);*/ break; //$NON-NLS-1$
-				case "option_noscreensaver": gSet.put(PGameSettings.DISABLE_SCREENSAVERS,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-				case "option_showcursor": gSet.put(PGameSettings.DISPLAY_CURSOR,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-				case "option_displayerrors": gSet.put(PGameSettings.DISPLAY_ERRORS,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-				case "option_noborder": gSet.put(PGameSettings.DONT_DRAW_BORDER,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-				case "option_nobuttons": gSet.put(PGameSettings.DONT_SHOW_BUTTONS,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-				case "option_argumenterrors": gSet.put(PGameSettings.ERROR_ON_ARGS,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-				case "option_freeze": gSet.put(PGameSettings.FREEZE_ON_LOSE_FOCUS,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+				case "option_noscreensaver": gSet.put(PGameSettings.DISABLE_SCREENSAVERS,readBool(reader)); break; //$NON-NLS-1$
+				case "option_showcursor": gSet.put(PGameSettings.DISPLAY_CURSOR,readBool(reader)); break; //$NON-NLS-1$
+				case "option_displayerrors": gSet.put(PGameSettings.DISPLAY_ERRORS,readBool(reader)); break; //$NON-NLS-1$
+				case "option_noborder": gSet.put(PGameSettings.DONT_DRAW_BORDER,readBool(reader)); break; //$NON-NLS-1$
+				case "option_nobuttons": gSet.put(PGameSettings.DONT_SHOW_BUTTONS,readBool(reader)); break; //$NON-NLS-1$
+				case "option_argumenterrors": gSet.put(PGameSettings.ERROR_ON_ARGS,readBool(reader)); break; //$NON-NLS-1$
+				case "option_freeze": gSet.put(PGameSettings.FREEZE_ON_LOSE_FOCUS,readBool(reader)); break; //$NON-NLS-1$
 				case "option_colordepth": //$NON-NLS-1$
-					gSet.put(PGameSettings.COLOR_DEPTH, ProjectFile.GS_DEPTHS[Integer.parseInt(data)]); break;
+					gSet.put(PGameSettings.COLOR_DEPTH, ProjectFile.GS_DEPTHS[readInt(reader)]); break;
 				case "option_frequency": //$NON-NLS-1$
-					gSet.put(PGameSettings.FREQUENCY, ProjectFile.GS_FREQS[Integer.parseInt(data)]); break;
+					gSet.put(PGameSettings.FREQUENCY, ProjectFile.GS_FREQS[readInt(reader)]); break;
 				case "option_resolution": //$NON-NLS-1$
-					gSet.put(PGameSettings.RESOLUTION, ProjectFile.GS_RESOLS[Integer.parseInt(data)]); break;
-				case "option_changeresolution": gSet.put(PGameSettings.SET_RESOLUTION, Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+					gSet.put(PGameSettings.RESOLUTION, ProjectFile.GS_RESOLS[readInt(reader)]); break;
+				case "option_changeresolution": gSet.put(PGameSettings.SET_RESOLUTION, readBool(reader)); break; //$NON-NLS-1$
 				case "option_priority": //$NON-NLS-1$
-					gSet.put(PGameSettings.GAME_PRIORITY, ProjectFile.GS_PRIORITIES[Integer.parseInt(data)]); break;
+					gSet.put(PGameSettings.GAME_PRIORITY, ProjectFile.GS_PRIORITIES[readInt(reader)]); break;
 				case "option_closeesc": //$NON-NLS-1$
-					gSet.put(PGameSettings.LET_ESC_END_GAME,Boolean.parseBoolean(data));
-					gSet.put(PGameSettings.TREAT_CLOSE_AS_ESCAPE,Boolean.parseBoolean(data));
+					boolean closeesc = readBool(reader);
+					gSet.put(PGameSettings.LET_ESC_END_GAME,closeesc);
+					gSet.put(PGameSettings.TREAT_CLOSE_AS_ESCAPE,closeesc);
 					break;
-				case "option_interpolate": gSet.put(PGameSettings.INTERPOLATE,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
-				case "option_scale": gSet.put(PGameSettings.SCALING,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "option_lastchanged": gSet.put(PGameSettings.LAST_CHANGED,Double.parseDouble(data)); break; //$NON-NLS-1$
-				case "option_gameid": gSet.put(PGameSettings.GAME_ID,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "option_gameguid": gSet.setGUID(data); break; //$NON-NLS-1$
-				case "option_author": gSet.put(PGameSettings.AUTHOR,data); break; //$NON-NLS-1$
-				case "option_version_company": gSet.put(PGameSettings.COMPANY,data); break; //$NON-NLS-1$
-				case "option_version_copyright": gSet.put(PGameSettings.COPYRIGHT,data); break; //$NON-NLS-1$
-				case "option_version_description": gSet.put(PGameSettings.DESCRIPTION,data); break; //$NON-NLS-1$
-				case "option_version_product": gSet.put(PGameSettings.PRODUCT,data); break; //$NON-NLS-1$
-				case "option_information": gSet.put(PGameSettings.INFORMATION,data); break; //$NON-NLS-1$
-				case "option_version": gSet.put(PGameSettings.VERSION,data); break; //$NON-NLS-1$
-				case "option_version_build": gSet.put(PGameSettings.VERSION_BUILD,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "option_version_major": gSet.put(PGameSettings.VERSION_MAJOR,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "option_version_minor": gSet.put(PGameSettings.VERSION_MINOR,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "option_version_release": gSet.put(PGameSettings.VERSION_RELEASE,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "option_windows_steam_app_id": gSet.put(PGameSettings.WINDOWS_STEAM_ID,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "option_mac_steam_app_id": gSet.put(PGameSettings.MAC_STEAM_ID,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "option_linux_steam_app_id": gSet.put(PGameSettings.LINUX_STEAM_ID,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "option_interpolate": gSet.put(PGameSettings.INTERPOLATE,readBool(reader)); break; //$NON-NLS-1$
+				case "option_scale": gSet.put(PGameSettings.SCALING,readInt(reader)); break; //$NON-NLS-1$
+				case "option_lastchanged": gSet.put(PGameSettings.LAST_CHANGED,readDouble(reader)); break; //$NON-NLS-1$
+				case "option_gameid": gSet.put(PGameSettings.GAME_ID,readInt(reader)); break; //$NON-NLS-1$
+				case "option_gameguid": gSet.setGUID(reader.getElementText()); break; //$NON-NLS-1$
+				case "option_author": gSet.put(PGameSettings.AUTHOR,reader.getElementText()); break; //$NON-NLS-1$
+				case "option_version_company": gSet.put(PGameSettings.COMPANY,reader.getElementText()); break; //$NON-NLS-1$
+				case "option_version_copyright": gSet.put(PGameSettings.COPYRIGHT,reader.getElementText()); break; //$NON-NLS-1$
+				case "option_version_description": gSet.put(PGameSettings.DESCRIPTION,reader.getElementText()); break; //$NON-NLS-1$
+				case "option_version_product": gSet.put(PGameSettings.PRODUCT,reader.getElementText()); break; //$NON-NLS-1$
+				case "option_information": gSet.put(PGameSettings.INFORMATION,reader.getElementText()); break; //$NON-NLS-1$
+				case "option_version": gSet.put(PGameSettings.VERSION,reader.getElementText()); break; //$NON-NLS-1$
+				case "option_version_build": gSet.put(PGameSettings.VERSION_BUILD,readInt(reader)); break; //$NON-NLS-1$
+				case "option_version_major": gSet.put(PGameSettings.VERSION_MAJOR,readInt(reader)); break; //$NON-NLS-1$
+				case "option_version_minor": gSet.put(PGameSettings.VERSION_MINOR,readInt(reader)); break; //$NON-NLS-1$
+				case "option_version_release": gSet.put(PGameSettings.VERSION_RELEASE,readInt(reader)); break; //$NON-NLS-1$
+				case "option_windows_steam_app_id": gSet.put(PGameSettings.WINDOWS_STEAM_ID,readInt(reader)); break; //$NON-NLS-1$
+				case "option_mac_steam_app_id": gSet.put(PGameSettings.MAC_STEAM_ID,readInt(reader)); break; //$NON-NLS-1$
+				case "option_linux_steam_app_id": gSet.put(PGameSettings.LINUX_STEAM_ID,readInt(reader)); break; //$NON-NLS-1$
 				case "option_windows_enable_steam": //$NON-NLS-1$
-					gSet.put(PGameSettings.WINDOWS_STEAM_ENABLE,Boolean.parseBoolean(data)); break;
-				case "option_mac_enable_steam": gSet.put(PGameSettings.MAC_STEAM_ENABLE,Boolean.parseBoolean(data)); break; //$NON-NLS-1$
+					gSet.put(PGameSettings.WINDOWS_STEAM_ENABLE,readBool(reader)); break;
+				case "option_mac_enable_steam": gSet.put(PGameSettings.MAC_STEAM_ENABLE,readBool(reader)); break; //$NON-NLS-1$
 				case "option_linux_enable_steam": //$NON-NLS-1$
-					gSet.put(PGameSettings.LINUX_STEAM_ENABLE,Boolean.parseBoolean(data)); break;
+					gSet.put(PGameSettings.LINUX_STEAM_ENABLE,readBool(reader)); break;
 				case "option_windows_game_icon": //$NON-NLS-1$
 					{
-					String icopath = c.f.getDirectory() + '/' + data;
+					String icopath = c.f.getDirectory() + '/' + reader.getElementText();
 					icopath = Util.getPOSIXPath(icopath);
 					try
 						{
@@ -505,7 +487,7 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readSprite(ProjectFileContext c, ResNode node, String cNode)
+	private static void readSprite(ProjectFileContext c, ResNode node, String cNode) throws XMLStreamException
 		{
 		ProjectFile f = c.f;
 
@@ -518,15 +500,15 @@ public final class GMXFileReader
 
 		spr.put(PSprite.TRANSPARENT,false);
 
-		XMLEventReader reader = parseDocumentChecked(f, path + ".sprite.gmx");
+		XMLStreamReader reader = parseDocumentChecked(f, path + ".sprite.gmx");
 		if (reader == null) return;
 
 		while (reader.hasNext())
 			{
-			XMLEvent nextEvent = null;
+			XMLStreamReader nextEvent = reader;
 			try
 				{
-				nextEvent = reader.nextEvent();
+				reader.next();
 				}
 			catch (XMLStreamException e)
 				{
@@ -535,39 +517,26 @@ public final class GMXFileReader
 				}
 
 			if (!nextEvent.isStartElement()) continue;
-			StartElement sel = nextEvent.asStartElement();
-			String scope = sel.getName().getLocalPart();
+			String scope = nextEvent.getName().getLocalPart();
 			if (!reader.hasNext()) break;
-			String data = "";
-			try
-				{
-				nextEvent = reader.nextEvent();
-				if (nextEvent.isCharacters())
-					data = nextEvent.asCharacters().getData();
-				}
-			catch (XMLStreamException e1)
-				{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				}
 
 			switch (scope)
 				{
 				case "colkind": //$NON-NLS-1$
-					spr.put(PSprite.SHAPE,ProjectFile.SPRITE_MASK_SHAPE[Integer.parseInt(data)]); break;
-				case "sepmasks": spr.put(PSprite.SEPARATE_MASK,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+					spr.put(PSprite.SHAPE,ProjectFile.SPRITE_MASK_SHAPE[readInt(reader)]); break;
+				case "sepmasks": spr.put(PSprite.SEPARATE_MASK,readGmBool(reader)); break; //$NON-NLS-1$
 				case "bboxmode": //$NON-NLS-1$
-					spr.put(PSprite.BB_MODE,ProjectFile.SPRITE_BB_MODE[Integer.parseInt(data)]); break;
-				case "bbox_left": spr.put(PSprite.BB_LEFT,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "bbox_right": spr.put(PSprite.BB_RIGHT,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "bbox_top": spr.put(PSprite.BB_TOP,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "bbox_bottom": spr.put(PSprite.BB_BOTTOM,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "coltolerance": spr.put(PSprite.ALPHA_TOLERANCE,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "xorig": spr.put(PSprite.ORIGIN_X,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "yorigin": spr.put(PSprite.ORIGIN_Y,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "HTile": spr.put(PSprite.TILE_HORIZONTALLY,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-				case "VTile": spr.put(PSprite.TILE_VERTICALLY,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-				case "For3D": spr.put(PSprite.FOR3D,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+					spr.put(PSprite.BB_MODE,ProjectFile.SPRITE_BB_MODE[readInt(reader)]); break;
+				case "bbox_left": spr.put(PSprite.BB_LEFT,readInt(reader)); break; //$NON-NLS-1$
+				case "bbox_right": spr.put(PSprite.BB_RIGHT,readInt(reader)); break; //$NON-NLS-1$
+				case "bbox_top": spr.put(PSprite.BB_TOP,readInt(reader)); break; //$NON-NLS-1$
+				case "bbox_bottom": spr.put(PSprite.BB_BOTTOM,readInt(reader)); break; //$NON-NLS-1$
+				case "coltolerance": spr.put(PSprite.ALPHA_TOLERANCE,readInt(reader)); break; //$NON-NLS-1$
+				case "xorig": spr.put(PSprite.ORIGIN_X,readInt(reader)); break; //$NON-NLS-1$
+				case "yorigin": spr.put(PSprite.ORIGIN_Y,readInt(reader)); break; //$NON-NLS-1$
+				case "HTile": spr.put(PSprite.TILE_HORIZONTALLY,readGmBool(reader)); break; //$NON-NLS-1$
+				case "VTile": spr.put(PSprite.TILE_VERTICALLY,readGmBool(reader)); break; //$NON-NLS-1$
+				case "For3D": spr.put(PSprite.FOR3D,readGmBool(reader)); break; //$NON-NLS-1$
 				// TODO: Read texture groups
 				// NOTE: Just extra metadata stored in the GMX by studio
 				case "width": case "height": break; //$NON-NLS-1$ //$NON-NLS-2$
@@ -579,7 +548,7 @@ public final class GMXFileReader
 						{
 						try
 							{
-							nextEvent = reader.nextEvent();
+							nextEvent.next();
 							}
 						catch (XMLStreamException e)
 							{
@@ -588,21 +557,11 @@ public final class GMXFileReader
 							break;
 							}
 						if (!nextEvent.isStartElement()) continue;
-						sel = nextEvent.asStartElement();
-						if (!sel.getName().getLocalPart().equals("frame")) continue;
+						if (!nextEvent.getName().getLocalPart().equals("frame")) continue;
 						if (!reader.hasNext()) break;
-						data = "";
-						try
-							{
-							data = reader.nextEvent().asCharacters().getData();
-							}
-						catch (XMLStreamException e1)
-							{
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-							}
+
 						BufferedImage img = null;
-						File imgfile = new File(path + Util.getPOSIXPath(data));
+						File imgfile = new File(path + Util.getPOSIXPath(reader.getElementText()));
 						if (imgfile.exists())
 							{
 							try
@@ -622,7 +581,7 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readSound(ProjectFileContext c, ResNode node, String cNode)
+	private static void readSound(ProjectFileContext c, ResNode node, String cNode) throws XMLStreamException
 		{
 		ProjectFile f = c.f;
 
@@ -634,15 +593,15 @@ public final class GMXFileReader
 		snd.setNode(rnode);
 		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
-		XMLEventReader reader = parseDocumentChecked(f, path + ".sound.gmx");
+		XMLStreamReader reader = parseDocumentChecked(f, path + ".sound.gmx");
 		if (reader == null) return;
 
 		while (reader.hasNext())
 			{
-			XMLEvent nextEvent = null;
+			XMLStreamReader nextEvent = reader;
 			try
 				{
-				nextEvent = reader.nextEvent();
+				reader.next();
 				}
 			catch (XMLStreamException e)
 				{
@@ -651,44 +610,45 @@ public final class GMXFileReader
 				}
 
 			if (!nextEvent.isStartElement()) continue;
-			StartElement sel = nextEvent.asStartElement();
-			String scope = sel.getName().getLocalPart();
+			String scope = nextEvent.getName().getLocalPart();
 			if (!reader.hasNext()) break;
-			String data = "";
-			try
-				{
-				nextEvent = reader.nextEvent();
-				if (nextEvent.asCharacters().isWhiteSpace()) continue;
-				data = nextEvent.asCharacters().getData();
-				}
-			catch (XMLStreamException e1)
-				{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				}
-			if (data == null || data.isEmpty()) continue;
 
 			switch (scope)
 				{
-				case "origname": snd.put(PSound.FILE_NAME,data); break; //$NON-NLS-1$
-				case "extension": snd.put(PSound.FILE_TYPE,data); break; //$NON-NLS-1$
+				case "origname": snd.put(PSound.FILE_NAME,reader.getElementText()); break; //$NON-NLS-1$
+				case "extension": snd.put(PSound.FILE_TYPE,reader.getElementText()); break; //$NON-NLS-1$
 				// GMX uses double nested tags for volume, bit rate, sample rate, type, and bit depth
 				// There is a special clause here, every one of those tags after volume, the nested
 				// tag is singular, where its parent is plural.
-				case "volume": snd.put(PSound.VOLUME,Double.parseDouble(data)); break;
-				case "pan": snd.put(PSound.PAN,Double.parseDouble(data)); break; //$NON-NLS-1$
-				case "bitRate":  snd.put(PSound.BIT_RATE,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "sampleRate": snd.put(PSound.SAMPLE_RATE,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "type": snd.put(PSound.TYPE,ProjectFile.SOUND_TYPE[Integer.parseInt(data)]); break; //$NON-NLS-1$
-				case "bitDepth": snd.put(PSound.BIT_DEPTH,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "preload": snd.put(PSound.PRELOAD,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-				case "compressed": snd.put(PSound.COMPRESSED,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-				case "streamed": snd.put(PSound.STREAMED,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-				case "uncompressOnLoad": snd.put(PSound.DECOMPRESS_ON_LOAD,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-				case "kind": snd.put(PSound.KIND,ProjectFile.SOUND_KIND[Integer.parseInt(data)]); break; //$NON-NLS-1$
-				case "effects": snd.setEffects(Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "volume": //$NON-NLS-1$
+					reader.nextTag();
+					snd.put(PSound.VOLUME,readDouble(reader));
+					break;
+				case "bitRates": //$NON-NLS-1$
+					reader.nextTag();
+					snd.put(PSound.BIT_RATE,readInt(reader));
+					break;
+				case "sampleRates": //$NON-NLS-1$
+					reader.nextTag();
+					snd.put(PSound.SAMPLE_RATE,readInt(reader));
+					break;
+				case "types": //$NON-NLS-1$
+					reader.nextTag();
+					snd.put(PSound.TYPE,ProjectFile.SOUND_TYPE[readInt(reader)]);
+					break;
+				case "bitDepths": //$NON-NLS-1$
+					reader.nextTag();
+					snd.put(PSound.BIT_DEPTH,readInt(reader));
+					break;
+				case "pan": snd.put(PSound.PAN,readDouble(reader)); break; //$NON-NLS-1$
+				case "preload": snd.put(PSound.PRELOAD,readGmBool(reader)); break; //$NON-NLS-1$
+				case "compressed": snd.put(PSound.COMPRESSED,readGmBool(reader)); break; //$NON-NLS-1$
+				case "streamed": snd.put(PSound.STREAMED,readGmBool(reader)); break; //$NON-NLS-1$
+				case "uncompressOnLoad": snd.put(PSound.DECOMPRESS_ON_LOAD,readGmBool(reader)); break; //$NON-NLS-1$
+				case "kind": snd.put(PSound.KIND,ProjectFile.SOUND_KIND[readInt(reader)]); break; //$NON-NLS-1$
+				case "effects": snd.setEffects(readInt(reader)); break; //$NON-NLS-1$
 				case "data": //$NON-NLS-1$
-					String fname = f.getDirectory() + "/sound/audio/" + data;
+					String fname = f.getDirectory() + "/sound/audio/" + reader.getElementText();
 					try
 						{
 						snd.data = Util.readFully(fname);
@@ -702,7 +662,7 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readBackground(ProjectFileContext c, ResNode node, String cNode)
+	private static void readBackground(ProjectFileContext c, ResNode node, String cNode) throws XMLStreamException
 		{
 		ProjectFile f = c.f;
 
@@ -713,15 +673,15 @@ public final class GMXFileReader
 		node.add(rnode);
 		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
-		XMLEventReader reader = parseDocumentChecked(f, path + ".background.gmx");
+		XMLStreamReader reader = parseDocumentChecked(f, path + ".background.gmx");
 		if (reader == null) return;
 
 		while (reader.hasNext())
 			{
-			XMLEvent nextEvent = null;
+			XMLStreamReader nextEvent = reader;
 			try
 				{
-				nextEvent = reader.nextEvent();
+				reader.next();
 				}
 			catch (XMLStreamException e)
 				{
@@ -730,39 +690,28 @@ public final class GMXFileReader
 				}
 
 			if (!nextEvent.isStartElement()) continue;
-			StartElement sel = nextEvent.asStartElement();
-			String scope = sel.getName().getLocalPart();
+			String scope = nextEvent.getName().getLocalPart();
 			if (!reader.hasNext()) break;
-			String data = "";
-			try
-				{
-				data = reader.nextEvent().asCharacters().getData();
-				}
-			catch (XMLStreamException e1)
-				{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				}
 
 			switch (scope)
 				{
-				case "istileset": bkg.put(PBackground.USE_AS_TILESET,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-				case "tilewidth": bkg.put(PBackground.TILE_WIDTH,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "tileheight": bkg.put(PBackground.TILE_HEIGHT,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "tilexoff": bkg.put(PBackground.H_OFFSET,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "tileyoff": bkg.put(PBackground.V_OFFSET,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "tilehsep": bkg.put(PBackground.H_SEP,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "tilevsep": bkg.put(PBackground.V_SEP,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "HTile": bkg.put(PBackground.TILE_HORIZONTALLY,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-				case "VTile": bkg.put(PBackground.TILE_VERTICALLY,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-				case "For3D": bkg.put(PBackground.FOR3D,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "istileset": bkg.put(PBackground.USE_AS_TILESET,readGmBool(reader)); break; //$NON-NLS-1$
+				case "tilewidth": bkg.put(PBackground.TILE_WIDTH,readInt(reader)); break; //$NON-NLS-1$
+				case "tileheight": bkg.put(PBackground.TILE_HEIGHT,readInt(reader)); break; //$NON-NLS-1$
+				case "tilexoff": bkg.put(PBackground.H_OFFSET,readInt(reader)); break; //$NON-NLS-1$
+				case "tileyoff": bkg.put(PBackground.V_OFFSET,readInt(reader)); break; //$NON-NLS-1$
+				case "tilehsep": bkg.put(PBackground.H_SEP,readInt(reader)); break; //$NON-NLS-1$
+				case "tilevsep": bkg.put(PBackground.V_SEP,readInt(reader)); break; //$NON-NLS-1$
+				case "HTile": bkg.put(PBackground.TILE_HORIZONTALLY,readGmBool(reader)); break; //$NON-NLS-1$
+				case "VTile": bkg.put(PBackground.TILE_VERTICALLY,readGmBool(reader)); break; //$NON-NLS-1$
+				case "For3D": bkg.put(PBackground.FOR3D,readGmBool(reader)); break; //$NON-NLS-1$
 				// TODO: Read texture groups
 				// NOTE: Just extra metadata stored in the GMX by studio
 				case "width": case "height": break; //$NON-NLS-1$ //$NON-NLS-2$
 				case "data": //$NON-NLS-1$
 					path = f.getDirectory() + "/background/"; //$NON-NLS-1$
 					BufferedImage img = null;
-					File imgfile = new File(path + Util.getPOSIXPath(data));
+					File imgfile = new File(path + Util.getPOSIXPath(reader.getElementText()));
 					if (imgfile.exists())
 						{
 						try
@@ -781,7 +730,7 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readPath(ProjectFileContext c, ResNode node, String cNode)
+	private static void readPath(ProjectFileContext c, ResNode node, String cNode) throws XMLStreamException
 		{
 		final ProjectFile f = c.f;
 
@@ -792,15 +741,15 @@ public final class GMXFileReader
 		node.add(rnode);
 		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
-		XMLEventReader reader = parseDocumentChecked(f, path + ".path.gmx");
+		XMLStreamReader reader = parseDocumentChecked(f, path + ".path.gmx");
 		if (reader == null) return;
 
 		while (reader.hasNext())
 			{
-			XMLEvent nextEvent = null;
+			XMLStreamReader nextEvent = reader;
 			try
 				{
-				nextEvent = reader.nextEvent();
+				reader.next();
 				}
 			catch (XMLStreamException e)
 				{
@@ -809,27 +758,16 @@ public final class GMXFileReader
 				}
 
 			if (!nextEvent.isStartElement()) continue;
-			StartElement sel = nextEvent.asStartElement();
-			String scope = sel.getName().getLocalPart();
+			String scope = nextEvent.getName().getLocalPart();
 			if (!reader.hasNext()) break;
-			String data = "";
-			try
-				{
-				data = reader.nextEvent().asCharacters().getData();
-				}
-			catch (XMLStreamException e1)
-				{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				}
 
 			switch (scope)
 				{
-				case "kind": pth.put(PPath.SMOOTH,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-				case "precision": pth.put(PPath.PRECISION,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "closed": pth.put(PPath.CLOSED,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "kind": pth.put(PPath.SMOOTH,readGmBool(reader)); break; //$NON-NLS-1$
+				case "precision": pth.put(PPath.PRECISION,readInt(reader)); break; //$NON-NLS-1$
+				case "closed": pth.put(PPath.CLOSED,readGmBool(reader)); break; //$NON-NLS-1$
 				case "backroom": //$NON-NLS-1$
-					final int backroom = Integer.parseInt(data);
+					final int backroom = readInt(reader);
 					if (backroom < 0) break;
 					PostponedRef pr = new PostponedRef()
 						{
@@ -853,10 +791,10 @@ public final class GMXFileReader
 						};
 						postpone.add(pr);
 						break;
-				case "hsnap": pth.put(PPath.SNAP_X,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "vsnap": pth.put(PPath.SNAP_Y,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "hsnap": pth.put(PPath.SNAP_X,readInt(reader)); break; //$NON-NLS-1$
+				case "vsnap": pth.put(PPath.SNAP_Y,readInt(reader)); break; //$NON-NLS-1$
 				case "point": //$NON-NLS-1$
-					String[] coords = data.split(","); //$NON-NLS-1$
+					String[] coords = reader.getElementText().split(","); //$NON-NLS-1$
 					pth.points.add(new PathPoint(Integer.parseInt(coords[0]),Integer.parseInt(coords[1]),
 						Integer.parseInt(coords[2])));
 					break;
@@ -950,7 +888,7 @@ public final class GMXFileReader
 		shr.put(PShader.FRAGMENT,splitcode[1]);
 		}
 
-	private static void readFont(ProjectFileContext c, ResNode node, String cNode)
+	private static void readFont(ProjectFileContext c, ResNode node, String cNode) throws XMLStreamException
 		{
 		ProjectFile f = c.f;
 
@@ -961,15 +899,15 @@ public final class GMXFileReader
 		node.add(rnode);
 		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
-		XMLEventReader reader = parseDocumentChecked(f, path + ".font.gmx");
+		XMLStreamReader reader = parseDocumentChecked(f, path + ".font.gmx");
 		if (reader == null) return;
 
 		while (reader.hasNext())
 			{
-			XMLEvent nextEvent = null;
+			XMLStreamReader nextEvent = reader;
 			try
 				{
-				nextEvent = reader.nextEvent();
+				reader.next();
 				}
 			catch (XMLStreamException e)
 				{
@@ -978,50 +916,36 @@ public final class GMXFileReader
 				}
 
 			if (!nextEvent.isStartElement()) continue;
-			StartElement sel = nextEvent.asStartElement();
-			String scope = sel.getName().getLocalPart();
+			String scope = nextEvent.getName().getLocalPart();
 			if (!reader.hasNext()) break;
-			String data = "";
-			try
-				{
-				nextEvent = reader.nextEvent();
-				if (!nextEvent.isCharacters()) continue;
-				data = nextEvent.asCharacters().getData();
-				}
-			catch (XMLStreamException e1)
-				{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				}
 
 			switch (scope)
 				{
-				case "name": fnt.put(PFont.FONT_NAME,data); break; //$NON-NLS-1$
-				case "size": fnt.put(PFont.SIZE,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "bold": fnt.put(PFont.BOLD,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-				case "italic": fnt.put(PFont.ITALIC,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-				case "charset": fnt.put(PFont.CHARSET,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "aa": fnt.put(PFont.ANTIALIAS,Integer.parseInt(data)); break; //$NON-NLS-1$
+				case "name": fnt.put(PFont.FONT_NAME,reader.getElementText()); break; //$NON-NLS-1$
+				case "size": fnt.put(PFont.SIZE,readInt(reader)); break; //$NON-NLS-1$
+				case "bold": fnt.put(PFont.BOLD,readGmBool(reader)); break; //$NON-NLS-1$
+				case "italic": fnt.put(PFont.ITALIC,readGmBool(reader)); break; //$NON-NLS-1$
+				case "charset": fnt.put(PFont.CHARSET,readInt(reader)); break; //$NON-NLS-1$
+				case "aa": fnt.put(PFont.ANTIALIAS,readInt(reader)); break; //$NON-NLS-1$
 				case "range0": //$NON-NLS-1$
-					String[] range = data.split(","); //$NON-NLS-1$
+					String[] range = reader.getElementText().split(","); //$NON-NLS-1$
 					fnt.addRange(Integer.parseInt(range[0]),Integer.parseInt(range[1]));
 					break;
 				case "glyph": //$NON-NLS-1$
 					GlyphMetric gm = fnt.addGlyph();
 					PropertyMap<PGlyphMetric> props = gm.properties;
-					Iterator<Attribute> atts = sel.getAttributes();
-					while (atts.hasNext())
+					for(int i = 0; i < reader.getAttributeCount(); ++i)
 						{
-						Attribute att = atts.next();
-						switch (att.getName().getLocalPart())
+						String value = reader.getAttributeValue(i);
+						switch (reader.getAttributeName(i).getLocalPart())
 							{
-							case "character": props.put(PGlyphMetric.CHARACTER, Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "x": props.put(PGlyphMetric.X, Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "y": props.put(PGlyphMetric.Y, Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "w": props.put(PGlyphMetric.W, Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "h": props.put(PGlyphMetric.H, Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "shift": props.put(PGlyphMetric.SHIFT, Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "offset": props.put(PGlyphMetric.OFFSET, Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "character": props.put(PGlyphMetric.CHARACTER, Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "x": props.put(PGlyphMetric.X, Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "y": props.put(PGlyphMetric.Y, Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "w": props.put(PGlyphMetric.W, Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "h": props.put(PGlyphMetric.H, Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "shift": props.put(PGlyphMetric.SHIFT, Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "offset": props.put(PGlyphMetric.OFFSET, Integer.parseInt(value)); break; //$NON-NLS-1$
 							}
 						}
 					break;
@@ -1029,7 +953,7 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readTimeline(ProjectFileContext c, ResNode node, String cNode)
+	private static void readTimeline(ProjectFileContext c, ResNode node, String cNode) throws XMLStreamException
 		{
 		ProjectFile f = c.f;
 
@@ -1045,16 +969,16 @@ public final class GMXFileReader
 		node.add(rnode);
 		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
-		XMLEventReader reader = parseDocumentChecked(f, path + ".timeline.gmx");
+		XMLStreamReader reader = parseDocumentChecked(f, path + ".timeline.gmx");
 		if (reader == null) return;
 
 		int stepnum = 0;
 		while (reader.hasNext())
 			{
-			XMLEvent nextEvent = null;
+			XMLStreamReader nextEvent = reader;
 			try
 				{
-				nextEvent = reader.nextEvent();
+				reader.next();
 				}
 			catch (XMLStreamException e)
 				{
@@ -1063,25 +987,12 @@ public final class GMXFileReader
 				}
 
 			if (!nextEvent.isStartElement()) continue;
-			StartElement sel = nextEvent.asStartElement();
-			String scope = sel.getName().getLocalPart();
+			String scope = nextEvent.getName().getLocalPart();
 			if (!reader.hasNext()) break;
-			String data = "";
-			try
-				{
-				nextEvent = reader.nextEvent();
-				if (!nextEvent.isCharacters()) continue;
-				data = nextEvent.asCharacters().getData();
-				}
-			catch (XMLStreamException e1)
-				{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				}
 
 			switch (scope)
 				{
-				case "step": stepnum = Integer.parseInt(data); break; //$NON-NLS-1$
+				case "step": stepnum = readInt(reader); break; //$NON-NLS-1$
 				case "event": //$NON-NLS-1$
 					Moment mom = tml.addMoment();
 					mom.stepNo = stepnum;
@@ -1091,7 +1002,7 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readGmObject(ProjectFileContext c, ResNode node, String cNode)
+	private static void readGmObject(ProjectFileContext c, ResNode node, String cNode) throws XMLStreamException
 		{
 		final ProjectFile f = c.f;
 
@@ -1109,16 +1020,16 @@ public final class GMXFileReader
 		ResNode rnode = new ResNode(obj.getName(),ResNode.STATUS_SECONDARY,GmObject.class,obj.reference);
 		node.add(rnode);
 
-		XMLEventReader reader = parseDocumentChecked(f, path + ".object.gmx");
+		XMLStreamReader reader = parseDocumentChecked(f, path + ".object.gmx");
 		if (reader == null) return;
 
 		int stepnum = 0;
 		while (reader.hasNext())
 			{
-			XMLEvent nextEvent = null;
+			XMLStreamReader nextEvent = reader;
 			try
 				{
-				nextEvent = reader.nextEvent();
+				reader.next();
 				}
 			catch (XMLStreamException e)
 				{
@@ -1127,50 +1038,46 @@ public final class GMXFileReader
 				}
 
 			if (!nextEvent.isStartElement()) continue;
-			StartElement sel = nextEvent.asStartElement();
-			String scope = sel.getName().getLocalPart();
+			String scope = nextEvent.getName().getLocalPart();
 			if (!reader.hasNext()) break;
-			String data = "";
-			try
-				{
-				nextEvent = reader.nextEvent();
-				if (!nextEvent.isCharacters()) continue;
-				data = nextEvent.asCharacters().getData();
-				}
-			catch (XMLStreamException e1)
-				{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				}
 
 			switch (scope)
 				{
 				case "spriteName": //$NON-NLS-1$
+					{
+					String data = reader.getElementText();
 					if (!data.equals("<undefined>")) //$NON-NLS-1$
 						postpone.add(new DefaultPostponedRef<>(f.resMap.getList(Sprite.class), obj.properties, PGmObject.SPRITE, data));
 					break;
+					}
 				case "maskName": //$NON-NLS-1$
+					{
+					String data = reader.getElementText();
 					if (!data.equals("<undefined>")) //$NON-NLS-1$
 						postpone.add(new DefaultPostponedRef<>(f.resMap.getList(Sprite.class), obj.properties, PGmObject.MASK, data));
 					break;
+					}
 				case "parentName": //$NON-NLS-1$
+					{
+					String data = reader.getElementText();
 					if (!data.equals("<undefined>") && !data.equals("self")) //$NON-NLS-1$ //$NON-NLS-2$
 						postpone.add(new DefaultPostponedRef<>(f.resMap.getList(GmObject.class), obj.properties, PGmObject.PARENT, data));
 					break;
-				case "solid": obj.put(PGmObject.SOLID,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-				case "visible": obj.put(PGmObject.VISIBLE,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-				case "depth": obj.put(PGmObject.DEPTH,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "persistent": obj.put(PGmObject.PERSISTENT,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+					}
+				case "solid": obj.put(PGmObject.SOLID,readGmBool(reader)); break; //$NON-NLS-1$
+				case "visible": obj.put(PGmObject.VISIBLE,readGmBool(reader)); break; //$NON-NLS-1$
+				case "depth": obj.put(PGmObject.DEPTH,readInt(reader)); break; //$NON-NLS-1$
+				case "persistent": obj.put(PGmObject.PERSISTENT,readGmBool(reader)); break; //$NON-NLS-1$
 				case "event": //$NON-NLS-1$
 					{
 					final Event ev = new Event();
 
-					ev.mainId = Integer.parseInt(sel.getAttributeByName(new QName("eventtype")).getValue()); //$NON-NLS-1$
+					ev.mainId = Integer.parseInt(nextEvent.getAttributeValue(null, "eventtype")); //$NON-NLS-1$
 					MainEvent me = obj.mainEvents.get(ev.mainId);
 					me.events.add(0,ev);
 					if (ev.mainId == MainEvent.EV_COLLISION)
 						{
-						final String colname = sel.getAttributeByName(new QName("ename")).getValue(); //$NON-NLS-1$
+						final String colname = nextEvent.getAttributeValue(null, "ename"); //$NON-NLS-1$
 						PostponedRef pr = new PostponedRef()
 							{
 								public boolean invoke()
@@ -1193,26 +1100,26 @@ public final class GMXFileReader
 						}
 					else
 						{
-						ev.id = Integer.parseInt(sel.getAttributeByName(new QName("enumb")).getValue()); //$NON-NLS-1$
+						ev.id = Integer.parseInt(nextEvent.getAttributeValue(null, "enumb")); //$NON-NLS-1$
 						}
 					readActions(c,ev,"INOBJECTACTION",obj.getId(),ev.mainId * 1000 + ev.id,reader); //$NON-NLS-1$
 					}
 					break;
-				case "PhysicsObject": obj.put(PGmObject.PHYSICS_OBJECT, Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-				case "PhysicsObjectSensor": obj.put(PGmObject.PHYSICS_SENSOR, Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-				case "PhysicsObjectShape": obj.put(PGmObject.PHYSICS_SHAPE, ProjectFile.PHYSICS_SHAPE[Integer.parseInt(data)]); break; //$NON-NLS-1$
-				case "PhysicsObjectDensity": obj.put(PGmObject.PHYSICS_DENSITY, Double.parseDouble(data)); break; //$NON-NLS-1$
-				case "PhysicsObjectRestitution": obj.put(PGmObject.PHYSICS_RESTITUTION, Double.parseDouble(data)); break; //$NON-NLS-1$
-				case "PhysicsObjectGroup": obj.put(PGmObject.PHYSICS_GROUP, Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "PhysicsObjectLinearDamping": obj.put(PGmObject.PHYSICS_DAMPING_LINEAR, Double.parseDouble(data)); break; //$NON-NLS-1$
-				case "PhysicsObjectAngularDamping": obj.put(PGmObject.PHYSICS_DAMPING_ANGULAR, Double.parseDouble(data)); break; //$NON-NLS-1$
+				case "PhysicsObject": obj.put(PGmObject.PHYSICS_OBJECT, readGmBool(reader)); break; //$NON-NLS-1$
+				case "PhysicsObjectSensor": obj.put(PGmObject.PHYSICS_SENSOR, readGmBool(reader)); break; //$NON-NLS-1$
+				case "PhysicsObjectShape": obj.put(PGmObject.PHYSICS_SHAPE, ProjectFile.PHYSICS_SHAPE[readInt(reader)]); break; //$NON-NLS-1$
+				case "PhysicsObjectDensity": obj.put(PGmObject.PHYSICS_DENSITY, readDouble(reader)); break; //$NON-NLS-1$
+				case "PhysicsObjectRestitution": obj.put(PGmObject.PHYSICS_RESTITUTION, readDouble(reader)); break; //$NON-NLS-1$
+				case "PhysicsObjectGroup": obj.put(PGmObject.PHYSICS_GROUP, readInt(reader)); break; //$NON-NLS-1$
+				case "PhysicsObjectLinearDamping": obj.put(PGmObject.PHYSICS_DAMPING_LINEAR, readDouble(reader)); break; //$NON-NLS-1$
+				case "PhysicsObjectAngularDamping": obj.put(PGmObject.PHYSICS_DAMPING_ANGULAR, readDouble(reader)); break; //$NON-NLS-1$
 				// NOTE: Some versions of the format did not have all of the physics properties.
 				// It is the same for GMK 820/821 as well.
-				case "PhysicsObjectFriction": obj.put(PGmObject.PHYSICS_FRICTION, Double.parseDouble(data)); break; //$NON-NLS-1$
-				case "PhysicsObjectAwake": obj.put(PGmObject.PHYSICS_AWAKE, Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-				case "PhysicsObjectKinematic": obj.put(PGmObject.PHYSICS_KINEMATIC, Integer.parseInt(data) != 0); break; //$NON-NLS-1$
+				case "PhysicsObjectFriction": obj.put(PGmObject.PHYSICS_FRICTION, readDouble(reader)); break; //$NON-NLS-1$
+				case "PhysicsObjectAwake": obj.put(PGmObject.PHYSICS_AWAKE, readGmBool(reader)); break; //$NON-NLS-1$
+				case "PhysicsObjectKinematic": obj.put(PGmObject.PHYSICS_KINEMATIC, readGmBool(reader)); break; //$NON-NLS-1$
 				case "point": //$NON-NLS-1$
-					String[] coords = data.split(","); //$NON-NLS-1$
+					String[] coords = reader.getElementText().split(","); //$NON-NLS-1$
 					obj.shapePoints.add(new ShapePoint(Double.parseDouble(coords[0]),
 							Double.parseDouble(coords[1])));
 					break;
@@ -1220,7 +1127,32 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readRoom(ProjectFileContext c, ResNode node, String cNode)
+	public static int readInt(XMLStreamReader reader) throws NumberFormatException, XMLStreamException
+		{
+		return Integer.parseInt(reader.getElementText());
+		}
+
+	public static boolean readGmBool(XMLStreamReader reader) throws XMLStreamException
+		{
+		return (readInt(reader) != 0);
+		}
+
+	public static boolean readBool(XMLStreamReader reader) throws XMLStreamException
+		{
+		return Boolean.parseBoolean(reader.getElementText());
+		}
+
+	public static float readFloat(XMLStreamReader reader) throws NumberFormatException, XMLStreamException
+		{
+		return Float.parseFloat(reader.getElementText());
+		}
+
+	public static double readDouble(XMLStreamReader reader) throws NumberFormatException, XMLStreamException
+		{
+		return Double.parseDouble(reader.getElementText());
+		}
+
+	private static void readRoom(ProjectFileContext c, ResNode node, String cNode) throws XMLStreamException
 		{
 		final ProjectFile f = c.f;
 
@@ -1235,17 +1167,17 @@ public final class GMXFileReader
 		node.add(rnode);
 		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode);
 
-		XMLEventReader reader = parseDocumentChecked(f, path + ".room.gmx");
+		XMLStreamReader reader = parseDocumentChecked(f, path + ".room.gmx");
 		if (reader == null) return;
 
 		boolean makerSettings = false;
 		int bkgnum = 0, viewnum = 0;
 		while (reader.hasNext())
 			{
-			XMLEvent nextEvent = null;
+			XMLStreamReader nextEvent = reader;
 			try
 				{
-				nextEvent = reader.nextEvent();
+				reader.next();
 				}
 			catch (XMLStreamException e)
 				{
@@ -1255,95 +1187,80 @@ public final class GMXFileReader
 
 			if (!nextEvent.isStartElement())
 				{
-				if (nextEvent.isEndElement() && nextEvent.asEndElement().getName().getLocalPart().equals("makerSettings"))
+				if (nextEvent.isEndElement() && nextEvent.getName().getLocalPart().equals("makerSettings"))
 					makerSettings = false;
 				continue;
 				}
-			StartElement sel = nextEvent.asStartElement();
-			String scope = sel.getName().getLocalPart();
-			if (!reader.hasNext()) break;
-			String data = "";
-			try
-				{
-				nextEvent = reader.nextEvent();
-				if (nextEvent.isCharacters())
-					data = nextEvent.asCharacters().getData();
-				}
-			catch (XMLStreamException e1)
-				{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				}
+			String scope = nextEvent.getName().getLocalPart();
 
 			if (makerSettings)
 				{
 				switch (scope)
 					{
-					case "isSet": rmn.put(PRoom.REMEMBER_WINDOW_SIZE,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-					case "w": rmn.put(PRoom.EDITOR_WIDTH,Integer.parseInt(data)); break; //$NON-NLS-1$
-					case "h": rmn.put(PRoom.EDITOR_HEIGHT,Integer.parseInt(data)); break; //$NON-NLS-1$
-					case "showGrid": rmn.put(PRoom.SHOW_GRID,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-					case "showObjects": rmn.put(PRoom.SHOW_OBJECTS,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-					case "showTiles": rmn.put(PRoom.SHOW_TILES,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-					case "showBackgrounds": rmn.put(PRoom.SHOW_BACKGROUNDS,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-					case "showForegrounds": rmn.put(PRoom.SHOW_FOREGROUNDS,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-					case "showViews": rmn.put(PRoom.SHOW_VIEWS,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-					case "deleteUnderlyingObj": rmn.put(PRoom.DELETE_UNDERLYING_OBJECTS,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-					case "deleteUnderlyingTiles": rmn.put(PRoom.DELETE_UNDERLYING_TILES,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-					case "page": rmn.put(PRoom.CURRENT_TAB,Integer.parseInt(data)); break; //$NON-NLS-1$
-					case "xoffset": rmn.put(PRoom.SCROLL_BAR_X,Integer.parseInt(data)); break; //$NON-NLS-1$
-					case "yoffset": rmn.put(PRoom.SCROLL_BAR_Y,Integer.parseInt(data)); break; //$NON-NLS-1$
+					case "isSet": rmn.put(PRoom.REMEMBER_WINDOW_SIZE,readGmBool(reader)); break; //$NON-NLS-1$
+					case "w": rmn.put(PRoom.EDITOR_WIDTH,readInt(reader)); break; //$NON-NLS-1$
+					case "h": rmn.put(PRoom.EDITOR_HEIGHT,readInt(reader)); break; //$NON-NLS-1$
+					case "showGrid": rmn.put(PRoom.SHOW_GRID,readGmBool(reader)); break; //$NON-NLS-1$
+					case "showObjects": rmn.put(PRoom.SHOW_OBJECTS,readGmBool(reader)); break; //$NON-NLS-1$
+					case "showTiles": rmn.put(PRoom.SHOW_TILES,readGmBool(reader)); break; //$NON-NLS-1$
+					case "showBackgrounds": rmn.put(PRoom.SHOW_BACKGROUNDS,readGmBool(reader)); break; //$NON-NLS-1$
+					case "showForegrounds": rmn.put(PRoom.SHOW_FOREGROUNDS,readGmBool(reader)); break; //$NON-NLS-1$
+					case "showViews": rmn.put(PRoom.SHOW_VIEWS,readGmBool(reader)); break; //$NON-NLS-1$
+					case "deleteUnderlyingObj": rmn.put(PRoom.DELETE_UNDERLYING_OBJECTS,readGmBool(reader)); break; //$NON-NLS-1$
+					case "deleteUnderlyingTiles": rmn.put(PRoom.DELETE_UNDERLYING_TILES,readGmBool(reader)); break; //$NON-NLS-1$
+					case "page": rmn.put(PRoom.CURRENT_TAB,readInt(reader)); break; //$NON-NLS-1$
+					case "xoffset": rmn.put(PRoom.SCROLL_BAR_X,readInt(reader)); break; //$NON-NLS-1$
+					case "yoffset": rmn.put(PRoom.SCROLL_BAR_Y,readInt(reader)); break; //$NON-NLS-1$
 					}
 				continue;
 				}
 
 			switch (scope)
 				{
-				case "caption": rmn.put(PRoom.CAPTION,data); break; //$NON-NLS-1$
-				case "width": rmn.put(PRoom.WIDTH,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "height": rmn.put(PRoom.HEIGHT,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "vsnap": rmn.put(PRoom.SNAP_X,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "hsnap": rmn.put(PRoom.SNAP_Y,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "isometric": rmn.put(PRoom.ISOMETRIC,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-				case "speed": rmn.put(PRoom.SPEED,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "persistent": rmn.put(PRoom.PERSISTENT,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-				case "colour": rmn.put(PRoom.BACKGROUND_COLOR,Util.convertGmColor(Integer.parseInt(data))); break; //$NON-NLS-1$
-				case "showcolour": rmn.put(PRoom.DRAW_BACKGROUND_COLOR,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-				case "code": rmn.put(PRoom.CREATION_CODE,data); break; //$NON-NLS-1$
-				case "enableViews": rmn.put(PRoom.VIEWS_ENABLED,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-				case "clearViewBackgrounds": rmn.put(PRoom.VIEWS_CLEAR,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-				case "PhysicsWorld": rmn.put(PRoom.PHYSICS_WORLD,Integer.parseInt(data) != 0); break; //$NON-NLS-1$
-				case "PhysicsWorldTop": rmn.put(PRoom.PHYSICS_TOP,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "PhysicsWorldLeft": rmn.put(PRoom.PHYSICS_LEFT,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "PhysicsWorldRight": rmn.put(PRoom.PHYSICS_RIGHT,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "PhysicsWorldBottom": rmn.put(PRoom.PHYSICS_BOTTOM,Integer.parseInt(data)); break; //$NON-NLS-1$
-				case "PhysicsWorldGravityX": rmn.put(PRoom.PHYSICS_GRAVITY_X,Double.parseDouble(data)); break; //$NON-NLS-1$
-				case "PhysicsWorldGravityY": rmn.put(PRoom.PHYSICS_GRAVITY_Y,Double.parseDouble(data)); break; //$NON-NLS-1$
-				case "PhysicsWorldPixToMeters": rmn.put(PRoom.PHYSICS_PIXTOMETERS,Double.parseDouble(data)); break; //$NON-NLS-1$
+				case "caption": rmn.put(PRoom.CAPTION,reader.getElementText()); break; //$NON-NLS-1$
+				case "width": rmn.put(PRoom.WIDTH,readInt(reader)); break; //$NON-NLS-1$
+				case "height": rmn.put(PRoom.HEIGHT,readInt(reader)); break; //$NON-NLS-1$
+				case "vsnap": rmn.put(PRoom.SNAP_X,readInt(reader)); break; //$NON-NLS-1$
+				case "hsnap": rmn.put(PRoom.SNAP_Y,readInt(reader)); break; //$NON-NLS-1$
+				case "isometric": rmn.put(PRoom.ISOMETRIC,readGmBool(reader)); break; //$NON-NLS-1$
+				case "speed": rmn.put(PRoom.SPEED,readInt(reader)); break; //$NON-NLS-1$
+				case "persistent": rmn.put(PRoom.PERSISTENT,readGmBool(reader)); break; //$NON-NLS-1$
+				case "colour": rmn.put(PRoom.BACKGROUND_COLOR,Util.convertGmColor(readInt(reader))); break; //$NON-NLS-1$
+				case "showcolour": rmn.put(PRoom.DRAW_BACKGROUND_COLOR,readGmBool(reader)); break; //$NON-NLS-1$
+				case "code": rmn.put(PRoom.CREATION_CODE,reader.getElementText()); break; //$NON-NLS-1$
+				case "enableViews": rmn.put(PRoom.VIEWS_ENABLED,readGmBool(reader)); break; //$NON-NLS-1$
+				case "clearViewBackgrounds": rmn.put(PRoom.VIEWS_CLEAR,readGmBool(reader)); break; //$NON-NLS-1$
+				case "PhysicsWorld": rmn.put(PRoom.PHYSICS_WORLD,readGmBool(reader)); break; //$NON-NLS-1$
+				case "PhysicsWorldTop": rmn.put(PRoom.PHYSICS_TOP,readInt(reader)); break; //$NON-NLS-1$
+				case "PhysicsWorldLeft": rmn.put(PRoom.PHYSICS_LEFT,readInt(reader)); break; //$NON-NLS-1$
+				case "PhysicsWorldRight": rmn.put(PRoom.PHYSICS_RIGHT,readInt(reader)); break; //$NON-NLS-1$
+				case "PhysicsWorldBottom": rmn.put(PRoom.PHYSICS_BOTTOM,readInt(reader)); break; //$NON-NLS-1$
+				case "PhysicsWorldGravityX": rmn.put(PRoom.PHYSICS_GRAVITY_X,readDouble(reader)); break; //$NON-NLS-1$
+				case "PhysicsWorldGravityY": rmn.put(PRoom.PHYSICS_GRAVITY_Y,readDouble(reader)); break; //$NON-NLS-1$
+				case "PhysicsWorldPixToMeters": rmn.put(PRoom.PHYSICS_PIXTOMETERS,readDouble(reader)); break; //$NON-NLS-1$
 				case "makerSettings": makerSettings = true; break; //$NON-NLS-1$
 				case "background": //$NON-NLS-1$
 					{
 					final BackgroundDef bkg = rmn.backgroundDefs.get(bkgnum++);
 					PropertyMap<PBackgroundDef> props = bkg.properties;
-					Iterator<Attribute> atts = sel.getAttributes();
-					while (atts.hasNext())
+					for (int i = 0; i < reader.getAttributeCount(); ++i)
 						{
-						Attribute att = atts.next();
-						switch (att.getName().getLocalPart())
+						String value = reader.getAttributeValue(i);
+						switch (reader.getAttributeName(i).getLocalPart())
 							{
-							case "visible": props.put(PBackgroundDef.VISIBLE,Integer.parseInt(att.getValue()) != 0); break; //$NON-NLS-1$
+							case "visible": props.put(PBackgroundDef.VISIBLE,Integer.parseInt(value) != 0); break; //$NON-NLS-1$
 							case "name": //$NON-NLS-1$
-								String bkgname = att.getValue();
-								postpone.add(new DefaultPostponedRef<>(f.resMap.getList(Background.class), bkg.properties, PBackgroundDef.BACKGROUND, bkgname));
+								postpone.add(new DefaultPostponedRef<>(
+										f.resMap.getList(Background.class), bkg.properties, PBackgroundDef.BACKGROUND, value));
 								break;
-							case "foreground": props.put(PBackgroundDef.FOREGROUND,Integer.parseInt(att.getValue()) != 0); break; //$NON-NLS-1$
-							case "htiled": props.put(PBackgroundDef.TILE_HORIZ,Integer.parseInt(att.getValue()) != 0); break; //$NON-NLS-1$
-							case "vtiled": props.put(PBackgroundDef.TILE_VERT,Integer.parseInt(att.getValue()) != 0); break; //$NON-NLS-1$
-							case "stretch": props.put(PBackgroundDef.STRETCH,Integer.parseInt(att.getValue()) != 0); break; //$NON-NLS-1$
-							case "hspeed": props.put(PBackgroundDef.H_SPEED,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "vspeed": props.put(PBackgroundDef.V_SPEED,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "x": props.put(PBackgroundDef.X,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "y": props.put(PBackgroundDef.Y,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "foreground": props.put(PBackgroundDef.FOREGROUND,Integer.parseInt(value) != 0); break; //$NON-NLS-1$
+							case "htiled": props.put(PBackgroundDef.TILE_HORIZ,Integer.parseInt(value) != 0); break; //$NON-NLS-1$
+							case "vtiled": props.put(PBackgroundDef.TILE_VERT,Integer.parseInt(value) != 0); break; //$NON-NLS-1$
+							case "stretch": props.put(PBackgroundDef.STRETCH,Integer.parseInt(value) != 0); break; //$NON-NLS-1$
+							case "hspeed": props.put(PBackgroundDef.H_SPEED,Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "vspeed": props.put(PBackgroundDef.V_SPEED,Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "x": props.put(PBackgroundDef.X,Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "y": props.put(PBackgroundDef.Y,Integer.parseInt(value)); break; //$NON-NLS-1$
 							}
 						}
 					}
@@ -1352,29 +1269,28 @@ public final class GMXFileReader
 					{
 					final View vw = rmn.views.get(viewnum++);
 					PropertyMap<PView> props = vw.properties;
-					Iterator<Attribute> atts = sel.getAttributes();
-					while (atts.hasNext())
+					for (int i = 0; i < reader.getAttributeCount(); ++i)
 						{
-						Attribute att = atts.next();
-						switch (att.getName().getLocalPart())
+						String value = reader.getAttributeValue(i);
+						switch (reader.getAttributeName(i).getLocalPart())
 							{
-							case "visible": props.put(PView.VISIBLE,Integer.parseInt(att.getValue()) != 0); break; //$NON-NLS-1$
+							case "visible": props.put(PView.VISIBLE,Integer.parseInt(value) != 0); break; //$NON-NLS-1$
 							case "objName": //$NON-NLS-1$
-								String objname = att.getValue();
-								postpone.add(new DefaultPostponedRef<>(f.resMap.getList(GmObject.class), vw.properties, PView.OBJECT, objname));
+								postpone.add(new DefaultPostponedRef<>(
+										f.resMap.getList(GmObject.class), vw.properties, PView.OBJECT, value));
 								break;
-							case "hspeed": props.put(PView.SPEED_H,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "vspeed": props.put(PView.SPEED_V,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "hborder": props.put(PView.BORDER_H,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "vborder": props.put(PView.BORDER_V,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "hport": props.put(PView.PORT_H,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "wport": props.put(PView.PORT_W,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "xport": props.put(PView.PORT_X,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "yport": props.put(PView.PORT_Y,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "hview": props.put(PView.VIEW_H,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "wview": props.put(PView.VIEW_W,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "xview": props.put(PView.VIEW_X,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "yview": props.put(PView.VIEW_Y,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "hspeed": props.put(PView.SPEED_H,Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "vspeed": props.put(PView.SPEED_V,Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "hborder": props.put(PView.BORDER_H,Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "vborder": props.put(PView.BORDER_V,Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "hport": props.put(PView.PORT_H,Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "wport": props.put(PView.PORT_W,Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "xport": props.put(PView.PORT_X,Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "yport": props.put(PView.PORT_Y,Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "hview": props.put(PView.VIEW_H,Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "wview": props.put(PView.VIEW_W,Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "xview": props.put(PView.VIEW_X,Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "yview": props.put(PView.VIEW_Y,Integer.parseInt(value)); break; //$NON-NLS-1$
 							}
 						}
 					}
@@ -1383,41 +1299,40 @@ public final class GMXFileReader
 					{
 					Instance inst = rmn.addInstance();
 					PropertyMap<PInstance> props = inst.properties;
-					Iterator<Attribute> atts = sel.getAttributes();
-					while (atts.hasNext())
+					for (int i = 0; i < reader.getAttributeCount(); ++i)
 						{
-						Attribute att = atts.next();
-						switch (att.getName().getLocalPart())
+						String value = reader.getAttributeValue(i);
+						switch (reader.getAttributeName(i).getLocalPart())
 							{
-							case "x": props.put(PInstance.X,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "y": props.put(PInstance.Y,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "x": props.put(PInstance.X,Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "y": props.put(PInstance.Y,Integer.parseInt(value)); break; //$NON-NLS-1$
 							case "objName": //$NON-NLS-1$
 								// TODO: Replace this with DelayedRef
 								// because of the way this is set up, sprites must be loaded before objects
-								GmObject temp = f.resMap.getList(GmObject.class).get(att.getValue());
+								GmObject temp = f.resMap.getList(GmObject.class).get(value);
 								if (temp != null) inst.properties.put(PInstance.OBJECT,temp.reference);
 								break;
-							case "name": props.put(PInstance.NAME,att.getValue()); break; //$NON-NLS-1$
+							case "name": props.put(PInstance.NAME,value); break; //$NON-NLS-1$
 							case "id"://$NON-NLS-1$
 								// NOTE: Because LGM still supports GMK, we attempt to preserve the ID which Studio
 								// will remove if it saves over the GMX, so see if the "id" attribute we added is
 								// there otherwise make up a new ID.
-								int instid = Integer.parseInt(att.getValue());
+								int instid = Integer.parseInt(value);
 								if (instid > f.lastInstanceId)
 									f.lastInstanceId = instid;
 								inst.properties.put(PInstance.ID, instid);
 								break;
-							case "rotation": props.put(PInstance.ROTATION,Double.parseDouble(att.getValue())); break; //$NON-NLS-1$
-							case "locked": props.put(PInstance.LOCKED,Integer.parseInt(att.getValue()) != 0); break; //$NON-NLS-1$
-							case "scaleX": props.put(PInstance.SCALE_X,Double.parseDouble(att.getValue())); break; //$NON-NLS-1$
-							case "scaleY": props.put(PInstance.SCALE_Y,Double.parseDouble(att.getValue())); break; //$NON-NLS-1$
+							case "rotation": props.put(PInstance.ROTATION,Double.parseDouble(value)); break; //$NON-NLS-1$
+							case "locked": props.put(PInstance.LOCKED,Integer.parseInt(value) != 0); break; //$NON-NLS-1$
+							case "scaleX": props.put(PInstance.SCALE_X,Double.parseDouble(value)); break; //$NON-NLS-1$
+							case "scaleY": props.put(PInstance.SCALE_Y,Double.parseDouble(value)); break; //$NON-NLS-1$
 							case "colour": //$NON-NLS-1$
-								long col = Long.parseLong(att.getValue()); //$NON-NLS-1$
+								long col = Long.parseLong(value); //$NON-NLS-1$
 								Color color = Util.convertInstanceColorWithAlpha((int) col);
 								inst.setColor(color);
 								inst.setAlpha(color.getAlpha());
 								break;
-							case "code": props.put(PInstance.CREATION_CODE,att.getValue()); break; //$NON-NLS-1$
+							case "code": props.put(PInstance.CREATION_CODE,value); break; //$NON-NLS-1$
 							}
 						}
 					break;
@@ -1426,35 +1341,33 @@ public final class GMXFileReader
 					{
 					final Tile tile = new Tile(rmn);
 					PropertyMap<PTile> props = tile.properties;
-					Iterator<Attribute> atts = sel.getAttributes();
-					while (atts.hasNext())
+					for (int i = 0; i < reader.getAttributeCount(); ++i)
 						{
-						Attribute att = atts.next();
-						switch (att.getName().getLocalPart())
+						String value = reader.getAttributeValue(i);
+						switch (reader.getAttributeName(i).getLocalPart())
 							{
-							case "x": props.put(PTile.ROOM_X,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "y": props.put(PTile.ROOM_Y,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
+							case "x": props.put(PTile.ROOM_X,Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "y": props.put(PTile.ROOM_Y,Integer.parseInt(value)); break; //$NON-NLS-1$
 							case "bgName": //$NON-NLS-1$
-								postpone.add(
-										new DefaultPostponedRef<>(
-												f.resMap.getList(Background.class), tile.properties, PTile.BACKGROUND, att.getValue()));
+								postpone.add(new DefaultPostponedRef<>(
+										f.resMap.getList(Background.class), tile.properties, PTile.BACKGROUND, value));
 								break;
-							case "name": props.put(PTile.NAME,att.getValue()); break; //$NON-NLS-1$
+							case "name": props.put(PTile.NAME,value); break; //$NON-NLS-1$
 							case "id"://$NON-NLS-1$
-								int tileid = Integer.parseInt(att.getValue());
+								int tileid = Integer.parseInt(value);
 								if (tileid > f.lastTileId)
 									f.lastTileId = tileid;
 								tile.properties.put(PTile.ID,tileid);
 								break;
-							case "xo": props.put(PTile.BG_X,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "yo": props.put(PTile.BG_Y,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "w": props.put(PTile.WIDTH,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "h": props.put(PTile.HEIGHT,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "depth": props.put(PTile.DEPTH,Integer.parseInt(att.getValue())); break; //$NON-NLS-1$
-							case "locked": props.put(PTile.LOCKED,Integer.parseInt(att.getValue()) != 0); break; //$NON-NLS-1$
-							case "scaleX": props.put(PTile.SCALE_X,Double.parseDouble(att.getValue())); break; //$NON-NLS-1$
-							case "scaleY": props.put(PTile.SCALE_Y,Double.parseDouble(att.getValue())); break; //$NON-NLS-1$
-							case "colour": props.put(PTile.COLOR,Long.parseLong(att.getValue())); break; //$NON-NLS-1$
+							case "xo": props.put(PTile.BG_X,Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "yo": props.put(PTile.BG_Y,Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "w": props.put(PTile.WIDTH,Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "h": props.put(PTile.HEIGHT,Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "depth": props.put(PTile.DEPTH,Integer.parseInt(value)); break; //$NON-NLS-1$
+							case "locked": props.put(PTile.LOCKED,Integer.parseInt(value) != 0); break; //$NON-NLS-1$
+							case "scaleX": props.put(PTile.SCALE_X,Double.parseDouble(value)); break; //$NON-NLS-1$
+							case "scaleY": props.put(PTile.SCALE_Y,Double.parseDouble(value)); break; //$NON-NLS-1$
+							case "colour": props.put(PTile.COLOR,Long.parseLong(value)); break; //$NON-NLS-1$
 							}
 						}
 					break;
@@ -1512,7 +1425,7 @@ public final class GMXFileReader
 		}
 
 	private static void readActions(ProjectFileContext c, ActionContainer container, String errorKey,
-			int format1, int format2, XMLEventReader reader)
+			int format1, int format2, XMLStreamReader reader) throws XMLStreamException
 		{
 		final ProjectFile f = c.f;
 
@@ -1536,10 +1449,10 @@ public final class GMXFileReader
 
 		while (reader.hasNext())
 			{
-			XMLEvent nextEvent = null;
+			XMLStreamReader nextEvent = reader;
 			try
 				{
-				nextEvent = reader.nextEvent();
+				reader.next();
 				}
 			catch (XMLStreamException e)
 				{
@@ -1549,7 +1462,7 @@ public final class GMXFileReader
 
 			if (!nextEvent.isStartElement())
 				{
-				if (nextEvent.isEndElement() && nextEvent.asEndElement().getName().getLocalPart().equals("action"))
+				if (nextEvent.isEndElement() && nextEvent.getName().getLocalPart().equals("action"))
 					{
 					la = LibManager.getLibAction(libid,actid);
 					boolean unknownLib = la == null;
@@ -1628,42 +1541,28 @@ public final class GMXFileReader
 					}
 				continue;
 				}
-			StartElement sel = nextEvent.asStartElement();
-			String scope = sel.getName().getLocalPart();
-			if (!reader.hasNext()) break;
-			String data = "";
-			try
-				{
-				nextEvent = reader.nextEvent();
-				if (nextEvent.isCharacters())
-					data = nextEvent.asCharacters().getData();
-				}
-			catch (XMLStreamException e1)
-				{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				}
+			String scope = nextEvent.getName().getLocalPart();
 
 			switch (scope)
 				{
-				case "libid": libid = Integer.parseInt(data); break; //$NON-NLS-1$
-				case "id": actid = Integer.parseInt(data); break; //$NON-NLS-1$
-				case "kind": kind = Byte.parseByte(data); break; //$NON-NLS-1$
-				case "userrelative": userelative = Integer.parseInt(data) != 0; break; //$NON-NLS-1$
-				case "relative": isrelative = Integer.parseInt(data) != 0; break; //$NON-NLS-1$
-				case "isquestion": isquestion = Integer.parseInt(data) != 0; break; //$NON-NLS-1$
-				case "isnot": isquestiontrue = Integer.parseInt(data) != 0; break; //$NON-NLS-1$
-				case "useapplyto": useapplyto = Integer.parseInt(data) != 0; break; //$NON-NLS-1$
-				case "exetype": exectype = Byte.parseByte(data); break; //$NON-NLS-1$
-				case "whoName": appliesto = data; break; //$NON-NLS-1$
-				case "functionname": functionname = data; break; //$NON-NLS-1$
-				case "codestring": codestring = data; break; //$NON-NLS-1$
+				case "libid": libid = readInt(reader); break; //$NON-NLS-1$
+				case "id": actid = readInt(reader); break; //$NON-NLS-1$
+				case "kind": kind = Byte.parseByte(reader.getElementText()); break; //$NON-NLS-1$
+				case "userrelative": userelative = readGmBool(reader); break; //$NON-NLS-1$
+				case "relative": isrelative = readGmBool(reader); break; //$NON-NLS-1$
+				case "isquestion": isquestion = readGmBool(reader); break; //$NON-NLS-1$
+				case "isnot": isquestiontrue = readGmBool(reader); break; //$NON-NLS-1$
+				case "useapplyto": useapplyto = readGmBool(reader); break; //$NON-NLS-1$
+				case "exetype": exectype = Byte.parseByte(reader.getElementText()); break; //$NON-NLS-1$
+				case "whoName": appliesto = reader.getElementText(); break; //$NON-NLS-1$
+				case "functionname": functionname = reader.getElementText(); break; //$NON-NLS-1$
+				case "codestring": codestring = reader.getElementText(); break; //$NON-NLS-1$
 				case "arguments": args = readActionArguments(c, reader); break; //$NON-NLS-1$
 				}
 			}
 		}
 
-	private static Argument[] readActionArguments(ProjectFileContext c, XMLEventReader reader)
+	private static Argument[] readActionArguments(ProjectFileContext c, XMLStreamReader reader) throws XMLStreamException
 		{
 		final ProjectFile f = c.f;
 		List<Argument> args = new ArrayList<>();
@@ -1671,21 +1570,22 @@ public final class GMXFileReader
 		Argument arg = null;
 		while (reader.hasNext())
 			{
-			XMLEvent nextEvent = null;
+			XMLStreamReader nextEvent = reader;
 			try
 				{
-				nextEvent = reader.nextEvent();
+				reader.next();
 				}
 			catch (XMLStreamException e)
 				{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				}
+
 			if (!nextEvent.isStartElement())
 				{
 				if (nextEvent.isEndElement())
 					{
-					String name = nextEvent.asEndElement().getName().getLocalPart();
+					String name = nextEvent.getName().getLocalPart();
 					if (name.equals("arguments"))
 						break;
 					else if (name.equals("argument"))
@@ -1693,32 +1593,18 @@ public final class GMXFileReader
 					}
 				continue;
 				}
-			StartElement sel = nextEvent.asStartElement();
-			String scope = sel.getName().getLocalPart();
-			if (!reader.hasNext()) break;
-			String data = "";
-			try
-				{
-				nextEvent = reader.nextEvent();
-				if (nextEvent.isCharacters())
-					data = nextEvent.asCharacters().getData();
-				}
-			catch (XMLStreamException e1)
-				{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				}
+			String scope = nextEvent.getName().getLocalPart();
 
 			switch (scope)
 				{
-				case "kind": arg.kind = Byte.parseByte(data); break; //$NON-NLS-1$
-				case "string": arg.setVal(data); break; //$NON-NLS-1$
-				case "argument": arg = new Argument((byte)0); //$NON-NLS-1$
+				case "kind": arg.kind = Byte.parseByte(reader.getElementText()); break; //$NON-NLS-1$
+				case "string": arg.setVal(reader.getElementText()); break; //$NON-NLS-1$
+				case "argument": arg = new Argument((byte)0); break; //$NON-NLS-1$
 				default:
 					{
 					Class<? extends Resource<?,?>> kindc = Argument.getResourceKind(arg.kind);
 					final Argument argument = arg;
-					final String data2 = data;
+					final String data = reader.getElementText();
 					if (kindc != null && Resource.class.isAssignableFrom(kindc))
 						try
 							{
@@ -1733,11 +1619,11 @@ public final class GMXFileReader
 											}
 										Resource<?,?> temp = null;
 										if (rh instanceof ResourceList<?>)
-											temp = ((ResourceList<?>) rh).get(data2);
+											temp = ((ResourceList<?>) rh).get(data);
 										else
 											temp = rh.getResource();
 										if (temp != null) argument.setRes(temp.reference);
-										argument.setVal(data2);
+										argument.setVal(data);
 										return temp != null;
 										}
 								};
