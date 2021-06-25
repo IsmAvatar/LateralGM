@@ -13,6 +13,7 @@ import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.EnumMap;
@@ -174,7 +175,9 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 		ByteBuffer source = ByteBuffer.allocate(16).
 			putLong(uuid.getMostSignificantBits()).
 			putLong(uuid.getLeastSignificantBits());
-		source.rewind();
+		// JDK 9+ overrides Buffer.rewind() in ByteBuffer
+		// Use cast to maintain Java SE 7/8 Binary Compatibility
+		((Buffer)source).rewind();
 		return ByteBuffer.allocate(16).
 			order(ByteOrder.LITTLE_ENDIAN).
 			putInt(source.getInt()).
