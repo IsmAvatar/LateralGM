@@ -199,7 +199,9 @@ public final class GmFileReader
 				}
 			else
 				gs.put(PGameSettings.GAME_ID,in.read4());
-			gs.setGUID(in.readNBytes(16));
+			byte[] guid = new byte[16];
+			in.read(guid);
+			gs.setGUID(guid);
 
 			readSettings(c,gs);
 
