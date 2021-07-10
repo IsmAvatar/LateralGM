@@ -259,10 +259,9 @@ public final class GMXFileReader
 			Stack<ResNode> nodes = new Stack<>();
 			while (document.hasNext())
 				{
-				XMLStreamReader nextEvent = document;
 				try
 					{
-					nextEvent.next();
+					document.next();
 					}
 				catch (XMLStreamException e)
 					{
@@ -270,13 +269,13 @@ public final class GMXFileReader
 					e.printStackTrace();
 					}
 
-				if (!nextEvent.isStartElement())
+				if (!document.isStartElement())
 					{
-					if (nextEvent.isEndElement() && !nodes.isEmpty())
+					if (document.isEndElement() && !nodes.isEmpty())
 						nodes.pop();
 					continue;
 					}
-				String scope = nextEvent.getName().getLocalPart();
+				String scope = document.getName().getLocalPart();
 
 				Class<?> kind = null;
 				switch (scope)
@@ -301,7 +300,7 @@ public final class GMXFileReader
 				if (node == null) continue; // unknown
 				if (GMXFileWriter.tagNames.containsValue(scope)) //$NON-NLS-1$
 					{
-					String groupName = nextEvent.getAttributeValue(null,"name"); //$NON-NLS-1$
+					String groupName = document.getAttributeValue(null,"name"); //$NON-NLS-1$
 					ResNode rnode = new ResNode(groupName,ResNode.STATUS_GROUP,kind,null);
 					node.add(rnode);
 					nodes.push(rnode);
@@ -373,7 +372,6 @@ public final class GMXFileReader
 
 		while (reader.hasNext())
 			{
-			XMLStreamReader nextEvent = reader;
 			try
 				{
 				reader.next();
@@ -384,8 +382,8 @@ public final class GMXFileReader
 				e.printStackTrace();
 				}
 
-			if (!nextEvent.isStartElement()) continue;
-			String scope = nextEvent.getName().getLocalPart();
+			if (!reader.isStartElement()) continue;
+			String scope = reader.getName().getLocalPart();
 			if (!reader.hasNext()) break;
 
 			switch (scope)
@@ -505,7 +503,6 @@ public final class GMXFileReader
 
 		while (reader.hasNext())
 			{
-			XMLStreamReader nextEvent = reader;
 			try
 				{
 				reader.next();
@@ -516,8 +513,8 @@ public final class GMXFileReader
 				e.printStackTrace();
 				}
 
-			if (!nextEvent.isStartElement()) continue;
-			String scope = nextEvent.getName().getLocalPart();
+			if (!reader.isStartElement()) continue;
+			String scope = reader.getName().getLocalPart();
 			if (!reader.hasNext()) break;
 
 			switch (scope)
@@ -548,7 +545,7 @@ public final class GMXFileReader
 						{
 						try
 							{
-							nextEvent.next();
+							reader.next();
 							}
 						catch (XMLStreamException e)
 							{
@@ -556,8 +553,8 @@ public final class GMXFileReader
 							e.printStackTrace();
 							break;
 							}
-						if (!nextEvent.isStartElement()) continue;
-						if (!nextEvent.getName().getLocalPart().equals("frame")) continue;
+						if (!reader.isStartElement()) continue;
+						if (!reader.getName().getLocalPart().equals("frame")) continue;
 						if (!reader.hasNext()) break;
 
 						BufferedImage img = null;
@@ -598,7 +595,6 @@ public final class GMXFileReader
 
 		while (reader.hasNext())
 			{
-			XMLStreamReader nextEvent = reader;
 			try
 				{
 				reader.next();
@@ -609,8 +605,8 @@ public final class GMXFileReader
 				e.printStackTrace();
 				}
 
-			if (!nextEvent.isStartElement()) continue;
-			String scope = nextEvent.getName().getLocalPart();
+			if (!reader.isStartElement()) continue;
+			String scope = reader.getName().getLocalPart();
 			if (!reader.hasNext()) break;
 
 			switch (scope)
@@ -678,7 +674,6 @@ public final class GMXFileReader
 
 		while (reader.hasNext())
 			{
-			XMLStreamReader nextEvent = reader;
 			try
 				{
 				reader.next();
@@ -689,8 +684,8 @@ public final class GMXFileReader
 				e.printStackTrace();
 				}
 
-			if (!nextEvent.isStartElement()) continue;
-			String scope = nextEvent.getName().getLocalPart();
+			if (!reader.isStartElement()) continue;
+			String scope = reader.getName().getLocalPart();
 			if (!reader.hasNext()) break;
 
 			switch (scope)
@@ -746,7 +741,6 @@ public final class GMXFileReader
 
 		while (reader.hasNext())
 			{
-			XMLStreamReader nextEvent = reader;
 			try
 				{
 				reader.next();
@@ -757,8 +751,8 @@ public final class GMXFileReader
 				e.printStackTrace();
 				}
 
-			if (!nextEvent.isStartElement()) continue;
-			String scope = nextEvent.getName().getLocalPart();
+			if (!reader.isStartElement()) continue;
+			String scope = reader.getName().getLocalPart();
 			if (!reader.hasNext()) break;
 
 			switch (scope)
@@ -904,7 +898,6 @@ public final class GMXFileReader
 
 		while (reader.hasNext())
 			{
-			XMLStreamReader nextEvent = reader;
 			try
 				{
 				reader.next();
@@ -915,8 +908,8 @@ public final class GMXFileReader
 				e.printStackTrace();
 				}
 
-			if (!nextEvent.isStartElement()) continue;
-			String scope = nextEvent.getName().getLocalPart();
+			if (!reader.isStartElement()) continue;
+			String scope = reader.getName().getLocalPart();
 			if (!reader.hasNext()) break;
 
 			switch (scope)
@@ -975,7 +968,6 @@ public final class GMXFileReader
 		int stepnum = 0;
 		while (reader.hasNext())
 			{
-			XMLStreamReader nextEvent = reader;
 			try
 				{
 				reader.next();
@@ -986,8 +978,8 @@ public final class GMXFileReader
 				e.printStackTrace();
 				}
 
-			if (!nextEvent.isStartElement()) continue;
-			String scope = nextEvent.getName().getLocalPart();
+			if (!reader.isStartElement()) continue;
+			String scope = reader.getName().getLocalPart();
 			if (!reader.hasNext()) break;
 
 			switch (scope)
@@ -1026,7 +1018,6 @@ public final class GMXFileReader
 		int stepnum = 0;
 		while (reader.hasNext())
 			{
-			XMLStreamReader nextEvent = reader;
 			try
 				{
 				reader.next();
@@ -1037,8 +1028,8 @@ public final class GMXFileReader
 				e.printStackTrace();
 				}
 
-			if (!nextEvent.isStartElement()) continue;
-			String scope = nextEvent.getName().getLocalPart();
+			if (!reader.isStartElement()) continue;
+			String scope = reader.getName().getLocalPart();
 			if (!reader.hasNext()) break;
 
 			switch (scope)
@@ -1072,12 +1063,12 @@ public final class GMXFileReader
 					{
 					final Event ev = new Event();
 
-					ev.mainId = Integer.parseInt(nextEvent.getAttributeValue(null, "eventtype")); //$NON-NLS-1$
+					ev.mainId = Integer.parseInt(reader.getAttributeValue(null, "eventtype")); //$NON-NLS-1$
 					MainEvent me = obj.mainEvents.get(ev.mainId);
 					me.events.add(0,ev);
 					if (ev.mainId == MainEvent.EV_COLLISION)
 						{
-						final String colname = nextEvent.getAttributeValue(null, "ename"); //$NON-NLS-1$
+						final String colname = reader.getAttributeValue(null, "ename"); //$NON-NLS-1$
 						PostponedRef pr = new PostponedRef()
 							{
 								public boolean invoke()
@@ -1100,7 +1091,7 @@ public final class GMXFileReader
 						}
 					else
 						{
-						ev.id = Integer.parseInt(nextEvent.getAttributeValue(null, "enumb")); //$NON-NLS-1$
+						ev.id = Integer.parseInt(reader.getAttributeValue(null, "enumb")); //$NON-NLS-1$
 						}
 					readActions(c,ev,"INOBJECTACTION",obj.getId(),ev.mainId * 1000 + ev.id,reader); //$NON-NLS-1$
 					}
@@ -1174,7 +1165,6 @@ public final class GMXFileReader
 		int bkgnum = 0, viewnum = 0;
 		while (reader.hasNext())
 			{
-			XMLStreamReader nextEvent = reader;
 			try
 				{
 				reader.next();
@@ -1185,13 +1175,13 @@ public final class GMXFileReader
 				e.printStackTrace();
 				}
 
-			if (!nextEvent.isStartElement())
+			if (!reader.isStartElement())
 				{
-				if (nextEvent.isEndElement() && nextEvent.getName().getLocalPart().equals("makerSettings"))
+				if (reader.isEndElement() && reader.getName().getLocalPart().equals("makerSettings"))
 					makerSettings = false;
 				continue;
 				}
-			String scope = nextEvent.getName().getLocalPart();
+			String scope = reader.getName().getLocalPart();
 
 			if (makerSettings)
 				{
@@ -1449,7 +1439,6 @@ public final class GMXFileReader
 
 		while (reader.hasNext())
 			{
-			XMLStreamReader nextEvent = reader;
 			try
 				{
 				reader.next();
@@ -1460,9 +1449,9 @@ public final class GMXFileReader
 				e.printStackTrace();
 				}
 
-			if (!nextEvent.isStartElement())
+			if (!reader.isStartElement())
 				{
-				if (nextEvent.isEndElement() && nextEvent.getName().getLocalPart().equals("action"))
+				if (reader.isEndElement() && reader.getName().getLocalPart().equals("action"))
 					{
 					la = LibManager.getLibAction(libid,actid);
 					boolean unknownLib = la == null;
@@ -1541,7 +1530,7 @@ public final class GMXFileReader
 					}
 				continue;
 				}
-			String scope = nextEvent.getName().getLocalPart();
+			String scope = reader.getName().getLocalPart();
 
 			switch (scope)
 				{
@@ -1570,7 +1559,6 @@ public final class GMXFileReader
 		Argument arg = null;
 		while (reader.hasNext())
 			{
-			XMLStreamReader nextEvent = reader;
 			try
 				{
 				reader.next();
@@ -1581,11 +1569,11 @@ public final class GMXFileReader
 				e.printStackTrace();
 				}
 
-			if (!nextEvent.isStartElement())
+			if (!reader.isStartElement())
 				{
-				if (nextEvent.isEndElement())
+				if (reader.isEndElement())
 					{
-					String name = nextEvent.getName().getLocalPart();
+					String name = reader.getName().getLocalPart();
 					if (name.equals("arguments"))
 						break;
 					else if (name.equals("argument"))
@@ -1593,7 +1581,7 @@ public final class GMXFileReader
 					}
 				continue;
 				}
-			String scope = nextEvent.getName().getLocalPart();
+			String scope = reader.getName().getLocalPart();
 
 			switch (scope)
 				{
