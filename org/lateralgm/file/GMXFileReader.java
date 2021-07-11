@@ -181,23 +181,16 @@ public final class GMXFileReader
 		{
 		ProjectFile f;
 		XMLStreamReader in;
-		RefList<Timeline> timeids;
-		RefList<GmObject> objids;
-		RefList<Room> rmids;
 
-		public ProjectFileContext(ProjectFile f, XMLStreamReader in, RefList<Timeline> timeids,
-				RefList<GmObject> objids, RefList<Room> rmids)
+		public ProjectFileContext(ProjectFile f, XMLStreamReader in)
 			{
 			this.f = f;
 			this.in = in;
-			this.timeids = timeids;
-			this.objids = objids;
-			this.rmids = rmids;
 			}
 
 		public ProjectFileContext copy()
 			{
-			return new ProjectFileContext(f,in,timeids,objids,rmids);
+			return new ProjectFileContext(f,in);
 			}
 		}
 
@@ -228,16 +221,13 @@ public final class GMXFileReader
 		file.format = ProjectFile.FormatFlavor.GMX;
 		if (xmlInputFactory == null)
 			xmlInputFactory = XMLInputFactory.newInstance();
-		RefList<Timeline> timeids = new RefList<Timeline>(Timeline.class); // timeline ids
-		RefList<GmObject> objids = new RefList<GmObject>(GmObject.class); // object ids
-		RefList<Room> rmids = new RefList<Room>(Room.class); // room id
 
 		try
 			{
 			XMLStreamReader document = GMXFileReader.parseDocumentUnchecked(file, file.getPath());
 			if (document == null) return;
 
-			ProjectFileContext c = new ProjectFileContext(file,document,timeids,objids,rmids);
+			ProjectFileContext c = new ProjectFileContext(file,document);
 
 			// clear old/default configurations
 			c.f.gameSettings.clear();
@@ -950,10 +940,6 @@ public final class GMXFileReader
 		{
 		ProjectFile f = c.f;
 
-		//ResourceReference<Timeline> r = c.timeids.get(i); //includes ID
-		//Timeline tml = r.get();
-		//f.resMap.getList(Timeline.class).add(tml);
-
 		Timeline tml = f.resMap.getList(Timeline.class).add();
 
 		String fileName = new File(Util.getPOSIXPath(cNode)).getName();
@@ -997,10 +983,6 @@ public final class GMXFileReader
 	private static void readGmObject(ProjectFileContext c, ResNode node, String cNode) throws XMLStreamException
 		{
 		final ProjectFile f = c.f;
-
-		//ResourceReference<GmObject> r = c.objids.get(int); //includes ID
-		//final GmObject obj = r.get();
-		//f.resMap.getList(GmObject.class).add(obj);
 
 		final GmObject obj = f.resMap.getList(GmObject.class).add();
 
@@ -1147,9 +1129,6 @@ public final class GMXFileReader
 		{
 		final ProjectFile f = c.f;
 
-		//ResourceReference<Room> r = c.rmids.get(i); //includes ID
-		//Room rmn = r.get();
-		//f.resMap.getList(Room.class).add(rmn);
 		Room rmn = f.resMap.getList(Room.class).add();
 
 		String fileName = new File(Util.getPOSIXPath(cNode)).getName();
