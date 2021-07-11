@@ -176,6 +176,31 @@ public final class GMXFileReader
 		return reader;
 		}
 
+	public static int readInt(XMLStreamReader reader) throws NumberFormatException, XMLStreamException
+		{
+		return Integer.parseInt(reader.getElementText());
+		}
+
+	public static boolean readGmBool(XMLStreamReader reader) throws XMLStreamException
+		{
+		return (readInt(reader) != 0);
+		}
+
+	public static boolean readBool(XMLStreamReader reader) throws XMLStreamException
+		{
+		return Boolean.parseBoolean(reader.getElementText());
+		}
+
+	public static float readFloat(XMLStreamReader reader) throws NumberFormatException, XMLStreamException
+		{
+		return Float.parseFloat(reader.getElementText());
+		}
+
+	public static double readDouble(XMLStreamReader reader) throws NumberFormatException, XMLStreamException
+		{
+		return Double.parseDouble(reader.getElementText());
+		}
+
 	//Workaround for Parameter limit
 	private static class ProjectFileContext
 		{
@@ -1098,31 +1123,6 @@ public final class GMXFileReader
 					break;
 				}
 			}
-		}
-
-	public static int readInt(XMLStreamReader reader) throws NumberFormatException, XMLStreamException
-		{
-		return Integer.parseInt(reader.getElementText());
-		}
-
-	public static boolean readGmBool(XMLStreamReader reader) throws XMLStreamException
-		{
-		return (readInt(reader) != 0);
-		}
-
-	public static boolean readBool(XMLStreamReader reader) throws XMLStreamException
-		{
-		return Boolean.parseBoolean(reader.getElementText());
-		}
-
-	public static float readFloat(XMLStreamReader reader) throws NumberFormatException, XMLStreamException
-		{
-		return Float.parseFloat(reader.getElementText());
-		}
-
-	public static double readDouble(XMLStreamReader reader) throws NumberFormatException, XMLStreamException
-		{
-		return Double.parseDouble(reader.getElementText());
 		}
 
 	private static void readRoom(ProjectFileContext c, ResNode node, String cNode) throws XMLStreamException
