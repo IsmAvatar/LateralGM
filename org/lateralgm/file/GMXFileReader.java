@@ -67,6 +67,7 @@ import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Include;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.GmObject.PGmObject;
+import org.lateralgm.resources.Include.PInclude;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Path.PPath;
 import org.lateralgm.resources.Resource;
@@ -334,7 +335,7 @@ public final class GMXFileReader
 					case "timeline": readTimeline(c,node,document.getElementText()); break; //$NON-NLS-1$
 					case "object": readGmObject(c,node,document.getElementText()); break; //$NON-NLS-1$
 					case "room": readRoom(c,node,document.getElementText()); break; //$NON-NLS-1$
-					case "datafile": readInclude(c,node,document.getElementText()); break; //$NON-NLS-1$
+					case "datafile": readInclude(c,node,document); break; //$NON-NLS-1$
 					case "Config": readConfig(c,document.getElementText()); break; //$NON-NLS-1$
 					case "rtf": readGameInformation(c,document.getElementText()); break; //$NON-NLS-1$
 					}
@@ -1345,9 +1346,52 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readInclude(ProjectFileContext c, ResNode node, String cNode)
+	private static void readInclude(ProjectFileContext c, ResNode node, XMLStreamReader reader) throws XMLStreamException
 		{
+		final ProjectFile f = c.f;
 
+		final Include inc = f.resMap.getList(Include.class).add();
+		ResNode rnode = new ResNode(inc.getName(),ResNode.STATUS_SECONDARY,Include.class,inc.reference);
+		node.add(rnode);
+
+		while (reader.hasNext())
+			{
+			try
+				{
+				reader.next();
+				}
+			catch (XMLStreamException e)
+				{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				}
+
+			if (!reader.isStartElement())
+				{
+				if (reader.isEndElement() && reader.getName().getLocalPart().equals("datafile"))
+					return;
+				continue;
+				}
+			String scope = reader.getName().getLocalPart();
+
+			switch (scope)
+				{
+				//NOTE: we don't yet allow file extensions in the resource tree at all
+				//and it really might not be a good idea to allow that anyway
+				case "name": inc.setName(Util.fileNameWithoutExtension(reader.getElementText())); break;
+				case "size": inc.put(PInclude.SIZE,readInt(reader)); break;
+				case "exportAction": 
+					int exportAction = readInt(reader);
+					inc.put(PInclude.EXPORTACTION,ProjectFile.INCLUDE_EXPORT_ACTION[exportAction]); 
+					break;
+				case "exportDir": inc.put(PInclude.EXPORTFOLDER,reader.getElementText()); break;
+				case "overwrite": inc.put(PInclude.OVERWRITE, readGmBool(reader)); break;
+				case "freeData": inc.put(PInclude.FREEMEMORY, readGmBool(reader)); break;
+				case "removeEnd": inc.put(PInclude.REMOVEATGAMEEND, readGmBool(reader)); break;
+				case "store": inc.put(PInclude.STORE, readGmBool(reader)); break;
+				case "filename": inc.put(PInclude.FILENAME, reader.getElementText()); break;
+				}
+			}
 		}
 
 	private static void readPackages(ProjectFileContext c, ResNode root)
