@@ -294,7 +294,7 @@ public final class GMXFileReader
 					}
 				String scope = document.getName().getLocalPart();
 
-				if (scope.equals("constants"))
+				if (scope.equals("constants")) //$NON-NLS-1$
 					{
 					readConstants(c.f.defaultConstants, document);
 					continue;
@@ -1376,7 +1376,7 @@ public final class GMXFileReader
 
 			if (!reader.isStartElement())
 				{
-				if (reader.isEndElement() && reader.getName().getLocalPart().equals("datafile"))
+				if (reader.isEndElement() && reader.getName().getLocalPart().equals("datafile")) //$NON-NLS-1$
 					return;
 				continue;
 				}
@@ -1386,18 +1386,18 @@ public final class GMXFileReader
 				{
 				//NOTE: we don't yet allow file extensions in the resource tree at all
 				//and it really might not be a good idea to allow that anyway
-				case "name": inc.setName(Util.fileNameWithoutExtension(reader.getElementText())); break;
-				case "size": inc.put(PInclude.SIZE,readInt(reader)); break;
-				case "exportAction": 
+				case "name": inc.setName(Util.fileNameWithoutExtension(reader.getElementText())); break; //$NON-NLS-1$
+				case "size": inc.put(PInclude.SIZE,readInt(reader)); break; //$NON-NLS-1$
+				case "exportAction": //$NON-NLS-1$
 					int exportAction = readInt(reader);
 					inc.put(PInclude.EXPORTACTION,ProjectFile.INCLUDE_EXPORT_ACTION[exportAction]); 
 					break;
-				case "exportDir": inc.put(PInclude.EXPORTFOLDER,reader.getElementText()); break;
-				case "overwrite": inc.put(PInclude.OVERWRITE, readGmBool(reader)); break;
-				case "freeData": inc.put(PInclude.FREEMEMORY, readGmBool(reader)); break;
-				case "removeEnd": inc.put(PInclude.REMOVEATGAMEEND, readGmBool(reader)); break;
-				case "store": inc.put(PInclude.STORE, readGmBool(reader)); break;
-				case "filename": inc.put(PInclude.FILENAME, reader.getElementText()); break;
+				case "exportDir": inc.put(PInclude.EXPORTFOLDER,reader.getElementText()); break; //$NON-NLS-1$
+				case "overwrite": inc.put(PInclude.OVERWRITE, readGmBool(reader)); break; //$NON-NLS-1$
+				case "freeData": inc.put(PInclude.FREEMEMORY, readGmBool(reader)); break; //$NON-NLS-1$
+				case "removeEnd": inc.put(PInclude.REMOVEATGAMEEND, readGmBool(reader)); break; //$NON-NLS-1$
+				case "store": inc.put(PInclude.STORE, readGmBool(reader)); break; //$NON-NLS-1$
+				case "filename": inc.put(PInclude.FILENAME, reader.getElementText()); break; //$NON-NLS-1$
 				}
 			}
 		}
