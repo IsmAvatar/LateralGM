@@ -90,6 +90,7 @@ import org.lateralgm.resources.sub.ActionContainer;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
+import org.lateralgm.resources.sub.Constant;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.GlyphMetric;
 import org.lateralgm.resources.sub.GlyphMetric.PGlyphMetric;
@@ -292,6 +293,12 @@ public final class GMXFileReader
 					continue;
 					}
 				String scope = document.getName().getLocalPart();
+
+				if (scope.equals("constants"))
+					{
+					readConstants(c.f.defaultConstants, document);
+					continue;
+					}
 
 				Class<?> kind = null;
 				switch (scope)
@@ -497,6 +504,7 @@ public final class GMXFileReader
 						}
 					break;
 					}
+				case "constants": readConstants(gSet.constants, reader); break; //$NON-NLS-1$
 				}
 			}
 		}
@@ -1399,14 +1407,31 @@ public final class GMXFileReader
 
 		}
 
-	private static void readConstants(Constants cnsts, String node)
+	private static void readConstants(Constants cnsts, XMLStreamReader reader) throws XMLStreamException
 		{
+		while (reader.hasNext())
+			{
+			try
+				{
+				reader.next();
+				}
+			catch (XMLStreamException e)
+				{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				}
 
-		}
-
-	private static void readDefaultConstants(ProjectFileContext c, ResNode root)
-		{
-
+			if (!reader.isStartElement())
+				{
+				if (reader.isEndElement() && reader.getName().getLocalPart().equals("constants")) //$NON-NLS-1$
+					return;
+				continue;
+				}
+			String scope = reader.getName().getLocalPart();
+			if (!scope.equals("constant")) continue; //$NON-NLS-1$
+			Constant cnst = new Constant(reader.getAttributeValue(null,"name"), reader.getElementText()); //$NON-NLS-1$
+			cnsts.constants.add(cnst);
+			}
 		}
 
 	private static void readGameInformation(ProjectFileContext c, String cNode)
