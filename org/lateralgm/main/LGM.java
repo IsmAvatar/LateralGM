@@ -129,7 +129,7 @@ import org.lateralgm.subframes.ResourceFrame.ResourceFrameFactory;
 
 public final class LGM
 	{
-	public static final String version = "1.8.234"; //$NON-NLS-1$
+	public static final String version = "1.8.235"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -892,6 +892,7 @@ public final class LGM
 
 		// NOTE: We do this to update the reference to the one now loaded
 		// since we never close these frames, then we simply revert their controls.
+		/*
 		constantsFrame.res = LGM.currentFile.defaultConstants;
 		constantsFrame.resOriginal = LGM.currentFile.defaultConstants.clone();
 		constantsFrame.revertResource();
@@ -904,6 +905,7 @@ public final class LGM
 		gameSet.resOriginal = LGM.currentFile.gameSettings.firstElement().clone();
 		gameSet.revertResource();
 		gameSet.setVisible(false);
+		*/
 
 		LGM.fireReloadPerformed(newRoot);
 		}
