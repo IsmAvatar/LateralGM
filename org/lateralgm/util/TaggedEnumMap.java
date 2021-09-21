@@ -55,9 +55,6 @@ public class TaggedEnumMap<K extends Enum<K>,V> extends HashMap<K,V>
 	private static final HiddenEnumMap EMPTY_ROOT = new HiddenEnumMap();
 
 	private HiddenEnumMap hiddenEnumMap = EMPTY_ROOT;
-	private final Class<K> keyType;
-
-	private int numEnums = 0;//PTile.values().length;
 
 	BitSet has = null;
 	ByteBuffer bytes = null;
@@ -66,15 +63,13 @@ public class TaggedEnumMap<K extends Enum<K>,V> extends HashMap<K,V>
 	public TaggedEnumMap(Class<K> keyType)
 		{
 		super();
-		this.keyType = keyType;
 		K[] enums = keyType.getEnumConstants();
-		numEnums = enums.length;
+		int numEnums = enums.length;
 		has = new BitSet(numEnums);
 		}
 
 	public TaggedEnumMap(TaggedEnumMap<K, ? extends V> m)
 		{
-		this(m.keyType);
 		for (Entry<K,? extends V> e : m.entrySet())
 			putImpl(e.getKey(),e.getValue());
 		}
@@ -107,8 +102,9 @@ public class TaggedEnumMap<K extends Enum<K>,V> extends HashMap<K,V>
 		if (key == null) return false;
 
 		// Cheaper than instanceof Enum followed by getDeclaringClass
-		Class<?> keyClass = key.getClass();
-		return keyClass == keyType || keyClass.getSuperclass() == keyType;
+		//Class<?> keyClass = key.getClass();
+		return key instanceof Enum<?>;
+		//return keyClass == keyType || keyClass.getSuperclass() == keyType;
 		}
 
 	private V removeImpl(Object key)
