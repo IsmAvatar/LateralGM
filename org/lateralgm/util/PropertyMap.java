@@ -13,13 +13,12 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
-
 import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
 
-public class PropertyMap<K extends Enum<K>> extends EnumMap<K,Object>
+public class PropertyMap<K extends Enum<K>> extends TaggedEnumMap<K,Object>
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -31,9 +30,17 @@ public class PropertyMap<K extends Enum<K>> extends EnumMap<K,Object>
 
 	public PropertyMap(Class<K> type, PropertyValidator<K> v, EnumMap<K,Object> defaults)
 		{
-		super(defaults == null ? new EnumMap<K,Object>(type) : defaults);
+		super(type);
 		keyType = type;
 		validator = v;
+		if (defaults != null)
+			{
+			K[] ec = type.getEnumConstants();
+			for (K cnst : ec)
+				{
+				super.put(cnst,defaults.get(cnst));
+				}
+			}
 		}
 
 	public UpdateSource getUpdateSource(K key)
@@ -124,9 +131,11 @@ public class PropertyMap<K extends Enum<K>> extends EnumMap<K,Object>
 		{
 		K[] ec = type.getEnumConstants();
 		if (ec.length != values.length) throw new IllegalArgumentException();
-		EnumMap<K,Object> m = new EnumMap<K,Object>(type);
-		for (K k : ec)
+		TaggedEnumMap<K,Object> m = new TaggedEnumMap<K,Object>(type);
+		for (K k : ec) 
+			{
 			m.put(k,values[k.ordinal()]);
+			}
 		return m;
 		}
 
