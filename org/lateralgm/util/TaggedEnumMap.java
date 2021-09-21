@@ -17,10 +17,9 @@ public class TaggedEnumMap<K extends Enum<K>,V> extends HashMap<K,V>
 	private static class HiddenEnumMap implements Cloneable
 		{
 		int length = 0;
-		Map<Integer,Integer> offsets = new HashMap<>();
-		Map<Integer,Byte> types = new HashMap<>();
-		Map<Long,HiddenEnumMap> transitions = new HashMap<>();
-
+		private Map<Integer,Long> types = new HashMap<>();
+		private Map<Long,HiddenEnumMap> transitions = new HashMap<>();
+		static int wtf = 0;
 		public HiddenEnumMap clone()
 			{
 			HiddenEnumMap result = null;
@@ -32,11 +31,45 @@ public class TaggedEnumMap<K extends Enum<K>,V> extends HashMap<K,V>
 				{
 				throw new AssertionError();
 				}
-			result.offsets = (Map<Integer,Integer>) ((HashMap<Integer,Integer>)result.offsets).clone();
-			result.types = (Map<Integer,Byte>) ((HashMap<Integer,Byte>)result.types).clone();
+			result.types = (Map<Integer,Long>) ((HashMap<Integer,Long>)result.types).clone();
 			result.transitions = new HashMap<>();
 			return result;
 			}
+
+		public void put(int key, int offset, byte type)
+		{
+		if (key > wtf)
+			{
+			//System.out.println(key);
+			wtf = key;
+			}
+		long comp = ((long)offset | ((long)type) << 32) << 24;
+		types.put(key,comp);
+		}
+
+		public void putType(int key, byte type)
+		{
+		int offset = getOffset(key);
+		put(key, offset, type);
+		}
+
+		public void putOffset(int key, int offset)
+		{
+		byte type = getType(key);
+		put(key, offset, type);
+		}
+
+		public byte getType(int key)
+		{
+		long composite = types.containsKey(key) ? types.get(key) : 0;
+		return (byte)(composite >> 56);
+		}
+
+		public int getOffset(int key)
+		{
+		long composite = types.containsKey(key) ? types.get(key) : 0;
+		return (int)((composite >> 24) & 0x00000000FFFFFFFF);
+		}
 
 		public HiddenEnumMap transition(int key, byte type)
 			{
@@ -46,8 +79,8 @@ public class TaggedEnumMap<K extends Enum<K>,V> extends HashMap<K,V>
 			if (transitions.containsKey(composite)) 
 				return transitions.get(composite);
 			HiddenEnumMap next = this.clone();
-			next.offsets.put(key,length);
-			next.types.put(key,type);
+			next.putOffset(key,length);
+			next.putType(key,type);
 			transitions.put(composite,next);
 			return next;
 			}
@@ -113,8 +146,8 @@ public class TaggedEnumMap<K extends Enum<K>,V> extends HashMap<K,V>
 		if (!isValidKey(key)) return null;
 		int ko = ((Enum<K>) key).ordinal();
 		has.clear(ko);
-		int offset = hiddenEnumMap.offsets.get(ko);
-		int type = hiddenEnumMap.types.get(ko);
+		int offset = hiddenEnumMap.getOffset(ko);
+		int type = hiddenEnumMap.getType(ko);
 		if (type == 0) refs[offset] = null;
 		return oldValue;
 		}
@@ -139,8 +172,8 @@ public class TaggedEnumMap<K extends Enum<K>,V> extends HashMap<K,V>
 		int ko = key.ordinal();
 		if (has.get(ko))
 			{
-			int offset = hiddenEnumMap.offsets.get(ko);
-			int type = hiddenEnumMap.types.get(ko);
+			int offset = hiddenEnumMap.getOffset(ko);
+			int type = hiddenEnumMap.getType(ko);
 			if (type == 0) refs[offset] = null;
 			}
 
@@ -183,30 +216,28 @@ public class TaggedEnumMap<K extends Enum<K>,V> extends HashMap<K,V>
 
 		HiddenEnumMap oldMap = hiddenEnumMap;
 		hiddenEnumMap = hiddenEnumMap.transition(ko,type);
+		int offset = 0;
 		if (type == 0) 
 			{
-			int offset = 0;
 			if (refs == null)
 				refs = new Object[1];
-			else if (!has.get(ko) || oldMap.types.get(ko) != 0)
+			else if (!has.get(ko) || oldMap.getType(ko) != 0)
 				{
 				offset = refs.length;
 				refs = Arrays.copyOf(refs,refs.length+1);
 				}
 			else
-				offset = oldMap.offsets.get(ko);
-			hiddenEnumMap.offsets.put(ko,offset);
+				offset = oldMap.getOffset(ko);
 			refs[offset] = value;
 			}
 		else
 			{
-			int offset = 0;
 			if (bytes == null)
 				{
 				bytes = ByteBuffer.allocate(typeSize);
 				hiddenEnumMap.length += typeSize;
 				}
-			else if (!has.get(ko) || oldMap.types.get(ko) != type)
+			else if (!has.get(ko) || oldMap.getType(ko) != type)
 				{
 				offset = bytes.capacity();
 				hiddenEnumMap.length += typeSize;
@@ -217,8 +248,7 @@ public class TaggedEnumMap<K extends Enum<K>,V> extends HashMap<K,V>
 				//bytes.flip();
 				}
 			else
-				offset = oldMap.offsets.get(ko);
-			hiddenEnumMap.offsets.put(ko,offset);
+				offset = oldMap.getOffset(ko);
 			switch (typeSize)
 				{
 				case 1: bytes.put(offset, (byte) newValue); break;
@@ -227,7 +257,7 @@ public class TaggedEnumMap<K extends Enum<K>,V> extends HashMap<K,V>
 				case 8: default: bytes.putLong(offset, newValue); break;
 				}
 			}
-		hiddenEnumMap.types.put(ko,type);
+		hiddenEnumMap.put(ko,offset,type);
 		has.set(ko);
 		return oldValue;
 		}
@@ -238,6 +268,369 @@ public class TaggedEnumMap<K extends Enum<K>,V> extends HashMap<K,V>
 		return putImpl(key, value);
 		}
 
+	public boolean put(K key, boolean value)
+		{
+		//System.out.println(key + " boolean");
+		boolean oldValue = getBoolean(key);
+		int ko = key.ordinal();
+		if (has.get(ko))
+			{
+			int offset = hiddenEnumMap.getOffset(ko);
+			int type = hiddenEnumMap.getType(ko);
+			if (type == 0) refs[offset] = null;
+			}
+
+		byte type = 0, typeSize = 0;
+
+		type = 6; typeSize = 1;
+
+		HiddenEnumMap oldMap = hiddenEnumMap;
+		hiddenEnumMap = hiddenEnumMap.transition(ko,type);
+		int offset = 0;
+
+		if (bytes == null)
+			{
+			bytes = ByteBuffer.allocate(typeSize);
+			hiddenEnumMap.length += typeSize;
+			}
+		else if (!has.get(ko) || oldMap.getType(ko) != type)
+			{
+			offset = bytes.capacity();
+			hiddenEnumMap.length += typeSize;
+			ByteBuffer original = bytes;
+			bytes = ByteBuffer.allocate(bytes.capacity() + typeSize);
+			original.rewind(); // copy from the beginning
+			bytes.put(original);
+			//bytes.flip();
+			}
+		else
+			offset = oldMap.getOffset(ko);
+
+		bytes.put(offset, (byte) (value ? 1 : 0));
+
+		hiddenEnumMap.put(ko,offset,type);
+		has.set(ko);
+		return oldValue;
+		}
+	
+	public char put(K key, char value)
+		{
+		//System.out.println(key + " char");
+		char oldValue = getChar(key);
+		int ko = key.ordinal();
+		if (has.get(ko))
+			{
+			int offset = hiddenEnumMap.getOffset(ko);
+			int type = hiddenEnumMap.getType(ko);
+			if (type == 0) refs[offset] = null;
+			}
+
+		byte type = 0, typeSize = 0;
+
+		type = 2; typeSize = 2;
+
+		HiddenEnumMap oldMap = hiddenEnumMap;
+		hiddenEnumMap = hiddenEnumMap.transition(ko,type);
+		int offset = 0;
+
+		if (bytes == null)
+			{
+			bytes = ByteBuffer.allocate(typeSize);
+			hiddenEnumMap.length += typeSize;
+			}
+		else if (!has.get(ko) || oldMap.getType(ko) != type)
+			{
+			offset = bytes.capacity();
+			hiddenEnumMap.length += typeSize;
+			ByteBuffer original = bytes;
+			bytes = ByteBuffer.allocate(bytes.capacity() + typeSize);
+			original.rewind(); // copy from the beginning
+			bytes.put(original);
+			//bytes.flip();
+			}
+		else
+			offset = oldMap.getOffset(ko);
+
+		bytes.putChar(offset, value);
+
+		hiddenEnumMap.put(ko,offset,type);
+		has.set(ko);
+		return oldValue;
+		}
+
+	public byte put(K key, byte value)
+		{
+		//System.out.println(key + " byte");
+		byte oldValue = getByte(key);
+		int ko = key.ordinal();
+		if (has.get(ko))
+			{
+			int offset = hiddenEnumMap.getOffset(ko);
+			int type = hiddenEnumMap.getType(ko);
+			if (type == 0) refs[offset] = null;
+			}
+
+		byte type = 0, typeSize = 0;
+
+		type = 1; typeSize = 1;
+
+		HiddenEnumMap oldMap = hiddenEnumMap;
+		hiddenEnumMap = hiddenEnumMap.transition(ko,type);
+		int offset = 0;
+
+		if (bytes == null)
+			{
+			bytes = ByteBuffer.allocate(typeSize);
+			hiddenEnumMap.length += typeSize;
+			}
+		else if (!has.get(ko) || oldMap.getType(ko) != type)
+			{
+			offset = bytes.capacity();
+			hiddenEnumMap.length += typeSize;
+			ByteBuffer original = bytes;
+			bytes = ByteBuffer.allocate(bytes.capacity() + typeSize);
+			original.rewind(); // copy from the beginning
+			bytes.put(original);
+			//bytes.flip();
+			}
+		else
+			offset = oldMap.getOffset(ko);
+
+		bytes.put(offset, value);
+
+		hiddenEnumMap.put(ko,offset,type);
+		has.set(ko);
+		return oldValue;
+		}
+	
+	//////////////////////////////////////////////
+
+	public int put(K key, int value)
+		{
+		//System.out.println(key + " int");
+		int oldValue = getInt(key);
+		int ko = key.ordinal();
+		if (has.get(ko))
+			{
+			int offset = hiddenEnumMap.getOffset(ko);
+			int type = hiddenEnumMap.getType(ko);
+			if (type == 0) refs[offset] = null;
+			}
+
+		byte type = 0, typeSize = 0;
+
+		type = 4; typeSize = 4;
+
+		HiddenEnumMap oldMap = hiddenEnumMap;
+		hiddenEnumMap = hiddenEnumMap.transition(ko,type);
+		int offset = 0;
+
+		if (bytes == null)
+			{
+			bytes = ByteBuffer.allocate(typeSize);
+			hiddenEnumMap.length += typeSize;
+			}
+		else if (!has.get(ko) || oldMap.getType(ko) != type)
+			{
+			offset = bytes.capacity();
+			hiddenEnumMap.length += typeSize;
+			ByteBuffer original = bytes;
+			bytes = ByteBuffer.allocate(bytes.capacity() + typeSize);
+			original.rewind(); // copy from the beginning
+			bytes.put(original);
+			//bytes.flip();
+			}
+		else
+			offset = oldMap.getOffset(ko);
+
+		bytes.putInt(offset, value);
+
+		hiddenEnumMap.put(ko,offset,type);
+		has.set(ko);
+		return oldValue;
+		}
+
+	public short put(K key, short value)
+		{
+		short oldValue = getShort(key);
+		int ko = key.ordinal();
+		if (has.get(ko))
+			{
+			int offset = hiddenEnumMap.getOffset(ko);
+			int type = hiddenEnumMap.getType(ko);
+			if (type == 0) refs[offset] = null;
+			}
+
+		byte type = 0, typeSize = 0;
+
+		type = 2; typeSize = 2;
+
+		HiddenEnumMap oldMap = hiddenEnumMap;
+		hiddenEnumMap = hiddenEnumMap.transition(ko,type);
+		int offset = 0;
+
+		if (bytes == null)
+			{
+			bytes = ByteBuffer.allocate(typeSize);
+			hiddenEnumMap.length += typeSize;
+			}
+		else if (!has.get(ko) || oldMap.getType(ko) != type)
+			{
+			offset = bytes.capacity();
+			hiddenEnumMap.length += typeSize;
+			ByteBuffer original = bytes;
+			bytes = ByteBuffer.allocate(bytes.capacity() + typeSize);
+			original.rewind(); // copy from the beginning
+			bytes.put(original);
+			//bytes.flip();
+			}
+		else
+			offset = oldMap.getOffset(ko);
+
+		bytes.putShort(offset, value);
+
+		hiddenEnumMap.put(ko,offset,type);
+		has.set(ko);
+		return oldValue;
+		}
+
+	public long put(K key, long value)
+		{
+		//System.out.println(key + " long");
+		long oldValue = getLong(key);
+		int ko = key.ordinal();
+		if (has.get(ko))
+			{
+			int offset = hiddenEnumMap.getOffset(ko);
+			int type = hiddenEnumMap.getType(ko);
+			if (type == 0) refs[offset] = null;
+			}
+
+		byte type = 0, typeSize = 0;
+		long newValue = 0;
+
+		type = 5; typeSize = 8; newValue = value;
+
+		HiddenEnumMap oldMap = hiddenEnumMap;
+		hiddenEnumMap = hiddenEnumMap.transition(ko,type);
+		int offset = 0;
+
+		if (bytes == null)
+			{
+			bytes = ByteBuffer.allocate(typeSize);
+			hiddenEnumMap.length += typeSize;
+			}
+		else if (!has.get(ko) || oldMap.getType(ko) != type)
+			{
+			offset = bytes.capacity();
+			hiddenEnumMap.length += typeSize;
+			ByteBuffer original = bytes;
+			bytes = ByteBuffer.allocate(bytes.capacity() + typeSize);
+			original.rewind(); // copy from the beginning
+			bytes.put(original);
+			//bytes.flip();
+			}
+		else
+			offset = oldMap.getOffset(ko);
+
+		bytes.putLong(offset, newValue);
+
+		hiddenEnumMap.put(ko,offset,type);
+		has.set(ko);
+		return oldValue;
+		}
+
+	public double put(K key, double value)
+		{
+		double oldValue = getDouble(key);
+		int ko = key.ordinal();
+		if (has.get(ko))
+			{
+			int offset = hiddenEnumMap.getOffset(ko);
+			int type = hiddenEnumMap.getType(ko);
+			if (type == 0) refs[offset] = null;
+			}
+
+		byte type = 0, typeSize = 0;
+		long newValue = 0;
+
+		type = 8; typeSize = 8; newValue = Double.doubleToLongBits((double) value);
+
+		HiddenEnumMap oldMap = hiddenEnumMap;
+		hiddenEnumMap = hiddenEnumMap.transition(ko,type);
+		int offset = 0;
+
+		if (bytes == null)
+			{
+			bytes = ByteBuffer.allocate(typeSize);
+			hiddenEnumMap.length += typeSize;
+			}
+		else if (!has.get(ko) || oldMap.getType(ko) != type)
+			{
+			offset = bytes.capacity();
+			hiddenEnumMap.length += typeSize;
+			ByteBuffer original = bytes;
+			bytes = ByteBuffer.allocate(bytes.capacity() + typeSize);
+			original.rewind(); // copy from the beginning
+			bytes.put(original);
+			//bytes.flip();
+			}
+		else
+			offset = oldMap.getOffset(ko);
+
+		bytes.putLong(offset, newValue);
+
+		hiddenEnumMap.put(ko,offset,type);
+		has.set(ko);
+		return oldValue;
+		}
+
+	public float put(K key, float value)
+		{
+		float oldValue = getFloat(key);
+		int ko = key.ordinal();
+		if (has.get(ko))
+			{
+			int offset = hiddenEnumMap.getOffset(ko);
+			int type = hiddenEnumMap.getType(ko);
+			if (type == 0) refs[offset] = null;
+			}
+
+		byte type = 0, typeSize = 0;
+		int newValue = 0;
+
+		type = 7; typeSize = 4; newValue = Float.floatToIntBits((float) value);
+
+		HiddenEnumMap oldMap = hiddenEnumMap;
+		hiddenEnumMap = hiddenEnumMap.transition(ko,type);
+		int offset = 0;
+
+		if (bytes == null)
+			{
+			bytes = ByteBuffer.allocate(typeSize);
+			hiddenEnumMap.length += typeSize;
+			}
+		else if (!has.get(ko) || oldMap.getType(ko) != type)
+			{
+			offset = bytes.capacity();
+			hiddenEnumMap.length += typeSize;
+			ByteBuffer original = bytes;
+			bytes = ByteBuffer.allocate(bytes.capacity() + typeSize);
+			original.rewind(); // copy from the beginning
+			bytes.put(original);
+			//bytes.flip();
+			}
+		else
+			offset = oldMap.getOffset(ko);
+
+		bytes.putInt(offset, newValue); 
+		hiddenEnumMap.put(ko,offset,type);
+		has.set(ko);
+		return oldValue;
+		}
+
+	
+
 	@Override
 	public V get(Object key)
 		{
@@ -245,8 +638,8 @@ public class TaggedEnumMap<K extends Enum<K>,V> extends HashMap<K,V>
 		int ko = ((Enum<K>) key).ordinal();
 		if (!has.get(ko)) return null;
 
-		int offset = hiddenEnumMap.offsets.get(ko);
-		byte type = hiddenEnumMap.types.get(ko);
+		int offset = hiddenEnumMap.getOffset(ko);
+		int type = hiddenEnumMap.getType(ko);
 		long value = 0;
 		switch (type)
 			{
@@ -267,5 +660,85 @@ public class TaggedEnumMap<K extends Enum<K>,V> extends HashMap<K,V>
 			case 8: return (V)(Double)(double) Double.longBitsToDouble(value);
 			}
 		return (V) refs[offset];
+		}
+
+	public boolean getBoolean(Object key)
+		{
+		if (!isValidKey(key)) return false;
+		int ko = ((Enum<K>) key).ordinal();
+		if (!has.get(ko)) return false;
+
+		int offset = hiddenEnumMap.getOffset(ko);
+		return bytes.get(offset) != 0;
+		}
+	
+	public byte getByte(Object key)
+		{
+		if (!isValidKey(key)) return 0;
+		int ko = ((Enum<K>) key).ordinal();
+		if (!has.get(ko)) return 0;
+
+		int offset = hiddenEnumMap.getOffset(ko);
+		return bytes.get(offset);
+		}
+	
+	public char getChar(Object key)
+		{
+		if (!isValidKey(key)) return 0;
+		int ko = ((Enum<K>) key).ordinal();
+		if (!has.get(ko)) return 0;
+
+		int offset = hiddenEnumMap.getOffset(ko);
+		return bytes.getChar(offset);
+		}
+	
+	public short getShort(Object key)
+		{
+		if (!isValidKey(key)) return 0;
+		int ko = ((Enum<K>) key).ordinal();
+		if (!has.get(ko)) return 0;
+
+		int offset = hiddenEnumMap.getOffset(ko);
+		return bytes.getShort(offset);
+		}
+	
+	public int getInt(Object key)
+		{
+		if (!isValidKey(key)) return 0;
+		int ko = ((Enum<K>) key).ordinal();
+		if (!has.get(ko)) return 0;
+
+		int offset = hiddenEnumMap.getOffset(ko);
+		return bytes.getInt(offset);
+		}
+
+	public long getLong(Object key)
+		{
+		if (!isValidKey(key)) return 0;
+		int ko = ((Enum<K>) key).ordinal();
+		if (!has.get(ko)) return 0;
+
+		int offset = hiddenEnumMap.getOffset(ko);
+		return bytes.getLong(offset);
+		}
+
+	public float getFloat(Object key)
+		{
+		if (!isValidKey(key)) return 0;
+		int ko = ((Enum<K>) key).ordinal();
+		if (!has.get(ko)) return 0;
+
+		int offset = hiddenEnumMap.getOffset(ko);
+		return Float.intBitsToFloat(bytes.getInt(offset));
+		}
+
+	public double getDouble(Object key)
+		{
+		if (!isValidKey(key)) return 0;
+		int ko = ((Enum<K>) key).ordinal();
+		if (!has.get(ko)) return 0;
+
+		int offset = hiddenEnumMap.getOffset(ko);
+		return Double.longBitsToDouble(bytes.getLong(offset));
 		}
 	}

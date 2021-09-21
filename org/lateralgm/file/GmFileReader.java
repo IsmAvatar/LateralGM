@@ -1072,14 +1072,16 @@ public final class GmFileReader
 			for (int j = 0; j < noinstances; j++)
 				{
 				Instance inst = rm.addInstance();
-				inst.setPosition(new Point(in.read4(),in.read4()));
+				inst.properties.put(PInstance.X,in.read4());
+				inst.properties.put(PInstance.Y,in.read4());
 				GmObject temp = f.resMap.getList(GmObject.class).getUnsafe(in.read4());
 				if (temp != null) inst.properties.put(PInstance.OBJECT,temp.reference);
 				inst.properties.put(PInstance.ID,in.read4());
 				inst.setCreationCode(in.readStr());
 				if (ver2 >= 810)
 					{
-					in.readD(inst.properties,PInstance.SCALE_X,PInstance.SCALE_Y);
+					inst.properties.put(PInstance.SCALE_X,in.readD());
+					inst.properties.put(PInstance.SCALE_Y,in.readD());
 					Color color = Util.convertGmColorWithAlpha(in.read4());
 					inst.setColor(color);
 					inst.setAlpha(color.getAlpha());
@@ -1091,18 +1093,22 @@ public final class GmFileReader
 			for (int j = 0; j < notiles; j++)
 				{
 				Tile t = new Tile(rm);
-				t.setPosition(new Point(in.read4(),in.read4()));
+				t.properties.put(PTile.ROOM_X,in.read4());
+				t.properties.put(PTile.ROOM_Y,in.read4());
 				Background temp = f.resMap.getList(Background.class).getUnsafe(in.read4());
 				ResourceReference<Background> bkg = null;
 				if (temp != null) bkg = temp.reference;
 				t.properties.put(PTile.BACKGROUND,bkg);
-				t.setBackgroundPosition(new Point(in.read4(),in.read4()));
-				t.setSize(new Dimension(in.read4(),in.read4()));
+				t.properties.put(PTile.BG_X,in.read4());
+				t.properties.put(PTile.BG_Y,in.read4());
+				t.properties.put(PTile.WIDTH,in.read4());
+				t.properties.put(PTile.HEIGHT,in.read4());
 				t.setDepth(in.read4());
 				t.properties.put(PTile.ID,in.read4());
 				if (ver2 >= 810)
 					{
-					in.readD(t.properties,PTile.SCALE_X,PTile.SCALE_Y);
+					t.properties.put(PTile.SCALE_X,in.readD());
+					t.properties.put(PTile.SCALE_Y,in.readD());
 					Color color = Util.convertGmColorWithAlpha(in.read4());
 					t.setColor(color);
 					t.setAlpha(color.getAlpha());

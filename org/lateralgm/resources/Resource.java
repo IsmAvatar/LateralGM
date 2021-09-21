@@ -167,6 +167,41 @@ public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> imple
 		properties.put(key,value);
 		}
 
+	public void put(P key, byte value)
+		{
+		properties.put(key,value);
+		}
+	
+	public void put(P key, boolean value)
+		{
+		properties.put(key,value);
+		}
+	public void put(P key, short value)
+		{
+		properties.put(key,value);
+		}
+	public void put(P key, char value)
+		{
+		properties.put(key,value);
+		}
+	public void put(P key, int value)
+		{
+		properties.put(key,value);
+		}
+	public void put(P key, long value)
+		{
+		properties.put(key,value);
+		}
+	public void put(P key, float value)
+		{
+		properties.put(key,value);
+		}
+	public void put(P key, double value)
+		{
+		properties.put(key,value);
+		}
+
+
 	public <V>V get(P key)
 		{
 		return properties.get(key);

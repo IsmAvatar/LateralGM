@@ -83,11 +83,55 @@ public class PropertyMap<K extends Enum<K>> extends TaggedEnumMap<K,Object>
 
 	public Object put(K key, Object value)
 		{
-		boolean ck = super.containsKey(key);
-		if (ck) if (super.get(key) == value) return value;
-		Object vv = validator == null ? value : validator.validate(key,value);
-		Object o = super.put(key,vv);
-		if (!ck || vv != value || o != value) fireUpdate(key);
+		Object o = super.put(key,value);
+		return o;
+		}
+
+	public int put(K key, int value)
+		{
+		int o = super.put(key,value);
+		return o;
+		}
+
+	public short put(K key, short value)
+		{
+		short o = super.put(key,value);
+		return o;
+		}
+
+	public boolean put(K key, boolean value)
+		{
+		boolean o = super.put(key,value);
+		return o;
+		}
+
+	public char put(K key, char value)
+		{
+		char o = super.put(key,value);
+		return o;
+		}
+
+	public byte put(K key, byte value)
+		{
+		byte o = super.put(key,value);
+		return o;
+		}
+
+	public long put(K key, long value)
+		{
+		long o = super.put(key,value);
+		return o;
+		}
+
+	public float put(K key, float value)
+		{
+		float o = super.put(key,value);
+		return o;
+		}
+
+	public double put(K key, double value)
+		{
+		double o = super.put(key,value);
 		return o;
 		}
 

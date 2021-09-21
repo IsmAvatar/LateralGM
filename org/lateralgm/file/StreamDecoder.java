@@ -105,12 +105,16 @@ public class StreamDecoder extends InputStream
 
 	public double readD() throws IOException
 		{
-		byte[] b = new byte[8];
-		read(b);
-		long r = b[0] & 0xFF;
-		for (int i = 1; i < 8; i++)
-			r |= (b[i] & 0xFFL) << (8 * i);
-		return Double.longBitsToDouble(r);
+		int a = read();
+		int b = read();
+		int c = read();
+		int d = read();
+		int e = read();
+		int f = read();
+		int g = read();
+		int h = read();
+		long DWORD = (a | (b << 8) | (c << 16) | (d << 24) | (e << 32) | (f << 40) | (g << 48) | (h << 56));
+		return Double.longBitsToDouble(DWORD);
 		}
 
 	public void close() throws IOException
