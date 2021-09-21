@@ -131,7 +131,7 @@ public class PropertyMap<K extends Enum<K>> extends TaggedEnumMap<K,Object>
 		{
 		K[] ec = type.getEnumConstants();
 		if (ec.length != values.length) throw new IllegalArgumentException();
-		TaggedEnumMap<K,Object> m = new TaggedEnumMap<K,Object>(type);
+		EnumMap<K,Object> m = new EnumMap<K,Object>(type);
 		for (K k : ec) 
 			{
 			m.put(k,values[k.ordinal()]);
