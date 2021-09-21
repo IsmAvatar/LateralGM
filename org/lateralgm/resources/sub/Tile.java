@@ -44,12 +44,12 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 
 	public enum PTile
 		{
-		BG_X,BG_Y,ROOM_X,ROOM_Y,WIDTH,HEIGHT,DEPTH,BACKGROUND,NAME,ID,LOCKED,COLOR,ALPHA,SCALE_X,SCALE_Y,
-		ROTATION,SELECTED
+		LOCKED,SELECTED,BG_X,BG_Y,ROOM_X,ROOM_Y,WIDTH,HEIGHT,DEPTH,ID,ALPHA,SCALE_X,SCALE_Y,
+		ROTATION,COLOR,BACKGROUND,NAME
 		}
 
-	private static final EnumMap<PTile,Object> DEFS = PropertyMap.makeDefaultMap(PTile.class,0,0,0,0,
-			0,0,0,null,"tile",0,false,4294967295L,255,1.0,1.0,0.0,false);
+	private static final EnumMap<PTile,Object> DEFS = PropertyMap.makeDefaultMap(PTile.class,false,false,0,0,0,0,
+			0,0,0,0,255,1.0,1.0,0.0,4294967295L,null,"tile");
 
 	/**
 	 * Do not call this constructor unless you intend
