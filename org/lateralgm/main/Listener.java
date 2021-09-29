@@ -216,6 +216,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			tree.expandPath(new TreePath(parent.getPath()));
 			tree.setSelectionPath(new TreePath(g.getPath()));
 			tree.updateUI();
+			LGM.setWindowModified(true);
 			return;
 			}
 
@@ -233,10 +234,12 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		tree.expandPath(new TreePath(parent.getPath()));
 		tree.setSelectionPath(new TreePath(g.getPath()));
 		tree.updateUI();
+		LGM.setWindowModified(true);
 		g.openFrame(true);
 		}
 
-	/** Deletes the given resource nodes, including groups, and
+	/**
+	 * Deletes the given resource nodes, including groups, and
 	 * returns the index (row) of the last node that was deleted.
 	 * @param resources An array of resource nodes to delete.
 	 */
@@ -274,6 +277,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		for (Resource<?,?> r : rs)
 			r.dispose();
+		LGM.setWindowModified(true);
 		return last;
 		}
 

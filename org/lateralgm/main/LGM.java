@@ -49,14 +49,16 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
 import javax.imageio.spi.IIORegistry;
+import javax.imageio.spi.ImageReaderSpi;
 import javax.swing.AbstractButton;
 import javax.swing.Box;
 import javax.swing.DefaultComboBoxModel;
@@ -107,10 +109,8 @@ import org.lateralgm.components.mdi.MDIPane;
 import org.lateralgm.file.ProjectFile;
 import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.ProjectFile.SingletonResourceHolder;
-import org.lateralgm.file.ResourceList;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.file.iconio.ICOImageReaderSPI;
-import org.lateralgm.file.iconio.WBMPImageReaderSpiFix;
 import org.lateralgm.main.Search.InvisibleTreeModel;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Constants;
@@ -127,11 +127,9 @@ import org.lateralgm.subframes.GameSettingFrame;
 import org.lateralgm.subframes.ResourceFrame;
 import org.lateralgm.subframes.ResourceFrame.ResourceFrameFactory;
 
-import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
-
 public final class LGM
 	{
-	public static final String version = "1.8.225"; //$NON-NLS-1$
+	public static final String version = "1.8.235"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -145,7 +143,8 @@ public final class LGM
 	public static String iconspath = "org/lateralgm/icons/"; //$NON-NLS-1$
 	public static String iconspack = "Calico"; //$NON-NLS-1$
 	public static String themename = "Swing"; //$NON-NLS-1$
-	public static boolean themechanged = false;
+	private static boolean themechanged = false;
+	private static boolean windowModified = false;
 
 	public static int javaVersion;
 	public static File tempDir, workDir;
@@ -163,9 +162,17 @@ public final class LGM
 
 		//Tweak service providers
 		IIORegistry reg = IIORegistry.getDefaultInstance();
-		reg.registerServiceProvider(new ICOImageReaderSPI());
-		reg.deregisterServiceProvider(reg.getServiceProviderByClass(WBMPImageReaderSpi.class));
-		reg.registerServiceProvider(new WBMPImageReaderSpiFix());
+		ICOImageReaderSPI icoSPI = new ICOImageReaderSPI();
+		reg.registerServiceProvider(icoSPI);
+		//Java 6 confuses ICO as WBMP causing exception
+		//Patch: Make ICO reader take precedence over all WBMP readers.
+		//https://bugs.openjdk.java.net/browse/JDK-6633448
+		Iterator<ImageReader> wbmpReaders = ImageIO.getImageReadersByFormatName("wbmp"); //$NON-NLS-1$
+		while (wbmpReaders.hasNext())
+			{
+			ImageReader reader = wbmpReaders.next();
+			reg.setOrdering(ImageReaderSpi.class,icoSPI,reader.getOriginatingProvider());
+			}
 
 		//Setup workdir and tempdir
 		try
@@ -863,6 +870,7 @@ public final class LGM
 	public static void reload(boolean newRoot)
 		{
 		LGM.mdi.closeAll();
+		LGM.setWindowModified(false);
 
 		InvisibleTreeModel ml = new InvisibleTreeModel(LGM.root);
 		LGM.tree.setModel(ml);
@@ -1217,6 +1225,9 @@ public final class LGM
 		if (javaVersion < 10700)
 			System.out.println("Some program functionality will be limited due to your outdated Java version"); //$NON-NLS-1$
 
+		// Fix up raw filepaths from 1.5.7.1 into file URI format.
+		PrefsStore.patchRecentFiles();
+
 		// Create the main window on the EDT for safety.
 		// https://docs.oracle.com/javase/tutorial/uiswing/concurrency/initial.html
 		SwingUtilities.invokeLater(new Runnable()
@@ -1245,7 +1256,14 @@ public final class LGM
 			tabs.setSelectedIndex(index);
 		}
 
-	public static boolean checkForChanges()
+	/**
+	 * Determines whether the window has been modified since opening a project. This will be true if
+	 * any open frames have been changed. It will also be true if any resources were already changed
+	 * and their internal subframes closed by the save button.
+	 * 
+	 * @return Whether the application has modified the open project.
+	 */
+	public static boolean isWindowModified()
 		{
 		//TODO: Detect tree model changes, e.g, sort by name.
 		//GM8.1 did this as well, perhaps use listener on the
@@ -1256,56 +1274,19 @@ public final class LGM
 				if (((ResourceFrame<?,?>) f).resourceChanged())
 					return true;
 
-		Iterator<?> it = currentFile.resMap.entrySet().iterator();
-		while (it.hasNext())
-			{
-			Entry<?,?> pairs = (Map.Entry<?,?>)it.next();
-			if (pairs.getValue() instanceof ResourceList)
-				{
-				ResourceList<?> list = (ResourceList<?>) pairs.getValue();
-				for (Resource<?,?> res : list)
-					if (res.changed)
-						return true;
-				}
-			else if (pairs.getValue() instanceof SingletonResourceHolder)
-				{
-				SingletonResourceHolder<?> rh = (SingletonResourceHolder<?>) pairs.getValue();
-				Resource<?,?> res = rh.getResource();
-				if (res.changed)
-					return true;
-				}
-			}
-		return false;
+		return LGM.windowModified;
 		}
 
 	/**
-	 * When the user saves, reset all the resources to their unsaved state. We do not check the frames
-	 * because they commit their changes allowing them to be written, while still allowing the user to
-	 * revert the frame if they so choose.
-	 * If the user has an open frame with changes basically, the save button will save the changes to
-	 * file and if the user saves the frame then they will still be asked to save when they close, if
-	 * they revert the changes to the frame they will exit right out. This is the expected behavior of
-	 * these functions.
+	 * Marks the application dirty or clears its status as having no modifications.
+	 * When a resource is modified, this is set to true. When the project is saved
+	 * or another project is opened, this is set to false.
+	 * 
+	 * @param modified Whether the application has been modified.
 	 */
-	public static void resetChanges()
+	public static void setWindowModified(boolean modified)
 		{
-		Iterator<?> it = currentFile.resMap.entrySet().iterator();
-		while (it.hasNext())
-			{
-			Entry<?,?> pairs = (Map.Entry<?,?>)it.next();
-			if (pairs.getValue() instanceof ResourceList)
-				{
-				ResourceList<?> list = (ResourceList<?>) pairs.getValue();
-				for (Resource<?,?> res : list)
-					res.changed = false;
-				}
-			else if (pairs.getValue() instanceof SingletonResourceHolder)
-				{
-				SingletonResourceHolder<?> rh = (SingletonResourceHolder<?>) pairs.getValue();
-				Resource<?,?> res = rh.getResource();
-				res.changed = false;
-				}
-			}
+		LGM.windowModified = modified;
 		}
 
 	public static void onMainFrameClosed()
@@ -1313,7 +1294,7 @@ public final class LGM
 		int result = JOptionPane.CANCEL_OPTION;
 		try
 			{
-			if (!checkForChanges()) { System.exit(0); }
+			if (!isWindowModified()) { System.exit(0); }
 			result = JOptionPane.showConfirmDialog(frame,Messages.getString("LGM.KEEPCHANGES"), //$NON-NLS-1$
 					Messages.getString("LGM.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION); //$NON-NLS-1$
 			}

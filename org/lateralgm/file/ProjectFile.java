@@ -34,7 +34,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -53,7 +52,6 @@ import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GameSettings.ColorDepth;
 import org.lateralgm.resources.GameSettings.Frequency;
 import org.lateralgm.resources.GameSettings.IncludeFolder;
-import org.lateralgm.resources.GameSettings.PGameSettings;
 import org.lateralgm.resources.GameSettings.Priority;
 import org.lateralgm.resources.GameSettings.ProgressBar;
 import org.lateralgm.resources.GameSettings.Resolution;
@@ -463,9 +461,7 @@ public class ProjectFile implements UpdateListener
 
 	public static GameSettings createDefaultConfig() {
 		GameSettings gs = new GameSettings();
-		Random random = new Random();
-		gs.put(PGameSettings.GAME_ID,random.nextInt(100000001));
-		random.nextBytes((byte[]) gs.get(PGameSettings.GAME_GUID));
+		gs.randomizeGameIds();
 		return gs;
 	}
 

@@ -65,8 +65,6 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 	public R res;
 	/** Backup of res as it was before changes were made */
 	public R resOriginal;
-	/** Whether changes were made and reported by the PropertyUpdateListener **/
-	public boolean resChanged;
 	/** The ResNode this frame is linked to */
 	public final ResNode node;
 
@@ -214,7 +212,7 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 	@Override
 	public void setResourceChanged() {
 		if (frameListener != null) frameListener.setResourceChanged();
-		res.changed = true;
+		LGM.setWindowModified(true);
 	}
 
 	public void revertResource()

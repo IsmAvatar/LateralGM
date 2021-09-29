@@ -27,8 +27,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Random;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -98,7 +96,8 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 	public JPanel cardPane;
 
 	public NumberField gameId;
-	public JButton randomise;
+	public JTextField gameGUID;
+	public JButton randomise, copyGUID;
 	public ColorSelect colorbutton;
 
 	private JPanel makeGeneralPane()
@@ -122,22 +121,29 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		plf.make(fastCollisionCompat,PGameSettings.FAST_COLLISION_COMPAT);
 
 		JLabel lId = new JLabel(Messages.getString("GameSettingFrame.GAME_ID")); //$NON-NLS-1$
-		gameId = new NumberField(0,100000000);
+		gameId = new NumberField(0,999999999);
 		plf.make(gameId,PGameSettings.GAME_ID);
 		randomise = new JButton(Messages.getString("GameSettingFrame.RANDOMIZE")); //$NON-NLS-1$
 		randomise.addActionListener(this);
+		JLabel lGUID = new JLabel(Messages.getString("GameSettingFrame.GAME_GUID")); //$NON-NLS-1$
+		gameGUID = new JTextField();
+		gameGUID.setEditable(false);
+		copyGUID = new JButton(Messages.getString("GameSettingFrame.COPY_GUID")); //$NON-NLS-1$
+		copyGUID.setIcon(LGM.getIconForKey("GameSettingFrame.COPY_GUID")); //$NON-NLS-1$
+		copyGUID.addActionListener(this);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addGroup(layout.createParallelGroup()
-		/*				*/.addGroup(layout.createSequentialGroup()
-		/*						*/.addComponent(lId)
-		/*						*/.addComponent(gameId,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)))
-		/*		*/.addGroup(layout.createParallelGroup()
-		/*				*/.addComponent(randomise,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)))
+		/*		*/.addComponent(lId)
+		/*		*/.addComponent(gameId,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/*		*/.addComponent(randomise,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/*		*/.addComponent(copyGUID))
 		/**/.addGroup(layout.createSequentialGroup()
-		/*	*/.addComponent(backcolor)
-		/*	*/.addComponent(colorbutton))
+		/*		*/.addComponent(lGUID)
+		/*		*/.addComponent(gameGUID))
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(backcolor)
+		/*		*/.addComponent(colorbutton))
 		/**/.addComponent(useNewAudio)
 		/**/.addComponent(shortCircuitEval)
 		/**/.addComponent(useFastCollision)
@@ -146,14 +152,23 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(lId)
 		/*		*/.addComponent(gameId)
-		/*		*/.addComponent(randomise))
-		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE,false)
-		/*	*/.addComponent(backcolor)
-		/*	*/.addComponent(colorbutton))
+		/*		*/.addComponent(randomise,DEFAULT_SIZE,PREFERRED_SIZE,DEFAULT_SIZE)
+		/*		*/.addComponent(copyGUID,DEFAULT_SIZE,PREFERRED_SIZE,DEFAULT_SIZE))
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lGUID)
+		/*		*/.addComponent(gameGUID))
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addComponent(useNewAudio)
 		/**/.addComponent(shortCircuitEval)
 		/**/.addComponent(useFastCollision)
-		/**/.addComponent(fastCollisionCompat));
+		/**/.addComponent(fastCollisionCompat)
+		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE,false)
+		/*		*/.addComponent(backcolor)
+		/*		*/.addComponent(colorbutton)));
+
+		// make the same height so copy isn't taller because of its icon
+		layout.linkSize(SwingConstants.VERTICAL,randomise,copyGUID);
 
 		return panel;
 		}
@@ -994,10 +1009,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		t = Messages.getString("GameSettingFrame.BUTTON_DISCARD"); //$NON-NLS-1$
 		discardButton = new JButton(t);
 		discardButton.addActionListener(this);
-		discardButton.setIcon(LGM.getIconForKey("GameSettingFrame.BUTTON_DISCARD"));
-		// make discard button the height as save, Win32 look and feel makes
-		// buttons with icons 2x as tall
-		discardButton.setMinimumSize(save.getMaximumSize());
+		discardButton.setIcon(LGM.getIconForKey("GameSettingFrame.BUTTON_DISCARD")); //$NON-NLS-1$
 
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Preferences");
 
@@ -1123,7 +1135,14 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		if (name == null) return;
 		if (name.endsWith(".TAB_GENERAL")) { //$NON-NLS-1$
 			if (e.getSource() == randomise)
-				gameId.setValue(new Random().nextInt(100000001));
+				{
+				res.randomizeGameIds();
+				gameGUID.setText(res.getGUIDAsString());
+				}
+			else if (e.getSource() == copyGUID)
+				{
+				Util.setClipboardContents(gameGUID.getText());
+				}
 		} if (name.endsWith(".TAB_GRAPHICS")) { //$NON-NLS-1$
 			if (e.getSource() instanceof JRadioButton)
 				scale.setEnabled(scaling.getValue() > 0);
@@ -1230,8 +1249,6 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 	public void commitChanges()
 		{
-		// in GMX this is two options binded together into one value
-		//res.put(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING,softwareVertexProcessing.is);
 		res.put(PGameSettings.SCALING,scaling.getValue() > 0 ? scale.getIntValue() : scaling.getValue());
 		res.put(PGameSettings.LOADING_IMAGE,customLoadingImage);
 		res.put(PGameSettings.BACK_LOAD_BAR,backLoadImage);
@@ -1242,6 +1259,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 	public void setComponents(GameSettings g)
 		{
+		gameGUID.setText(g.getGUIDAsString());
 		int s = g.get(PGameSettings.SCALING);
 		scaling.setValue(s > 1 ? 1 : s);
 		if (s > 1) scale.setValue(s);

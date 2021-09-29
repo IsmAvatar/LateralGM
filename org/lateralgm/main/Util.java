@@ -22,7 +22,10 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 import java.awt.image.BufferedImage;
 import java.awt.image.FilteredImageSource;
 import java.awt.image.ImageFilter;
@@ -911,109 +914,6 @@ public final class Util
 				(col & 0xFF000000) >>> 24);
 		}
 
-	public static Color HSL2RGB(float h, float s, float l, int a)
-		{
-		float c = (1 - Math.abs(2.f * l - 1.f)) * s;
-		float h_ = h / 60.f;
-		float h_mod2 = h_;
-		if (h_mod2 >= 4.f)
-			h_mod2 -= 4.f;
-		else if (h_mod2 >= 2.f) h_mod2 -= 2.f;
-
-		float x = c * (1 - Math.abs(h_mod2 - 1));
-		float r_, g_, b_;
-		if (h_ < 1)
-			{
-			r_ = c;
-			g_ = x;
-			b_ = 0;
-			}
-		else if (h_ < 2)
-			{
-			r_ = x;
-			g_ = c;
-			b_ = 0;
-			}
-		else if (h_ < 3)
-			{
-			r_ = 0;
-			g_ = c;
-			b_ = x;
-			}
-		else if (h_ < 4)
-			{
-			r_ = 0;
-			g_ = x;
-			b_ = c;
-			}
-		else if (h_ < 5)
-			{
-			r_ = x;
-			g_ = 0;
-			b_ = c;
-			}
-		else
-			{
-			r_ = c;
-			g_ = 0;
-			b_ = x;
-			}
-
-		float m = l - (0.5f * c);
-		int r = (int) ((r_ + m) * (255.f) + 0.5f);
-		int g = (int) ((g_ + m) * (255.f) + 0.5f);
-		int b = (int) ((b_ + m) * (255.f) + 0.5f);
-
-		return new Color(r,g,b,a);
-		}
-
-	public static void RGB2HSL(int red, int green, int blue, float[] hslvals)
-		{
-
-		float r = red / 255.f;
-		float g = green / 255.f;
-		float b = blue / 255.f;
-		float max = Math.max(Math.max(r,g),b);
-		float min = Math.min(Math.min(r,g),b);
-		float c = max - min;
-
-		float h_ = 0.f;
-		if (c == 0)
-			{
-			h_ = 0;
-			}
-		else if (max == r)
-			{
-			h_ = (float) (g - b) / c;
-			if (h_ < 0) h_ += 6.f;
-			}
-		else if (max == g)
-			{
-			h_ = (float) (b - r) / c + 2.f;
-			}
-		else if (max == b)
-			{
-			h_ = (float) (r - g) / c + 4.f;
-			}
-		float h = 60.f * h_;
-
-		float l = (max + min) * 0.5f;
-
-		float s;
-		if (c == 0)
-			{
-			s = 0.f;
-			}
-		else
-			{
-			s = c / (1 - Math.abs(2.f * l - 1.f));
-			}
-
-		hslvals[0] = h;
-		hslvals[1] = s;
-		hslvals[2] = l;
-		}
-
 	public static int getGmColor(Color col)
 		{
 		return col.getRed() | col.getGreen() << 8 | col.getBlue() << 16;
@@ -1311,5 +1211,17 @@ public final class Util
 			for (File c : f.listFiles())
 				if (!directoryDelete(c)) return false;
 		return f.delete();
+		}
+
+	public static void setClipboardContents(String text, ClipboardOwner owner)
+		{
+		StringSelection ss = new StringSelection(text);
+		Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
+		cb.setContents(ss, owner);
+		}
+
+	public static void setClipboardContents(String text)
+		{
+		setClipboardContents(text,null);
 		}
 	}

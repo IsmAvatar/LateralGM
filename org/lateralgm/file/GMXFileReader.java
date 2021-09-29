@@ -43,7 +43,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-
 import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -115,8 +114,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
-import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 
 // TODO: Possibly rewrite from a DOM parser to a SAX parser,
 // because SAX is light weight faster and uses less memory,
@@ -544,10 +541,7 @@ public final class GMXFileReader
 					}
 				pSet.put(PGameSettings.GAME_ID,
 						Integer.parseInt(setdoc.getElementsByTagName("option_gameid").item(0).getTextContent())); //$NON-NLS-1$
-				pSet.put(
-						PGameSettings.GAME_GUID,
-						HexBin.decode(setdoc.getElementsByTagName("option_gameguid").item(0).getTextContent().replace( //$NON-NLS-1$
-								"-","").replace("{","").replace("}","")));
+				gSet.setGUID(setdoc.getElementsByTagName("option_gameguid").item(0).getTextContent()); //$NON-NLS-1$
 
 				pSet.put(PGameSettings.AUTHOR,
 						setdoc.getElementsByTagName("option_author").item(0).getTextContent()); //$NON-NLS-1$
@@ -1227,8 +1221,8 @@ public final class GMXFileReader
 		for (int p = 0; p < pointNodes.getLength(); p++)
 			{
 			String[] coords = pointNodes.item(p).getTextContent().split(","); //$NON-NLS-1$
-			obj.shapePoints.add(new ShapePoint(Integer.parseInt(coords[0]),
-					Integer.parseInt(coords[1])));
+			obj.shapePoints.add(new ShapePoint(Double.parseDouble(coords[0]),
+					Double.parseDouble(coords[1])));
 			}
 
 		ResNode rnode = new ResNode(obj.getName(),ResNode.STATUS_SECONDARY,GmObject.class,obj.reference);
