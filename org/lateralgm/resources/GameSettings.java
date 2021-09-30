@@ -13,11 +13,16 @@ import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 
 import org.lateralgm.file.ProjectFile;
@@ -54,6 +59,37 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 
 	public Constants constants = new Constants();
 	public final ActiveArrayList<TextureGroup> textureGroups = new ActiveArrayList<>();
+	private final Map<ResourceReference<?>, WeakReference<TextureGroup>> resourceTextureGroups = new HashMap<>();
+	private final Map<WeakReference<TextureGroup>, Set<ResourceReference<?>>> textureGroupResources = new HashMap<>();
+
+	private final TextureGroup getDefaultTextureGroup()
+		{
+		return textureGroups.get(0);
+		}
+
+	public TextureGroup getResourceTextureGroup(ResourceReference<?> ref)
+		{
+		WeakReference<TextureGroup> group = resourceTextureGroups.get(ref);
+		if (group == null || group.get() == null) return getDefaultTextureGroup();
+		return group.get();
+		}
+
+	public TextureGroup putResourceTextureGroup(ResourceReference<?> ref, TextureGroup group)
+		{
+		WeakReference<TextureGroup> old = resourceTextureGroups.remove(ref);
+		if (old != null)
+			{
+			
+			}
+		if (group != getDefaultTextureGroup())
+			{
+			resourceTextureGroups.put(ref, new WeakReference<>(group));
+			Set<ResourceReference<?>> resources = textureGroupResources.getOrDefault(group,new HashSet<ResourceReference<?>>());
+			resources.add(ref);
+			textureGroupResources.put(new WeakReference<>(group),resources);
+			}
+		return (old == null) ? null : old.get();
+		}
 
 	public GameSettings()
 		{

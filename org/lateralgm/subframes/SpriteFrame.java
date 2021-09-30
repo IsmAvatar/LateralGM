@@ -498,13 +498,13 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		tLayout.setAutoCreateContainerGaps(true);
 		pane.setLayout(tLayout);
 
-		JCheckBox usedFor3D = new JCheckBox("Used for 3D");
+		JCheckBox usedFor3D = new JCheckBox(Messages.getString("SpriteFrame.USED_FOR_3D")); //$NON-NLS-1$
 		plf.make(usedFor3D,PSprite.FOR3D);
-		JCheckBox tileH = new JCheckBox("Tile Horizontal");
+		JCheckBox tileH = new JCheckBox(Messages.getString("SpriteFrame.TILE_HORIZONTALLY")); //$NON-NLS-1$
 		plf.make(tileH,PSprite.TILE_HORIZONTALLY);
-		JCheckBox tileV = new JCheckBox("Tile Vertical");
+		JCheckBox tileV = new JCheckBox(Messages.getString("SpriteFrame.TILE_VERTICALLY")); //$NON-NLS-1$
 		plf.make(tileV,PSprite.TILE_VERTICALLY);
-		JLabel groupLabel = new JLabel("Group:");
+		JLabel groupLabel = new JLabel(Messages.getString("SpriteFrame.TEXTURE_GROUP")); //$NON-NLS-1$
 		final JComboBox<TextureGroup> groupCombo = new JComboBox<TextureGroup>();
 		groupCombo.setModel(new ArrayComboBoxModel<>(LGM.getSelectedConfig().textureGroups));
 		groupCombo.setSelectedIndex(0);
@@ -558,8 +558,8 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		JPanel mask = makeCollisionPane();
 		JPanel text = makeTexturePane();
 		JTabbedPane tabPane = new JTabbedPane();
-		tabPane.addTab("Collision",mask);
-		tabPane.addTab("Texture",text);
+		tabPane.addTab(Messages.getString("SpriteFrame.COLLISION"),mask); //$NON-NLS-1$
+		tabPane.addTab(Messages.getString("SpriteFrame.TEXTURE"),text); //$NON-NLS-1$
 
 		JLabel nameLabel = new JLabel(Messages.getString("SpriteFrame.NAME")); //$NON-NLS-1$
 		save.setText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$

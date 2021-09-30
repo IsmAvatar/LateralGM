@@ -320,16 +320,17 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 
 		texturePanel = new JPanel();
 		GroupLayout tLayout = new GroupLayout(texturePanel);
+		tLayout.setAutoCreateGaps(true);
 		tLayout.setAutoCreateContainerGaps(true);
 		texturePanel.setLayout(tLayout);
 
-		usedFor3D = new JCheckBox("Used for 3D");
+		usedFor3D = new JCheckBox(Messages.getString("BackgroundFrame.USED_FOR_3D")); //$NON-NLS-1$
 		plf.make(usedFor3D,PBackground.FOR3D);
-		JCheckBox tileH = new JCheckBox("Tile Horizontal");
+		JCheckBox tileH = new JCheckBox(Messages.getString("BackgroundFrame.TILE_HORIZONTALLY")); //$NON-NLS-1$
 		plf.make(tileH,PBackground.TILE_HORIZONTALLY);
-		JCheckBox tileV = new JCheckBox("Tile Vertical");
+		JCheckBox tileV = new JCheckBox(Messages.getString("BackgroundFrame.TILE_VERTICALLY")); //$NON-NLS-1$
 		plf.make(tileV,PBackground.TILE_VERTICALLY);
-		JLabel groupLabel = new JLabel("Group:");
+		JLabel groupLabel = new JLabel(Messages.getString("BackgroundFrame.TEXTURE_GROUP")); //$NON-NLS-1$
 		final JComboBox<TextureGroup> groupCombo = new JComboBox<TextureGroup>();
 		groupCombo.setModel(new ArrayComboBoxModel<>(LGM.getSelectedConfig().textureGroups));
 		groupCombo.setSelectedIndex(0);
@@ -360,9 +361,10 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		save.setText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
 
 		JTabbedPane tabPane = new JTabbedPane();
-		String tileProps = Messages.getString("BackgroundFrame.TILE_PROPERTIES"); //$NON-NLS-1$
-		tabPane.addTab("Tileset",tilesetPanel);
-		tabPane.addTab("Texture",texturePanel);
+		String tilesetProps = Messages.getString("BackgroundFrame.TILESET"); //$NON-NLS-1$
+		String textureProps = Messages.getString("BackgroundFrame.TEXTURE"); //$NON-NLS-1$
+		tabPane.addTab(tilesetProps,tilesetPanel);
+		tabPane.addTab(textureProps,texturePanel);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
