@@ -19,6 +19,8 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -328,8 +330,18 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		JCheckBox tileV = new JCheckBox("Tile Vertical");
 		plf.make(tileV,PBackground.TILE_VERTICALLY);
 		JLabel groupLabel = new JLabel("Group:");
-		JComboBox<TextureGroup> groupCombo = new JComboBox<TextureGroup>();
+		final JComboBox<TextureGroup> groupCombo = new JComboBox<TextureGroup>();
 		groupCombo.setModel(new ArrayComboBoxModel<>(LGM.getSelectedConfig().textureGroups));
+		groupCombo.setSelectedIndex(0);
+		LGM.configsCombo.addItemListener(new ItemListener()
+				{
+				@Override
+				public void itemStateChanged(ItemEvent e)
+					{
+					groupCombo.setModel(new ArrayComboBoxModel<>(LGM.getSelectedConfig().textureGroups));
+					groupCombo.setSelectedIndex(0);
+					}
+				});
 
 		tLayout.setHorizontalGroup(tLayout.createParallelGroup()
 		/**/.addComponent(usedFor3D)

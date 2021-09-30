@@ -505,8 +505,18 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		JCheckBox tileV = new JCheckBox("Tile Vertical");
 		plf.make(tileV,PSprite.TILE_VERTICALLY);
 		JLabel groupLabel = new JLabel("Group:");
-		JComboBox<TextureGroup> groupCombo = new JComboBox<TextureGroup>();
+		final JComboBox<TextureGroup> groupCombo = new JComboBox<TextureGroup>();
 		groupCombo.setModel(new ArrayComboBoxModel<>(LGM.getSelectedConfig().textureGroups));
+		groupCombo.setSelectedIndex(0);
+		LGM.configsCombo.addItemListener(new ItemListener()
+				{
+				@Override
+				public void itemStateChanged(ItemEvent e)
+					{
+					groupCombo.setModel(new ArrayComboBoxModel<>(LGM.getSelectedConfig().textureGroups));
+					groupCombo.setSelectedIndex(0);
+					}
+				});
 
 		tLayout.setHorizontalGroup(tLayout.createParallelGroup()
 		/**/.addComponent(usedFor3D)
