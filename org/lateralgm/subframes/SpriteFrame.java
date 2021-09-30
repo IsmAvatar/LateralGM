@@ -109,7 +109,9 @@ import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Sprite.BBMode;
 import org.lateralgm.resources.Sprite.MaskShape;
 import org.lateralgm.resources.Sprite.PSprite;
+import org.lateralgm.resources.sub.TextureGroup;
 import org.lateralgm.ui.swing.propertylink.ComboBoxLink.KeyComboBoxConversion;
+import org.lateralgm.ui.swing.util.ArrayComboBoxModel;
 import org.lateralgm.ui.swing.util.SwingExecutor;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
@@ -503,7 +505,8 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		JCheckBox tileV = new JCheckBox("Tile Vertical");
 		plf.make(tileV,PSprite.TILE_VERTICALLY);
 		JLabel groupLabel = new JLabel("Group:");
-		JComboBox<String> groupCombo = new JComboBox<String>();
+		JComboBox<TextureGroup> groupCombo = new JComboBox<TextureGroup>();
+		groupCombo.setModel(new ArrayComboBoxModel<>(LGM.getSelectedConfig().textureGroups));
 
 		tLayout.setHorizontalGroup(tLayout.createParallelGroup()
 		/**/.addComponent(usedFor3D)

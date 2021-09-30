@@ -83,7 +83,7 @@ import org.lateralgm.resources.GameSettings.Resolution;
 import org.lateralgm.resources.sub.TextureGroup;
 import org.lateralgm.resources.sub.TextureGroup.PTextureGroup;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
-import org.lateralgm.ui.swing.util.ArrayListModel;
+import org.lateralgm.ui.swing.util.ArrayComboBoxModel;
 import org.lateralgm.resources.Include;
 
 public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
@@ -433,12 +433,14 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		JLabel nameLabel = new JLabel("Name");
 		final JTextField nameField = new JTextField();
 		JLabel parentLabel = new JLabel("Parent");
-		JComboBox<TextureGroup> parentCombo = new JComboBox<>();
+		ArrayComboBoxModel<TextureGroup> groupsModel = new ArrayComboBoxModel<>(res.textureGroups);
+		final JComboBox<TextureGroup> parentCombo = new JComboBox<>();
+		parentCombo.setModel(groupsModel);
 		JLabel borderLabel = new JLabel("Border");
 		final NumberField borderField = new NumberField(0, 16);
 
 		texGroupList = new JList<>();
-		texGroupList.setModel(new ArrayListModel<TextureGroup>(res.textureGroups));
+		texGroupList.setModel(groupsModel);
 		texGroupList.addListSelectionListener(new ListSelectionListener()
 			{
 			private PropertyLinkFactory<PTextureGroup> tglf;
@@ -459,6 +461,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 					tglf.make(cropped,PTextureGroup.CROPPED);
 					tglf.make(borderField,PTextureGroup.BORDER_WIDTH);
 					tglf.make(nameField.getDocument(),PTextureGroup.NAME);
+					tglf.make(parentCombo,PTextureGroup.PARENT);
 					}
 				delTexGroupBt.setEnabled(texGroupList.getSelectedIndex() > 0); // << don't delete "Default" group
 				Util.setComponentTreeEnabled(detailPanel,!texGroupList.isSelectionEmpty());

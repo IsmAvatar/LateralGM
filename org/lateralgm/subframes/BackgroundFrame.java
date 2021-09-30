@@ -66,6 +66,8 @@ import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
+import org.lateralgm.resources.sub.TextureGroup;
+import org.lateralgm.ui.swing.util.ArrayComboBoxModel;
 import org.lateralgm.ui.swing.util.SwingExecutor;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
@@ -326,7 +328,8 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		JCheckBox tileV = new JCheckBox("Tile Vertical");
 		plf.make(tileV,PBackground.TILE_VERTICALLY);
 		JLabel groupLabel = new JLabel("Group:");
-		JComboBox<String> groupCombo = new JComboBox<String>();
+		JComboBox<TextureGroup> groupCombo = new JComboBox<TextureGroup>();
+		groupCombo.setModel(new ArrayComboBoxModel<>(LGM.getSelectedConfig().textureGroups));
 
 		tLayout.setHorizontalGroup(tLayout.createParallelGroup()
 		/**/.addComponent(usedFor3D)
