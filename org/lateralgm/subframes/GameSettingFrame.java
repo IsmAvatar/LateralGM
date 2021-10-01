@@ -426,17 +426,19 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		dl.setAutoCreateGaps(true);
 		dl.setAutoCreateContainerGaps(true);
 		detailPanel.setLayout(dl);
-		detailPanel.setBorder(BorderFactory.createTitledBorder("Edit Group Settings"));
+		detailPanel.setBorder(
+				BorderFactory.createTitledBorder(
+						Messages.getString("GameSettingFrame.TEXTURE_GROUP_SETTINGS"))); //$NON-NLS-1$
 
-		final JCheckBox scaled = new JCheckBox("Scaled");
-		final JCheckBox cropped = new JCheckBox("Cropped");
-		JLabel nameLabel = new JLabel("Name");
+		final JCheckBox scaled = new JCheckBox(Messages.getString("GameSettingFrame.TEXTURE_GROUP_SCALED")); //$NON-NLS-1$
+		final JCheckBox cropped = new JCheckBox(Messages.getString("GameSettingFrame.TEXTURE_GROUP_CROPPED")); //$NON-NLS-1$
+		JLabel nameLabel = new JLabel(Messages.getString("GameSettingFrame.TEXTURE_GROUP_NAME")); //$NON-NLS-1$
 		final JTextField nameField = new JTextField();
-		JLabel parentLabel = new JLabel("Parent");
-		ArrayComboBoxModel<TextureGroup> groupsModel = new ArrayComboBoxModel<>(res.textureGroups);
+		JLabel parentLabel = new JLabel(Messages.getString("GameSettingFrame.TEXTURE_GROUP_PARENT")); //$NON-NLS-1$
+		ArrayComboBoxModel<TextureGroup> groupsModel = new ArrayComboBoxModel<>(res.textureGroups); //$NON-NLS-1$
 		final JComboBox<TextureGroup> parentCombo = new JComboBox<>();
 		parentCombo.setModel(groupsModel);
-		JLabel borderLabel = new JLabel("Border");
+		JLabel borderLabel = new JLabel(Messages.getString("GameSettingFrame.TEXTURE_GROUP_BORDER")); //$NON-NLS-1$
 		final NumberField borderField = new NumberField(0, 16);
 
 		texGroupList = new JList<>();
@@ -468,9 +470,9 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 				}
 			});
 		JScrollPane scroll = new JScrollPane(texGroupList);
-		addTexGroupBt = new JButton("Add");
+		addTexGroupBt = new JButton(Messages.getString("GameSettingFrame.TEXTURE_GROUP_ADD")); //$NON-NLS-1$
 		addTexGroupBt.addActionListener(this);
-		delTexGroupBt = new JButton("Delete");
+		delTexGroupBt = new JButton(Messages.getString("GameSettingFrame.TEXTURE_GROUP_DELETE")); //$NON-NLS-1$
 		delTexGroupBt.addActionListener(this);
 		delTexGroupBt.setEnabled(false);
 
