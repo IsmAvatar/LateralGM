@@ -8,3 +8,9 @@ bin/
 lib/
 plugins/
 lookandfeels/
+/out/
+
+# intellij
+.idea/workspace.xml
+.idea/shelf/
+*.iml
