@@ -165,7 +165,7 @@ public final class GmFileReader
 						uri,identifier));
 			int ver = in.read4();
 			file.format = ProjectFile.FormatFlavor.getVersionFlavor(ver);
-			if (ver != 530 && ver != 600 && ver != 701 && ver != 800 && ver != 810)
+			if (ver < 500 && ver > 530 && ver != 600 && ver != 701 && ver != 800 && ver != 810)
 				{
 				String msg = interfaceProvider.format("ProjectFileReader.ERROR_UNSUPPORTED",uri,ver); //$NON-NLS-1$
 				throw new GmFormatException(file,msg);
@@ -184,7 +184,7 @@ public final class GmFileReader
 			GameSettings gs = c.f.gameSettings.get(0);
 
 			interfaceProvider.setProgress(0,"ProgressDialog.SETTINGS"); //$NON-NLS-1$
-			if (ver == 530) in.skip(4); //reserved 0
+			if (ver >= 500 && ver <= 530) in.skip(4); //reserved 0
 			if (ver == 701)
 				{
 				int s1 = in.read4();
@@ -329,7 +329,7 @@ public final class GmFileReader
 		PropertyMap<PGameSettings> p = g.properties;
 
 		int ver = in.read4();
-		if (ver != 530 && ver != 542 && ver != 600 && ver != 702 && ver != 800 && ver != 810)
+		if (ver < 500 && ver > 530 && ver != 542 && ver != 600 && ver != 702 && ver != 800 && ver != 810)
 			{
 			String msg = ProjectFile.interfaceProvider.format(
 					"ProjectFileReader.ERROR_UNSUPPORTED","",ver); //$NON-NLS-1$ //$NON-NLS-2$
@@ -340,7 +340,7 @@ public final class GmFileReader
 		if (ver >= 600) in.readBool(p,PGameSettings.INTERPOLATE);
 		in.readBool(p,PGameSettings.DONT_DRAW_BORDER,PGameSettings.DISPLAY_CURSOR);
 		in.read4(p,PGameSettings.SCALING);
-		if (ver == 530)
+		if (ver >= 500 && ver <= 530)
 			in.skip(8); //"fullscreen scale" & "only scale w/ hardware support"
 		else
 			{
@@ -349,13 +349,16 @@ public final class GmFileReader
 			}
 		in.readBool(p,PGameSettings.SET_RESOLUTION);
 		int colorDepth = 0, frequency;
-		if (ver == 530)
+		if (ver >= 500 && ver <= 530)
 			{
 			in.skip(8); //Color Depth, Exclusive Graphics
 			p.put(PGameSettings.RESOLUTION,ProjectFile.GS5_RESOLS[in.read4()]);
 			byte b = (byte) in.read4();
 			frequency = (b == 4) ? 0 : (byte) (b + 1);
-			in.skip(8); //vertical blank, caption in fullscreen
+			int sync = in.read4();
+			p.put(PGameSettings.USE_SYNCHRONIZATION,(sync & 0x01) != 0);
+			p.put(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING,(sync & 0x80000000) != 0);
+			in.skip(4); //vertical blank, caption in fullscreen
 			}
 		else
 			{
@@ -379,10 +382,10 @@ public final class GmFileReader
 		if (ver >= 800) in.readBool(p,PGameSettings.DISABLE_SCREENSAVERS);
 		in.readBool(p,PGameSettings.LET_F4_SWITCH_FULLSCREEN,PGameSettings.LET_F1_SHOW_GAME_INFO,
 				PGameSettings.LET_ESC_END_GAME,PGameSettings.LET_F5_SAVE_F6_LOAD);
-		if (ver == 530) in.skip(8); //unknown bytes, both 0
 		if (ver > 600)
 			in.readBool(p,PGameSettings.LET_F9_SCREENSHOT,PGameSettings.TREAT_CLOSE_AS_ESCAPE);
-		p.put(PGameSettings.GAME_PRIORITY,ProjectFile.GS_PRIORITIES[in.read4()]);
+		if (ver > 510) p.put(PGameSettings.GAME_PRIORITY,ProjectFile.GS_PRIORITIES[in.read4()]);
+		if (ver <= 530) in.skip(8); //continuous key events, continuous mouse events
 		in.readBool(p,PGameSettings.FREEZE_ON_LOSE_FOCUS);
 		p.put(PGameSettings.LOAD_BAR_MODE,ProjectFile.GS_PROGBARS[in.read4()]);
 		if (p.get(PGameSettings.LOAD_BAR_MODE) == ProgressBar.CUSTOM)
@@ -408,9 +411,12 @@ public final class GmFileReader
 				}
 			else if (in.readBool()) p.put(PGameSettings.LOADING_IMAGE,in.readZlibImage());
 			}
-		in.readBool(p,PGameSettings.IMAGE_PARTIALLY_TRANSPARENTY);
-		in.read4(p,PGameSettings.LOAD_IMAGE_ALPHA);
-		in.readBool(p,PGameSettings.SCALE_PROGRESS_BAR);
+		if (ver >= 510)
+			{
+			in.readBool(p,PGameSettings.IMAGE_PARTIALLY_TRANSPARENTY);
+			in.read4(p,PGameSettings.LOAD_IMAGE_ALPHA);
+			in.readBool(p,PGameSettings.SCALE_PROGRESS_BAR);
+			}
 
 		int length = in.read4();
 		byte[] data = new byte[length];
@@ -436,7 +442,7 @@ public final class GmFileReader
 			p.put(PGameSettings.VERSION,Integer.toString(in.read4()));
 		in.readD(p,PGameSettings.LAST_CHANGED);
 		in.readStr(p,PGameSettings.INFORMATION);
-		if (ver < 800)
+		if (ver >= 530 && ver < 800)
 			{
 			int no = in.read4();
 			for (int i = 0; i < no; i++)
@@ -764,11 +770,20 @@ public final class GmFileReader
 			path.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			int ver2 = in.read4();
-			if (ver2 != 530) throw versionError(f,"IN","PTH",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
-			in.readBool(path.properties,PPath.SMOOTH,PPath.CLOSED);
+			if (ver2 != 420 && ver2 != 530) throw versionError(f,"IN","PTH",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver == 420)
+				{
+				in.readBool(path.properties,PPath.SMOOTH);
+				path.put(PPath.CLOSED,in.read4() == 2);
+				}
+			else if (ver == 530)
+				in.readBool(path.properties,PPath.SMOOTH,PPath.CLOSED);
 			path.put(PPath.PRECISION,in.read4());
-			path.put(PPath.BACKGROUND_ROOM,c.rmids.get(in.read4()));
-			in.read4(path.properties,PPath.SNAP_X,PPath.SNAP_Y);
+			if (ver2 == 530)
+				{
+				path.put(PPath.BACKGROUND_ROOM,c.rmids.get(in.read4()));
+				in.read4(path.properties,PPath.SNAP_X,PPath.SNAP_Y);
+				}
 			int nopoints = in.read4();
 			for (int j = 0; j < nopoints; j++)
 				{
@@ -1020,11 +1035,11 @@ public final class GmFileReader
 			rm.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			int ver2 = in.read4();
-			if (ver2 != 520 && ver2 != 541 && ver2 != 810 && ver2 != 811 && ver2 != 820)
+			if (ver2 != 500 && ver2 != 520 && ver2 != 541 && ver2 != 810 && ver2 != 811 && ver2 != 820)
 				throw versionError(f,"IN","RMM",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
 			rm.put(PRoom.CAPTION,in.readStr());
 			in.read4(rm.properties,PRoom.WIDTH,PRoom.HEIGHT,PRoom.SNAP_Y,PRoom.SNAP_X);
-			rm.put(PRoom.ISOMETRIC,in.readBool());
+			if (ver2 >= 520) rm.put(PRoom.ISOMETRIC,in.readBool());
 			rm.put(PRoom.SPEED,in.read4());
 			rm.put(PRoom.PERSISTENT,in.readBool());
 			rm.put(PRoom.BACKGROUND_COLOR,Util.convertGmColor(in.read4()));
@@ -1046,7 +1061,7 @@ public final class GmFileReader
 				in.read4(bk.properties,PBackgroundDef.X,PBackgroundDef.Y);
 				in.readBool(bk.properties,PBackgroundDef.TILE_HORIZ,PBackgroundDef.TILE_VERT);
 				in.read4(bk.properties,PBackgroundDef.H_SPEED,PBackgroundDef.V_SPEED);
-				bk.properties.put(PBackgroundDef.STRETCH,in.readBool());
+				if (ver2 >= 520) bk.properties.put(PBackgroundDef.STRETCH,in.readBool());
 				}
 			rm.put(PRoom.VIEWS_ENABLED,in.readBool());
 			int noviews = in.read4();
@@ -1107,7 +1122,7 @@ public final class GmFileReader
 					t.setColor(color);
 					t.setAlpha(color.getAlpha());
 					}
-				t.setLocked(in.readBool());
+				if (ver2 >= 520) t.setLocked(in.readBool());
 				rm.tiles.add(t);
 				}
 			if (ver2 >= 820)
@@ -1120,10 +1135,20 @@ public final class GmFileReader
 				}
 			rm.put(PRoom.REMEMBER_WINDOW_SIZE,in.readBool());
 			in.read4(rm.properties,PRoom.EDITOR_WIDTH,PRoom.EDITOR_HEIGHT);
-			in.readBool(rm.properties,PRoom.SHOW_GRID,PRoom.SHOW_OBJECTS,PRoom.SHOW_TILES,
+			if (ver2 == 500) 
+				{
+				in.readBool(rm.properties,PRoom.SHOW_GRID,PRoom.SHOW_OBJECTS);
+				boolean areTilesVisible = in.readBool();
+				areTilesVisible |= in.readBool();
+				rm.put(PRoom.SHOW_TILES,areTilesVisible);
+				in.readBool(rm.properties,PRoom.SHOW_BACKGROUNDS,PRoom.SHOW_FOREGROUNDS,PRoom.SHOW_VIEWS,
+							PRoom.DELETE_UNDERLYING_OBJECTS,PRoom.DELETE_UNDERLYING_TILES);
+				}
+			else if (ver2 > 500) in.readBool(rm.properties,PRoom.SHOW_GRID,PRoom.SHOW_OBJECTS,PRoom.SHOW_TILES,
 					PRoom.SHOW_BACKGROUNDS,PRoom.SHOW_FOREGROUNDS,PRoom.SHOW_VIEWS,
 					PRoom.DELETE_UNDERLYING_OBJECTS,PRoom.DELETE_UNDERLYING_TILES);
 			if (ver2 == 520) in.skip(6 * 4); //tile info
+			if (ver2 == 500) in.skip(5 * 4);
 			in.read4(rm.properties,PRoom.CURRENT_TAB,PRoom.SCROLL_BAR_X,PRoom.SCROLL_BAR_Y);
 			in.endInflate();
 			}
